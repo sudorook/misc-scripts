@@ -1,0 +1,18 @@
+#! /usr/bin/env bash
+
+# $1 = infile
+# $2 = outfile
+# $3 = start
+# $4 = duration
+# $5 = dimensions
+
+if [ $# != 5 ]; 
+   then 
+      echo 'No, no, no.'; 
+      echo 'Usage: gifify infile outfile start duration dimensions';
+      echo "   Ex. gifify video.mkv snippet.gif 5:23 4 480x270";
+      exit;
+fi
+
+ffmpeg -ss $3 -i $1 -t $5 -s $5 -f gif $2;
+gifsicle -O3 < $2 > $2;

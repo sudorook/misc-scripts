@@ -1,0 +1,6 @@
+#! /bin/bash
+
+sudo systemctl stop NetworkManager.service
+sudo systemctl restart macspoof@wlp3s0.service
+sudo systemctl restart macspoof@enp0s25.service
+sudo systemctl start NetworkManager.service
