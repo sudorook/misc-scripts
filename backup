@@ -1,0 +1,14 @@
+#! /bin/bash 
+
+# Back up files or directories provided as input. Format: 
+#    FILENAME -> FILENAME_YYYY-MM-DD
+
+for item in "$@"; do
+	if [ -f "$item" ]; then
+		cp "$item" "$item_$(date +%F)"
+	elif [ -d "$item" ]; then
+		cp -r "$item" "$item_$(date +%F)"
+	else 
+		echo "$item - filetype not recognized or file not found"
+	fi	
+done
