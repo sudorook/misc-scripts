@@ -1,18 +1,38 @@
 #! /bin/bash
 
-#if [ -d "$1" ]; then
+for vid in *; do 
+	if [ -f "$vid" ]; then 
+		newvid=$(echo "$vid" | sed -e "s/_/\ /g" | 
+		                       sed -e "s/\[(.*?)\]//g" | 
+		                       sed -e "s/\((.*?)\)//g" | 
+		                       sed -e "s/\( (720p)\| (1280x720 h264 BD FLAC) \[.*\]\| \[.*\]\)//g" | 
+		                       sed -e "s/\ (BD.* AAC)//g" | 
+		                       sed -e "s/\ (1280.*)//g" | 
+		                       sed -e "s/ (h264)//g" | 
+		                       sed -e "s/\ *(1920x1080)//g" | 
+		                       sed -e "s/\ (BD 720p)(TastyMelon)//g" | 
+		                       sed -e "s/\ (.*)//g" | 
+		                       sed -e "s/\[.*\]//g" | 
+		                       sed -e "s/.DVD(.*)//g" )
+		echo "$newvid" 
+	fi
+done
 
-for vid in *; do if [ -f "$vid" ]; then newvid=$(echo "$vid" | sed -e "s/_/\ /g" | sed -e "s/\(\[gg\] \|\[Arienai\] \|\[Abesu\] \|\[RUELL-Next\] \|\[Triai\] \|\[SK\] \|\[xRed\] \|\[Frostii\] \|\|\[Elysium\]\|\|\[Anime-Koi\] \|\|\[GWC\] \|(G.P) \|(Hi10) \|\[SF\]\|\[V-A\] \|\[Riycou Anime\] \|\[Mazui\] \|\[YuS-MaiWaiFu\]]] \|\[UTW-Vivid\] \|\[Simoun-Fans\] \|\[Blitz\]\|\[ACX\] \|\[aF\]\|\[a4e\]\|\[BSS\] \|\[Rus.Softsub\] \|\[Eng.Softsub\] \|\[Raws-4U\] \|\[Froth-Bite\]\|\[WhyNot\] \|\[Vivid\] \|\[Shinsen-Subs\] \|\[avatar\] \|\[NemDiggers\] \|\[GrimRipper\] \|\[Underwater\] \|\[AF-F&Y-F\] \|\[NoobSubs\] \|\[Ayu\] \|\[CMS\] \|\[~AA~\] \|\[Shirσ\] \|\[Coalgirls\] \|\[Perfection\] \|\[HorribleSubs\] \|\[BakedFish\] \|\[DeadFish\] \|\[Doki\] \|\[Final8\]\|\[AHQ\] \|\[CBM\] \|\[BTN\] \|\[Exiled-Destiny\] \|\[Ayumi\] \|\[AnimeNOW\] \|\[Tsuki-Hatsuyuki\] \|\[OZC\] \|\[Commie\] \|\[Raizel\] \|\[Urusai\] \)//g" | sed -e "s/\( (720p)\| (1280x720 h264 BD FLAC) \[.*\]\| \[.*\]\)//g" | sed -e "s/\ (BD.* AAC)//g" | sed -e "s/\ (1280.*)//g" | sed -e "s/ (h264)//g" | sed -e "s/\ *(1920x1080)//g" | sed -e "s/\ (BD 720p)(TastyMelon)//g" | sed -e "s/\ (.*)//g" | sed -e "s/\[.*\]//g" | sed -e "s/.DVD(.*)//g" ); \
-echo "$newvid"; fi; done
+read -p "is this good?  (y/N) " check
 
-read -p "Is this good?  (y/N) " check
-if [ "$check" == "y" ]; then
-	for vid in *; do if [ -f "$vid" ]; then newvid=$(echo "$vid" | sed -e "s/_/\ /g" | sed -e "s/\(\[gg\] \|\[Arienai\] \|\[Abesu\] \|\[RUELL-Next\] \|\[Triai\] \|\[SK\] \|\[xRed\] \|\[Frostii\] \|\|\[Elysium\]\|\|\[Anime-Koi\] \|\|\[GWC\] \|(G.P) \|(Hi10) \|\[SF\]\|\[V-A\] \|\[Riycou Anime\] \|\[Mazui\] \|\[YuS-MaiWaiFu\]]] \|\[UTW-Vivid\] \|\[Simoun-Fans\] \|\[Blitz\]\|\[ACX\] \|\[aF\]\|\[a4e\]\|\[BSS\] \|\[Rus.Softsub\] \|\[Eng.Softsub\] \|\[Raws-4U\] \|\[Froth-Bite\]\|\[WhyNot\] \|\[Vivid\] \|\[Shinsen-Subs\] \|\[avatar\] \|\[NemDiggers\] \|\[GrimRipper\] \|\[Underwater\] \|\[AF-F&Y-F\] \|\[NoobSubs\] \|\[Ayu\] \|\[CMS\] \|\[~AA~\] \|\[Shirσ\] \|\[Coalgirls\] \|\[Perfection\] \|\[HorribleSubs\] \|\[BakedFish\] \|\[DeadFish\] \|\[Doki\] \|\[Final8\]\|\[AHQ\] \|\[CBM\] \|\[BTN\] \|\[Exiled-Destiny\] \|\[Ayumi\] \|\[AnimeNOW\] \|\[Tsuki-Hatsuyuki\] \|\[OZC\] \|\[Commie\] \|\[Raizel\] \|\[Urusai\] \)//g" | sed -e "s/\( (720p)\| (1280x720 h264 BD FLAC) \[.*\]\| \[.*\]\)//g" | sed -e "s/\ (BD.* AAC)//g" | sed -e "s/\ (1280.*)//g" | sed -e "s/ (h264)//g" | sed -e "s/\ *(1920x1080)//g" | sed -e "s/\ (BD 720p)(TastyMelon)//g" | sed -e "s/\ (.*)//g" | sed -e "s/\[.*\]//g" | sed -e "s/.DVD(.*)//g" ); \
-echo "$newvid"; mv "$vid" "$newvid"; fi; done
+if [ "$check" = "y" ] || [ "$check" = "Y" ]; then
+	echo "renaming is disabled right now..."
 else
 	echo "Fine. Be that way."
 fi
 
+#for vid in *; do if [ -f "$vid" ]; then newvid=$(echo "$vid" | sed -e "s/_/\ /g" | sed -e "s/\(\[gg\] \|\[Arienai\] \|\[Abesu\] \|\[RUELL-Next\] \|\[Triai\] \|\[SK\] \|\[xRed\] \|\[Frostii\] \|\|\[Elysium\]\|\|\[Anime-Koi\] \|\|\[GWC\] \|(G.P) \|(Hi10) \|\[SF\]\|\[V-A\] \|\[Riycou Anime\] \|\[Mazui\] \|\[YuS-MaiWaiFu\]]] \|\[UTW-Vivid\] \|\[Simoun-Fans\] \|\[Blitz\]\|\[ACX\] \|\[aF\]\|\[a4e\]\|\[BSS\] \|\[Rus.Softsub\] \|\[Eng.Softsub\] \|\[Raws-4U\] \|\[Froth-Bite\]\|\[WhyNot\] \|\[Vivid\] \|\[Shinsen-Subs\] \|\[avatar\] \|\[NemDiggers\] \|\[GrimRipper\] \|\[Underwater\] \|\[AF-F&Y-F\] \|\[NoobSubs\] \|\[Ayu\] \|\[CMS\] \|\[~AA~\] \|\[Shirσ\] \|\[Coalgirls\] \|\[Perfection\] \|\[HorribleSubs\] \|\[BakedFish\] \|\[DeadFish\] \|\[Doki\] \|\[Final8\]\|\[AHQ\] \|\[CBM\] \|\[BTN\] \|\[Exiled-Destiny\] \|\[Ayumi\] \|\[AnimeNOW\] \|\[Tsuki-Hatsuyuki\] \|\[OZC\] \|\[Commie\] \|\[Raizel\] \|\[Urusai\] \)//g" | sed -e "s/\( (720p)\| (1280x720 h264 BD FLAC) \[.*\]\| \[.*\]\)//g" | sed -e "s/\ (BD.* AAC)//g" | sed -e "s/\ (1280.*)//g" | sed -e "s/ (h264)//g" | sed -e "s/\ *(1920x1080)//g" | sed -e "s/\ (BD 720p)(TastyMelon)//g" | sed -e "s/\ (.*)//g" | sed -e "s/\[.*\]//g" | sed -e "s/.DVD(.*)//g" ); \
+#echo "$newvid"; fi; done
+
+#read -p "Is this good?  (y/N) " check
+#if [ "$check" == "y" ]; then
+#	for vid in *; do if [ -f "$vid" ]; then newvid=$(echo "$vid" | sed -e "s/_/\ /g" | sed -e "s/\(\[gg\] \|\[Arienai\] \|\[Abesu\] \|\[RUELL-Next\] \|\[Triai\] \|\[SK\] \|\[xRed\] \|\[Frostii\] \|\|\[Elysium\]\|\|\[Anime-Koi\] \|\|\[GWC\] \|(G.P) \|(Hi10) \|\[SF\]\|\[V-A\] \|\[Riycou Anime\] \|\[Mazui\] \|\[YuS-MaiWaiFu\]]] \|\[UTW-Vivid\] \|\[Simoun-Fans\] \|\[Blitz\]\|\[ACX\] \|\[aF\]\|\[a4e\]\|\[BSS\] \|\[Rus.Softsub\] \|\[Eng.Softsub\] \|\[Raws-4U\] \|\[Froth-Bite\]\|\[WhyNot\] \|\[Vivid\] \|\[Shinsen-Subs\] \|\[avatar\] \|\[NemDiggers\] \|\[GrimRipper\] \|\[Underwater\] \|\[AF-F&Y-F\] \|\[NoobSubs\] \|\[Ayu\] \|\[CMS\] \|\[~AA~\] \|\[Shirσ\] \|\[Coalgirls\] \|\[Perfection\] \|\[HorribleSubs\] \|\[BakedFish\] \|\[DeadFish\] \|\[Doki\] \|\[Final8\]\|\[AHQ\] \|\[CBM\] \|\[BTN\] \|\[Exiled-Destiny\] \|\[Ayumi\] \|\[AnimeNOW\] \|\[Tsuki-Hatsuyuki\] \|\[OZC\] \|\[Commie\] \|\[Raizel\] \|\[Urusai\] \)//g" | sed -e "s/\( (720p)\| (1280x720 h264 BD FLAC) \[.*\]\| \[.*\]\)//g" | sed -e "s/\ (BD.* AAC)//g" | sed -e "s/\ (1280.*)//g" | sed -e "s/ (h264)//g" | sed -e "s/\ *(1920x1080)//g" | sed -e "s/\ (BD 720p)(TastyMelon)//g" | sed -e "s/\ (.*)//g" | sed -e "s/\[.*\]//g" | sed -e "s/.DVD(.*)//g" ); \
+#echo "$newvid"; mv "$vid" "$newvid"; fi; done
 #else
-#	echo "ERROR: Provide the directory you need to work on"
+#	echo "Fine. Be that way."
 #fi
