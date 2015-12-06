@@ -3,8 +3,8 @@
 for vid in *; do 
 	if [ -f "$vid" ]; then 
 		newvid=$(echo "$vid" | sed -e "s/_/\ /g" | 
-		                       sed -e "s/\[(.*?)\]//g" | 
-		                       sed -e "s/\((.*?)\)//g" | 
+		                       sed -e "s/\[(.*?)\]\ //g" | 
+		                       sed -e "s/\((.*?)\)\ //g" | 
 		                       sed -e "s/\( (720p)\| (1280x720 h264 BD FLAC) \[.*\]\| \[.*\]\)//g" | 
 		                       sed -e "s/\ (BD.* AAC)//g" | 
 		                       sed -e "s/\ (1280.*)//g" | 
@@ -22,6 +22,24 @@ read -p "is this good?  (y/N) " check
 
 if [ "$check" = "y" ] || [ "$check" = "Y" ]; then
 	echo "renaming is disabled right now..."
+	for vid in *; do 
+		if [ -f "$vid" ]; then 
+			newvid=$(echo "$vid" | sed -e "s/_/\ /g" | 
+			                       sed -e "s/\[(.*?)\]\ //g" | 
+			                       sed -e "s/\((.*?)\)\ //g" | 
+			                       sed -e "s/\( (720p)\| (1280x720 h264 BD FLAC) \[.*\]\| \[.*\]\)//g" | 
+			                       sed -e "s/\ (BD.* AAC)//g" | 
+			                       sed -e "s/\ (1280.*)//g" | 
+			                       sed -e "s/ (h264)//g" | 
+			                       sed -e "s/\ *(1920x1080)//g" | 
+			                       sed -e "s/\ (BD 720p)(TastyMelon)//g" | 
+			                       sed -e "s/\ (.*)//g" | 
+			                       sed -e "s/\[.*\]//g" | 
+			                       sed -e "s/.DVD(.*)//g" )
+			echo "$newvid" 
+			mv "$vid" "$newvid"
+		fi
+	done
 else
 	echo "Fine. Be that way."
 fi
