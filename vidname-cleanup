@@ -1,13 +1,28 @@
 #! /bin/bash
 
+function cleanup_filename() {
+	if [ $# != 1 ]; then
+		return 1
+	else
+		newvid=$(echo "$1" | sed -e "s/_/\ /g" | 
+		                     sed -e "s/\[[^][]*\]\ //g" |
+		                     sed -e "s/([^][]*)\ //g" | 
+		                     sed -e "s/\ \+([^][]*)//g" | 
+		                     sed -e "s/\ \+\[[^][]*\]//g" ) 
+		echo "$newvid"
+		return 0
+	fi
+}
+
 for vid in *; do 
 	if [ -f "$vid" ]; then 
-		newvid=$(echo "$vid" | sed -e "s/_/\ /g" | 
-		                       sed -e "s/\[[^][]*\]\ //g" |
-		                       sed -e "s/([^][]*)\ //g" | 
-		                       sed -e "s/\ (.*)//g" | 
-		                       sed -e "s/\ \[.*\]//g" ) 
-		echo "$newvid" 
+#		newvid=$(echo "$vid" | sed -e "s/_/\ /g" | 
+#		                       sed -e "s/\[[^][]*\]\ //g" |
+#		                       sed -e "s/([^][]*)\ //g" | 
+#		                       sed -e "s/\ \+([^][]*)//g" | 
+#		                       sed -e "s/\ \+\[[^][]*\]//g" ) 
+		newvid=$(cleanup_filename "$vid")
+		echo "$newvid"
 	fi
 done
 
@@ -19,8 +34,8 @@ if [ "$check" = "y" ] || [ "$check" = "Y" ]; then
 			newvid=$(echo "$vid" | sed -e "s/_/\ /g" | 
 			                       sed -e "s/\[[^][]*\]\ //g" |
 			                       sed -e "s/([^][]*)\ //g" | 
-			                       sed -e "s/\ (.*)//g" | 
-			                       sed -e "s/\ \[.*\]//g" ) 
+			                       sed -e "s/\ \+([^][]*)//g" | 
+			                       sed -e "s/\ \+\[[^][]*\]//g" ) 
 			echo "$newvid" 
 			mv "$vid" "$newvid"
 		fi
