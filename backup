@@ -7,7 +7,8 @@ for item in "$@"; do
 	if [ -f "$item" ]; then
 		cp "$item" "$item""_$(date +%F)"
 	elif [ -d "$item" ]; then
-		cp -r "$(basename $item)" "$(basename $item)""_$(date +%F)"
+#		cp -r "$(basename $item)" "$(basename $item)""_$(date +%F)"
+		echo "copying directories currently unsupported"
 	else 
 		echo "$item - filetype not recognized or file not found"
 	fi	
