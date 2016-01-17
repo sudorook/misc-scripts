@@ -8,7 +8,9 @@ function cleanup_filename() {
 		                     sed -e "s/\[[^][]*\]\ //g" |
 		                     sed -e "s/([^][]*)\ //g" | 
 		                     sed -e "s/\ \+([^][]*)//g" | 
-		                     sed -e "s/\ \+\[[^][]*\]//g" ) 
+		                     sed -e "s/\ \+\[[^][]*\]//g" | 
+		                     sed -e "s/\[[^][]*\]//g" |
+		                     sed -e "s/([^][]*)//g" )
 		echo "$newvid"
 		return 0
 	fi
