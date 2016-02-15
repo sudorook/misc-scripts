@@ -28,9 +28,13 @@ read -p "is this good?  (y/N) " check
 if [ "$check" = "y" ] || [ "$check" = "Y" ]; then
 	for vid in *; do 
 		if [ -f "$vid" ]; then 
-			echo "$newvid" 
 			newvid=$(cleanup_filename "$vid")
-			mv "$vid" "$newvid"
+			if [ "$vid" != "$newvid" ]; then
+				mv "$vid" "$newvid"
+				echo "$vid -> $newvid" 
+			else
+				echo "$vid unchanged"
+			fi
 		fi
 	done
 else
