@@ -31,7 +31,8 @@ if [ "$check" = "y" ] || [ "$check" = "Y" ]; then
 			newvid=$(cleanup_filename "$vid")
 			if [ "$vid" != "$newvid" ]; then
 				mv "$vid" "$newvid"
-				echo "$vid -> $newvid" 
+				echo "$vid"
+				echo " --> $newvid"
 			else
 				echo "$vid unchanged"
 			fi
