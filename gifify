@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /bin/bash
 
 # $1 = infile
 # $2 = outfile
