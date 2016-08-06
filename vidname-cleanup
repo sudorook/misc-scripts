@@ -1,48 +1,48 @@
 #! /bin/bash
 
 function cleanup_filename() {
-	if [ $# != 1 ]; then
-		return 1
-	else
-		vid="$1"
-		name="${vid%.*}"
-		extension="${vid##*.}"
+  if [ $# != 1 ]; then
+    return 1
+  else
+    vid="$1"
+    name="${vid%.*}"
+    extension="${vid##*.}"
 
-		newname=$(echo "$name" | sed -e "s/_\|\./\ /g" | 
-		                         sed -e "s/\[[^][]*\]\ //g" |
-		                         sed -e "s/([^][]*)\ //g" | 
-		                         sed -e "s/\ \+([^][]*)//g" | 
-		                         sed -e "s/\ \+\[[^][]*\]//g" | 
-		                         sed -e "s/\[[^][]*\]//g" |
-		                         sed -e "s/\ \(720\|1080\|480\)p.*//g" |
-		                         sed -e "s/([^][]*)//g" )
-		echo "$newname.$extension"
-		return 0
-	fi
+    newname=$(echo "$name" | sed -e "s/_\|\./\ /g" | 
+                             sed -e "s/\[[^][]*\]\ //g" |
+                             sed -e "s/([^][]*)\ //g" | 
+                             sed -e "s/\ \+([^][]*)//g" | 
+                             sed -e "s/\ \+\[[^][]*\]//g" | 
+                             sed -e "s/\[[^][]*\]//g" |
+                             sed -e "s/\ \(720\|1080\|480\)p.*//g" |
+                             sed -e "s/([^][]*)//g" )
+    echo "$newname.$extension"
+    return 0
+  fi
 }
 
 for vid in *; do 
-	if [ -f "$vid" ]; then 
-		newvid=$(cleanup_filename "$vid")
-		echo "$newvid"
-	fi
+  if [ -f "$vid" ]; then 
+    newvid=$(cleanup_filename "$vid")
+    echo "$newvid"
+  fi
 done
 
 read -p "is this good?  (y/N) " check
 
 if [ "$check" = "y" ] || [ "$check" = "Y" ]; then
-	for vid in *; do 
-		if [ -f "$vid" ]; then 
-			newvid=$(cleanup_filename "$vid")
-			if [ "$vid" != "$newvid" ]; then
-				mv "$vid" "$newvid"
-				echo "$vid"
-				echo " --> $newvid"
-			else
-				echo "$vid unchanged"
-			fi
-		fi
-	done
+  for vid in *; do 
+    if [ -f "$vid" ]; then 
+      newvid=$(cleanup_filename "$vid")
+      if [ "$vid" != "$newvid" ]; then
+        mv "$vid" "$newvid"
+        echo "$vid"
+        echo " --> $newvid"
+      else
+        echo "$vid unchanged"
+      fi
+    fi
+  done
 else
-	echo "Fine. Be that way."
+  echo "Fine. Be that way."
 fi
