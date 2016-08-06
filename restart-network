@@ -1,17 +1,30 @@
 #! /bin/bash
 
-function print_interfacess {
+function print_interfaces {
    ip link show | grep "^[0-9]" | grep -v "virbr\|tun\|lo" | \
       cut -d ":" -f2 | sed -e 's/^\s\(.*\)$/   \1/g'
 }
 
 if [ "$#" -ne 1 ]; then
    echo "specify the network interface:"
-   print_interfacess
+   print_interfaces
    exit 1
 fi
 
 iface=$1
+
+if [ "$iface" = "all" ]; then
+   sudo bash -c "\
+      systemctl stop NetworkManager.service && \
+      ip link set dev wlp3s0 down && \
+      macchanger -e wlp3s0 && \
+      ip link set dev wlp3s0 up && \
+      ip link set dev enp0s25 down && \
+      macchanger -e enp0s25 && \
+      ip link set dev enp0s25 up && \
+      systemctl start NetworkManager.service"
+   exit 0
+fi
 
 if test `ip link show | grep -c "$iface"` -ne 0; then
    sudo bash -c "\
@@ -20,7 +33,9 @@ if test `ip link show | grep -c "$iface"` -ne 0; then
       macchanger -e $iface && \
       ip link set dev $iface up && \
       systemctl start NetworkManager.service"
+   exit 0
 else
    echo "interface $iface doesn't exist. pick from:"
-   print_interfacess
+   print_interfaces
+   exit 1
 fi
