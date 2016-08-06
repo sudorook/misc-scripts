@@ -1,6 +1,26 @@
 #! /bin/bash
 
-sudo bash -c 'systemctl stop NetworkManager.service && \
-              systemctl restart macspoof@wlp3s0.service && \
-              systemctl restart macspoof@enp0s25.service && \
-              systemctl start NetworkManager.service'
+function print_interfacess {
+   ip link show | grep "^[0-9]" | grep -v "virbr\|tun\|lo" | \
+      cut -d ":" -f2 | sed -e 's/^\s\(.*\)$/   \1/g'
+}
+
+if [ "$#" -ne 1 ]; then
+   echo "specify the network interface:"
+   print_interfacess
+   exit 1
+fi
+
+iface=$1
+
+if test `ip link show | grep -c "$iface"` -ne 0; then
+   sudo bash -c "\
+      systemctl stop NetworkManager.service && \
+      ip link set dev $iface down && \
+      macchanger -e $iface && \
+      ip link set dev $iface up && \
+      systemctl start NetworkManager.service"
+else
+   echo "interface $iface doesn't exist. pick from:"
+   print_interfacess
+fi
