@@ -1,4 +1,5 @@
 #! /bin/bash
+set -eu
 
 function cleanup_filename() {
   if [ $# != 1 ]; then
@@ -8,14 +9,15 @@ function cleanup_filename() {
     name="${vid%.*}"
     extension="${vid##*.}"
 
-    newname=$(echo "$name" | sed -e "s/_\|\./\ /g" | 
-                             sed -e "s/\[[^][]*\]\ //g" |
-                             sed -e "s/([^][]*)\ //g" | 
-                             sed -e "s/\ \+([^][]*)//g" | 
-                             sed -e "s/\ \+\[[^][]*\]//g" | 
-                             sed -e "s/\[[^][]*\]//g" |
-                             sed -e "s/\ \(720\|1080\|480\)p.*//g" |
-                             sed -e "s/([^][]*)//g" )
+    newname=$(echo "$name" | \
+      sed -e "s/_\|\./\ /g" | \
+      sed -e "s/\[[^][]*\]\ //g" | \
+      sed -e "s/([^][]*)\ //g" | \
+      sed -e "s/\ \+([^][]*)//g" | \
+      sed -e "s/\ \+\[[^][]*\]//g" | \
+      sed -e "s/\[[^][]*\]//g" | \
+      sed -e "s/\ \(720\|1080\|480\)p.*//g" | \
+      sed -e "s/([^][]*)//g")
     echo "$newname.$extension"
     return 0
   fi
@@ -28,7 +30,7 @@ for vid in *; do
   fi
 done
 
-read -p "is this good?  (y/N) " check
+read -p "Is this good?  (y/N) " check
 
 if [ "$check" = "y" ] || [ "$check" = "Y" ]; then
   for vid in *; do 

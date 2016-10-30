@@ -1,15 +1,16 @@
 #! /bin/bash 
+set -eu
 
 # Back up files or directories provided as input. Format: 
-#    FILENAME -> FILENAME_YYYY-MM-DD
-
+#   FILENAME -> FILENAME_YYYY-MM-DD
+    
 for item in "$@"; do
-	if [ -f "$item" ]; then
-		cp "$item" "$item""_$(date +%F)"
-	elif [ -d "$item" ]; then
-#		cp -r "$(basename $item)" "$(basename $item)""_$(date +%F)"
-		echo "copying directories currently unsupported"
-	else 
-		echo "$item - filetype not recognized or file not found"
-	fi	
+  if [ -f "$item" ]; then
+    cp "$item" "$item""_$(date +%F)"
+  elif [ -d "$item" ]; then
+#    cp -r "$(basename $item)" "$(basename $item)""_$(date +%F)"
+    echo "copying directories currently unsupported"
+  else 
+    echo "$item - filetype not recognized or file not found"
+  fi  
 done
