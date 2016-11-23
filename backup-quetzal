@@ -1,0 +1,11 @@
+#! /bin/bash
+set -e
+
+if ! [ -d /run/media/quetzal/Aves ]; then
+  echo "Backup not mounted."
+  exit 1
+fi
+
+rsync -Pradog --delete-excluded /home/quetzal/ /run/media/quetzal/Aves/Quetzal/ \
+  --exclude '.VirtualBox/*' --exclude '.local/libvirt/images/*'
+sync
