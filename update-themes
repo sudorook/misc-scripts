@@ -1,0 +1,23 @@
+#! /bin/bash
+set -e
+
+gtkdir=${HOME}/Projects/gtk-themes
+icondir=${HOME}/Projects/icon-themes
+
+if [ -d ${gtkdir} ]; then
+  for dir in ${gtkdir}/*; do 
+    if [ -d "$dir" ]; then 
+      echo "$dir"
+      git -C "$dir" checkout master && git -C "$dir" pull origin master
+    fi
+  done
+fi
+
+if [ -d ${icondir} ]; then
+  for dir in ${icondir}/*; do 
+    if [ -d "$dir" ]; then 
+      echo "$dir"
+      git -C "$dir" checkout master && git -C "$dir" pull origin master
+    fi
+  done
+fi
