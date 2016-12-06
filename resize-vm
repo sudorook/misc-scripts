@@ -1,0 +1,19 @@
+#! /bin/bash
+set -eu
+
+if ! [ -f "$1" ]; then
+  echo "File doesn't exist."
+  exit 1
+fi
+
+if [ "${1##*.}" = "qcow2" ]; then
+  OLD_SIZE=$(du -H "$1" | cut -f1)
+  mv "$1" "$1"-bak
+  qemu-img convert -O qcow2 "$1"-bak  "$1"
+  rm -f "$1"-bak
+  NEW_SIZE=$(du -H "$1" | cut -f1)
+  echo "Compressed from $OLD_SIZE to $NEW_SIZE."
+else
+  echo "$1 is not a qcow2 file."
+  exit 1
+fi
