@@ -1,16 +1,19 @@
 #! /bin/bash
-set -e
+set -eu
 
-if ! [ -d /run/media/quetzal/Aves ]; then
-  echo "Backup not mounted."
+SOURCE=${HOME}
+DEST=/run/media/quetzal/Aves/Images
+
+if ! [ -d ${DEST} ]; then
+  echo "Backup destination ${DEST} does not exist."
   exit 1
 fi
 
 sudo bash -c "\
   rsync -Pradog --sparse \
-    /home/quetzal/.local/libvirt/images/ \
-    /run/media/quetzal/Aves/Images/KVM/ && \
+    ${SOURCE}/.local/libvirt/images/ \
+    ${DEST}/KVM/ && \
   rsync -Pradog \
-    /home/quetzal/.VirtualBox/ \
-    /run/media/quetzal/Aves/Images/VirtualBox/"
+    ${SOURCE}/.VirtualBox/ \
+    ${DEST}/VirtualBox/"
 sync

@@ -1,12 +1,15 @@
 #! /bin/bash
-set -e
+set -eu
 
-if ! [ -d /run/media/quetzal/Aves ]; then
-  echo "Backup not mounted."
+SOURCE=${HOME}/
+DEST=/run/media/quetzal/Aves/Quetzal/
+
+if ! [ -d ${DEST} ]; then
+  echo "Backup destination ${DEST} does not exist."
   exit 1
 fi
 
 sudo rsync -Pradog \
-  --delete-excluded /home/quetzal/ /run/media/quetzal/Aves/Quetzal/ \
+  --delete-excluded ${SOURCE} ${DEST} \
   --exclude '.VirtualBox/*' --exclude '.local/libvirt/images/*'
 sync
