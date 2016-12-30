@@ -9,6 +9,7 @@ if [ -d ${gtkdir} ]; then
     if [ -d "$dir" ]; then 
       echo "$dir"
       git -C "$dir" checkout master && git -C "$dir" pull origin master
+      sleep 2
     fi
   done
 fi
@@ -18,6 +19,7 @@ if [ -d ${icondir} ]; then
     if [ -d "$dir" ]; then 
       echo "$dir"
       git -C "$dir" checkout master && git -C "$dir" pull origin master
+      sleep 2
     fi
   done
 fi
