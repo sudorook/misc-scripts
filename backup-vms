@@ -6,8 +6,11 @@ if ! [ -d /run/media/quetzal/Aves ]; then
   exit 1
 fi
 
-sudo rsync -Pradog --sparse --delete-excluded \
-  /home/quetzal/.local/libvirt/images/ /run/media/quetzal/Aves/VMs/KVM/
-sudo rsync -Pradog --delete-excluded \
-  /home/quetzal/.VirtualBox/ /run/media/quetzal/Aves/VMs/VirtualBox/
+sudo bash -c "\
+  rsync -Pradog --sparse \
+    /home/quetzal/.local/libvirt/images/ \
+    /run/media/quetzal/Aves/Images/KVM/ && \
+  rsync -Pradog \
+    /home/quetzal/.VirtualBox/ \
+    /run/media/quetzal/Aves/Images/VirtualBox/"
 sync
