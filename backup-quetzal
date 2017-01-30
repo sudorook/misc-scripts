@@ -9,6 +9,12 @@ if ! [ -d ${DEST} ]; then
   exit 1
 fi
 
+# Check if any encfs directories are decrypted.
+if [ "$(grep encfs /etc/mtab)" ]; then
+  echo "Encrypt and unmount $(grep encfs /etc/mtab | cut -d" " -f2) first."
+  exit 1
+fi
+
 sudo rsync -Pradog \
   --delete-excluded ${SOURCE} ${DEST} \
   --exclude '.VirtualBox/*' --exclude '.local/libvirt/images/*'
