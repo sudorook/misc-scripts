@@ -1,5 +1,5 @@
 #! /bin/bash
-set -e
+set -eu
 
 gtkdir=${HOME}/Projects/gtk-themes
 icondir=${HOME}/Projects/icon-themes
