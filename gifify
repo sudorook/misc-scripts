@@ -7,16 +7,13 @@ set -eu
 # $4 = duration
 # $5 = dimensions
 
-if [ $# != 5 ]; 
-  then 
-    echo 'No, no, no.'; 
-    echo 'Usage: gifify infile outfile start duration dimensions';
-    echo "  Ex. gifify video.mkv snippet.gif 5:23 4 480x270";
-    exit;
+if [ $# != 5 ]; then 
+  echo 'No, no, no.'
+  echo 'Usage: gifify infile outfile start duration dimensions'
+  echo "  Ex. gifify video.mkv snippet.gif 5:23 4 480x270"
+  exit
 fi
 
-#ffmpeg -y -ss "$3" -i "$1" -t "$4" -s "$5" -f gif "$2" && \
-#ffmpeg -y -ss "$3" -i "$1" -map 0:0 -t "$4" -s "$5" -f gif "$2" && \
 ffmpeg -y -ss "$3" -i "$1" -sn -t "$4" -s "$5" -f gif "$2"
 gifsicle -O3 "$2" -o "$2"
 eog "$2" 
