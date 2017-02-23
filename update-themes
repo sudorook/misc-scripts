@@ -17,9 +17,8 @@ fi
 if [ -d ${icondir} ]; then
   for dir in ${icondir}/*; do 
     if [ -d "$dir" ]; then 
-      echo "$dir"
-      git -C "$dir" checkout master && git -C "$dir" pull origin master
       sleep 2
+      git -C "$dir" checkout master && git -C "$dir" pull origin master
     fi
   done
 fi
