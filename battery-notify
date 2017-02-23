@@ -1,0 +1,28 @@
+#! /bin/bash
+set -eu
+
+low_battery=20
+critical_battery=10
+action=/sbin/poweroff
+low_icon=battery-low
+critical_icon=battery-caution
+#battery=$(find /sys/class/power_supply/ -name "BAT*" | cut -d"/" -f5) #BAT0
+#battery_path=/sys/class/power_supply/${battery}/
+battery_path=/sys/class/power_supply/BAT0
+
+while true; do
+  if [ -e ${battery_path} ]; then
+    battery_state=$(<${battery_path}/status)
+    if [ ${battery_state} == "Discharging" ]; then
+      battery_level=$(<${battery_path}/capacity)
+      if [ ${battery_level} -le ${critical_battery} ]; then
+        notify-send -u critical -i ${critical_icon} "Battery critical" \
+          "Current battery level is critical (${battery_level}%). Plug into power supply."
+      elif [ ${battery_level} -le ${low_battery} ]; then
+        notify-send -u critical -i ${low_icon} "Battery low" \
+          "Battery level is low (${battery_level}%). Please plug into power supply soon."
+      fi
+    fi
+  fi
+  sleep 120s
+done
