@@ -2,7 +2,7 @@
 set -eu
 
 low_battery=20
-full_battery=85
+full_battery=90
 critical_battery=10
 low_icon=battery-low
 full_icon=battery-full-charging
@@ -42,7 +42,7 @@ while true; do
       fi
     fi
   fi
-  sleep 150s
+  sleep 120s
 done
 
 rm -f ${lockfile}
