@@ -2,27 +2,47 @@
 set -eu
 
 low_battery=20
+full_battery=85
 critical_battery=10
-action=/sbin/poweroff
 low_icon=battery-low
+full_icon=battery-full-charging
 critical_icon=battery-caution
-#battery=$(find /sys/class/power_supply/ -name "BAT*" | cut -d"/" -f5) #BAT0
-#battery_path=/sys/class/power_supply/${battery}/
+
 battery_path=/sys/class/power_supply/BAT0
+display=:0
+
+lockfile=/tmp/battery-notify.lock
+
+if [ -e ${lockfile} ] && kill -0 `cat ${lockfile}`; then
+  exit
+fi
+
+trap "rm -f ${lockfile}; exit" INT TERM EXIT
+echo $$ > ${lockfile}
 
 while true; do
   if [ -e ${battery_path} ]; then
     battery_state=$(<${battery_path}/status)
+    battery_level=$(<${battery_path}/capacity)
+
     if [ ${battery_state} == "Discharging" ]; then
-      battery_level=$(<${battery_path}/capacity)
       if [ ${battery_level} -le ${critical_battery} ]; then
-        notify-send -u critical -i ${critical_icon} "Battery critical" \
-          "Current battery level is critical (${battery_level}%). Plug into power supply."
+        DISPLAY=${display} notify-send -u critical -i ${critical_icon} "Battery critical" \
+          "Battery is at ${battery_level}%. Plug in the power supply."
       elif [ ${battery_level} -le ${low_battery} ]; then
-        notify-send -u critical -i ${low_icon} "Battery low" \
-          "Battery level is low (${battery_level}%). Please plug into power supply soon."
+        DISPLAY=${display} notify-send -u low -i ${low_icon} "Battery low" \
+          "Battery is at ${battery_level}%. Plug in the power supply soon."
+      fi
+    fi
+
+    if [ ${battery_state} == "Charging" ]; then
+      if [ ${battery_level} -gt ${full_battery} ]; then
+        DISPLAY=${display} notify-send -u low -i ${full_icon} "Battery full" \
+          "Battery is at ${battery_level}%. Unplug the power supply."
       fi
     fi
   fi
-  sleep 120s
+  sleep 150s
 done
+
+rm -f ${lockfile}
