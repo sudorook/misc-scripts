@@ -7,6 +7,9 @@ critical_battery=10
 low_icon=battery-low
 full_icon=battery-full-charging
 critical_icon=battery-caution
+low_flag_sent=false
+full_flag_sent=false
+critical_flag_sent=false
 
 battery_path=/sys/class/power_supply/BAT0
 display=:0
@@ -26,19 +29,39 @@ while true; do
     battery_level=$(<${battery_path}/capacity)
 
     if [ ${battery_state} == "Discharging" ]; then
+      # Send flag when battery drops too low
       if [ ${battery_level} -le ${critical_battery} ]; then
-        DISPLAY=${display} notify-send -u critical -i ${critical_icon} "Battery critical" \
-          "Battery is at ${battery_level}%. Plug in the power supply."
+        if ! ${critical_flag_sent}; then
+          DISPLAY=${display} notify-send -u critical -i ${critical_icon} "Battery critical" \
+            "Battery is at ${battery_level}%. Plug in the power supply."
+          critical_flag_sent=true
+        fi
       elif [ ${battery_level} -le ${low_battery} ]; then
-        DISPLAY=${display} notify-send -u low -i ${low_icon} "Battery low" \
-          "Battery is at ${battery_level}%. Plug in the power supply soon."
+        if ! ${low_flag_sent}; then
+          DISPLAY=${display} notify-send -u critical -i ${low_icon} "Battery low" \
+            "Battery is at ${battery_level}%. Plug in the power supply soon."
+          low_flag_sent=true
+        fi
       fi
+
+      # Unset the full battery flag while discharging
+      full_flag_sent=false
     fi
 
     if [ ${battery_state} == "Charging" ]; then
+      # Send flag when battery is full
       if [ ${battery_level} -gt ${full_battery} ]; then
-        DISPLAY=${display} notify-send -u low -i ${full_icon} "Battery full" \
-          "Battery is at ${battery_level}%. Unplug the power supply."
+        if ! ${full_flag_sent}; then
+          DISPLAY=${display} notify-send -u critical -i ${full_icon} "Battery full" \
+            "Battery is at ${battery_level}%. Unplug the power supply."
+          full_flag_sent=true
+        fi
+      fi
+
+      # Unset low battery flags while charging
+      critical_flag_sent=false
+      if [ ${battery_level} -gt ${critical_battery} ]; then
+        low_flag_sent=false
       fi
     fi
   fi
