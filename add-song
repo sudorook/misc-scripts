@@ -39,9 +39,9 @@ else
   echo "Okay, new files, so..."
 fi
 
-addSong;
+addSong
 song=${item[*]}
-addArtist;
+addArtist
 artist=${item[*]}
 
 IFS_BACKUP=$IFS
