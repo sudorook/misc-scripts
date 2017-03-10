@@ -1,7 +1,7 @@
 #! /bin/bash
 set -eu
 
-low_battery=20
+low_battery=25
 full_battery=90
 critical_battery=10
 low_icon=battery-low
