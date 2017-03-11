@@ -12,5 +12,10 @@ if [ "${dir:0:2}" = "~/" ]; then
   dir="${HOME}/${dir:2}"
 fi
 
-archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]")_$(date +%Y%m%d-%k%M%S)
-tar czf "${archive}.tar.gz" ${dir}
+if [ -d "${dir}" ]; then
+  archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]")_$(date +%Y%m%d-%k%M%S)
+  tar czf "${archive}.tar.gz" ${dir}
+else
+  echo "${dir} is not a directory."
+  exit 1
+fi
