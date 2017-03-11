@@ -1,0 +1,16 @@
+#! /bin/bash
+set -eu
+
+if [ $# != 1 ]; then
+  echo "Incorrect # of parameters. Usage:"
+  echo "   archive /path/to/directory"
+  exit 1
+fi
+
+dir="${1}"
+if [ "${dir:0:2}" = "~/" ]; then
+  dir="${HOME}/${dir:2}"
+fi
+
+archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]")_$(date +%Y%m%d-%k%M%S)
+tar czf "${archive}.tar.gz" ${dir}
