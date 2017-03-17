@@ -1,11 +1,13 @@
 #! /bin/bash
 set -eu
 
-# $1 = infile
-# $2 = outfile
-# $3 = start
-# $4 = duration
-# $5 = dimensions
+# Requres eog, ffmpeg (not the avutils fork), and gifsicle.
+# Variables:
+#   $1 = infile
+#   $2 = outfile
+#   $3 = start
+#   $4 = duration
+#   $5 = dimensions
 
 if [ $# != 5 ]; then 
   echo 'No, no, no.'
