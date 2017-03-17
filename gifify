@@ -10,8 +10,8 @@ set -eu
 #   $5 = dimensions
 
 if [ $# != 5 ]; then 
-  echo 'No, no, no.'
-  echo 'Usage: gifify infile outfile start duration dimensions'
+  echo "No, no, no."
+  echo "Usage: gifify <infile> <outfile> <start> <duration> <dimensions>"
   echo "  Ex. gifify video.mkv snippet.gif 5:23 4 480x270"
   exit
 fi
