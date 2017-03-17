@@ -1,0 +1,60 @@
+#! /bin/bash
+set -eu
+
+function sloppy_seek {
+  find ~/ \
+    ! -path "${HOME}/Desktop*" \
+    ! -path "${HOME}/Documents*" \
+    ! -path "${HOME}/Downloads*" \
+    ! -path "${HOME}/Music*" \
+    ! -path "${HOME}/Pictures*" \
+    ! -path "${HOME}/Projects*" \
+    ! -path "${HOME}/Public*" \
+    ! -path "${HOME}/Sync*" \
+    ! -path "${HOME}/Templates*" \
+    ! -path "${HOME}/Videos*" \
+    -iname "*${1}*"
+}
+
+function precise_seek {
+  find ~/ \
+    ! -path "${HOME}/Desktop*" \
+    ! -path "${HOME}/Documents*" \
+    ! -path "${HOME}/Downloads*" \
+    ! -path "${HOME}/Music*" \
+    ! -path "${HOME}/Pictures*" \
+    ! -path "${HOME}/Projects*" \
+    ! -path "${HOME}/Public*" \
+    ! -path "${HOME}/Sync*" \
+    ! -path "${HOME}/Templates*" \
+    ! -path "${HOME}/Videos*" \
+    -name "${1}"
+}
+
+function destroy {
+  xargs -n 1 -exec rm -rf
+  echo "Targets eliminated."
+}
+
+if [ $# != 1 ]; then
+  echo "Error: incorrect # of arguments." 
+  echo "Pass the name of a file or directory to seek and destroy."
+fi
+
+echo "--- Running sloppy seeker ---"
+sloppy_seek "${1}"
+read -p "Shall I destroy them?  (y/N) " check
+if [[ $check =~ ^([yY][eE][sS]|[yY])$ ]]; then
+  sloppy_seek "${1}" | destroy
+else
+  echo ""
+  echo "--- Running precise seeker ---"
+  precise_seek "${1}"
+  read -p "How about now?  (y/N) " check
+  if [[ $check =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    echo "Yessir!"
+    sloppy_seek "${1}" | destroy
+  else
+    echo "Very well..."
+  fi
+fi
