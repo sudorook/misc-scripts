@@ -13,6 +13,7 @@ function sloppy_seek {
     ! -path "${HOME}/Sync*" \
     ! -path "${HOME}/Templates*" \
     ! -path "${HOME}/Videos*" \
+    ! -path "${HOME}/.pkgbuild*" \
     -iname "*${1}*"
 }
 
@@ -28,6 +29,7 @@ function precise_seek {
     ! -path "${HOME}/Sync*" \
     ! -path "${HOME}/Templates*" \
     ! -path "${HOME}/Videos*" \
+    ! -path "${HOME}/.pkgbuild*" \
     -name "${1}"
 }
 
