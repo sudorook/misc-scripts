@@ -44,14 +44,23 @@ if [ $# != 1 ]; then
 fi
 
 echo "--- Running sloppy seeker ---"
-sloppy_seek "${1}"
-read -p "Shall I destroy them?  (y/N) " check
-if [[ $check =~ ^([yY][eE][sS]|[yY])$ ]]; then
-  sloppy_seek "${1}" | destroy
+if test `sloppy_seek "${1}"`; then
+  read -p "Permission to destroy?  (y/N) " check
+  if [[ $check =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    echo "Yessir!"
+    sloppy_seek "${1}" | destroy
+  else
+    echo "Very well..."
+  fi
+  exit 0
 else
-  echo ""
-  echo "--- Running precise seeker ---"
-  precise_seek "${1}"
+  echo "Targets not found. Standing down."
+  exit 0
+fi
+
+echo ""
+echo "--- Running precise seeker ---"
+if test `precise_seek "${1}"`; then
   read -p "How about now?  (y/N) " check
   if [[ $check =~ ^([yY][eE][sS]|[yY])$ ]]; then
     echo "Yessir!"
@@ -59,4 +68,8 @@ else
   else
     echo "Very well..."
   fi
+  exit 0
+else
+  echo "Targets not found. Standing down."
+  exit 0
 fi
