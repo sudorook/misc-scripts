@@ -4,6 +4,11 @@ set -eu
 SOURCE=${HOME}/
 DEST=/run/media/quetzal/Aves/Quetzal/
 
+# When changing these variables, be careful about specifying "dirname/" vs
+# "dirname".
+KVMDIR=${HOME}/.local/libvirt/images
+VBOXDIR=${HOME}/.VirtualBox
+
 if ! [ -d ${DEST} ]; then
   echo "Backup destination ${DEST} does not exist."
   exit 1
@@ -17,5 +22,5 @@ fi
 
 sudo rsync -Pradog \
   --delete-excluded ${SOURCE} ${DEST} \
-  --exclude '.VirtualBox/*' --exclude '.local/libvirt/images/*'
+  --exclude "${VBOXDIR}/*" --exclude "${KVMDIR}/*"
 sync
