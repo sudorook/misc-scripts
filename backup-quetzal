@@ -1,21 +1,57 @@
 #! /bin/bash
 set -eu
 
-SOURCE=${HOME}/
-DEST=/run/media/quetzal/Aves/Quetzal/
+#
+# Define global variables and functions.
+#
 
-if ! [ -d ${DEST} ]; then
-  echo "Backup destination ${DEST} does not exist."
+show_info() {
+  echo -e "\033[1;32m$@\033[0m"
+}
+show_success() {
+  echo -e "\033[1;35m$@\033[0m"
+}
+show_warning() {
+  echo -e "\033[1;33m$@\033[0m"
+}
+
+SOURCE=${HOME}/
+DEST1=/run/media/quetzal/Aves
+DEST2=/run/media/quetzal/Avian
+
+
+#
+# Backup home directory to Aves
+#
+
+if ! [ -d ${DEST1} ]; then
+  show_warning "Backup destination ${DEST1} does not exist."
   exit 1
 fi
 
 # Check if any encfs directories are decrypted.
 if [ "$(grep encfs /etc/mtab)" ]; then
-  echo "Encrypt and unmount $(grep encfs /etc/mtab | cut -d" " -f2) first."
+  show_warning "Encrypt and unmount $(grep encfs /etc/mtab | cut -d" " -f2) first."
   exit 1
 fi
 
+show_info "Syncing ${HOME} to Aves."
 sudo rsync -Pradog \
-  --delete-excluded ${SOURCE} ${DEST} \
+  --delete-excluded ${SOURCE} ${DEST1}/Quetzal/ \
   --exclude '.VirtualBox/*' --exclude '.local/libvirt/images/*'
 sync
+show_success "Done." && echo
+
+
+#
+# Backup Aves to Avian
+#
+
+if [ -d ${DEST2} ]; then
+  show_info "Syncing Aves to Avian."
+  sudo rsync -Pradog \
+    --delete-excluded ${DEST1}/ ${DEST2}/ \
+    --exclude '.VirtualBox/*' --exclude '.local/libvirt/images/*'
+  sync
+  show_success "Done." && echo
+fi
