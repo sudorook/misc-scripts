@@ -1,0 +1,39 @@
+#! /bin/bash
+set -eu
+
+# pacman
+echo "Updating Arch Linux."
+sudo pacman -Syu --noconfirm && sudo paccache -r && sudo paccache -ruk0
+echo && sleep 1
+
+# using go get from a bash script will result in:
+#   fatal: could not read Username for 'https://github.com': terminal prompts
+#   disabled
+#
+# setting a global alias for https://github.com/ -> git@github.com will
+# probably let you circumvent the issue
+#
+# # hugo, primitive
+# echo "Upgrading go repos."
+# go get -u github.com/spf/hugo
+# go get -u github.com/fogleman/primitive
+# echo && sleep 1
+
+# themes, icons
+echo "Updating GTK and icon themes."
+update-themes
+[ -d ${HOME}/.thunderbird/[a-z0-9]*.default/chrome ] && \
+  git -C ${HOME}/.thunderbird/[a-z0-9]*.default/chrome pull
+echo && sleep 1
+
+# julia
+echo "Upgrading Julia packages."
+julia -e 'Pkg.update(); using Gadfly'
+echo && sleep 1
+
+# zsh
+echo "Updating zsh repos."
+for dir in ${HOME}/.zsh/*; do
+  [ -d ${dir} ] && git -C ${dir} pull
+  echo && sleep 1
+done
