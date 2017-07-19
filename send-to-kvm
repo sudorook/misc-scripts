@@ -1,0 +1,5 @@
+#! /bin/bash
+
+kvmshare=${HOME}/.local/libvirt/share
+
+mv -f ${@} ${kvmshare}
