@@ -1,5 +1,8 @@
 #! /bin/bash
+set -eu
 
-kvmshare=${HOME}/.local/libvirt/share
+source globals
 
+
+mkdir -p ${kvmshare}
 cp -r ${@} ${kvmshare}

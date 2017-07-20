@@ -1,8 +1,8 @@
 #! /bin/bash
 set -eu
 
-gtkdir=${HOME}/Projects/gtk-themes
-icondir=${HOME}/Projects/icon-themes
+source globals
+
 
 if [ -d ${gtkdir} ]; then
   for dir in ${gtkdir}/*; do 

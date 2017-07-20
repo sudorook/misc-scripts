@@ -1,0 +1,48 @@
+#! /bin/bash
+
+#
+# Utility functions
+#
+
+show_error() {
+  echo -e "\033[1;31m$@\033[m" 1>&2
+}
+show_info() {
+  echo -e "\033[1;32m$@\033[0m"
+}
+show_warning() {
+  echo -e "\033[1;33m$@\033[0m"
+}
+show_question() {
+  echo -e "\033[1;34m$@\033[0m"
+}
+show_success() {
+  echo -e "\033[1;35m$@\033[0m"
+}
+show_header() {
+  echo -e "\033[1;36m$@\033[0m"
+}
+show_listitem() {
+  echo -e "\033[0;37m$@\033[0m"
+}
+
+
+#
+# Global variables
+#
+
+# backup-quetzal, backup-vms
+backup1=
+backup2=
+
+# copy/send to kvm
+kvmshare=
+
+# encrypted folder
+encryptpath=
+decryptpath=
+
+# theme dirs
+gtkdir=
+icondir=
+
