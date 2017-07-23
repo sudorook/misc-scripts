@@ -2,7 +2,7 @@
 set -eu
 
 # pacman
-echo "Updating Arch Linux."
+show_info "Updating Arch Linux."
 sudo pacman -Syu --noconfirm && sudo paccache -r && sudo paccache -ruk0
 echo && sleep 1
 
@@ -20,19 +20,19 @@ echo && sleep 1
 # echo && sleep 1
 
 # themes, icons
-echo "Updating GTK and icon themes."
+show_info "Updating GTK and icon themes."
 update-themes
 [ -d ${HOME}/.thunderbird/[a-z0-9]*.default/chrome ] && \
   git -C ${HOME}/.thunderbird/[a-z0-9]*.default/chrome pull
 echo && sleep 1
 
 # julia
-echo "Upgrading Julia packages."
+show_info "Upgrading Julia packages."
 julia -e 'Pkg.update(); using Gadfly'
 echo && sleep 1
 
 # zsh
-echo "Updating zsh repos."
+show_info "Updating zsh repos."
 for dir in ${HOME}/.zsh/*; do
   [ -d ${dir} ] && git -C ${dir} pull
   echo && sleep 1

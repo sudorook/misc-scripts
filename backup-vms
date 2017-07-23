@@ -1,6 +1,5 @@
 #! /bin/bash
 set -eu
-
 source globals
 
 
@@ -9,7 +8,7 @@ source globals
 #
 
 if ! [ -d ${backup1} ]; then
-  show_warning "Backup destination ${backup1} does not exist."
+  show_error "Backup destination ${backup1} does not exist."
   exit 1
 fi
 

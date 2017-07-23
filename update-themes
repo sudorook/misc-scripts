@@ -1,13 +1,11 @@
 #! /bin/bash
 set -eu
-
 source globals
-
 
 if [ -d ${gtkdir} ]; then
   for dir in ${gtkdir}/*; do 
     if [ -d "$dir" ]; then 
-      echo "$dir"
+      show_info "$dir"
       git -C "$dir" checkout master && git -C "$dir" pull
       echo
     fi
@@ -17,7 +15,7 @@ fi
 if [ -d ${icondir} ]; then
   for dir in ${icondir}/*; do 
     if [ -d "$dir" ]; then 
-      echo "$dir"
+      show_info "$dir"
       git -C "$dir" checkout master && git -C "$dir" pull
       echo
     fi

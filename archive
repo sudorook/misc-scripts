@@ -1,9 +1,10 @@
 #! /bin/bash
 set -eu
+source globals
 
 if [ $# != 1 ]; then
-  echo "Incorrect # of parameters. Usage:"
-  echo "   archive /path/to/directory"
+  show_error "Incorrect # of parameters."
+  echo "Usage: archive /path/to/directory"
   exit 1
 fi
 
@@ -16,6 +17,6 @@ if [ -d "${dir}" ]; then
   archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]")_$(date +%Y%m%d-%I%M%S)
   tar czf "${archive}.tar.gz" ${dir}
 else
-  echo "${dir} is not a directory."
+  show_error "${dir} is not a directory."
   exit 1
 fi
