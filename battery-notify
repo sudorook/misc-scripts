@@ -14,7 +14,7 @@ critical_flag_sent=false
 battery_path=/sys/class/power_supply/BAT0
 display=:0
 
-lockfile=/tmp/battery-notify.lock-$$-$RANDOM
+lockfile=/tmp/battery-notify.lock
 
 if [ -e ${lockfile} ] && kill -0 `cat ${lockfile}`; then
   exit
