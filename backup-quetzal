@@ -20,7 +20,7 @@ fi
 
 show_info "Syncing ${HOME} to Aves."
 sudo rsync -Pradog \
-  --delete-excluded ${HOME} ${backup1}/Quetzal/ \
+  --delete-excluded ${HOME}/ ${backup1}/Quetzal/ \
   --exclude '.VirtualBox/*' --exclude '.local/libvirt/images/*'
 sync
 show_success "Done." && echo
