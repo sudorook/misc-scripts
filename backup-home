@@ -33,8 +33,7 @@ show_success "Done." && echo
 if [ -d ${backup2} ]; then
   show_info "Syncing ${backup1} to ${backup2}."
   sudo rsync -Pradog \
-    --delete-excluded ${backup1}/ ${backup2}/ \
-    --exclude 'Images/KVM/*'
+    --delete-excluded ${backup1}/ ${backup2}/
   sync
   show_success "Done." && echo
 fi
