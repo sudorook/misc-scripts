@@ -34,7 +34,7 @@ if [ -d ${backup2} ]; then
   show_info "Syncing Aves to Avian."
   sudo rsync -Pradog \
     --delete-excluded ${backup1}/ ${backup2}/ \
-    --exclude '.VirtualBox/*' --exclude '.local/libvirt/images/*'
+    --exclude 'Images/KVM/*'
   sync
   show_success "Done." && echo
 fi
