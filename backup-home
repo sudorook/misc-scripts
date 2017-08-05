@@ -4,7 +4,7 @@ source globals
 
 
 #
-# Backup home directory to Aves
+# Backup home directory to Backup 1
 #
 
 if ! [ -d ${backup1} ]; then
@@ -18,7 +18,7 @@ if [ "$(grep encfs /etc/mtab)" ]; then
   exit 1
 fi
 
-show_info "Syncing ${HOME} to Aves."
+show_info "Syncing ${HOME} to ${backup1}."
 sudo rsync -Pradog \
   --delete-excluded ${HOME}/ ${backup1}/${USER^}/ \
   --exclude '.VirtualBox/*' --exclude '.local/libvirt/images/*'
@@ -27,11 +27,11 @@ show_success "Done." && echo
 
 
 #
-# Backup Aves to Avian
+# Backup Backup 1 to Backup 2
 #
 
 if [ -d ${backup2} ]; then
-  show_info "Syncing Aves to Avian."
+  show_info "Syncing ${backup1} to ${backup2}."
   sudo rsync -Pradog \
     --delete-excluded ${backup1}/ ${backup2}/ \
     --exclude 'Images/KVM/*'

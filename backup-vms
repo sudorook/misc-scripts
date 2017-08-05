@@ -4,7 +4,7 @@ source globals
 
 
 #
-# Backup VMs in home directory to Aves.
+# Backup VMs in home directory to Backup 1.
 #
 
 if ! [ -d ${backup1} ]; then
@@ -12,7 +12,7 @@ if ! [ -d ${backup1} ]; then
   exit 1
 fi
 
-show_info "Syncing VMs in ${HOME} to Aves."
+show_info "Syncing VMs in ${HOME} to ${backup1}."
 sudo bash -c "\
   rsync -Pradog --sparse \
     ${HOME}/.local/libvirt/images/ \
@@ -25,11 +25,11 @@ show_success "Done." && echo
 
 
 #
-# Backup VMs in Aves to Avian.
+# Backup VMs in Backup 1 to Backup 2.
 #
 
 if [ -d ${backup2} ]; then
-  show_info "Syncing VMs in Aves to Avian."
+  show_info "Syncing VMs in ${backup1} to ${backup2}."
   sudo bash -c "\
     rsync -Pradog --sparse \
       ${backup1}/Images/KVM/ \
