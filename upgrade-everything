@@ -16,7 +16,6 @@ echo && sleep 1
 #
 # # hugo, primitive
 # echo "Upgrading go repos."
-# go get -u github.com/spf/hugo
 # go get -u github.com/fogleman/primitive
 # echo && sleep 1
 
