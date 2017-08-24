@@ -39,7 +39,7 @@ function destroy {
 }
 
 if [ $# != 1 ]; then
-  echo "Error: incorrect # of arguments." 
+  echo "Error: incorrect # of arguments."
   echo "Pass the name of a file or directory to seek and destroy."
 fi
 
