@@ -22,8 +22,6 @@ echo && sleep 1
 # themes, icons
 show_info "Updating GTK and icon themes."
 update-themes
-[ -d ${HOME}/.thunderbird/[a-z0-9]*.default/chrome ] && \
-  git -C ${HOME}/.thunderbird/[a-z0-9]*.default/chrome pull
 echo && sleep 1
 
 # julia

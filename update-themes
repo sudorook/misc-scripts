@@ -21,3 +21,8 @@ if [ -d ${icondir} ]; then
     fi
   done
 fi
+
+if [ -d ${thunderbirddir} ]; then
+  show_info ${thunderbirddir}/chrome
+  git -C ${thunderbirddir}/chrome pull
+fi
