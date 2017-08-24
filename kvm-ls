@@ -3,4 +3,4 @@ set -eu
 source globals
 
 mkdir -p ${kvmshare}
-ls $@ ${kvmshare}
+ls ${@} ${kvmshare}
