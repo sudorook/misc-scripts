@@ -31,7 +31,7 @@ show_listitem() {
 # Global variables
 #
 
-# backup-quetzal, backup-vms
+# backup-home, backup-vms
 backup1=
 backup2=
 
@@ -46,3 +46,8 @@ decryptpath=
 gtkdir=
 icondir=
 
+# thunderbird theme
+thunderbirddir=
+
+# zsh dir
+zshdir=
