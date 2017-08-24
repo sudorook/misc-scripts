@@ -3,7 +3,7 @@ set -eu
 source globals
 
 # pacman
-show_info "Updating Arch Linux."
+show_header "Updating Arch Linux."
 sudo pacman -Syu --noconfirm && sudo paccache -r && sudo paccache -ruk0
 echo && sleep 1
 
@@ -20,18 +20,18 @@ echo && sleep 1
 # echo && sleep 1
 
 # themes, icons
-show_info "Updating GTK and icon themes."
+show_header "Updating GTK and icon themes."
 update-themes
 echo && sleep 1
 
 # julia
-show_info "Upgrading Julia packages."
+show_header "Upgrading Julia packages."
 julia -e 'Pkg.update(); using Gadfly'
 echo && sleep 1
 
 # zsh
-show_info "Updating zsh repos."
-for dir in ${HOME}/.zsh/*; do
+show_header "Updating zsh repos."
+for dir in ${zshdir}/*; do
   [ -d ${dir} ] && git -C ${dir} pull
-  echo && sleep 1
 done
+echo && sleep 1
