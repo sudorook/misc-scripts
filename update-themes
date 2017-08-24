@@ -3,20 +3,20 @@ set -eu
 source globals
 
 if [ -d ${gtkdir} ]; then
-  for dir in ${gtkdir}/*; do 
-    if [ -d "$dir" ]; then 
-      show_info "$dir"
-      git -C "$dir" checkout master && git -C "$dir" pull
+  for dir in ${gtkdir}/*; do
+    if [ -d ${dir} ]; then
+      show_info ${dir}
+      git -C ${dir} checkout master && git -C ${dir} pull
       echo
     fi
   done
 fi
 
 if [ -d ${icondir} ]; then
-  for dir in ${icondir}/*; do 
-    if [ -d "$dir" ]; then 
-      show_info "$dir"
-      git -C "$dir" checkout master && git -C "$dir" pull
+  for dir in ${icondir}/*; do
+    if [ -d ${dir} ]; then
+      show_info ${dir}
+      git -C ${dir} checkout master && git -C ${dir} pull
       echo
     fi
   done
