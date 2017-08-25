@@ -1,0 +1,51 @@
+#! /bin/bash
+set -eu
+source globals
+
+get_count() {
+  dir=${@:-1}
+  if [ -d "${dir}/.git" ]; then
+    if git -C "${dir}" log --oneline >/dev/null 2>&1; then
+      count=$(git -C ${dir} rev-list --all --count \
+                --author ${AUTHOR} \
+                --after "$(date -d "- ${TIMECOUNT} ${TIMEUNIT}")")
+      echo ${count}
+    fi
+  fi
+}
+export -f get_count
+
+
+OPTIONS=a:d:
+LONGOPTIONS=author:,during:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -a|--author)
+      AUTHOR="$2"
+      shift 2
+      ;;
+    -d|--during)
+      DURING="$2"
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error"
+      exit 3
+      ;;
+  esac
+done
+
+export AUTHOR=${AUTHOR}
+export DURING=${DURING}
+export TIMECOUNT=${DURING%%[A-Za-z]*}
+export TIMEUNIT=${DURING##*[0-9]}
+
+find ${projectdir} -maxdepth 3 -type d \
+  -exec bash -c 'get_count "{}"' \; | awk '{s+=$1}END{print s}'

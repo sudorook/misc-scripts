@@ -51,3 +51,6 @@ thunderbirddir=
 
 # zsh dir
 zshdir=
+
+# project folders
+projectdir=
