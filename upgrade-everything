@@ -23,7 +23,7 @@ command -v apt >/dev/null 2>&1 && {
 # setting a global alias for https://github.com/ -> git@github.com will
 # probably let you circumvent the issue
 #
-# # hugo, primitive
+# # primitive
 # echo "Upgrading go repos."
 # go get -u github.com/fogleman/primitive
 # echo && sleep 1
