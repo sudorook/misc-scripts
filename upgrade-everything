@@ -34,9 +34,11 @@ update-themes
 echo && sleep 1
 
 # julia
-show_header "Upgrading Julia packages."
-julia -e 'Pkg.update(); using Gadfly'
-echo && sleep 1
+command -v julia >/dev/null 2>&1 && {
+  show_header "Upgrading Julia packages."
+  julia -e 'Pkg.update(); using Gadfly'
+  echo && sleep 1
+}
 
 # zsh
 show_header "Updating zsh repos."
