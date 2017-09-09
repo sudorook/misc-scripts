@@ -14,6 +14,7 @@ if [ "${1##*.}" = "qcow2" ]; then
   rm -f "$1".bak
   NEW_SIZE=$(du -h "$1" | cut -f1)
   echo "Compressed from $OLD_SIZE to $NEW_SIZE."
+  sync
 else
   echo "$1 is not a qcow2 file."
   exit 1
