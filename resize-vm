@@ -9,7 +9,7 @@ fi
 if [ "${1##*.}" = "qcow2" ]; then
   OLD_SIZE=$(du -h "$1" | cut -f1)
   mv "$1" "$1".bak
-  qemu-img convert -O qcow2 "$1".bak  "$1"
+  sudo qemu-img convert -O qcow2 "$1".bak  "$1"
   sudo chmod --reference="$1".bak "$1"
   rm -f "$1".bak
   NEW_SIZE=$(du -h "$1" | cut -f1)
