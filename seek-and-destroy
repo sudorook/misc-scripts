@@ -41,7 +41,7 @@ function precise_seek {
 
 function destroy {
   xargs -n 1 -exec rm -rf
-  show_success "Targets eliminated."
+  show_success "Target(s) eliminated."
 }
 
 
@@ -51,11 +51,11 @@ function destroy {
 
 OPTIONS=ps
 LONGOPTIONS=precise,sloppy
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n ${0} -- ${@})
+eval set -- ${PARSED}
 
-while [ $# -ge 1 ]; do
-  case "$1" in
+while [ ${#} -ge 1 ]; do
+  case ${1} in
     -p|--precise)
       MODE=precise
       shift
@@ -80,7 +80,7 @@ done
 # Run seeker and destroyer
 #
 
-if [ $# != 1 ]; then
+if [ ${#} != 1 ]; then
   show_error "Error: incorrect # of arguments."
   show_error "Pass the name of a file or directory to seek and destroy."
 fi
@@ -98,7 +98,7 @@ case ${MODE} in
         echo "Very well..."
       fi
     else
-      echo "Targets not found. Standing down."
+      echo "Target(s) not found. Standing down."
     fi
     ;;
   sloppy)
@@ -113,7 +113,7 @@ case ${MODE} in
         echo "Very well..."
       fi
     else
-      echo "Targets not found. Standing down."
+      echo "Target(s) not found. Standing down."
     fi
     ;;
   *)
