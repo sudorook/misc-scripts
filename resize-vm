@@ -1,8 +1,9 @@
 #! /bin/bash
 set -eu
+source globals
 
 if ! [ -f "$1" ]; then
-  echo "File doesn't exist."
+  show_error "File doesn't exist."
   exit 1
 fi
 
@@ -13,9 +14,9 @@ if [ "${1##*.}" = "qcow2" ]; then
   sudo chmod --reference="$1".bak "$1"
   rm -f "$1".bak
   NEW_SIZE=$(du -h "$1" | cut -f1)
-  echo "Compressed from $OLD_SIZE to $NEW_SIZE."
+  show_success "Compressed from $OLD_SIZE to $NEW_SIZE."
   sync
 else
-  echo "$1 is not a qcow2 file."
+  show_error "$1 is not a qcow2 file."
   exit 1
 fi
