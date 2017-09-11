@@ -1,8 +1,14 @@
 #! /bin/bash
 set -eu
+source globals
+
+
+#
+# Global functions
+#
 
 function sloppy_seek {
-  find ~/ \
+  find ${HOME}/ \
     ! -path "${HOME}/Desktop*" \
     ! -path "${HOME}/Documents*" \
     ! -path "${HOME}/Downloads*" \
@@ -14,11 +20,11 @@ function sloppy_seek {
     ! -path "${HOME}/Templates*" \
     ! -path "${HOME}/Videos*" \
     ! -path "${HOME}/.pkgbuild*" \
-    -iname "*${1}*"
+    -iname "*${1}*" -o -iname ".*${1}*"
 }
 
 function precise_seek {
-  find ~/ \
+  find ${HOME}/ \
     ! -path "${HOME}/Desktop*" \
     ! -path "${HOME}/Documents*" \
     ! -path "${HOME}/Downloads*" \
@@ -30,46 +36,88 @@ function precise_seek {
     ! -path "${HOME}/Templates*" \
     ! -path "${HOME}/Videos*" \
     ! -path "${HOME}/.pkgbuild*" \
-    -name "${1}"
+    -name "${1}" -o -name ".${1}"
 }
 
 function destroy {
   xargs -n 1 -exec rm -rf
-  echo "Targets eliminated."
+  show_success "Targets eliminated."
 }
 
+
+#
+# Parse command line options
+#
+
+OPTIONS=ps
+LONGOPTIONS=precise,sloppy
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -p|--precise)
+      MODE=precise
+      shift
+      ;;
+    -s|--sloppy)
+      MODE=sloppy
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error: invalid flag."
+      exit 3
+      ;;
+  esac
+done
+
+
+#
+# Run seeker and destroyer
+#
+
 if [ $# != 1 ]; then
-  echo "Error: incorrect # of arguments."
-  echo "Pass the name of a file or directory to seek and destroy."
+  show_error "Error: incorrect # of arguments."
+  show_error "Pass the name of a file or directory to seek and destroy."
 fi
 
-echo "--- Running sloppy seeker ---"
-if test `sloppy_seek "${1}"`; then
-  read -p "Permission to destroy?  (y/N) " check
-  if [[ $check =~ ^([yY][eE][sS]|[yY])$ ]]; then
-    echo "Yessir!"
-    sloppy_seek "${1}" | destroy
-  else
-    echo "Very well..."
-  fi
-  exit 0
-else
-  echo "Targets not found. Standing down."
-  exit 0
-fi
-
-echo ""
-echo "--- Running precise seeker ---"
-if test `precise_seek "${1}"`; then
-  read -p "How about now?  (y/N) " check
-  if [[ $check =~ ^([yY][eE][sS]|[yY])$ ]]; then
-    echo "Yessir!"
-    sloppy_seek "${1}" | destroy
-  else
-    echo "Very well..."
-  fi
-  exit 0
-else
-  echo "Targets not found. Standing down."
-  exit 0
-fi
+case ${MODE} in
+  precise)
+    show_header "--- Running precise seeker ---"
+    if test "$(precise_seek ${1})"; then
+      precise_seek ${1}
+      read -p $'\033[1;34mPermission to destroy? (y/N) \033[0m' check
+      if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        echo "Yessir!"
+        precise_seek ${1} | destroy
+      else
+        echo "Very well..."
+      fi
+    else
+      echo "Targets not found. Standing down."
+    fi
+    ;;
+  sloppy)
+    show_header "--- Running sloppy seeker ---"
+    if test "$(sloppy_seek ${1})"; then
+      sloppy_seek ${1}
+      read -p $'\033[1;34mPermission to destroy? (y/N) \033[0m' check
+      if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        echo "Yessir!"
+        sloppy_seek ${1} | destroy
+      else
+        echo "Very well..."
+      fi
+    else
+      echo "Targets not found. Standing down."
+    fi
+    ;;
+  *)
+    show_error "Error: seeker mode ${MODE} is incorrect."
+    exit
+    ;;
+esac
