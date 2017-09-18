@@ -42,7 +42,11 @@ command -v julia >/dev/null 2>&1 && {
 
 # zsh
 show_header "Updating zsh repos."
-for dir in ${zshdir}/*; do
-  [ -d ${dir} ] && git -C ${dir} pull
-done
+if command -v antigen-update >/dev/null 2>&1; then
+  antigen-update
+else
+  for dir in ${zshdir}/*; do
+    [ -d ${dir} ] && git -C ${dir} pull
+  done
+fi
 echo && sleep 1
