@@ -2,12 +2,21 @@
 set -eu
 source globals
 
-if [ ${1##*.} = "webm" ]; then
-  ffmpeg -i "${1}" -vn -ab 128k -ar 44100 -y "${1%%.*}.mp3"
-elif [ ${1##*.} = "mp4" ]; then
-  ffmpeg -i "${1}" -vn -acodec libmp3lame -ac 2 -ab 160k -ar 48000 "${1%%.*}.mp3"
-elif [ ${1##*.} = "mkv" ]; then
-  ffmpeg -i "${1}" -vn -c:a libmp3lame -y "${1%%.*}.mp3"
-else
-  show_error "ERROR: '${1}' is not compatible"
-fi
+file=${1%%.*}
+extension=${1##*.}
+
+case ${extension} in
+  webm)
+    ffmpeg -i "${1}" -vn -ab 128k -ar 44100 -y "${file}.mp3"
+    ;;
+  mp4)
+    ffmpeg -i "${1}" -vn -acodec libmp3lame -ac 2 -ab 160k -ar 48000 "${file}.mp3"
+    ;;
+  mkv)
+    ffmpeg -i "${1}" -vn -c:a libmp3lame -y "${file}.mp3"
+    ;;
+  *)
+    show_error "ERROR: '${1}' is not compatible"
+    exit 1
+    ;;
+esac
