@@ -4,7 +4,7 @@ source globals
 
 if [ -d ${gtkdir} ]; then
   for dir in ${gtkdir}/*; do
-    if [ -d ${dir} ]; then
+    if [ -d ${dir} ] && [ -d ${dir}/.git ]; then
       show_info ${dir}
       git -C ${dir} checkout master && git -C ${dir} pull
       echo
@@ -14,7 +14,7 @@ fi
 
 if [ -d ${icondir} ]; then
   for dir in ${icondir}/*; do
-    if [ -d ${dir} ]; then
+    if [ -d ${dir} ] && [ -d ${dir}/.git ]; then
       show_info ${dir}
       git -C ${dir} checkout master && git -C ${dir} pull
       echo
