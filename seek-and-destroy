@@ -53,6 +53,7 @@ OPTIONS=ps
 LONGOPTIONS=precise,sloppy
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n ${0} -- ${@})
 eval set -- ${PARSED}
+MODE=
 
 while [ ${#} -ge 1 ]; do
   case ${1} in
