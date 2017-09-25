@@ -1,5 +1,6 @@
 #! /bin/bash
 set -eu
+source globals
 
 function cleanup_filename() {
   if [ $# != 1 ]; then
@@ -30,7 +31,7 @@ for vid in *; do
   fi
 done
 
-read -p "Is this good?  (y/N) " check
+read -p $'\033[1;34mIs this good? (y/N) \033[0m' check
 
 if [ "$check" = "y" ] || [ "$check" = "Y" ]; then
   for vid in *; do
