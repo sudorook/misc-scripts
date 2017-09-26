@@ -1,5 +1,6 @@
 #! /bin/bash
 set -eu
+source globals
 
 # Requres eog, ffmpeg (not the avutils fork), and gifsicle.
 # Variables:
@@ -7,16 +8,33 @@ set -eu
 #   $2 = outfile
 #   $3 = start
 #   $4 = duration
-#   $5 = dimensions
+#   $5 = resolution
 
 if [ $# != 5 ]; then
   echo "No, no, no."
-  echo "Usage: gifify <infile> <outfile> <start> <duration> <dimensions>"
-  echo "  Ex. gifify video.mkv snippet.gif 5:23 4 480x270"
+  echo "Usage: gifify <infile> <outfile> <start> <duration> <resolution>"
+  echo "  Ex. gifify video.mkv snippet.gif 5:23 4 480p"
   exit
 fi
 
-ffmpeg -y -ss "$3" -i "$1" -sn -t "$4" -s "$5" -f gif "$2"
+dimensions=""
+case "$5" in
+  480p)
+    dimensions=854x480
+    ;;
+  720p)
+    dimensions=1280x720
+    ;;
+  1080p)
+    dimensions=1920x1080
+    ;;
+  *)
+    show_error "Resolution $5 not supported."
+    exit 3
+    ;;
+esac
+
+ffmpeg -y -ss "$3" -i "$1" -sn -t "$4" -s "$dimensions" -f gif "$2"
 gifsicle -O3 "$2" -o "$2"
 
 if test $(command -v eog); then
