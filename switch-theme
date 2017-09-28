@@ -26,6 +26,15 @@ set_gtk_theme() {
       exit 3
       ;;
   esac
+
+  gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
+  if [[ "$1" =~ "Nokto" ]] || [[ "$1" =~ "Dark" ]]; then
+    sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" ${gtksettings}
+    sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
+  else
+    sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" ${gtksettings}
+    sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" ${gtksettings}
+  fi
 }
 
 set_icon_theme() {
