@@ -33,7 +33,7 @@ show_success "Done." && echo
 if [ -d ${backup2} ]; then
   show_info "Syncing ${backup1} to ${backup2}."
   sudo rsync -Pradog \
-    --delete-excluded ${backup1}/ ${backup2}/
+    --delete-excluded ${backup1}/ ${backup2}/ --exclude ".Trash-1000/*"
   sync
   show_success "Done." && echo
 fi
