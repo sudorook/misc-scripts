@@ -3,8 +3,8 @@ set -eu
 source globals
 
 set_gtk_theme() {
-  case $DESKTOP_SESSION in
-    cinnamon)
+  case $XDG_CURRENT_DESKTOP in
+    X-Cinnamon)
       gsettings set org.cinnamon.desktop.interface gtk-theme "'$1'"
       gsettings set org.cinnamon.desktop.wm.preferences theme "'$1'"
       if [[ "$1" =~ "-Eta" ]]; then
@@ -15,14 +15,14 @@ set_gtk_theme() {
         gsettings set org.cinnamon.theme name "'$1'"
       fi
       ;;
-    gnome)
+    GNOME)
       gsettings set org.gnome.desktop.wm.preferences theme "'$1'"
       gsettings set org.gnome.desktop.interface gtk-theme "'$1'"
       gnome-shell-extension-tool -e "user-theme@gnome-shell-extensions.gcampax.github.com" || true >/dev/null
       gsettings set org.gnome.shell.extensions.user-theme name "'$1'"
       ;;
     *)
-      show_error "$DESKTOP_SESSION environment not supported."
+      show_error "$XDG_CURRENT_DESKTOP environment not supported."
       exit 3
       ;;
   esac
@@ -38,15 +38,15 @@ set_gtk_theme() {
 }
 
 set_icon_theme() {
-  case $DESKTOP_SESSION in
-    cinnamon)
+  case $XDG_CURRENT_DESKTOP in
+    X-Cinnamon)
       gsettings set org.cinnamon.desktop.interface icon-theme "'$1'"
       ;;
-    gnome)
+    GNOME)
       gsettings set org.gnome.desktop.interface icon-theme "'$1'"
       ;;
     *)
-      show_error "$DESKTOP_SESSION environment not supported."
+      show_error "$XDG_CURRENT_DESKTOP environment not supported."
       exit 3
       ;;
   esac
