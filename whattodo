@@ -1,0 +1,13 @@
+#! /bin/bash
+set -eu
+source globals
+
+for todo in $(find ${projectdir} -type f -name TODO.md); do
+  for ignore in ${ignoreprojectdirs}; do
+    if ! [[ ${todo} =~ ${ignore} ]]; then
+      show_info ${todo}
+      cat ${todo}
+      echo && echo
+    fi
+  done
+done

@@ -54,3 +54,4 @@ zshdir=
 
 # project folders
 projectdir=
+ignoreprojectdirs=()
