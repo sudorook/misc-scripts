@@ -1,0 +1,33 @@
+#! /bin/bash
+set -eu
+source globals
+
+file=${1%.*}
+extension=${1##*.}
+output="subbed_video"
+
+if [ -f "${file}.srt" ]; then
+  case ${extension} in
+    mkv)
+      ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${file}.srt" \
+        -c:v copy -c:a copy -c:s srt \
+        -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
+        -id3v2_version 3 -write_id3v1 1 \
+        "${output}.${extension}"
+      ;;
+    mp4)
+      ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${file}.srt" \
+        -c:v copy -c:a copy -c:s mov_text \
+        -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
+        -id3v2_version 3 -write_id3v1 1 \
+        "${output}.${extension}"
+      ;;
+    *)
+      show_error "${extension} files are not supported."
+      exit 3
+  esac
+  
+  mv "${file}.${extension}" "${file}.${extension}.bak"
+  mv "${file}.srt" "${file}.srt.bak"
+  mv "${output}.${extension}" "${file}.${extension}"
+fi
