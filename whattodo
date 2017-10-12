@@ -2,7 +2,22 @@
 set -eu
 source globals
 
-for todo in $(find ${projectdir} -type f -name TODO.md); do
+# File name(s) that contain todo lists.
+files=(TODO.md TODO.txt)
+
+# Pregenerate the syntax for specifying multiple file names for find.
+names=""
+for file in ${files[@]}; do
+  if [[ ${names} = "" ]]; then
+    names="${names}-name ${file} "
+  else
+    names="${names}-o -name ${file} "
+  fi
+done
+
+# Search every directory in ${projectdir} for a file matching one in ${files}
+# as long as it is not also specified in ${ignoreprojectdirs}.
+for todo in $(find ${projectdir} -type f \( ${names} \)); do
   for ignore in ${ignoreprojectdirs}; do
     if ! [[ ${todo} =~ ${ignore} ]]; then
       show_info ${todo}
