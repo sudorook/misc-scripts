@@ -2,7 +2,7 @@
 set -eu
 source globals
 
-if [ -d ${gtkdir} ]; then
+if [ -d "${gtkdir}" ]; then
   for dir in ${gtkdir}/*; do
     if [ -d ${dir} ] && [ -d ${dir}/.git ]; then
       show_info ${dir}
@@ -12,7 +12,7 @@ if [ -d ${gtkdir} ]; then
   done
 fi
 
-if [ -d ${icondir} ]; then
+if [ -d "${icondir}" ]; then
   for dir in ${icondir}/*; do
     if [ -d ${dir} ] && [ -d ${dir}/.git ]; then
       show_info ${dir}
@@ -22,7 +22,7 @@ if [ -d ${icondir} ]; then
   done
 fi
 
-if [ -d ${thunderbirddir} ]; then
+if [ -d "${thunderbirddir}" ]; then
   show_info ${thunderbirddir}/chrome
   git -C ${thunderbirddir}/chrome pull
 fi
