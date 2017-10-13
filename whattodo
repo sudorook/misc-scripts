@@ -5,7 +5,7 @@ source globals
 # File name(s) that contain todo lists.
 files=(TODO.md TODO.txt)
 
-# Pregenerate the syntax for specifying multiple file names for find.
+# Pre-generate the syntax for specifying multiple file names for find.
 names=""
 for file in ${files[@]}; do
   if [[ ${names} = "" ]]; then
