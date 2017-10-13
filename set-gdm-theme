@@ -1,0 +1,36 @@
+#! /bin/bash
+set -eu
+source globals
+
+gtktheme=Adapta-Nokto-Eta
+shelldir="/usr/share/gnome-shell"
+shellbak="/usr/share/gnome-shell-$(date +%Y%m%d)"
+
+command -v pacman >/dev/null 2>&1 && {
+  if ! pacman -Qi gdm > /dev/null 2>&1; then
+    show_error "GDM is not installed. Exiting."
+    exit 3
+  fi
+}
+
+command -v apt >/dev/null 2>&1 && {
+  if ! dpkg -s gdm3 > /dev/null 2>&1; then
+    show_error "GDM is not installed. Exiting."
+    exit 3
+  fi
+}
+
+show_info "Backing up current GDM settings to ${shellbak}."
+sudo cp -rf ${shelldir} ${shellbak}
+
+show_info "Copying over ${gtktheme} GDM theme."
+sudo cp -rf /usr/share/themes/${gtktheme}/gnome-shell/* ${shelldir}
+
+if [[ "${gtktheme}" =~ "Adapta" ]]; then
+  sudo cp -f /usr/share/themes/Adapta/gnome-shell/extensions/window-list/* \
+    ${shelldir}/extensions/window-list@gnome-shell-extensions.gcampax.github.com/
+  sudo rm -rf ${shelldir}/extensions/window-list
+  sudo rm -rf ${shelldir}/extensions/workspaces-to-dock
+fi
+
+show_success "Done."
