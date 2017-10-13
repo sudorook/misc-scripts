@@ -18,11 +18,17 @@ done
 # Search every directory in ${projectdir} for a file matching one in ${files}
 # as long as it is not also specified in ${ignoreprojectdirs}.
 for todo in $(find ${projectdir} -type f \( ${names} \)); do
-  for ignore in ${ignoreprojectdirs}; do
-    if ! [[ ${todo} =~ ${ignore} ]]; then
-      show_info ${todo}
-      cat ${todo}
-      echo && echo
-    fi
-  done
+  if [ ${#ignoreprojectdirs[@]} -eq 0 ] || [ "${ignoreprojectdirs}" = "" ]; then
+    show_info ${todo}
+    cat ${todo}
+    echo && echo
+  else
+    for ignore in ${ignoreprojectdirs}; do
+      if ! [[ ${todo} =~ ${ignore} ]]; then
+        show_info ${todo}
+        cat ${todo}
+        echo && echo
+      fi
+    done
+  fi
 done
