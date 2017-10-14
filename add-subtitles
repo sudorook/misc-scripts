@@ -4,7 +4,7 @@ source globals
 
 file=${1%.*}
 extension=${1##*.}
-output="subbed_video.${extenison}"
+output="subbed_video.${extension}"
 
 if [ -f "${file}.srt" ]; then
   case ${extension} in
