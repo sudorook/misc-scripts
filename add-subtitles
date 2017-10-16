@@ -10,21 +10,21 @@ if [ -f "${file}.srt" ]; then
   case ${extension} in
     avi)
       output="subbed_video.mp4"
-      ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${file}.srt" \
+      ffmpeg -i "${1}" -sub_charenc ISO-8859-1 -i "${file}.srt" \
         -c:v copy -c:a copy -c:s mov_text \
         -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
         -id3v2_version 3 -write_id3v1 1 \
         "${output}"
       ;;
     mp4)
-      ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${file}.srt" \
+      ffmpeg -i "${1}" -sub_charenc ISO-8859-1 -i "${file}.srt" \
         -c:v copy -c:a copy -c:s mov_text \
         -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
         -id3v2_version 3 -write_id3v1 1 \
         "${output}"
       ;;
     mkv)
-      ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${file}.srt" \
+      ffmpeg -i "${1}" -sub_charenc ISO-8859-1 -i "${file}.srt" \
         -c:v copy -c:a copy -c:s srt \
         -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
         -id3v2_version 3 -write_id3v1 1 \
