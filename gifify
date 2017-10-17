@@ -2,41 +2,131 @@
 set -eu
 source globals
 
-# Requres eog, ffmpeg (not the avutils fork), and gifsicle.
-# Variables:
-#   $1 = infile
-#   $2 = outfile
-#   $3 = start
-#   $4 = duration
-#   $5 = resolution
+# Set default values globally.
+ASPECTRATIO=16:9
+RESOLUTION=480
+DIMENSIONS=unset
 
-if [ $# != 5 ]; then
-  echo "No, no, no."
-  echo "Usage: gifify <infile> <outfile> <start> <duration> <resolution>"
-  echo "  Ex. gifify video.mkv snippet.gif 5:23 4 480p"
-  exit
+OPTIONS=i:o:s:l:r:a:d:
+LONGOPTIONS=input:,output:,start:,length:,resolution:,aspect-ratio:,dimensions:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -i|--input)
+      IN="$2"
+      shift 2
+      ;;
+    -o|--output)
+      OUT="$2"
+      shift 2
+      ;;
+    -s|--start)
+      START="$2"
+      shift 2
+      ;;
+    -l|--length)
+      LENGTH="$2"
+      shift 2
+      ;;
+    -d|--dimensions)
+      case "$2" in
+        854x480)
+          RESOLUTION=480
+          ASPECTRATIO=16:9
+          DIMENSIONS=854x480
+          ;;
+        1280x720)
+          RESOLUTION=720
+          ASPECTRATIO=16:9
+          DIMENSIONS=1280x720
+          ;;
+        1920x1080)
+          RESOLUTION=1080
+          ASPECTRATIO=16:9
+          DIMENSIONS=1920x1080
+          ;;
+        *)
+          DIMENSIONS="$2"
+          show_warning "Manually setting dimensions to $2."
+          ;;
+      esac
+      shift 2
+      ;;
+    -r|--resolution)
+      case "$2" in
+        480p|480|480i)
+          RESOLUTION=480
+          ;;
+        720p|720|720i)
+          RESOLUTION=720
+          ;;
+        1080p|1080|1080i)
+          RESOLUTION=1080
+          ;;
+        *)
+          show_error "Resolution $2 not supported."
+          exit 3
+          ;;
+      esac
+      shift 2
+      ;;
+    -a|--aspect-ratio)
+      case "$2" in
+        16x9|16by9|16:9)
+          ASPECTRATIO=16:9
+          ;;
+        4x3|4by3|4:3)
+          ASPECTRATIO=4:3
+          ;;
+        *)
+          show_error "Aspect ratio $2 is not supported."
+          exit 3
+          ;;
+      esac
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error"
+      exit 3
+      ;;
+  esac
+done
+
+# Calculate dimensions (if not manually specified) from aspect ratio and
+# resolution.
+if ! [[ -v DIMENSIONS ]] || [ $DIMENSIONS = "unset" ]; then
+  if ! [[ -v RESOLUTION ]] || [ $RESOLUTION = "unset" ]; then
+    show_error "Specify a resolution (and aspect ratio) or manually specify the dimensions."
+    exit 3
+  else
+    WIDTH=$(echo $ASPECTRATIO | cut -d":" -f1)
+    HEIGHT=$(echo $ASPECTRATIO | cut -d":" -f2)
+    DIMENSIONS="$(( ($RESOLUTION*$WIDTH+$HEIGHT-1) / $HEIGHT ))x$RESOLUTION"
+  fi
 fi
 
-dimensions=""
-case "$5" in
-  480p)
-    dimensions=854x480
-    ;;
-  720p)
-    dimensions=1280x720
-    ;;
-  1080p)
-    dimensions=1920x1080
-    ;;
-  *)
-    show_error "Resolution $5 not supported."
-    exit 3
-    ;;
-esac
-
-ffmpeg -y -ss "$3" -i "$1" -sn -t "$4" -s "$dimensions" -f gif "$2"
-gifsicle -O3 "$2" -o "$2"
+# Check if variables are set before running ffmpeg.
+if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
+  ffmpeg -y -ss "$START" -i "$IN" -sn -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
+  gifsicle -O3 "$OUT" -o "$OUT"
+else
+  show_error "Try again. Usage:"
+  show_listitem "  -i  --input               input video (e.g. input.mp4)"
+  show_listitem "  -o  --output              output gif (e.g. output.gif"
+  show_listitem "  -s  --start               starting timestamp (e.g. 01:20.5)"
+  show_listitem "  -l  --length              length in seconds (e.g. 3.5)"
+  show_listitem "  -d  --dimensions          dimensions of gif (e.g. 1280x720)"
+  show_listitem "  -r  --resolution          gif resolution (e.g. 720p)" 
+  show_listitem "  -a  --aspect-ratio        aspect ratio of gif (e.g. 16by9)"
+  exit 3
+fi
 
 if test $(command -v eog); then
-  eog "$2"
+  eog "$OUT"
 fi
