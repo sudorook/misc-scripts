@@ -45,4 +45,6 @@ if [ -f "${name}.srt" ]; then
   mv "${1}" "${1}.bak"
   mv "${name}.srt" "${name}.srt.bak"
   mv "${output}" "${1}"
+else
+  show_error "No subtitle file (*.srt) detected."
 fi
