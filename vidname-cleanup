@@ -48,4 +48,5 @@ if [ "$check" = "y" ] || [ "$check" = "Y" ]; then
   done
 else
   echo "Fine. Be that way."
+  exit 1
 fi
