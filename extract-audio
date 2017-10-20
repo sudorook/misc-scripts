@@ -2,22 +2,20 @@
 set -eu
 source globals
 
-for file in ${@}; do
-  name=${file%.*}
-  extension=${file##*.}
-  case ${extension} in
-    webm)
-      ffmpeg -i "${file}" -vn -ab file28k -ar 44file00 -y "${name}.mp3"
-      ;;
-    mp4)
-      ffmpeg -i "${file}" -vn -acodec libmp3lame -ac 2 -ab file60k -ar 48000 "${name}.mp3"
-      ;;
-    mkv)
-      ffmpeg -i "${file}" -vn -c:a libmp3lame -y "${name}.mp3"
-      ;;
-    *)
-      show_error "ERROR: '${file}' is not compatible"
-      exit 1
-      ;;
-  esac
-done
+name=${1%.*}
+extension=${1##*.}
+case ${extension} in
+  webm)
+    ffmpeg -i "${1}" -vn -y "${name}.mp3"
+    ;;
+  mp4)
+    ffmpeg -i "${1}" -vn -acodec libmp3lame -ac 2 -ab file60k -ar 48000 "${name}.mp3"
+    ;;
+  mkv)
+    ffmpeg -i "${1}" -vn -c:a libmp3lame -y "${name}.mp3"
+    ;;
+  *)
+    show_error "ERROR: '${1}' is not compatible"
+    exit 1
+    ;;
+esac
