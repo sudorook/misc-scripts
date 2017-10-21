@@ -2,6 +2,26 @@
 set -eu
 source globals
 
+get_terminal_profiles() {
+  profilelist=$(dconf read /org/gnome/terminal/legacy/profiles:/list | tr -d "[]',")
+  IFS=' ' read -r -a ids <<< "$profilelist"
+  names=()
+  declare -A profiles
+  for id in "${ids[@]}"; do
+    names+=("$(dconf read /org/gnome/terminal/legacy/profiles:/:$id/visible-name)")
+  done
+}
+
+switch_terminal_profile() {
+  idx=0
+  for name in ${names[@]}; do
+    if [ "$name" = "'$1'" ]; then
+      dconf write /org/gnome/terminal/legacy/profiles:/default "'${ids[$idx]}'"
+    fi
+    idx=$((idx+1))
+  done
+}
+
 set_gtk_theme() {
   case $XDG_CURRENT_DESKTOP in
     X-Cinnamon)
@@ -31,9 +51,11 @@ set_gtk_theme() {
   if [[ "$1" =~ "Nokto" ]] || [[ "$1" =~ "Dark" ]]; then
     sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" ${gtksettings}
     sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
+    switch_terminal_profile "Dark"
   else
     sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" ${gtksettings}
     sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" ${gtksettings}
+    switch_terminal_profile "Light"
   fi
 }
 
@@ -57,6 +79,7 @@ LONGOPTIONS=gtk:,icon:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
+get_terminal_profiles
 while [ $# -ge 1 ]; do
   case "$1" in
     -g|--gtk)
