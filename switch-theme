@@ -22,6 +22,18 @@ switch_terminal_profile() {
   done
 }
 
+switch_vim_background() {
+  if [ -f ${HOME}/.vimrc ]; then
+    if [ "$1" = "Dark" ]; then
+      sed -i "s/^set background=.*$/set background=dark/g" ${HOME}/.vimrc
+      sed -i "s/^set bg=.*$/set bg=dark/g" ${HOME}/.vimrc
+    else
+      sed -i "s/^set background=.*$/set background=light/g" ${HOME}/.vimrc
+      sed -i "s/^set bg=.*$/set bg=light/g" ${HOME}/.vimrc
+    fi
+  fi
+}
+
 set_gtk_theme() {
   case $XDG_CURRENT_DESKTOP in
     X-Cinnamon)
@@ -52,10 +64,12 @@ set_gtk_theme() {
     sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" ${gtksettings}
     sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
     switch_terminal_profile "Dark"
+    switch_vim_background "Dark"
   else
     sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" ${gtksettings}
     sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" ${gtksettings}
     switch_terminal_profile "Light"
+    switch_vim_background "Light"
   fi
 }
 
