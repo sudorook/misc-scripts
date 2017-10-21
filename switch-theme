@@ -3,8 +3,8 @@ set -eu
 source globals
 
 get_terminal_profiles() {
-  profilelist=$(dconf read /org/gnome/terminal/legacy/profiles:/list | tr -d "[]',")
-  IFS=' ' read -r -a ids <<< "$profilelist"
+  IFS=' ' read -r -a ids <<< \
+    "$(dconf read /org/gnome/terminal/legacy/profiles:/list | tr -d "[]',")"
   names=()
   declare -A profiles
   for id in "${ids[@]}"; do
@@ -13,7 +13,7 @@ get_terminal_profiles() {
 }
 
 switch_terminal_profile() {
-  idx=0
+  local idx=0
   for name in ${names[@]}; do
     if [ "$name" = "'$1'" ]; then
       dconf write /org/gnome/terminal/legacy/profiles:/default "'${ids[$idx]}'"
@@ -27,7 +27,7 @@ switch_vim_background() {
     if [ "$1" = "Dark" ]; then
       sed -i "s/^set background=.*$/set background=dark/g" ${HOME}/.vimrc
       sed -i "s/^set bg=.*$/set bg=dark/g" ${HOME}/.vimrc
-    else
+    elif [ "$1" = "Light" ]; then
       sed -i "s/^set background=.*$/set background=light/g" ${HOME}/.vimrc
       sed -i "s/^set bg=.*$/set bg=light/g" ${HOME}/.vimrc
     fi
