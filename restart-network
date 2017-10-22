@@ -1,5 +1,26 @@
 #! /bin/bash
 set -eu
+source globals
+
+#
+# Consider removing this. MAC address randomization is built into
+# NetworkManager now, so use of macchanger is not needed. Set
+# <iface>.cloned-mac-address=random in /etc/NetworkManager/NetworkManager.conf,
+# and this whole script can be replaced entirely by:
+#
+#   $ sudo systemctl restart NetworkManager.service
+#
+# Otherwise, to keep this script, implement the following fixes:
+#  - Parse the results of `ip link show` to figure out the interface names for
+#    the 'all' option.
+#  - Use getopt to parse command line options.
+#  - Make sure macchanger is installed before trying to use it (as root).
+#  - Print a message upon use describing the NetworkManager MAC address option.
+#  - Actually check that the MAC address of the interface(s) are actually
+#    changed.
+#
+#   --A
+#
 
 function print_interfaces {
   ip link show | grep "^[0-9]" | grep -v "virbr\|tun\|lo" | \
@@ -7,7 +28,7 @@ function print_interfaces {
 }
 
 if [ "$#" -ne 1 ]; then
-  echo "specify the network interface:"
+  show_error "Error. Specify the network interface to restart."
   print_interfaces
   exit 1
 fi
@@ -36,7 +57,7 @@ if test `ip link show | grep -c "$iface"` -ne 0; then
     systemctl start NetworkManager.service"
   exit 0
 else
-  echo "interface $iface doesn't exist. pick from:"
+  show_error "Interface $iface doesn't exist. Pick from:"
   print_interfaces
   exit 1
 fi
