@@ -5,6 +5,12 @@ source globals
 name=${1%.*}
 extension=${1##*.}
 case ${extension} in
+  mp3)
+    temp="temp-$$.mp3"
+    ffmpeg -i "${1}" -vn -codec:a copy -map a "${temp}"
+    mv "${1}" "${1}.bak"
+    mv "${temp}" "${1}"
+    ;;
   webm)
     ffmpeg -i "${1}" -vn -y "${name}.mp3"
     ;;
