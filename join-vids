@@ -1,0 +1,117 @@
+#! /bin/bash
+set -eu
+source globals
+
+#
+# Functions
+#
+
+# Check if all files passed to script are mp4s.
+function is_all_mp4s() {
+  for file in "${@}"; do
+    echo "$file"
+    if ! [ "${file##*.}" = "mp4" ]; then
+      isallmp4=false
+      return 1
+    fi
+  done
+  return 0
+}
+
+# Join mp4s by converting them to a transport stream (ts), concatenating the
+# streams, and converting the result back to an mp4.
+function join_mp4s() {
+  input="concat:"
+  idx=0
+  for file in "${@}"; do
+    if [ "${file}" = "${outfile}" ]; then
+      continue
+    fi
+    name=${file%.*}
+    extension=${file##*.}
+    ffmpeg -i "${file}" -c copy -bsf:v h264_mp4toannexb -f mpegts "${name}.ts"
+    input="${input}${name}.ts|"
+  done
+  input=${input::-1}
+
+  rm -f "${outfile}"
+  ffmpeg -i "${input}" -codec copy -bsf:a aac_adtstoasc "${outfile}"
+
+  for file in "${@}"; do
+    name=${file%.*}
+    rm -f "${name}.ts"
+  done
+}
+
+# Join videos with mixed codecs using ffmpeg concat filter.
+function join_mixed() {
+  input=""
+  filter=""
+  idx=0
+  for file in "${@}"; do
+    if [ "${file}" = "${outfile}" ]; then
+      continue
+    fi
+    input="${input}-i ${file@Q} "
+    filter="${filter}[${idx}:v:0] [${idx}:a:0] "
+    idx=$(( $idx + 1 ))
+  done
+  filter="${filter}concat=n=${#}:v=1:a=1 [v] [a]"
+
+  rm -f "${outfile}"
+  dothis=$(echo ffmpeg ${input} -filter_complex \"${filter}\" \
+             -map \"[v]\" -map \"[a]\" ${options} ${outfile})
+  eval $dothis
+}
+
+
+#
+# Globals
+#
+
+outfile=output.mp4
+options=""
+
+
+#
+# Main
+#
+
+# When all provided files are mp4s, use lossless concatenation by transcoding
+# mp4s to mpeg transport stream (ts) files.
+if is_all_mp4s "${@}"; then
+  show_header "Joining MP4s."
+  join_mp4s "${@}"
+
+# # If multiple codes are present, use the ffmpeg concat filter.
+# else
+#   show_header "Joining mixed codecs."
+#   join_mixed "${@}"
+# fi
+
+# If multiple codecs are present, convert non-mp4 files to mp4s and then join
+# them.
+else
+  show_header "Converting mixed codecs to mp4 and then joining them."
+  mp4s=()
+  temp=()
+  for file in "${@}"; do
+    if [ "${file}" = "${outfile}" ]; then
+      continue
+    fi
+    name=${file%.*}
+    extension=${file##*.}
+    if [ "${extension}" = "mp4" ]; then
+      mp4s+=("$file")
+    else
+      ffmpeg -i "${file}" "${name}.mp4"
+      mp4s+=("${name}.mp4")
+      temp+=("${name}.mp4")
+    fi
+  done
+  join_mp4s "${mp4s[@]}"
+
+  for f in "${temp[@]}"; do
+    rm "$f"
+  done
+fi
