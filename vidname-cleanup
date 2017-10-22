@@ -18,6 +18,7 @@ function cleanup_filename() {
       sed -e "s/\ \+\[[^][]*\]//g" | \
       sed -e "s/\[[^][]*\]//g" | \
       sed -e "s/\ \(720\|1080\|480\)p.*//g" | \
+      sed -e "s/\ \(19\|20\)\([0-9]\{2\}\)$//g" | \
       sed -e "s/([^][]*)//g")
     echo "$newname.$extension"
     return 0
