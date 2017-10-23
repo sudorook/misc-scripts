@@ -11,9 +11,12 @@ if [ -f "${name}.srt" ]; then
   encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
   subextension="srt"
   if ! [[ "${encoding}" = "utf-8" ]]; then
-    show_info "Converting ${name}.srt encoding from ${encoding} to utf-8."
     sed -i "s/\(\x92\|\x91\)/'/g" "${name}.srt"
     sed -i "s/\(\x94\|\x93\)/\"/g" "${name}.srt"
+    encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
+  fi
+  if ! [[ "${encoding}" = "utf-8" ]]; then
+    show_info "Converting ${name}.srt encoding from ${encoding} to utf-8."
     iconv -f "${encoding}" -t "utf-8" "${name}.srt" > temp.srt && \
       mv temp.srt "${name}.srt"
   fi
@@ -21,9 +24,12 @@ elif [ -f "${name}.ass" ]; then
   encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
   subextension="ass"
   if ! [[ "${encoding}" = "utf-8" ]]; then
-    show_info "Converting ${name}.ass encoding from ${encoding} to utf-8."
     sed -i "s/\(\x92\|\x91\)/'/g" "${name}.srt"
     sed -i "s/\(\x94\|\x93\)/\"/g" "${name}.srt"
+    encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
+  fi
+  if ! [[ "${encoding}" = "utf-8" ]]; then
+    show_info "Converting ${name}.ass encoding from ${encoding} to utf-8."
     iconv -f "${encoding}" -t "utf-8" "${name}.ass" > temp.ass && \
       mv temp.ass "${name}.ass"
   fi
