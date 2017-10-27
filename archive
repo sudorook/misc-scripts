@@ -15,7 +15,7 @@ fi
 
 if [ -d "${dir}" ]; then
   archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]")_$(date +%Y%m%d-%I%M%S)
-  tar czf "${archive}.tar.gz" ${dir}
+  tar czf "${archive}.tar.gz" --exclude='*.sw[a-p]' ${dir}
   mv "${archive}.tar.gz" ${HOME}/Desktop
 else
   show_error "${dir} is not a directory."
