@@ -6,9 +6,14 @@ get_count() {
   dir=${@:-1}
   if [ -d "${dir}/.git" ]; then
     if git -C "${dir}" log --oneline >/dev/null 2>&1; then
-      count=$(git -C ${dir} rev-list --all --count \
-                --author ${AUTHOR} \
-                --after "$(date -d "- ${TIMECOUNT} ${TIMEUNIT}")")
+      local cmd="git -C ${dir} rev-list --all --count"
+      if ! [ -z ${AUTHOR} ]; then
+        cmd+=" --author ${AUTHOR}"
+      fi
+      if ! [ -z ${TIMECOUNT} ] && ! [ -z ${TIMEUNIT} ]; then
+        cmd+=" --after \"$(date -d "- ${TIMECOUNT} ${TIMEUNIT}")\""
+      fi
+      count=$(eval $cmd)
       echo ${count}
     fi
   fi
@@ -24,11 +29,12 @@ eval set -- "$PARSED"
 while [ $# -ge 1 ]; do
   case "$1" in
     -a|--author)
-      AUTHOR="$2"
+      export AUTHOR=${2}
       shift 2
       ;;
     -d|--during)
-      DURING="$2"
+      export TIMECOUNT=${2%%[A-Za-z]*}
+      export TIMEUNIT=${2##*[0-9]}
       shift 2
       ;;
     --)
@@ -41,11 +47,6 @@ while [ $# -ge 1 ]; do
       ;;
   esac
 done
-
-export AUTHOR=${AUTHOR}
-export DURING=${DURING}
-export TIMECOUNT=${DURING%%[A-Za-z]*}
-export TIMEUNIT=${DURING##*[0-9]}
 
 find ${projectdir} -maxdepth 3 -type d \
   -exec bash -c 'get_count "{}"' \; | awk '{s+=$1}END{print s}'
