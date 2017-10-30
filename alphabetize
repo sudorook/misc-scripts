@@ -1,0 +1,10 @@
+#! /bin/bash
+set -eu
+source globals
+
+temp=temp
+trap "rm -f ${temp}; exit" INT TERM EXIT
+
+sort -u "${1}" > "${temp}"
+mv "${1}" "${1}.bak"
+mv "${temp}" "${1}"
