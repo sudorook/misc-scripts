@@ -1,0 +1,20 @@
+#! /bin/bash
+set -eu
+source globals
+
+file=${entrydir}/$(date +%F).md
+
+if ! [ -f "${file}" ]; then
+  if [ -z ${template+x} ] || [ "${template}" = "" ]; then
+    echo "# $(date '+%A, %B %d, %Y')" >> ${file}
+    echo >> ${file}
+  elif ! [ -f "${template}" ]; then
+    show_error "Template ${template} does not exist."
+    exit 3
+  else
+    cat ${template} >> ${file}
+    sed -i "s/@date@/$(date '+%A, %B %d, %Y')/g" ${file}
+  fi
+fi
+
+eval $EDITOR ${file}

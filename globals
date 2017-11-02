@@ -55,3 +55,7 @@ zshdir=
 # project folders
 projectdir=
 ignoreprojectdirs=()
+
+# entry dir
+entrydir=
+template=
