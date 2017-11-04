@@ -1,0 +1,12 @@
+#! /bin/bash
+set -eu
+source globals
+
+if [ -d "${1}" ]; then
+  find ${1} -type f ! -path "${1}/.git*" -exec wc -l {} +
+elif [ -f "${1}" ]; then
+  wc -l "${1}"
+else
+  show_error "Unknown ${1}."
+  exit 3
+fi
