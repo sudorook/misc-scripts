@@ -52,6 +52,9 @@ thunderbirddir=
 # zsh dir
 zshdir=
 
+# pkgbuild dir
+pkgbuilddir=
+
 # project folders
 projectdir=
 ignoreprojectdirs=()
