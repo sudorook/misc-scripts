@@ -29,36 +29,44 @@ while true; do
     battery_level=$(<${battery_path}/capacity)
 
     if [ ${battery_state} == "Discharging" ]; then
-      # Send flag when battery drops too low
+      # Send flag when battery drops below critical threshold.
       if [ ${battery_level} -le ${critical_battery} ]; then
         if ! ${critical_flag_sent}; then
-          DISPLAY=${display} notify-send -u critical -i ${critical_icon} "Battery critical" \
+          DISPLAY=${display} notify-send -u critical -i ${critical_icon} \
+            "Battery critical" \
             "Battery is at ${battery_level}%. Plug in the power supply."
           critical_flag_sent=true
         fi
+      # If battery level is above critical, check if it is below the low
+      # threshold and send flag if so.
       elif [ ${battery_level} -le ${low_battery} ]; then
         if ! ${low_flag_sent}; then
-          DISPLAY=${display} notify-send -u critical -i ${low_icon} "Battery low" \
+          DISPLAY=${display} notify-send -u critical -i ${low_icon} \
+            "Battery low" \
             "Battery is at ${battery_level}%. Plug in the power supply soon."
           low_flag_sent=true
         fi
       fi
 
-      # Unset the full battery flag while discharging
+      # Unset the full battery flag while discharging.
       full_flag_sent=false
     fi
 
     if [ ${battery_state} == "Charging" ]; then
-      # Send flag when battery is full
+      # Send flag when battery is full (i.e. above the full battery threshold).
       if [ ${battery_level} -gt ${full_battery} ]; then
+        # Check if the full battery message has been sent already. If not, send
+        # it out.
         if ! ${full_flag_sent}; then
-          DISPLAY=${display} notify-send -u critical -i ${full_icon} "Battery full" \
+          DISPLAY=${display} notify-send -u critical -i ${full_icon} \
+            "Battery full" \
             "Battery is at ${battery_level}%. Unplug the power supply."
           full_flag_sent=true
         fi
       fi
 
-      # Unset low battery flags while charging
+      # Unset critical battery flag if charging, and unset the low flag if the
+      # battery level is above the critical threshold.
       critical_flag_sent=false
       if [ ${battery_level} -gt ${critical_battery} ]; then
         low_flag_sent=false
