@@ -1,0 +1,117 @@
+#! /bin/bash
+set -eu
+source globals
+
+
+#
+# Functions
+#
+
+# Check if path for backup1 exists.
+function backup_exists() {
+  if ! [ -d ${backup1} ]; then
+    show_error "Backup destination ${backup1} does not exist."
+    exit 1
+  else
+    return 0
+  fi
+}
+
+# Check if any encfs directories are mounted (/etc/mtab).
+function encfs_unmounted() {
+  if [ "$(grep encfs /etc/mtab)" ]; then
+    show_error "Encrypt and unmount before running:"
+    show_error "$(grep encfs /etc/mtab | cut -d" " -f2)"
+    exit 1
+  else
+    return 0
+  fi
+}
+
+# Backup home directory to Backups 1 and 2
+function sync_home() {
+  show_info "Syncing ${HOME} to ${backup1}."
+  sudo rsync -Pradog --delete-excluded \
+    ${HOME}/ ${backup1}/${USER^}/ \
+    --exclude "${vboxdir#$HOME}/*" \
+    --exclude "${kvmdir#$HOME}/*"
+  sync
+  show_success "Done." && echo
+
+  if [ -d ${backup2} ]; then
+    show_info "Syncing ${backup1} to ${backup2}."
+    sudo rsync -Pradog --delete-excluded \
+      ${backup1}/ ${backup2}/ \
+      --exclude ".Trash-1000/*" \
+      --exclude "Images/KVM/*" \
+      --exclude "Images/VirtualBox/*"
+    sync
+    show_success "Done." && echo
+  fi
+}
+
+# Backup VMS to Backups 1 and 2
+function sync_vms() {
+  show_info "Syncing VMs in ${HOME} to ${backup1}."
+  mkdir -p ${backup1}/Images/KVM
+  mkdir -p ${backup1}/Images/VirtualBox
+  sudo bash -c "\
+    rsync -Pradog --sparse ${kvmdir}/ ${backup1}/Images/KVM/ && \
+    rsync -Pradog ${vboxdir}/ ${backup1}/Images/VirtualBox/"
+  sync
+  show_success "Done." && echo
+
+  if [ -d ${backup2} ]; then
+    show_info "Syncing VMs in ${backup1} to ${backup2}."
+    mkdir -p ${backup2}/Images/KVM
+    mkdir -p ${backup2}/Images/VirtualBox
+    sudo bash -c "\
+      rsync -Pradog --sparse ${backup1}/Images/KVM/ ${backup2}/Images/KVM/ && \
+      rsync -Pradog ${backup1}/Images/VirtualBox/ ${backup2}/Images/VirtualBox/"
+    sync
+    show_success "Done." && echo
+  fi
+}
+
+
+#
+# Main
+#
+
+OPTIONS=ahv
+LONGOPTIONS=all,home,vms
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n ${0} -- ${@})
+eval set -- ${PARSED}
+
+while [ ${#} -ge 1 ]; do
+  case ${1} in
+    -a|--all)
+      if backup_exists && encfs_unmounted; then
+        sync_home
+        sync_vms
+      fi
+      shift
+      break
+      ;;
+    -h|--home)
+      if backup_exists && encfs_unmounted; then
+        sync_home
+      fi
+      shift
+      ;;
+    -v|--vms)
+      if backup_exists && encfs_unmounted; then
+        sync_vms
+      fi
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error: invalid flag."
+      exit 3
+      ;;
+  esac
+done

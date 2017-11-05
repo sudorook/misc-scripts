@@ -35,8 +35,12 @@ show_listitem() {
 backup1=
 backup2=
 
-# copy/send to kvm
+# kvm dirs
+kvmdir=
 kvmshare=
+
+# virtualbox dirs
+vboxdir=
 
 # encrypted folder
 encryptpath=
