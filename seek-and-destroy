@@ -96,7 +96,7 @@ case ${MODE} in
         echo "Yessir!"
         precise_seek ${1} | destroy
       else
-        echo "Very well..."
+        echo "As you wish..."
       fi
     else
       echo "Target(s) not found. Standing down."
@@ -111,7 +111,7 @@ case ${MODE} in
         echo "Yessir!"
         sloppy_seek ${1} | destroy
       else
-        echo "Very well..."
+        echo "As you wish..."
       fi
     else
       echo "Target(s) not found. Standing down."
