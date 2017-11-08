@@ -2,9 +2,37 @@
 set -eu
 source globals
 
-gtktheme=Adapta-Nokto-Eta
-shelldir="/usr/share/gnome-shell"
-shellbak="/usr/share/gnome-shell-$(date +%Y%m%d)"
+# Check that GDM is installed.
+command -v pacman >/dev/null 2>&1 && {
+  if ! pacman -Qi gdm >/dev/null 2>&1; then
+    show_error "GDM is not installed. Exiting."
+    exit 3
+  fi
+}
+
+command -v apt >/dev/null 2>&1 && {
+  if dpkg -s gdm >/dev/null 2>&1; then
+    show_error "GDM is not installed. Exiting."
+    exit 3
+  fi
+}
+
+# Get the current GTK theme.
+case $XDG_CURRENT_DESKTOP in
+  X-Cinnamon)
+    gtktheme=$(gsettings get org.cinnamon.desktop.interface gtk-theme | sed -e "s/'//g")
+    ;;
+  GNOME)
+    gtktheme=$(gsettings get org.gnome.desktop.interface gtk-theme | sed -e "s/'//g")
+    ;;
+  *)
+    show_error "$XDG_CURRENT_DESKTOP environment not supported."
+    exit 3
+    ;;
+esac
+
+gnomeshelldir="/usr/share/gnome-shell"
+gnomeshellbak="/usr/share/gnome-shell-$(date +%Y%m%d)"
 
 command -v pacman >/dev/null 2>&1 && {
   if ! pacman -Qi gdm > /dev/null 2>&1; then
@@ -20,17 +48,17 @@ command -v apt >/dev/null 2>&1 && {
   fi
 }
 
-show_info "Backing up current GDM settings to ${shellbak}."
-sudo cp -rf ${shelldir} ${shellbak}
+show_info "Backing up current GDM settings to ${gnomeshellbak}."
+sudo cp -rf ${gnomeshelldir} ${gnomeshellbak}
 
 show_info "Copying over ${gtktheme} GDM theme."
-sudo cp -rf /usr/share/themes/${gtktheme}/gnome-shell/* ${shelldir}
+sudo cp -rf /usr/share/themes/${gtktheme}/gnome-shell/* ${gnomeshelldir}
 
 if [[ "${gtktheme}" =~ "Adapta" ]]; then
   sudo cp -f /usr/share/themes/Adapta/gnome-shell/extensions/window-list/* \
-    ${shelldir}/extensions/window-list@gnome-shell-extensions.gcampax.github.com/
-  sudo rm -rf ${shelldir}/extensions/window-list
-  sudo rm -rf ${shelldir}/extensions/workspaces-to-dock
+    ${gnomeshelldir}/extensions/window-list@gnome-shell-extensions.gcampax.github.com/
+  sudo rm -rf ${gnomeshelldir}/extensions/window-list
+  sudo rm -rf ${gnomeshelldir}/extensions/workspaces-to-dock
 fi
 
 show_success "Done."
