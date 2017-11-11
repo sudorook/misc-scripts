@@ -29,7 +29,7 @@ for vid in *; do
   fi
 done
 
-read -p $'\033[1;34mIs this good? (y/N) \033[0m' check
+check=$(ask_question "Is this good? (y/N)")
 
 if [ "$check" = "y" ] || [ "$check" = "Y" ]; then
   for vid in *; do

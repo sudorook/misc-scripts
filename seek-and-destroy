@@ -91,7 +91,7 @@ case ${MODE} in
     show_header "--- Running precise seeker ---"
     if test "$(precise_seek ${1})"; then
       precise_seek ${1}
-      read -p $'\033[1;34mPermission to destroy? (y/N) \033[0m' check
+      check=(ask_question 'Permission to destroy? (y/N)')
       if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
         echo "Yessir!"
         precise_seek ${1} | destroy
@@ -106,7 +106,7 @@ case ${MODE} in
     show_header "--- Running sloppy seeker ---"
     if test "$(sloppy_seek ${1})"; then
       sloppy_seek ${1}
-      read -p $'\033[1;34mPermission to destroy? (y/N) \033[0m' check
+      check=(ask_question 'Permission to destroy? (y/N)')
       if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
         echo "Yessir!"
         sloppy_seek ${1} | destroy
