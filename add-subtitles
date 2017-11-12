@@ -2,6 +2,11 @@
 set -eu
 source globals
 
+function hardcode_cleanup {
+  sed -i "s/\(\x92\|\x91\)/'/g" "${1}"
+  sed -i "s/\(\x94\|\x93\)/\"/g" "${1}"
+}
+
 name=${1%.*}
 extension=${1##*.}
 encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
@@ -11,8 +16,7 @@ if [ -f "${name}.srt" ]; then
   encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
   subextension="srt"
   if ! [[ "${encoding}" = "utf-8" ]]; then
-    sed -i "s/\(\x92\|\x91\)/'/g" "${name}.srt"
-    sed -i "s/\(\x94\|\x93\)/\"/g" "${name}.srt"
+    hardcode_cleanup "${name}.srt"
     encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
   fi
   if ! [[ "${encoding}" = "utf-8" ]]; then
@@ -24,8 +28,7 @@ elif [ -f "${name}.ass" ]; then
   encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
   subextension="ass"
   if ! [[ "${encoding}" = "utf-8" ]]; then
-    sed -i "s/\(\x92\|\x91\)/'/g" "${name}.srt"
-    sed -i "s/\(\x94\|\x93\)/\"/g" "${name}.srt"
+    hardcode_cleanup "${name}.srt"
     encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
   fi
   if ! [[ "${encoding}" = "utf-8" ]]; then
