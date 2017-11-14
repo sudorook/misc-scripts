@@ -1,0 +1,88 @@
+#! /bin/bash
+set -eu
+source globals
+
+#
+# Globals
+#
+
+function convert_codec() {
+  case "${3}" in
+    h264)
+      ffmpeg -i "${1}" -vcodec libx264 -acodec copy "${2}"
+      ;;
+    h265)
+      ffmpeg -i "${1}" -vcodec libx265 -acodec copy "${2}"
+      ;;
+    *)
+      show_error "Codec ${3} not supported."
+      exit 3
+      ;;
+  esac
+}
+
+function print_usage() {
+  echo "Usage:"
+  echo "  reencode -i|--input <input> -c|--c <codec>"
+}
+
+
+#
+# Parse command line options
+#
+
+OPTIONS=i:c:
+LONGOPTIONS=input:,codec:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -i|--input)
+      IN="$2"
+      NAME=${IN%.*}
+      FILETYPE=${IN##*.}
+      shift 2
+      ;;
+    -c|--codec)
+      case "$2" in
+        # Use x265 to encode h.265 videos.
+        h265|x265|libx265)
+          CODEC=h265
+          ;;
+        # Use x264 to encode h.264 videos.
+        h264|x264|libx264)
+          CODEC=h264
+          ;;
+        *)
+          show_error "Codec ${2} is not supported. Exiting."
+          exit 3
+          ;;
+      esac
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error: unknown command line option."
+      print_usage
+      exit 3
+      ;;
+  esac
+done
+
+
+#
+# Main
+#
+
+case ${FILETYPE} in
+  avi)
+    convert_codec "${IN}" "${NAME}.mp4" "${CODEC}"
+    ;;
+  *)
+    show_error "Filetype ${FILETYPE} not supported."
+    exit 3
+    ;;
+esac
