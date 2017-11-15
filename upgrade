@@ -85,7 +85,7 @@ function upgrade_zsh() {
 function upgrade_pkgbuild() {
   command -v makepkg >/dev/null 2>&1 && {
     show_header "Upgrading AUR pkgbuilds."
-    for dir in "$pkgbuilddir/*"; do
+    for dir in ${pkgbuilddir}/*; do
       if [ -d "${dir}/.git" ]; then
         show_info "$(basename ${dir})"
         if git_update "${dir}"; then
