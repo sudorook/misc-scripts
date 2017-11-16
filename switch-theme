@@ -60,7 +60,7 @@ set_gtk_theme() {
   esac
 
   gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
-  if [[ "$1" =~ "Nokto" ]] || [[ "$1" =~ "Dark" ]]; then
+  if [[ "$1" =~ [Nn]okto ]] || [[ "$1" =~ [Dd]ark ]]; then
     sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" ${gtksettings}
     sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
     switch_terminal_profile "Dark"
