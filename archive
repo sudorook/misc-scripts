@@ -14,9 +14,9 @@ if [ "${dir:0:2}" = "~/" ]; then
 fi
 
 if [ -d "${dir}" ]; then
-  archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]")_$(date +%Y%m%d-%I%M%S)
-  tar czf "${archive}.tar.gz" --exclude='*.sw[a-p]' ${dir}
-  mv "${archive}.tar.gz" ${HOME}/Desktop
+  archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]" | \
+            sed -e "s/^\.//g")_$(date +%Y%m%d-%I%M%S)
+  tar czf "${HOME}/Desktop/${archive}.tar.gz" --exclude='*.sw[a-p]' ${dir}
 else
   show_error "${dir} is not a directory."
   exit 1
