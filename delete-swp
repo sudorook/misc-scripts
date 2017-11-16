@@ -1,0 +1,9 @@
+#! /bin/bash
+set -eu
+source globals
+
+if [ $# = 0 ]; then
+  find ${HOME} -type f -name "*.sw[a-p]" -delete
+else
+  find ${@} -type f -name "*.sw[a-p]" -delete
+fi
