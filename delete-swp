@@ -3,7 +3,9 @@ set -eu
 source globals
 
 if [ $# = 0 ]; then
+  find . -type f -name "*.sw[a-p]"
   find . -type f -name "*.sw[a-p]" -delete
 else
+  find ${@} -type f -name "*.sw[a-p]"
   find ${@} -type f -name "*.sw[a-p]" -delete
 fi
