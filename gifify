@@ -2,6 +2,19 @@
 set -eu
 source globals
 
+# Global functions.
+function print_usage() {
+  echo "  -i  --input                 input video (e.g. input.mp4)"
+  echo "  -o  --output                output gif (e.g. output.gif)"
+  echo "  -s  --start                 starting timestamp (e.g. 01:20.5)"
+  echo "  -l  --length                length in seconds (e.g. 3.5)"
+  echo "  -d  --dimensions            dimensions of gif (e.g. 1280x720)"
+  echo "  -r  --resolution            gif resolution (e.g. 720p)"
+  echo "  -a  --aspect-ratio          aspect ratio of gif (e.g. 16x9)"
+  echo "Enter the dimensions manually or provide the resolution and aspect ratio."
+  exit 3
+}
+
 # Set default values globally.
 ASPECTRATIO=16:9
 RESOLUTION=480
@@ -123,14 +136,7 @@ if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
   gifsicle -O3 "$OUT" -o "$OUT"
 else
   show_error "Try again. Usage:"
-  show_listitem "  -i  --input               input video (e.g. input.mp4)"
-  show_listitem "  -o  --output              output gif (e.g. output.gif"
-  show_listitem "  -s  --start               starting timestamp (e.g. 01:20.5)"
-  show_listitem "  -l  --length              length in seconds (e.g. 3.5)"
-  show_listitem "  -d  --dimensions          dimensions of gif (e.g. 1280x720)"
-  show_listitem "  -r  --resolution          gif resolution (e.g. 720p)" 
-  show_listitem "  -a  --aspect-ratio        aspect ratio of gif (e.g. 16by9)"
-  exit 3
+  print_usage
 fi
 
 if test $(command -v eog); then
