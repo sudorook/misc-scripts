@@ -6,6 +6,9 @@ get_count() {
   dir=${@:-1}
   if [ -d "${dir}/.git" ]; then
     if git -C "${dir}" log --oneline >/dev/null 2>&1; then
+      #                                         ^^^^
+      # Pipe stderr to stdout (and then to /dev/null) to suppress error
+      # messages git prints when a repository is empty, etc.
       local cmd="git -C ${dir} rev-list --all --count"
       if ! [ -z ${AUTHOR} ]; then
         cmd+=" --author ${AUTHOR}"
