@@ -77,6 +77,12 @@ while [ $# -ge 1 ]; do
         16x9|16by9|16:9)
           ASPECTRATIO=16:9
           ;;
+        16x10|16by10|16:10)
+          ASPECTRATIO=16:10
+          ;;
+        3x2|3by2|3:2)
+          ASPECTRATIO=3:2
+          ;;
         4x3|4by3|4:3)
           ASPECTRATIO=4:3
           ;;
