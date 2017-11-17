@@ -3,6 +3,10 @@ set -eu
 source globals
 
 if [ -d "${1}" ]; then
+  # As tempting as it may be, don't try to generate a list of ignore paths by
+  # parsing the gitignore. People normally stick globs and all sorts of stuff
+  # in them, and it's not possible to handle any permutation of them safely as
+  # text and not accidentally execute them.
   find ${1} -type f ! -path "${1}/.git*" -exec wc -l {} +
 elif [ -f "${1}" ]; then
   wc -l "${1}"
