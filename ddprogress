@@ -1,0 +1,13 @@
+#! /bin/bash
+set -eu
+source globals
+
+#
+# Option 1: one-shot
+#   $ ddprogress
+# 
+# Option 2: repeat
+#   $ watch -n<interval (s)> ddprogress
+#
+
+sudo kill -USR1 $(pgrep ^dd)
