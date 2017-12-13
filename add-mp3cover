@@ -1,0 +1,38 @@
+#! /bin/bash
+set -eu
+
+OPTIONS=a:c:
+LONGOPTIONS=audio:,cover:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -a|--audio)
+      export AUDIO=${2}
+      shift 2
+      ;;
+    -c|--cover)
+      export COVER=${2}
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error"
+      exit 3
+      ;;
+  esac
+done
+
+if [[ -v COVER ]] || [[ -v AUDIO ]]; then
+  mv "${AUDIO}" "${AUDIO}.bak"
+  ffmpeg -i "${COVER}" -i "${AUDIO}.bak" -map 0:0 -map 1:0 -c copy "${AUDIO}"
+else
+  show_error "ERROR: Usage:"
+  echo "add-mp3cover -a <audio> -c <cover>"
+  echo
+fi
+
