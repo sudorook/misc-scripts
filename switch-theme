@@ -86,6 +86,11 @@ set_icon_theme() {
       exit 3
       ;;
   esac
+
+  qt5ctconf=${HOME}/.config/qt5ct/qt5ct.conf
+  if [ -f ${qt5ctconf} ]; then
+    sed -i "s/^icon_theme=.*$/icon_theme=$1/g" ${qt5ctconf}
+  fi
 }
 
 OPTIONS=g:i:
