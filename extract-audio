@@ -5,20 +5,11 @@ source globals
 name=${1%.*}
 extension=${1##*.}
 case ${extension} in
-  mp3)
-    temp="temp-$$.mp3"
-    ffmpeg -i "${1}" -vn -codec:a copy -map a "${temp}"
-    mv "${1}" "${1}.bak"
-    mv "${temp}" "${1}"
-    ;;
   webm)
-    ffmpeg -i "${1}" -vn -y "${name}.mp3"
+    ffmpeg -i "${1}" -y "${name}.mp3"
     ;;
-  mp4)
-    ffmpeg -i "${1}" -vn -acodec libmp3lame -ac 2 -ab file60k -ar 48000 "${name}.mp3"
-    ;;
-  mkv)
-    ffmpeg -i "${1}" -vn -c:a libmp3lame -y "${name}.mp3"
+  mp4|mkv)
+    ffmpeg -i "${1}" -c:a libmp3lame -y "${name}.mp3"
     ;;
   *)
     show_error "ERROR: '${1}' is not compatible"
