@@ -35,4 +35,3 @@ else
   echo "add-mp3cover -a <audio> -c <cover>"
   echo
 fi
-
