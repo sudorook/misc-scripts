@@ -81,6 +81,10 @@ case ${FILETYPE} in
   avi)
     convert_codec "${IN}" "${NAME}.mp4" "${CODEC}"
     ;;
+  mp4)
+    mv "${IN}" "${IN}.bak"
+    convert_codec "${IN}.bak" "${NAME}.mp4" "${CODEC}"
+    ;;
   *)
     show_error "Filetype ${FILETYPE} not supported."
     exit 3
