@@ -32,7 +32,7 @@ case $XDG_CURRENT_DESKTOP in
 esac
 
 gnomeshelldir="/usr/share/gnome-shell"
-gnomeshellbak="/usr/share/gnome-shell-$(date +%Y%m%d)"
+gnomeshellbak="/usr/share/gnome-shell-$(date +%Y%m%d-%I%M%S)"
 
 command -v pacman >/dev/null 2>&1 && {
   if ! pacman -Qi gdm > /dev/null 2>&1; then
