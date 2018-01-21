@@ -24,8 +24,8 @@ get_count() {
 export -f get_count
 
 
-OPTIONS=a:d:
-LONGOPTIONS=author:,during:
+OPTIONS=ha:d:
+LONGOPTIONS=help,author:,during:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -39,6 +39,14 @@ while [ $# -ge 1 ]; do
       export TIMECOUNT=${2%%[A-Za-z]*}
       export TIMEUNIT=${2##*[0-9]}
       shift 2
+      ;;
+    -h|--help)
+      echo "Usage: count-commits -a|--author <author> -d|--during <time period>"
+      echo ""
+      echo "author      =  the author of the commit"
+      echo "time period =  the period counting back from now that you want to"
+      echo "               search for commits, e.g. 1week, 2years, 3days, etc."
+      exit
       ;;
     --)
       shift
