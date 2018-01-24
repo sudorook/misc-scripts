@@ -2,12 +2,10 @@
 set -eu
 source globals
 
-#
-# Option 1: one-shot
-#   $ ddprogress
-# 
-# Option 2: repeat
-#   $ watch -n<interval (s)> ddprogress
-#
+show_warning "kill won't print from a subshell. Manually run in the terminal."
+show_warning "You can also simply use status=progress in dd itself."
+echo
 
-sudo kill -USR1 $(pgrep ^dd)
+show_header "Options:"
+echo "1. sudo kill -USR1 \$(pgrep ^dd) # Runs once"
+echo "2. watch -n5 'sudo kill -USR1 \$(pgrep ^dd)' # Runs on a 5sec interval"
