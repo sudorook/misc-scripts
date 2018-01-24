@@ -2,12 +2,10 @@
 set -eu
 source globals
 
-files="-name *.sw[a-p] -o -name *.bak -o -name *~"
-
 if [ $# = 0 ]; then
-  find . \( ${files} \)
-  find . \( ${files} \) -exec rm -rf {} +
+  find . \( -name '*.sw[a-p]' -o -name '*.bak' -o -name '*~' \) \
+    -exec rm -rf {} +
 else
-  find ${@} \( ${files} \)
-  find ${@} \( ${files} \) -exec rm -rf {} +
+  find ${@} \( -name '*.sw[a-p]' -o -name '*.bak' -o -name '*~' \) \
+    -exec rm -rf {} +
 fi
