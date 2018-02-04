@@ -72,17 +72,24 @@ function upgrade_julia() {
 }
 
 function upgrade_zsh() {
-  show_header "Upgrading zsh packages."
-  if command -v antigen-update >/dev/null 2>&1; then
-    antigen-update
+  show_header "Upgrading zsh plugins."
+  if ! command -v zsh 2>&1; then
+    show_warning "Install zsh first. Skipping."
+    return
+  fi
+
   # antigen-update may not be in the bash PATH, so check the zsh path if
   # 'command -v antigen-update' returns false.
-  elif zsh -ic "command -v antigen-update" >/dev/null 2>&1; then
+  if zsh -ic "command -v antigen-update" >/dev/null 2>&1; then
     zsh -ic "antigen-update"
   else
-    for dir in ${zshdir}/*; do
-      [ -d ${dir} ] && git -C ${dir} pull
-    done
+    if [ -d "${zshdir}" ]; then
+      for dir in ${zshdir}/*; do
+        [ -d ${dir} ] && git -C ${dir} pull
+      done
+    else
+      show_warning "No zsh plugins found in ${zshdir}. Skipping."
+    fi
   fi
 }
 
