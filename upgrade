@@ -75,6 +75,10 @@ function upgrade_zsh() {
   show_header "Upgrading zsh packages."
   if command -v antigen-update >/dev/null 2>&1; then
     antigen-update
+  # antigen-update may not be in the bash PATH, so check the zsh path if
+  # 'command -v antigen-update' returns false.
+  elif zsh -ic "command -v antigen-update" >/dev/null 2>&1; then
+    zsh -ic "antigen-update"
   else
     for dir in ${zshdir}/*; do
       [ -d ${dir} ] && git -C ${dir} pull
