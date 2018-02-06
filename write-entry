@@ -17,4 +17,4 @@ if ! [ -f "${file}" ]; then
   fi
 fi
 
-eval $EDITOR ${file}
+eval ${EDITOR} ${file}
