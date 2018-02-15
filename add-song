@@ -6,30 +6,22 @@ item=""
 flag=0
 
 addSong () {
-  read -p "What's the song's name? " -a item
-  if [ -z $item ]; then exit; fi
-  read -p "So the name is \"${item[*]}\"? [Y/n] " check
-  if [[ $check =~ ^([yY][eE][sS]|[yY])$ ]]; then
-    return
-  elif [[ $check =~ ^([nN][oO]|[nN])$ ]]; then
+  item=$(ask_question "What's the song's name?")
+  if [ -z ${item} ]; then exit; fi
+  check=$(ask_question "So the name is \"${item}\"? [Y/n]")
+  if [[ $check =~ ^([nN][oO]|[nN])$ ]]; then
     echo "No problem. Let's try again."
     addSong
-  else
-    exit
   fi
 }
 
 addArtist () {
-  read -p "Who made it?  " -a item
-  if [ -z $item ]; then exit; fi
-  read -p "So it's by \"${item[*]}\"? [Y/n] " check
-  if [[ $check =~ ^([yY][eE][sS]|[yY])$ ]]; then
-    return
-  elif [[ $check =~ ^([nN][oO]|[nN])$ ]]; then
+  item=$(ask_question "Who made it?")
+  if [ -z ${item} ]; then exit; fi
+  check=$(ask_question "So it's by \"${item}\"? [Y/n]")
+  if [[ $check =~ ^([nN][oO]|[nN])$ ]]; then
     echo "No problem. Let's try again."
     addArtist
-  else
-    exit
   fi
 }
 
