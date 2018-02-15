@@ -1,0 +1,43 @@
+#! /bin/bash
+set -eu
+source globals
+
+OPTIONS=t:a:u:
+LONGOPTIONS=title:,artist:,url:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -t|--TITLE)
+      TITLE="$2"
+      shift 2
+      ;;
+    -a|--ARTIST)
+      ARTIST="$2"
+      shift 2
+      ;;
+    -u|--URL)
+      URL="$2"
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error: unknown command line option \"$2\"."
+      exit 3
+      ;;
+  esac
+done
+
+# Prompt for inputs in they were not already specified on the command line.
+if ! [[ -v TITLE ]]; then TITLE=$(ask_question "What is the title?"); fi
+if ! [[ -v ARTIST ]]; then ARTIST=$(ask_question "Who is the artist?"); fi
+if ! [[ -v URL ]]; then URL=$(ask_question "What is the URL?"); fi
+
+# Download the mp3 and set the ID3 tags.
+youtube-dl --extract-audio --prefer-ffmpeg --audio-format mp3 "${URL//\"}" \
+  -o "${TITLE} - ${ARTIST}.%(ext)s"
+id3v2 "$TITLE - $ARTIST.mp3" -a "$ARTIST" -t "$TITLE"
