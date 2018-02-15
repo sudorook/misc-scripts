@@ -32,12 +32,12 @@ while [ $# -ge 1 ]; do
   esac
 done
 
-# Prompt for inputs in they were not already specified on the command line.
+# Prompt for inputs if they were not already specified on the command line.
 if ! [[ -v TITLE ]]; then TITLE=$(ask_question "What is the title?"); fi
 if ! [[ -v ARTIST ]]; then ARTIST=$(ask_question "Who is the artist?"); fi
 if ! [[ -v URL ]]; then URL=$(ask_question "What is the URL?"); fi
 
-# Download the mp3 and set the ID3 tags.
+# Download the file, extract audio as mp3, and set the id3v2 tags.
 youtube-dl --extract-audio --prefer-ffmpeg --audio-format mp3 "${URL//\"}" \
   -o "${TITLE} - ${ARTIST}.%(ext)s"
 id3v2 "$TITLE - $ARTIST.mp3" -a "$ARTIST" -t "$TITLE"
