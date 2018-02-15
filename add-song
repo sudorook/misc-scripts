@@ -32,10 +32,11 @@ addArtist () {
   fi
 }
 
-if [ -f ~/.files/songs2add ]; then
+if [ -f ~/.files/music2add ]; then
   echo "Okay, so..."
 else
-  touch ~/.files/songs2add
+  mkdir -p ~/.files
+  touch ~/.files/music2add
   echo "Okay, new files, so..."
 fi
 
