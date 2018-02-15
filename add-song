@@ -1,5 +1,6 @@
 #! /bin/bash
 set -eu
+source globals
 
 item=""
 flag=0
@@ -32,18 +33,18 @@ addArtist () {
   fi
 }
 
-if [ -f ~/.files/music2add ]; then
+if [ -f $HOME/.files/music2add ]; then
   echo "Okay, so..."
 else
-  mkdir -p ~/.files
-  touch ~/.files/music2add
+  mkdir -p $HOME/.files
+  touch $HOME/.files/music2add
   echo "Okay, new files, so..."
 fi
 
 addSong
-song=${item[*]}
+song=${item}
 addArtist
-artist=${item[*]}
+artist=${item}
 
 IFS_BACKUP=$IFS
 IFS=$'\t'
@@ -54,14 +55,14 @@ do
     flag=1
     break
   fi
-done < ~/.files/music2add
+done < $HOME/.files/music2add
 IFS=$IFS_BACKUP
 
 if [ ${flag} -eq 0 ]; then
-  echo $song$'\t'$'\t'$artist >> ~/.files/music2add
-  echo "Done!"
+  echo $song$'\t'$'\t'$artist >> $HOME/.files/music2add
+  show_success "Done!"
   exit
 else
-  echo "Already there! No changed needed." 
+  show_success "Already there! No changed needed."
   exit
 fi
