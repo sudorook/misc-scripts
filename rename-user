@@ -38,14 +38,18 @@ while [ $# -ge 1 ]; do
   case "$1" in
     -o|--old)
       oldname=${2}
-      [[ $(check_username "${oldname}") ]] && \
-        show_error "${oldname} is not a valid name." && exit
+      if ! $(check_username "${oldname}"); then
+        show_error "${oldname} is not a valid name. Exiting."
+        exit
+      fi
       shift 2
       ;;
     -n|--new)
       newname=${2}
-      [[ $(check_username "${newname}") ]] && \
-        show_error "${oldname} is not a valid name." && exit
+      if ! $(check_username "${newname}"); then \
+        show_error "${newname} is not a valid name. Exiting."
+        exit
+      fi
       shift 2
       ;;
     --)
@@ -63,13 +67,17 @@ done
 # the prompt.
 if ! [[ -v oldname ]]; then
   oldname=$(ask_question "Change which user name?")
-  ! [[ $(check_username "${oldname}") ]] && \
-    show_error "${oldname} is not a valid name. Exiting." && exit
+  if ! $(check_username "${oldname}"); then
+    show_error "${oldname} is not a valid name. Exiting."
+    exit
+  fi
 fi
 if ! [[ -v newname ]]; then
   newname=$(ask_question "What is the new user name?")
-  ! [[ $(check_username "${newname}") ]] && \
-    show_error "${oldname} is not a valid name. Exiting." && exit
+  if ! $(check_username "${newname}"); then \
+    show_error "${newname} is not a valid name. Exiting."
+    exit
+  fi
 fi
 
 # Make sure that oldname and newname entries are valid.
