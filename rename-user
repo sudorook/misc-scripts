@@ -100,6 +100,7 @@ fi
 # Check that old user has no currently running processes.
 if ps -u "${oldname}" >/dev/null 2>&1; then
   show_error "User ${oldname} has running processes. Exiting."
+  exit
 fi
 
 # Check that newname is not an existing group.
