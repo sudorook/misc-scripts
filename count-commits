@@ -9,14 +9,14 @@ get_count() {
       #                                         ^^^^
       # Pipe stderr to stdout (and then to /dev/null) to suppress error
       # messages git prints when a repository is empty, etc.
-      local cmd="git -C ${dir} rev-list --all --count"
-      if ! [ -z ${AUTHOR} ]; then
-        cmd+=" --author ${AUTHOR}"
-      fi
+      local cmd="git -C \"${dir}\" log --format='%an'"
       if ! [ -z ${TIMECOUNT} ] && ! [ -z ${TIMEUNIT} ]; then
         cmd+=" --after \"$(date -d "- ${TIMECOUNT} ${TIMEUNIT}")\""
       fi
-      count=$(eval $cmd)
+      if ! [ -z ${AUTHOR} ]; then
+        cmd+=" | grep ^${AUTHOR}$"
+      fi
+      count=$(eval $cmd | wc -l)
       echo ${count}
     fi
   fi
