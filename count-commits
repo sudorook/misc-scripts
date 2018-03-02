@@ -9,12 +9,12 @@ get_count() {
       #                                         ^^^^
       # Pipe stderr to stdout (and then to /dev/null) to suppress error
       # messages git prints when a repository is empty, etc.
-      local cmd="git -C \"${dir}\" log --format='%an'"
+      local cmd="git -C \"${dir}\" log --format='%at %aN'"
       if ! [ -z ${TIMECOUNT} ] && ! [ -z ${TIMEUNIT} ]; then
-        cmd+=" --after \"$(date -d "- ${TIMECOUNT} ${TIMEUNIT}")\""
+        cmd+=" | awk -F ' ' -v cutoff=$(date -d -${TIMECOUNT}${TIMEUNIT} +%s) '{if (cutoff<=\$1) {print \$0}}'"
       fi
       if ! [ -z ${AUTHOR} ]; then
-        cmd+=" | grep ^${AUTHOR}$"
+        cmd+=" | cut -d' ' -f2 | grep ^${AUTHOR}$"
       fi
       count=$(eval $cmd | wc -l)
       echo ${count}
