@@ -2,9 +2,32 @@
 set -eu
 source globals
 
-temp=temp
+OPTIONS=b
+LONGOPTIONS=backup
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+isbackup=false
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -b|--backup)
+      isbackup=true
+      shift 1
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error"
+      exit 3
+      ;;
+  esac
+done
+
+temp="${1}_$RANDOM"
 trap "rm -f ${temp}; exit" INT TERM EXIT
 
 sort -u "${1}" > "${temp}"
-mv "${1}" "${1}.bak"
+if ${isbackup}; then mv "${1}" "${1}.bak"; fi
 mv "${temp}" "${1}"
