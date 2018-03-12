@@ -3,7 +3,8 @@
 Rate the currently playing song in MPD.
 """
 
-import os,sys
+import os
+import sys
 from mpd import MPDClient
 import beets.library
 
