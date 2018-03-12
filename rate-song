@@ -1,0 +1,56 @@
+#! /usr/bin/env python
+"""
+Rate the currently playing song in MPD.
+"""
+
+import os,sys
+from mpd import MPDClient
+import beets.library
+
+
+#
+# Functions
+#
+
+def get_current_song():
+    """Get the current song from MPD. Returns an Item."""
+    # Connect to MPD.
+    client = MPDClient()
+    client.connect("localhost", 6600)
+    info = client.currentsong()
+    client.disconnect()
+
+    # Load the Beets library
+    libpath = os.path.expanduser('~/.config/beets/library.db')
+    lib = beets.library.Library(libpath)
+
+    # Find the song in the beets database based on the title, artist, and album
+    # information provided by MPD.
+    item = lib.items('title:' + info['title'] + ' artist:' + info['artist'] + ' album:' + info['album'])
+    if len(item) > 1:
+        print('Multiple files found. Exiting.')
+        sys.exit()
+    else:
+        return item[0]
+
+def prompt_user_rating():
+    """Prompt for user rating and make sure entry is valid."""
+    rating = int(input("Rating (1-5): "))
+    if 1 <= int(rating) <= 5:
+        return rating
+    else:
+        print('Invalid rating. Exiting.')
+        sys.exit()
+
+
+#
+# Main
+#
+
+song = get_current_song()
+print("Playing '" + song['title'] + "' from " + song['album'] + " by " + song['artist'])
+rating = prompt_user_rating()
+
+song.load()
+song['rating'] = rating
+song.store()
