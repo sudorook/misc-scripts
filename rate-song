@@ -27,7 +27,7 @@ def get_current_song():
 
     # Find the song in the beets database based on the title, artist, and album
     # information provided by MPD.
-    item = lib.items('title:' + info['title'] + ' artist:' + info['artist'] + ' album:' + info['album'])
+    item = lib.items('"title::^' + info['title'] + '$" "artist::^' + info['artist'] + '$" "album::^' + info['album'] + '$"')
     if len(item) > 1:
         print('Multiple files found. Exiting.')
         sys.exit()
