@@ -28,7 +28,8 @@ playlists = []
 playlists.append({'name': 'All Songs.m3u', 'query': ''})
 playlists.append({'name': 'Top Rated.m3u', 'query': 'rating:5'})
 for artist in artists:
-    playlists.append({'name': 'Best of ' + artist + '.m3u', 'query': 'artist:"' + artist + '" rating:5'})
+    playlists.append({'name': 'Best of ' + artist + '.m3u',
+                      'query': 'artist:"' + artist + '" rating:5'})
 
 # Write playlists to the beets YAML config file.
 data['smartplaylist']['playlists'] = playlists

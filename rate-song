@@ -36,6 +36,7 @@ def get_current_song():
     else:
         return item[0]
 
+
 def prompt_user_rating():
     """Prompt for user rating and make sure entry is valid."""
     rating = int(input("Rating (1-5): "))
@@ -51,7 +52,8 @@ def prompt_user_rating():
 #
 
 song = get_current_song()
-print("Playing '" + song['title'] + "' from " + song['album'] + " by " + song['artist'])
+print("Playing '" + song['title'] + "' from " +
+      song['album'] + " by " + song['artist'])
 rating = prompt_user_rating()
 
 song.load()
