@@ -21,6 +21,9 @@ def get_current_song():
     client = MPDClient()
     client.connect("localhost", 6600)
     info = client.currentsong()
+    if bool(info) == False:
+        print("MPD not playing. Exiting.")
+        sys.exit()
     client.disconnect()
 
     # Load the Beets library
