@@ -85,6 +85,8 @@ else:
 
 if args.rating == None:
     rating = prompt_user_rating()
+else:
+    rating = int(args.rating)
 
 song.load()
 song['rating'] = rating
