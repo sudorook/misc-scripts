@@ -89,7 +89,11 @@ else:
 if args.rating == None:
     rating = prompt_user_rating()
 else:
-    rating = int(args.rating)
+    if 0 <= int(args.rating) <= 5:
+        rating = int(args.rating)
+    else:
+        print('Invalid rating. Exiting.')
+        sys.exit()
 
 song.load()
 song['rating'] = rating
