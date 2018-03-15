@@ -54,9 +54,9 @@ def get_song_from_file(f):
 
 def prompt_user_rating():
     """Prompt for user rating and make sure entry is valid."""
-    rating = int(input("Rating (1-5): "))
-    if 1 <= int(rating) <= 5:
-        return rating
+    r = int(input("Rating (1-5): "))
+    if 1 <= int(r) <= 5:
+        return r
     else:
         print('Invalid rating. Exiting.')
         sys.exit()
