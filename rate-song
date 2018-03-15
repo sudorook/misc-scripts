@@ -6,6 +6,7 @@ Rate the currently playing song in MPD.
 import os
 import sys
 import re
+import argparse
 from mpd import MPDClient
 import beets.library
 
@@ -37,6 +38,20 @@ def get_current_song():
         return item[0]
 
 
+def get_song_from_file(f):
+    """Get a song from the database based on its path in the filesystem."""
+    # Load the Beets library
+    libpath = os.path.expanduser('~/.config/beets/library.db')
+    lib = beets.library.Library(libpath)
+
+    item = lib.items('"path:' + f + '"')
+    if len(item) > 1:
+        print('Multiple files found. Exiting.')
+        sys.exit()
+    else:
+        return item[0]
+
+
 def prompt_user_rating():
     """Prompt for user rating and make sure entry is valid."""
     rating = int(input("Rating (1-5): "))
@@ -48,14 +63,30 @@ def prompt_user_rating():
 
 
 #
+# Command line parsing
+#
+
+parser = argparse.ArgumentParser(description='Rate songs in your beets database.')
+parser.add_argument('-f', '--file', help='Song file', required=False)
+parser.add_argument('-r', '--rating', help='Rating', required=False)
+args = parser.parse_args()
+
+
+#
 # Main
 #
 
-song = get_current_song()
-print("Playing '" + song['title'] + "' from " +
-      song['album'] + " by " + song['artist'])
-rating = prompt_user_rating()
+if args.file == None:
+    song = get_current_song()
+    print("Playing '" + song['title'] + "' from " +
+          song['album'] + " by " + song['artist'])
+else:
+    song = get_song_from_file(args.file)
 
-song.load()
-song['rating'] = rating
-song.store()
+if args.rating == None:
+    rating = prompt_user_rating()
+
+
+#  song.load()
+#  song['rating'] = rating
+#  song.store()
