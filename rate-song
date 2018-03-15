@@ -78,8 +78,8 @@ args = parser.parse_args()
 
 if args.file == None:
     song = get_current_song()
-    print("Playing '" + song['title'] + "' from " +
-          song['album'] + " by " + song['artist'])
+    print("Playing '" + song['title'] + "' from '" +
+          song['album'] + "' by " + song['artist'])
 else:
     song = get_song_from_file(args.file)
 
