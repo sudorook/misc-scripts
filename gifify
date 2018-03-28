@@ -69,6 +69,12 @@ while [ $# -ge 1 ]; do
       ;;
     -r|--resolution)
       case "$2" in
+        240p|240)
+          RESOLUTION=240
+          ;;
+        360p|360)
+          RESOLUTION=360
+          ;;
         480p|480|480i)
           RESOLUTION=480
           ;;
