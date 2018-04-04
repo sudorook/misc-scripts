@@ -1,0 +1,98 @@
+#! /bin/bash
+set -eu
+source globals
+
+OPTIONS=hi:o:f:l:
+LONGOPTIONS=help,input:,output:,first:,last:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -i|--input)
+      in="$2"
+      pages=$(pdfinfo "$2" | grep "^Pages:" | sed -n "s/^Pages:\s*\([0-9]\+\)/\1/p")
+      shift 2
+      ;;
+    -o|--output)
+      out="$2"
+      shift 2
+      ;;
+    -f|--first)
+      first="$2"
+      shift 2
+      ;;
+    -l|--last)
+      last="$2"
+      shift 2
+      ;;
+    -h|--help)
+      echo "pdfsplit options:"
+      echo "  -i|--input  <pdf input>"
+      echo "  -o|--output <pdf output>"
+      echo "  -f|--first  <# of first page to split>"
+      echo "  -l|--last   <# of last page to split>"
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error"
+      exit 3
+      ;;
+  esac
+done
+
+# Checks
+if ! [[ -v in ]] || ! [[ -v out ]]; then
+  show_error "No input and output file specified. Exiting."
+  exit 3
+fi
+
+if ! [[ -v first ]]; then
+  first=2
+fi
+
+if ! [[ -v last ]]; then
+  last=$pages
+fi
+
+if (( $last > $pages )); then
+  last=$pages
+fi
+
+if (( $first > $pages )); then
+  show_error "Starting page doesn't exist. The file only has $pages pages."
+  exit 3
+fi
+
+if (( $first > $last )); then
+  show_error "What are you playing at?"
+  exit 3
+fi
+
+# Split the pdf out into the individual files. The if statements are needed so
+# that the filenames will get sorted in numerical order. Otherwise, the glob
+# used to join the pages at the end won't work. For examples, 02 is sorted
+# before 10, but 2 is placed after.
+if (( $first >= 10 )); then
+  pdfseparate -f $first -l $last "$in" tmp-%d.pdf
+elif (( $last >= 10 )); then
+  if (( $last < 10 )); then
+    pdfseparate -f $first -l $last "$in" tmp-0%d.pdf
+  fi
+  if (( $last >= 10 )); then
+    pdfseparate -f $first -l 9 "$in" tmp-0%d.pdf
+    pdfseparate -f 10 -l $last "$in" tmp-%d.pdf
+  fi
+else
+  pdfseparate -f $first "$in" tmp-0%d.pdf
+fi
+
+# Join
+pdfunite tmp-*.pdf "$out"
+
+# Cleanup
+rm -f tmp-*.pdf
