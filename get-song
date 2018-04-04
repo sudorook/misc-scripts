@@ -9,15 +9,15 @@ eval set -- "$PARSED"
 
 while [ $# -ge 1 ]; do
   case "$1" in
-    -t|--TITLE)
+    -t|--title)
       TITLE="$2"
       shift 2
       ;;
-    -a|--ARTIST)
+    -a|--artist)
       ARTIST="$2"
       shift 2
       ;;
-    -u|--URL)
+    -u|--url)
       URL="$2"
       shift 2
       ;;
