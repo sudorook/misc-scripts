@@ -1,5 +1,10 @@
 #! /bin/bash
 set -eu
+source globals
+
+function print_usage() {
+  echo "Usage: add-mp3cover -a|--audio <audio file> -c|--cover <cover image>"
+}
 
 OPTIONS=ha:c:
 LONGOPTIONS=help,audio:,cover:
@@ -17,7 +22,7 @@ while [ $# -ge 1 ]; do
       shift 2
       ;;
     -h|--help)
-      echo "Usage: add-mp3cover -a|--audio <audio file> -c|--cover <cover image>"
+      print_usage
       exit
       ;;
     --)
@@ -35,7 +40,6 @@ if [[ -v COVER ]] || [[ -v AUDIO ]]; then
   mv "${AUDIO}" "${AUDIO}.bak"
   ffmpeg -i "${COVER}" -i "${AUDIO}.bak" -map 0:0 -map 1:0 -c copy "${AUDIO}"
 else
-  show_error "ERROR: Usage:"
-  echo "add-mp3cover -a <audio> -c <cover>"
-  echo
+  show_error "Error: missing parameters"
+  print_usage
 fi
