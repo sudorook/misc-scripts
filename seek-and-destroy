@@ -20,7 +20,7 @@ function sloppy_seek {
     ! -path "${HOME}/Templates*" \
     ! -path "${HOME}/Videos*" \
     ! -path "${HOME}/.pkgbuild*" \
-    -iname "*${1}*" -o -iname ".*${1}*"
+    -iname "*${1}*" -o -iname ".*${1}*" 2>/dev/null || true
 }
 
 function precise_seek {
@@ -36,7 +36,7 @@ function precise_seek {
     ! -path "${HOME}/Templates*" \
     ! -path "${HOME}/Videos*" \
     ! -path "${HOME}/.pkgbuild*" \
-    -name "${1}" -o -name ".${1}"
+    -name "${1}" -o -name ".${1}" 2>/dev/null || true
 }
 
 function destroy {
