@@ -36,7 +36,9 @@ function precise_seek {
     ! -path "${HOME}/Templates*" \
     ! -path "${HOME}/Videos*" \
     ! -path "${HOME}/.pkgbuild*" \
-    -name "${1}" -o -name ".${1}" 2>/dev/null || true
+    -name "${1}" -o -name ".${1}" \
+    -o -name ".${1,,}" -o -name ".${1,,}" \
+    -o -name ".${1^,}" -o -name ".${1^}" 2>/dev/null || true
 }
 
 function destroy {
