@@ -1,20 +1,78 @@
 #! /bin/bash
 set -eu
-source globals
 
-show_listitem_v2() {
-  echo -e "\033[1;37m$@\033[0m"
-}
-show_listitem_v3() {
+#
+# Bright
+#
+
+show_default() {
   echo -e "\033[1;30m$@\033[0m"
 }
+show_error() {
+  echo -e "\033[1;31m$@\033[m" 1>&2
+}
+show_info() {
+  echo -e "\033[1;32m$@\033[0m"
+}
+show_warning() {
+  echo -e "\033[1;33m$@\033[0m"
+}
+show_question() {
+  echo -e "\033[1;34m$@\033[0m"
+}
+show_success() {
+  echo -e "\033[1;35m$@\033[0m"
+}
+show_header() {
+  echo -e "\033[1;36m$@\033[0m"
+}
+show_listitem() {
+  echo -e "\033[1;37m$@\033[0m"
+}
 
+
+#
+# Dim
+#
+
+show_default_v2() {
+  echo -e "\033[0;30m$@\033[0m"
+}
+show_error_v2() {
+  echo -e "\033[0;31m$@\033[m" 1>&2
+}
+show_info_v2() {
+  echo -e "\033[0;32m$@\033[0m"
+}
+show_warning_v2() {
+  echo -e "\033[0;33m$@\033[0m"
+}
+show_question_v2() {
+  echo -e "\033[0;34m$@\033[0m"
+}
+show_success_v2() {
+  echo -e "\033[0;35m$@\033[0m"
+}
+show_header_v2() {
+  echo -e "\033[0;36m$@\033[0m"
+}
+show_listitem_v2() {
+  echo -e "\033[0;37m$@\033[0m"
+}
+
+show_default "1;31: default"
+show_default_v2 "0;31: unused"
 show_error "1;31: error"
+show_error_v2 "0;31: unused"
 show_info "1;32: info"
+show_info_v2 "0;32: unused"
 show_warning "1;33: warning"
+show_warning_v2 "0;33: unused"
 show_question "1;34: question"
+show_question_v2 "0;34: unused"
 show_success "1;35: success"
+show_success_v2 "0;35: unused"
 show_header "1;36: header"
-show_listitem "0;37: listitem"
-show_listitem_v2 "1;37: unused"
-show_listitem_v3 "1;30: unused"
+show_header_v2 "0;36: unused"
+show_listitem "1;37: unused"
+show_listitem_v2 "0;37: listitem"
