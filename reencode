@@ -81,6 +81,9 @@ case ${FILETYPE} in
   avi)
     convert_codec "${IN}" "${NAME}.mp4" "${CODEC}"
     ;;
+  mkv)
+    convert_codec "${IN}" "${NAME}.mp4" "${CODEC}"
+    ;;
   mp4)
     mv "${IN}" "${IN}.bak"
     convert_codec "${IN}.bak" "${NAME}.mp4" "${CODEC}"
