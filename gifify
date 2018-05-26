@@ -138,7 +138,7 @@ fi
 
 # Check if variables are set before running ffmpeg.
 if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
-  ffmpeg -y -ss "$START" -i "$IN" -sn -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
+  ffmpeg -y -i "$IN" -an -sn -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
   gifsicle -O3 "$OUT" -o "$OUT"
 else
   show_error "Try again. Usage:"
