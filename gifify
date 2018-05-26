@@ -142,7 +142,6 @@ fi
 
 # Check if variables are set before running ffmpeg.
 if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
-
   if [[ -v SUBMODE ]]; then
     case "$SUBMODE" in
       "text")
@@ -151,6 +150,10 @@ if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
         ;;
       "image")
         ffmpeg -y -i "$IN" -an -filter_complex "[0:v][0:s]overlay[v]" -map "[v]" \
+               -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
+        ;;
+      "none")
+        ffmpeg -y -i "$IN" -an -sn \
                -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
         ;;
       *)
