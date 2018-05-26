@@ -20,8 +20,8 @@ ASPECTRATIO=16:9
 RESOLUTION=480
 DIMENSIONS=unset
 
-OPTIONS=i:o:s:l:r:a:d:
-LONGOPTIONS=input:,output:,start:,length:,resolution:,aspect-ratio:,dimensions:
+OPTIONS=i:o:s:l:r:a:d:t:
+LONGOPTIONS=input:,output:,start:,length:,resolution:,aspect-ratio:,dimensions:,subtitle:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -41,6 +41,10 @@ while [ $# -ge 1 ]; do
       ;;
     -l|--length)
       LENGTH="$2"
+      shift 2
+      ;;
+    -t|--subtitle)
+      SUBMODE="$2"
       shift 2
       ;;
     -d|--dimensions)
@@ -138,7 +142,26 @@ fi
 
 # Check if variables are set before running ffmpeg.
 if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
-  ffmpeg -y -i "$IN" -an -sn -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
+
+  if [[ -v SUBMODE ]]; then
+    case "$SUBMODE" in
+      "text")
+        ffmpeg -y -i "$IN" -an -vf subtitles="$IN" \
+               -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
+        ;;
+      "image")
+        ffmpeg -y -i "$IN" -an -filter_complex "[0:v][0:s]overlay[v]" -map "[v]" \
+               -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
+        ;;
+      *)
+        show_error "Subtitle $SUBMODE unsupported. Specify \"text\" or \"image\"."
+        ;;
+    esac
+  else
+    ffmpeg -y -i "$IN" -an -sn \
+           -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
+  fi
+
   gifsicle -O3 "$OUT" -o "$OUT"
 else
   show_error "Try again. Usage:"
