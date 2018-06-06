@@ -10,8 +10,7 @@ function print_usage() {
   echo "  -l  --length                length in seconds (e.g. 3.5)"
   echo "  -d  --dimensions            dimensions of gif (e.g. 1280x720)"
   echo "  -r  --resolution            gif resolution (e.g. 720p)"
-  echo "  -a  --aspect-ratio          aspect ratio of gif (e.g. 16x9)"
-  echo "Enter the dimensions manually or provide the resolution and aspect ratio."
+  echo "Enter the dimensions manually or specify the desired resolution."
   exit 3
 }
 
@@ -20,8 +19,8 @@ ASPECTRATIO=16:9
 RESOLUTION=480
 DIMENSIONS=unset
 
-OPTIONS=i:o:s:l:r:a:d:t:
-LONGOPTIONS=input:,output:,start:,length:,resolution:,aspect-ratio:,dimensions:,subtitle:
+OPTIONS=i:o:s:l:r:d:t:
+LONGOPTIONS=input:,output:,start:,length:,resolution:,dimensions:,subtitle:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -29,6 +28,10 @@ while [ $# -ge 1 ]; do
   case "$1" in
     -i|--input)
       IN="$2"
+      WIDTH=$(ffprobe -v error -select_streams v:0 \
+                      -show_entries stream=width -of default=nw=1:nk=1 "${IN}")
+      HEIGHT=$(ffprobe -v error -select_streams v:0 \
+                       -show_entries stream=height -of default=nw=1:nk=1 "${IN}")
       shift 2
       ;;
     -o|--output)
@@ -51,17 +54,14 @@ while [ $# -ge 1 ]; do
       case "$2" in
         854x480)
           RESOLUTION=480
-          ASPECTRATIO=16:9
           DIMENSIONS=854x480
           ;;
         1280x720)
           RESOLUTION=720
-          ASPECTRATIO=16:9
           DIMENSIONS=1280x720
           ;;
         1920x1080)
           RESOLUTION=1080
-          ASPECTRATIO=16:9
           DIMENSIONS=1920x1080
           ;;
         *)
@@ -95,27 +95,6 @@ while [ $# -ge 1 ]; do
       esac
       shift 2
       ;;
-    -a|--aspect-ratio)
-      case "$2" in
-        16x9|16by9|16:9)
-          ASPECTRATIO=16:9
-          ;;
-        16x10|16by10|16:10)
-          ASPECTRATIO=16:10
-          ;;
-        3x2|3by2|3:2)
-          ASPECTRATIO=3:2
-          ;;
-        4x3|4by3|4:3)
-          ASPECTRATIO=4:3
-          ;;
-        *)
-          show_error "Aspect ratio $2 is not supported."
-          exit 3
-          ;;
-      esac
-      shift 2
-      ;;
     --)
       shift
       break
@@ -127,16 +106,19 @@ while [ $# -ge 1 ]; do
   esac
 done
 
-# Calculate dimensions (if not manually specified) from aspect ratio and
-# resolution.
+# Calculate dimensions (if not manually specified) from the resolution.
 if ! [[ -v DIMENSIONS ]] || [ $DIMENSIONS = "unset" ]; then
   if ! [[ -v RESOLUTION ]] || [ $RESOLUTION = "unset" ]; then
-    show_error "Specify a resolution (and aspect ratio) or manually specify the dimensions."
+    show_error "Specify a resolution or manually specify the dimensions."
     exit 3
   else
-    WIDTH=$(echo $ASPECTRATIO | cut -d":" -f1)
-    HEIGHT=$(echo $ASPECTRATIO | cut -d":" -f2)
-    DIMENSIONS="$(( ($RESOLUTION*$WIDTH+$HEIGHT-1) / $HEIGHT ))x$RESOLUTION"
+    if [[ $(( (($WIDTH+(2*$HEIGHT+8)/9)+$HEIGHT-1)/$HEIGHT )) -gt 2 ]]; then
+      NEW_WIDTH=$(( ($RESOLUTION*16+8)/9 ))
+      NEW_HEIGHT=$(( ($NEW_WIDTH*$HEIGHT+$WIDTH-1)/$WIDTH ))
+      DIMENSIONS="$(( $NEW_WIDTH ))x$(( $NEW_HEIGHT ))"
+    else
+      DIMENSIONS="$(( ($RESOLUTION*$WIDTH+$HEIGHT-1) / $HEIGHT ))x$RESOLUTION"
+    fi
   fi
 fi
 
