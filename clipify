@@ -1,0 +1,51 @@
+#! /bin/bash
+set -eu
+source globals
+
+# Global functions.
+function print_usage() {
+  echo "  -i  --input                 input video (e.g. input.mp4)"
+  echo "  -o  --output                output gif (e.g. output.gif)"
+  echo "  -s  --start                 starting timestamp (e.g. 01:20.5)"
+  echo "  -l  --length                length in seconds (e.g. 3.5)"
+  exit 3
+}
+
+OPTIONS=i:o:s:l:t:
+LONGOPTIONS=input:,output:,start:,length:,subtitle:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -i|--input)
+      IN="$2"
+      shift 2
+      ;;
+    -o|--output)
+      OUT="$2"
+      shift 2
+      ;;
+    -s|--start)
+      START="$2"
+      shift 2
+      ;;
+    -l|--length)
+      LENGTH="$2"
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error"
+      exit 3
+      ;;
+  esac
+done
+
+# Check if variables are set before running ffmpeg.
+if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
+  ffmpeg -i "$IN" -ss "$START" -t "$LENGTH" "$OUT"
+fi
