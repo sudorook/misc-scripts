@@ -10,6 +10,7 @@ function print_usage() {
   echo "  -l  --length                length in seconds (e.g. 3.5)"
   echo "  -d  --dimensions            dimensions of gif (e.g. 1280x720)"
   echo "  -r  --resolution            gif resolution (e.g. 720p)"
+  echo "  -t  --subtitle              subtitle type (text, image, or none)"
   echo "Enter the dimensions manually or specify the desired resolution."
   exit 3
 }
