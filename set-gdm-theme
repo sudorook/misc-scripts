@@ -22,7 +22,7 @@ case $XDG_CURRENT_DESKTOP in
   X-Cinnamon)
     gtktheme=$(gsettings get org.cinnamon.desktop.interface gtk-theme | sed -e "s/'//g")
     ;;
-  GNOME)
+  GNOME|ubuntu:GNOME)
     gtktheme=$(gsettings get org.gnome.desktop.interface gtk-theme | sed -e "s/'//g")
     ;;
   *)
