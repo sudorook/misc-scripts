@@ -58,6 +58,13 @@ case ${extension} in
       -id3v2_version 3 -write_id3v1 1 \
       "${output}"
     ;;
+  m4v)
+    ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${name}.${subextension}" \
+      -c:v copy -c:a copy -c:s mov_text \
+      -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
+      -id3v2_version 3 -write_id3v1 1 \
+      "${output}"
+    ;;
   mkv)
     ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${name}.${subextension}" \
       -c:v copy -c:a copy -c:s srt \
