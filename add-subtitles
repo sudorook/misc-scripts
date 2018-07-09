@@ -45,6 +45,7 @@ fi
 case ${extension} in
   avi)
     output="subbed_video.mp4"
+    extension="mp4"
     ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${name}.${subextension}" \
       -c:v copy -c:a copy -c:s mov_text \
       -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
@@ -72,4 +73,4 @@ esac
 
 mv "${1}" "${1}.bak"
 mv "${name}.${subextension}" "${name}.${subextension}.bak"
-mv "${output}" "${1}"
+mv "${output}" "${name}.${extension}"
