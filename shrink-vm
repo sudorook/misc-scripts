@@ -2,6 +2,8 @@
 set -eu
 source globals
 
+trap "mv -f ${1}.bak ${1}; exit" INT TERM EXIT
+
 if ! [ -f "$1" ]; then
   show_error "File doesn't exist."
   exit 1
