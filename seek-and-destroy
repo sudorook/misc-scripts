@@ -14,12 +14,12 @@ function sloppy_seek {
     ! -path "${HOME}/Downloads*" \
     ! -path "${HOME}/Music*" \
     ! -path "${HOME}/Pictures*" \
-    ! -path "${HOME}/Projects*" \
+    ! -path "${projectdir}*" \
     ! -path "${HOME}/Public*" \
     ! -path "${HOME}/Sync*" \
     ! -path "${HOME}/Templates*" \
     ! -path "${HOME}/Videos*" \
-    ! -path "${HOME}/.pkgbuild*" \
+    ! -path "${pkgbuilddir}*" \
     -iname "*${1}*" -o -iname ".*${1}*" 2>/dev/null || true
 }
 
@@ -30,12 +30,12 @@ function precise_seek {
     ! -path "${HOME}/Downloads*" \
     ! -path "${HOME}/Music*" \
     ! -path "${HOME}/Pictures*" \
-    ! -path "${HOME}/Projects*" \
+    ! -path "${projectdir}*" \
     ! -path "${HOME}/Public*" \
     ! -path "${HOME}/Sync*" \
     ! -path "${HOME}/Templates*" \
     ! -path "${HOME}/Videos*" \
-    ! -path "${HOME}/.pkgbuild*" \
+    ! -path "${pkgbuilddir}*" \
     -name "${1}" -o -name ".${1}" \
     -o -name ".${1,,}" -o -name ".${1,,}" \
     -o -name ".${1^,}" -o -name ".${1^}" 2>/dev/null || true
