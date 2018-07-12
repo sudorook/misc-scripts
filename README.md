@@ -48,19 +48,19 @@ Scripts that help maintain my sanity.
 The `globals` file contains global variables that need to be set before running
 specific scripts.
 
-| Variable          | Description                                     | Required By                     |
-| :---:             | :---:                                           | :---:                           |
-| backup1           | path to backup destination device               | backup                          |
-| backup2           | path of device to mirror backup1                | backup                          |
-| kvmdir            | directory containing kvm images                 | backup                          |
-| kvmshare          | shared (host<->guest) kvm directory             | kvm-clear,kvm-cp,kvm-ls,kvm-mv  |
-| vboxdir           | directory with VirtualBox configs and images    | backup                          |
-| encryptpath       | encrypted encfs store (source)                  | decrypt-secrets,encrypt-secrets |
-| decryptpath       | decrypted encfs store (destination)             | decrypt-secrets,encrypt-secrets |
-| gtkdir            | directory that contains sources for gtk themes  | upgrade                         |
-| icondir           | directory that contains sources for icon themes | upgrade                         |
-| thunderbirddir    | directory containing thunderbird profile        | upgrade                         |
-| zshdir            | where zsh themes are downloaded                 | upgrade                         |
-| pkgbuilddir       | where AUR pkgbuilds are stored                  | upgrade                         |
-| projectdir        | directory containing git repos and projects     | count-commits,whattodo          |
-| ignoreprojectdirs | list of directories in projectdir to ignore     | whattodo                        |
+| Variable          | Description                                     | Required By                             |
+| :---:             | :---:                                           | :---:                                   |
+| backup1           | path to backup destination device               | backup                                  |
+| backup2           | path of device to mirror backup1                | backup                                  |
+| kvmdir            | directory containing kvm images                 | backup                                  |
+| kvmshare          | shared (host<->guest) kvm directory             | kvm-clear,kvm-cp,kvm-ls,kvm-mv          |
+| vboxdir           | directory with VirtualBox configs and images    | backup                                  |
+| encryptpath       | encrypted encfs store (source)                  | decrypt-secrets,encrypt-secrets         |
+| decryptpath       | decrypted encfs store (destination)             | decrypt-secrets,encrypt-secrets         |
+| gtkdir            | directory that contains sources for gtk themes  | upgrade                                 |
+| icondir           | directory that contains sources for icon themes | upgrade                                 |
+| thunderbirddir    | directory containing thunderbird profile        | upgrade                                 |
+| zshdir            | where zsh themes are downloaded                 | upgrade                                 |
+| pkgbuilddir       | where AUR pkgbuilds are stored                  | seek-and-destroy,upgrade                |
+| projectdir        | directory containing git repos and projects     | count-commits,seek-and-destroy,whattodo |
+| ignoreprojectdirs | list of directories in projectdir to ignore     | whattodo                                |
