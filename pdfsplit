@@ -2,8 +2,8 @@
 set -eu
 source globals
 
-OPTIONS=hi:f:l:
-LONGOPTIONS=help,input:,first:,last:
+OPTIONS=hji:f:l:
+LONGOPTIONS=help,join,input:,first:,last:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -22,6 +22,10 @@ while [ $# -ge 1 ]; do
     -l|--last)
       last="$2"
       shift 2
+      ;;
+    -j|--join)
+      joinpdfs=true
+      shift
       ;;
     -h|--help)
       echo "pdfsplit options:"
@@ -85,4 +89,13 @@ elif (( $last >= 10 )); then
   fi
 else
   pdfseparate -f $first "$in" "$out-0%d.pdf"
+fi
+
+# Join
+if [[ $joinpdfs = true ]]; then
+  echo hi
+  new="${in%.*}-new.pdf"
+  rm -f "$new"
+  pdfunite ${out}-*.pdf "$new"
+  rm ${out}-[0-9]*.pdf
 fi
