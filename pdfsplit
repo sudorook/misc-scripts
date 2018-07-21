@@ -2,8 +2,8 @@
 set -eu
 source globals
 
-OPTIONS=hi:o:f:l:
-LONGOPTIONS=help,input:,output:,first:,last:
+OPTIONS=hi:f:l:
+LONGOPTIONS=help,input:,first:,last:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -11,11 +11,8 @@ while [ $# -ge 1 ]; do
   case "$1" in
     -i|--input)
       in="$2"
+      out="${2%.*}"
       pages=$(pdfinfo "$2" | grep "^Pages:" | sed -n "s/^Pages:\s*\([0-9]\+\)/\1/p")
-      shift 2
-      ;;
-    -o|--output)
-      out="$2"
       shift 2
       ;;
     -f|--first)
@@ -29,7 +26,6 @@ while [ $# -ge 1 ]; do
     -h|--help)
       echo "pdfsplit options:"
       echo "  -i|--input  <pdf input>"
-      echo "  -o|--output <pdf output>"
       echo "  -f|--first  <# of first page to split>"
       echo "  -l|--last   <# of last page to split>"
       exit 0
@@ -46,13 +42,13 @@ while [ $# -ge 1 ]; do
 done
 
 # Checks
-if ! [[ -v in ]] || ! [[ -v out ]]; then
-  show_error "No input and output file specified. Exiting."
+if ! [[ -v in ]]; then
+  show_error "No input file specified. Exiting."
   exit 3
 fi
 
 if ! [[ -v first ]]; then
-  first=2
+  first=1
 fi
 
 if ! [[ -v last ]]; then
@@ -78,21 +74,15 @@ fi
 # used to join the pages at the end won't work. For examples, 02 is sorted
 # before 10, but 2 is placed after.
 if (( $first >= 10 )); then
-  pdfseparate -f $first -l $last "$in" tmp-%d.pdf
+  pdfseparate -f $first -l $last "$in" "$out-%d.pdf"
 elif (( $last >= 10 )); then
   if (( $last < 10 )); then
-    pdfseparate -f $first -l $last "$in" tmp-0%d.pdf
+    pdfseparate -f $first -l $last "$in" "$out-0%d.pdf"
   fi
   if (( $last >= 10 )); then
-    pdfseparate -f $first -l 9 "$in" tmp-0%d.pdf
-    pdfseparate -f 10 -l $last "$in" tmp-%d.pdf
+    pdfseparate -f $first -l 9 "$in" "$out-0%d.pdf"
+    pdfseparate -f 10 -l $last "$in" "$out-%d.pdf"
   fi
 else
-  pdfseparate -f $first "$in" tmp-0%d.pdf
+  pdfseparate -f $first "$in" "$out-0%d.pdf"
 fi
-
-# Join
-pdfunite tmp-*.pdf "$out"
-
-# Cleanup
-rm -f tmp-*.pdf
