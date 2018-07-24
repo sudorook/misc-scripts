@@ -11,7 +11,6 @@ function is_all_mp4s() {
   for file in "${@}"; do
     echo "$file"
     if ! [ "${file##*.}" = "mp4" ]; then
-      isallmp4=false
       return 1
     fi
   done
@@ -23,7 +22,6 @@ function is_all_mkvs() {
   for file in "${@}"; do
     echo "$file"
     if ! [ "${file##*.}" = "mp4" ]; then
-      isallmkv=false
       return 1
     fi
   done
