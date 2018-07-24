@@ -18,6 +18,18 @@ function is_all_mp4s() {
   return 0
 }
 
+# Check if all files passed to script are mkvs.
+function is_all_mkvs() {
+  for file in "${@}"; do
+    echo "$file"
+    if ! [ "${file##*.}" = "mp4" ]; then
+      isallmkv=false
+      return 1
+    fi
+  done
+  return 0
+}
+
 # Join mp4s by converting them to a transport stream (ts), concatenating the
 # streams, and converting the result back to an mp4.
 function join_mp4s() {
@@ -41,6 +53,23 @@ function join_mp4s() {
     name=${file%.*}
     rm -f "${name}.ts"
   done
+}
+
+# Join mkvs by using a concatenation file.
+function join_mkvs() {
+  concatfile="concat.txt"
+  idx=0
+  for file in "${@}"; do
+    if [ "${file}" = "${outfile}" ]; then
+      continue
+    fi
+    echo "file '${file}'" >> "${concatfile}"
+  done
+
+  rm -f "${outfile}"
+  ffmpeg -f concat -i "${concatfile}" -codec copy output.mkv
+
+  rm -f "${concatfile}"
 }
 
 # Join videos with mixed codecs using ffmpeg concat filter.
@@ -82,6 +111,12 @@ options=""
 if is_all_mp4s "${@}"; then
   show_header "Joining MP4s."
   join_mp4s "${@}"
+
+# When all provided files are mkvs, create a concat file with the filenames and
+# use the -f concat option for ffmpeg.
+elif is_all_mkvs "${@}"; then
+  show_header "Joining MKVs."
+  join_mkvs "${@}"
 
 # # If multiple codes are present, use the ffmpeg concat filter.
 # else
