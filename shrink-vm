@@ -2,7 +2,13 @@
 set -eu
 source globals
 
-trap "mv -f ${1}.bak ${1}; exit" INT TERM EXIT
+function cleanup() {
+  if [ -f ${1}.bak ]; then
+    mv -f ${1}.bak ${1}
+  fi
+}
+
+trap cleanup INT TERM EXIT
 
 if ! [ -f "${1}" ]; then
   show_error "File doesn't exist."
