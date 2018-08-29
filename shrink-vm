@@ -8,7 +8,7 @@ function cleanup() {
   fi
 }
 
-trap cleanup INT TERM EXIT
+trap 'cleanup ${1}' INT TERM EXIT
 
 if ! [ -f "${1}" ]; then
   show_error "File doesn't exist."
