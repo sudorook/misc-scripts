@@ -49,7 +49,7 @@ function upgrade_themes() {
 
   if [ -d "${icondir}" ]; then
     for dir in ${icondir}/*; do
-      if [ -d ${dir} ] && [ -d ${dir}/.git ]; then
+      if [ -d ${dir}/.git ]; then
         show_info "$(basename ${dir})"
         git -C ${dir} checkout master && git -C ${dir} pull
         echo
@@ -102,7 +102,7 @@ function upgrade_zsh() {
   else
     if [ -d "${zshdir}" ]; then
       for dir in ${zshdir}/*; do
-        [ -d ${dir} ] && git -C ${dir} pull
+        [ -d ${dir}/.git ] && git -C ${dir} pull
       done
     else
       show_warning "No zsh plugins found in ${zshdir}. Skipping."
