@@ -16,7 +16,12 @@ fi
 if [ -d "${dir}" ]; then
   archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]" | \
             sed -e "s/^\.//g")_$(date +%Y%m%d-%I%M%S)
-  tar czf "${HOME}/Desktop/${archive}.tar.gz" --exclude='*.sw[a-p]' ${dir}
+  if command -v pigz >/dev/null 2>&1; then
+    tar cf - --exclude='*.sw[a-p]' ${dir} | \
+      pigz > "${HOME}/Desktop/${archive}.tar.gz"
+  else
+    tar czf "${HOME}/Desktop/${archive}.tar.gz" --exclude='*.sw[a-p]' ${dir}
+  fi
 else
   show_error "${dir} is not a directory."
   exit 1
