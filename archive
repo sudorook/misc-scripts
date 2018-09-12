@@ -2,27 +2,66 @@
 set -eu
 source globals
 
-if [ $# != 1 ]; then
-  show_error "Incorrect # of parameters."
-  echo "Usage: archive /path/to/directory"
-  exit 1
-fi
+#
+# Functions
+#
 
-dir="${1}"
-if [ "${dir:0:2}" = "~/" ]; then
-  dir="${HOME}/${dir:2}"
-fi
+function make_pathstring() {
+  pathstring=""
+  for item in ${@}; do
+    if [ -e ${item} ]; then
+      if [ "${item:0:2}" = "~/" ]; then
+        item="${HOME}/${item:2}"
+      fi
+      pathstring+=${item}" "
+    else
+      show_error "Item ${item} does not exist. Exiting."
+      exit 2
+    fi
+  done
+  echo ${pathstring}
+}
 
-if [ -d "${dir}" ]; then
-  archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]" | \
-            sed -e "s/^\.//g")_$(date +%Y%m%d-%I%M%S)
-  if command -v pigz >/dev/null 2>&1; then
-    tar cf - --exclude='*.sw[a-p]' ${dir} | \
-      pigz > "${HOME}/Desktop/${archive}.tar.gz"
-  else
-    tar czf "${HOME}/Desktop/${archive}.tar.gz" --exclude='*.sw[a-p]' ${dir}
+function make_archivename() {
+  if [ $# -eq 1 ] && [ -d ${1} ]; then
+    dir=${1}
+    if [ "${dir:0:2}" = "~/" ]; then
+      dir="${HOME}/${dir:2}"
+    fi
+    archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]" | \
+              sed -e "s/^\.//g")_$(date +%Y%m%d-%I%M%S)
+  elif [ $# -gt 1 ]; then
+    dir=`pwd`
+    if [ "${dir:0:2}" = "~/" ]; then
+      dir="${HOME}/${dir:2}"
+    fi
+    archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]" | \
+              sed -e "s/^\.//g")_$(date +%Y%m%d-%I%M%S)
   fi
-else
-  show_error "${dir} is not a directory."
+  echo ${archive}
+}
+
+function compress_archive() {
+  mkdir -p ${HOME}/Desktop
+  if command -v pigz >/dev/null 2>&1; then
+    tar cf - --exclude='*.sw[a-p]' ${2} | pigz > "${HOME}/Desktop/${1}.tar.gz"
+  else
+    tar czf "${HOME}/Desktop/${1}.tar.gz" --exclude='*.sw[a-p]' ${2}
+  fi
+}
+
+
+#
+# Main
+#
+
+if [ $# == 0 ]; then
+  show_error "Incorrect # of parameters."
+  echo "Usage: archive /path/to/directory1 /path/to/directory2 ..."
   exit 1
 fi
+
+pathstring="$(make_pathstring ${@})"
+archive="$(make_archivename ${@})"
+
+compress_archive "${archive}" "${pathstring}"
