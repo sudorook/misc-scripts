@@ -6,6 +6,8 @@ source globals
 # Functions
 #
 
+# Returns a string containing all the files and directories passed in the
+# command line. Paths prefixed with '~/' are converted to '/home/<user>'.
 function make_pathstring() {
   pathstring=""
   for item in ${@}; do
@@ -22,6 +24,9 @@ function make_pathstring() {
   echo ${pathstring}
 }
 
+# Generate a name for the archive. For single directories, the name will be
+# <dirname>_<timestamp>. For multiple files and directories, the name will be
+# the basename of the directory from which the script is called.
 function make_archivename() {
   if [ $# -eq 1 ] && [ -d ${1} ]; then
     dir=${1}
@@ -41,6 +46,8 @@ function make_archivename() {
   echo ${archive}
 }
 
+# Take the (1) archive name and the (2) pathstring and compress into a tarball
+# to be found in ~/Desktop. Uses pigz (parallelized compression) if available.
 function compress_archive() {
   mkdir -p ${HOME}/Desktop
   if command -v pigz >/dev/null 2>&1; then
