@@ -19,6 +19,17 @@ function git_update() {
   fi
 }
 
+function print_usage() {
+  show_header "Options:"
+  show_listitem " -t|--themes    upgrade gtk/icon themes in ${gtkdir}"
+  show_listitem "                  and ${icondir}."
+  show_listitem " -p|--pkgbuild  upgrade AUR pkgbuilds in ${pkgbuilddir}."
+  show_listitem " -s|--system    upgrade system packages (pacman or apt)."
+  show_listitem " -v|--vim       upgrade git-versioned vim packages installed"
+  show_listitem "                  in ${vimpack}."
+  show_listitem " -z|--zsh       upgrade zsh plugins in ${zshdir}."
+}
+
 function upgrade_system() {
   # Arch Linux (pacman)
   command -v pacman >/dev/null 2>&1 && {
@@ -126,8 +137,8 @@ function upgrade_pkgbuild() {
 # Main
 #
 
-OPTIONS=ajpstvz
-LONGOPTIONS=all,pkgbuild,system,theme,vim,zsh
+OPTIONS=ahjpstvz
+LONGOPTIONS=all,help,pkgbuild,system,theme,vim,zsh
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n ${0} -- ${@})
 eval set -- ${PARSED}
 
@@ -140,6 +151,10 @@ while [ ${#} -ge 1 ]; do
       upgrade_zsh
       shift
       break
+      ;;
+    -h|--help)
+      print_usage
+      shift
       ;;
     -p|--pkgbuild)
       upgrade_pkgbuild
