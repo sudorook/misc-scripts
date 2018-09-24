@@ -19,7 +19,9 @@ def escape_title(t):
     return re.sub(r'\)', r'\)',
                   re.sub(r'\(', r'\(',
                          re.sub(r'\+', r'\+',
-                                re.sub(r'\?', r'\?', str(t)))))
+                                re.sub(r'\'', r'\'',
+                                       re.sub(r'\"', r'\"',
+                                              re.sub(r'\?', r'\?', str(t)))))))
 
 def get_current_song():
     """Get the current song from MPD. Returns an Item."""
