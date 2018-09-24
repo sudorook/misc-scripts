@@ -64,13 +64,6 @@ function upgrade_themes() {
   fi
 }
 
-function upgrade_julia() {
-  command -v julia >/dev/null 2>&1 && {
-    show_header "Upgrading Julia packages."
-    julia -e 'Pkg.update()'
-  }
-}
-
 vimpack=${HOME}/.vim/pack/dist/start
 function upgrade_vim_packages() {
   show_header "Upgrading vim plugins."
@@ -134,7 +127,7 @@ function upgrade_pkgbuild() {
 #
 
 OPTIONS=ajpstvz
-LONGOPTIONS=all,julia,pkgbuild,system,theme,vim,zsh
+LONGOPTIONS=all,pkgbuild,system,theme,vim,zsh
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n ${0} -- ${@})
 eval set -- ${PARSED}
 
@@ -144,14 +137,9 @@ while [ ${#} -ge 1 ]; do
       upgrade_system
       upgrade_themes
       upgrade_pkgbuild
-      upgrade_julia
       upgrade_zsh
       shift
       break
-      ;;
-    -j|--julia)
-      upgrade_julia
-      shift
       ;;
     -p|--pkgbuild)
       upgrade_pkgbuild
