@@ -34,6 +34,22 @@ switch_vim_background() {
   fi
 }
 
+switch_thunderbird_theme() {
+  if [ -d ${thunderbirddir}/chrome ]; then
+    local userchrome=${thunderbirddir}/chrome/userChrome.css
+    if [ "$1" = "Dark" ]; then
+      sed -i "s,^\(@import \"icons/darkIcons.css\"; /\*For light Folder Tree and Message List\*/\),/\* \1,g" ${userchrome}
+      sed -i "s,^/\* \(@import \"icons/lightIcons.css\"; /\*For dark Folder Tree and Message List\*/\),\1,g" ${userchrome}
+      sed -i "s,^/\* \(@import \"tweaks/dark-folder-pane.css\";\),\1,g" ${userchrome}
+    elif [ "$1" = "Light" ]; then
+      sed -i "s,^/\* \(@import \"icons/darkIcons.css\"; /\*For light Folder Tree and Message List\*/\),\1,g" ${userchrome}
+      sed -i "s,^/\* \(@import \"icons/lightIcons.css\"; /\*For dark Folder Tree and Message List\*/\),\1,g" ${userchrome}
+      sed -i "s,^\(@import \"tweaks/dark-folder-pane.css\";\),/\* \1,g" ${userchrome}
+      sed -i "s/^set background=.*$/set background=light/g" ${userchrome}
+    fi
+  fi
+}
+
 set_gtk_theme() {
   case $XDG_CURRENT_DESKTOP in
     X-Cinnamon)
@@ -65,11 +81,13 @@ set_gtk_theme() {
     sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
     switch_terminal_profile "Dark"
     switch_vim_background "Dark"
+    switch_thunderbird_theme "Dark"
   else
     sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" ${gtksettings}
     sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" ${gtksettings}
     switch_terminal_profile "Light"
     switch_vim_background "Light"
+    switch_thunderbird_theme "Light"
   fi
 }
 
