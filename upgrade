@@ -85,7 +85,11 @@ function upgrade_vim_packages() {
 
   if [ -d ${vimpack} ]; then
     for dir in ${vimpack}/*; do
-      [ -d ${dir}/.git ] && git -C ${dir} pull
+      if [ -d ${dir}/.git ]; then
+        show_info "$(basename ${dir})"
+        git -C ${dir} pull
+        echo
+      fi
     done
   else
     show_warning "No vim packages found in ${vimpack}. Skipping."
