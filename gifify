@@ -148,12 +148,15 @@ if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
            -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
   fi
 
-  gifsicle -O3 "$OUT" -o "$OUT"
+  if test $(command -v gifsicle); then
+    gifsicle -O3 "$OUT" -o "$OUT"
+  fi
+
+  if test $(command -v eog); then
+    eog "$OUT"
+  fi
 else
   show_error "Try again. Usage:"
   print_usage
-fi
-
-if test $(command -v eog); then
-  eog "$OUT"
+  exit 3
 fi
