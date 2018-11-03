@@ -9,7 +9,6 @@ function hardcode_cleanup {
 
 name=${1%.*}
 extension=${1##*.}
-encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
 output="subbed_video.${extension}"
 
 if [ -f "${name}.srt" ]; then
@@ -25,11 +24,11 @@ if [ -f "${name}.srt" ]; then
       mv temp.srt "${name}.srt"
   fi
 elif [ -f "${name}.ass" ]; then
-  encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
+  encoding=$(file -i "$name.ass" | sed -n "s/.*charset=\(.*\)$/\1/p")
   subextension="ass"
   if ! [[ "${encoding}" = "utf-8" ]]; then
-    hardcode_cleanup "${name}.srt"
-    encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
+    hardcode_cleanup "${name}.ass"
+    encoding=$(file -i "$name.ass" | sed -n "s/.*charset=\(.*\)$/\1/p")
   fi
   if ! [[ "${encoding}" = "utf-8" ]]; then
     show_info "Converting ${name}.ass encoding from ${encoding} to utf-8."
