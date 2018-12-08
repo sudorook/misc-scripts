@@ -10,12 +10,12 @@ source globals
 # command line. Paths prefixed with '~/' are converted to '/home/<user>'.
 function make_pathstring() {
   pathstring=""
-  for item in ${@}; do
-    if [ -e ${item} ]; then
+  for item in "${@}"; do
+    if [ -e "${item}" ]; then
       if [ "${item:0:2}" = "~/" ]; then
         item="${HOME}/${item:2}"
       fi
-      pathstring+=${item}" "
+      pathstring+=\"${item}\"" "
     else
       show_error "Item ${item} does not exist. Exiting."
       exit 2
@@ -28,7 +28,7 @@ function make_pathstring() {
 # <dirname>_<timestamp>. For multiple files and directories, the name will be
 # the basename of the directory from which the script is called.
 function make_archivename() {
-  if [ $# -eq 1 ] && [ -d ${1} ]; then
+  if [ $# -eq 1 ] && [ -d "${1}" ]; then
     dir=${1}
     if [ "${dir:0:2}" = "~/" ]; then
       dir="${HOME}/${dir:2}"
@@ -51,9 +51,11 @@ function make_archivename() {
 function compress_archive() {
   mkdir -p ${HOME}/Desktop
   if command -v pigz >/dev/null 2>&1; then
-    tar cf - --exclude='*.sw[a-p]' ${2} | pigz > "${HOME}/Desktop/${1}.tar.gz"
+    run=$(echo tar cf - --exclude='*.sw[a-p]' ${2})
+    eval ${run} | pigz > "${HOME}/Desktop/${1}.tar.gz"
   else
-    tar czf "${HOME}/Desktop/${1}.tar.gz" --exclude='*.sw[a-p]' ${2}
+    run=$(echo tar czf "${HOME}/Desktop/${1}.tar.gz" --exclude='*.sw[a-p]' ${2})
+    eval ${run}
   fi
 }
 
@@ -68,7 +70,9 @@ if [ $# == 0 ]; then
   exit 1
 fi
 
-pathstring="$(make_pathstring ${@})"
-archive="$(make_archivename ${@})"
+items=("${@}")
 
-compress_archive "${archive}" "${pathstring}"
+pathstring="$(make_pathstring "${items[@]}")"
+archive="$(make_archivename "${items[@]}")"
+
+compress_archive "${archive}" "$pathstring"
