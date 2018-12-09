@@ -80,6 +80,7 @@ function upgrade_vim_packages() {
   show_header "Upgrading vim plugins."
   if ! command -v vim >/dev/null 2>&1; then
     show_warning "Install vim first. Skipping."
+    echo
     return
   fi
 
@@ -93,6 +94,7 @@ function upgrade_vim_packages() {
     done
   else
     show_warning "No vim packages found in ${vimpack}. Skipping."
+    echo
   fi
 }
 
@@ -133,6 +135,7 @@ function upgrade_pkgbuild() {
         echo
       fi
     done
+    echo
   }
 }
 
