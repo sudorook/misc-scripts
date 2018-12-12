@@ -29,7 +29,7 @@ def get_current_song():
     client = MPDClient()
     client.connect("localhost", 6600)
     info = client.currentsong()
-    if bool(info) == False:
+    if bool(info) is False:
         print("MPD not playing. Exiting.")
         sys.exit()
     client.disconnect()
@@ -89,14 +89,14 @@ args = parser.parse_args()
 # Main
 #
 
-if args.file == None:
+if args.file is None:
     song = get_current_song()
     print("Playing '" + song['title'] + "' from '" +
           song['album'] + "' by " + song['artist'])
 else:
     song = get_song_from_file(args.file)
 
-if args.rating == None:
+if args.rating is None:
     rating = prompt_user_rating()
 else:
     if 0 <= int(args.rating) <= 5:
