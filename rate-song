@@ -15,14 +15,6 @@ import beets.library
 # Functions
 #
 
-def escape_title(t):
-    return re.sub(r'\)', r'\)',
-                  re.sub(r'\(', r'\(',
-                         re.sub(r'\+', r'\+',
-                                re.sub(r'\'', r'\'',
-                                       re.sub(r'\"', r'\"',
-                                              re.sub(r'\?', r'\?', str(t)))))))
-
 def get_current_song():
     """Get the current song from MPD. Returns an Item."""
     # Connect to MPD.
@@ -41,12 +33,32 @@ def get_current_song():
     # Find the song in the beets database based on the title, artist, and album
     # information provided by MPD.
     item = lib.items(
-            '"title::^' + escape_title(info['title']) + '$"' +
-            ' "artist::^' + escape_title(info['artist']) + '$"' +
-            ' "album::^' + escape_title(info['album']) + '$"')
+            '"title::^' + re.escape(info['title']) + '$"' +
+            ' "artist::^' + re.escape(info['artist']) + '$"' +
+            ' "album::^' + re.escape(info['album']) + '$"')
     if len(item) > 1:
         print('Multiple files found. Exiting.')
         sys.exit()
+    elif len(item) == 0:
+        print('First pass parsing failed. Trying again.')
+        item = lib.items(
+                '"title::^' + re.escape(info['title']) + '$"' +
+                ' "artist::^' + re.escape(info['artist']) + '$"')
+        if len(item) == 1:
+            return item[0]
+        else:
+            print('Second pass parsing failed. Trying again.')
+            item = lib.items(
+                    '"title::^' + re.escape(info['title']) + '$"' +
+                    ' "album::^' + re.escape(info['album']) + '$"')
+            if len(item) == 1:
+                return item[0]
+            else:
+                print('Parsing failed. See below:')
+                print('Title:', info['title'], ' -> ', re.escape(info['title']))
+                print('Artist:', info['artist'], ' -> ', re.escape(info['artist']))
+                print('Album:', info['album'], ' -> ', re.escape(info['album']))
+                sys.exit()
     else:
         return item[0]
 
