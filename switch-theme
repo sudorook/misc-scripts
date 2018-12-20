@@ -75,30 +75,35 @@ set_gtk_theme() {
   esac
 
   gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
-  if [[ "$1" =~ [Nn]okto ]]; then
+  gitkdir="${HOME}/.config/git"
+  if [[ "$1" =~ [Nn]okto ]] || [[ "$1" =~ ^[Aa]rc-[Dd]ark ]]; then
     sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" ${gtksettings}
     sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
     switch_terminal_profile "Dark"
     switch_vim_background "dark"
     switch_thunderbird_theme "Dark"
+    [[ -f ${gitkdir}/gitk-dark ]] && cp "${gitkdir}/gitk-dark" "${gitkdir}/gitk"
   elif [[ "$1" =~ [Nn]oir ]] || [[ "$1" =~ [Dd]ark ]]; then
     sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" ${gtksettings}
     sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
     switch_terminal_profile "Dark"
     switch_vim_background "dark2"
     switch_thunderbird_theme "Dark"
+    [[ -f ${gitkdir}/gitk-dark2 ]] && cp "${gitkdir}/gitk-dark2" "${gitkdir}/gitk"
   elif [[ "$1" =~ [Aa]dapta ]]; then
     sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" ${gtksettings}
     sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" ${gtksettings}
     switch_terminal_profile "Light"
     switch_vim_background "light"
     switch_thunderbird_theme "Light"
+    [[ -f ${gitkdir}/gitk-light ]] && cp "${gitkdir}/gitk-light" "${gitkdir}/gitk"
   else
     sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" ${gtksettings}
     sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" ${gtksettings}
     switch_terminal_profile "Light"
     switch_vim_background "light2"
     switch_thunderbird_theme "Light"
+    [[ -f ${gitkdir}/gitk-light2 ]] && cp "${gitkdir}/gitk-light2" "${gitkdir}/gitk"
   fi
 }
 
