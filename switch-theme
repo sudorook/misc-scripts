@@ -24,13 +24,9 @@ switch_terminal_profile() {
 
 switch_vim_background() {
   if [ -f ${HOME}/.vimrc ]; then
-    if [ "$1" = "Dark" ]; then
-      sed -i "s/^set background=.*$/set background=dark/g" ${HOME}/.vimrc
-      sed -i "s/^set bg=.*$/set bg=dark/g" ${HOME}/.vimrc
-    elif [ "$1" = "Light" ]; then
-      sed -i "s/^set background=.*$/set background=light/g" ${HOME}/.vimrc
-      sed -i "s/^set bg=.*$/set bg=light/g" ${HOME}/.vimrc
-    fi
+    sed -i "s/^set background=.*$/set background=${1//[0-9]}/g" ${HOME}/.vimrc
+    sed -i "s/^  let g:colorific_style='.*'$/  let g:colorific_style='${1}'/g" ${HOME}/.vimrc
+    sed -i "s/^set bg=.*$/set bg=${1}/g" ${HOME}/.vimrc
   fi
 }
 
@@ -79,17 +75,29 @@ set_gtk_theme() {
   esac
 
   gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
-  if [[ "$1" =~ [Nn]okto ]] || [[ "$1" =~ [Nn]oir ]] || [[ "$1" =~ [Dd]ark ]]; then
+  if [[ "$1" =~ [Nn]okto ]]; then
     sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" ${gtksettings}
     sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
     switch_terminal_profile "Dark"
-    switch_vim_background "Dark"
+    switch_vim_background "dark"
     switch_thunderbird_theme "Dark"
+  elif [[ "$1" =~ [Nn]oir ]] || [[ "$1" =~ [Dd]ark ]]; then
+    sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" ${gtksettings}
+    sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
+    switch_terminal_profile "Dark"
+    switch_vim_background "dark2"
+    switch_thunderbird_theme "Dark"
+  elif [[ "$1" =~ [Aa]dapta ]]; then
+    sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" ${gtksettings}
+    sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" ${gtksettings}
+    switch_terminal_profile "Light"
+    switch_vim_background "light"
+    switch_thunderbird_theme "Light"
   else
     sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" ${gtksettings}
     sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" ${gtksettings}
     switch_terminal_profile "Light"
-    switch_vim_background "Light"
+    switch_vim_background "light2"
     switch_thunderbird_theme "Light"
   fi
 }
