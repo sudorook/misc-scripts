@@ -7,3 +7,7 @@ extension=${1##*.}
 if [[ ${extension} =~ ^([R|r][MD|md|markdown|Markdown]*)$ ]]; then
   R -q -e "if (require(rmarkdown)) render('${1}')"
 fi
+
+if [[ ${extension} =~ ^(tex)$ ]]; then
+  lualatex -shell-escape ${1}
+fi
