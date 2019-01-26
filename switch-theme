@@ -30,6 +30,12 @@ switch_vim_background() {
   fi
 }
 
+switch_tmux_theme() {
+  if [ -f ${HOME}/.tmux.conf ]; then
+    sed -i "s,^source-file \(.*\)/[a-z0-9]\+\.\([a-z]\+\)$,source-file \1/${1}\.\2,g" ${HOME}/.tmux.conf
+  fi
+}
+
 switch_thunderbird_theme() {
   if [ -d ${thunderbirddir}/chrome ]; then
     local userchrome=${thunderbirddir}/chrome/userChrome.css
@@ -81,6 +87,7 @@ set_gtk_theme() {
     sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
     switch_terminal_profile "Dark"
     switch_vim_background "dark"
+    switch_tmux_theme "dark"
     switch_thunderbird_theme "Dark"
     [[ -f ${gitkdir}/gitk-dark ]] && cp "${gitkdir}/gitk-dark" "${gitkdir}/gitk"
   elif [[ "$1" =~ [Nn]oir ]] || [[ "$1" =~ [Dd]ark ]]; then
@@ -88,6 +95,7 @@ set_gtk_theme() {
     sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
     switch_terminal_profile "Dark"
     switch_vim_background "dark2"
+    switch_tmux_theme "dark2"
     switch_thunderbird_theme "Dark"
     [[ -f ${gitkdir}/gitk-dark2 ]] && cp "${gitkdir}/gitk-dark2" "${gitkdir}/gitk"
   elif [[ "$1" =~ [Aa]dapta ]]; then
@@ -95,6 +103,7 @@ set_gtk_theme() {
     sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" ${gtksettings}
     switch_terminal_profile "Light"
     switch_vim_background "light"
+    switch_tmux_theme "light"
     switch_thunderbird_theme "Light"
     [[ -f ${gitkdir}/gitk-light ]] && cp "${gitkdir}/gitk-light" "${gitkdir}/gitk"
   else
@@ -102,6 +111,7 @@ set_gtk_theme() {
     sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" ${gtksettings}
     switch_terminal_profile "Light"
     switch_vim_background "light2"
+    switch_tmux_theme "light2"
     switch_thunderbird_theme "Light"
     [[ -f ${gitkdir}/gitk-light2 ]] && cp "${gitkdir}/gitk-light2" "${gitkdir}/gitk"
   fi
