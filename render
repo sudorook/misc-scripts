@@ -1,8 +1,14 @@
 #! /bin/bash
 set -eu
+source globals
 
 file=${1%.*}
 extension=${1##*.}
+
+if ! [ -f "$1" ]; then
+  show_error "Error: $1 does not exist."
+  exit 1
+fi
 
 if [[ ${extension} =~ ^([R|r][MD|md|markdown|Markdown]*)$ ]]; then
   R -q -e "if (require(rmarkdown)) render('${1}')"
