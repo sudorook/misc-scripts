@@ -102,6 +102,7 @@ function upgrade_zsh() {
   show_header "Upgrading zsh plugins."
   if ! command -v zsh >/dev/null 2>&1; then
     show_warning "Install zsh first. Skipping."
+    echo
     return
   fi
 
@@ -118,6 +119,7 @@ function upgrade_zsh() {
       show_warning "No zsh plugins found in ${zshdir}. Skipping."
     fi
   fi
+  echo
 }
 
 function upgrade_pkgbuild() {
