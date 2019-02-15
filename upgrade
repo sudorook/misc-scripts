@@ -113,13 +113,16 @@ function upgrade_zsh() {
   else
     if [ -d "${zshdir}" ]; then
       for dir in ${zshdir}/*; do
-        [ -d ${dir}/.git ] && git -C ${dir} pull
+        if [ -d $dir}/.git ]; then
+          show_info "$(basename ${dir})"
+          git -C ${dir} pull
+          echo
+        fi
       done
     else
       show_warning "No zsh plugins found in ${zshdir}. Skipping."
     fi
   fi
-  echo
 }
 
 function upgrade_pkgbuild() {
@@ -137,7 +140,6 @@ function upgrade_pkgbuild() {
         echo
       fi
     done
-    echo
   }
 }
 
