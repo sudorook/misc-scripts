@@ -68,7 +68,7 @@ set_gtk_theme() {
         gsettings set org.cinnamon.theme name "'$1'"
       fi
       ;;
-    GNOME)
+    ubuntu:GNOME|GNOME)
       gsettings set org.gnome.desktop.wm.preferences theme "'$1'"
       gsettings set org.gnome.desktop.interface gtk-theme "'$1'"
       gnome-shell-extension-tool -e "user-theme@gnome-shell-extensions.gcampax.github.com" || true >/dev/null
@@ -122,7 +122,7 @@ set_icon_theme() {
     X-Cinnamon)
       gsettings set org.cinnamon.desktop.interface icon-theme "'$1'"
       ;;
-    GNOME)
+    ubuntu:GNOME|GNOME)
       gsettings set org.gnome.desktop.interface icon-theme "'$1'"
       ;;
     *)
