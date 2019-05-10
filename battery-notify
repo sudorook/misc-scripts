@@ -34,7 +34,7 @@ while true; do
         if ! ${critical_flag_sent}; then
           DISPLAY=${display} notify-send -u critical -i ${critical_icon} \
             "Battery critical" \
-            "Battery is at ${battery_level}%. Plug in the power supply."
+            "Battery is at ${battery_level}%. Plug in the power supply now."
           critical_flag_sent=true
         fi
       # If battery level is above critical, check if it is below the low
