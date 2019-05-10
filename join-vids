@@ -39,7 +39,7 @@ function join_mp4s() {
     fi
     name=${file%.*}
     extension=${file##*.}
-    ffmpeg -i "${file}" -c copy -bsf:v h264_mp4toannexb -f mpegts "${name}.ts"
+    ffmpeg -i "${file}" -c copy -bsf:v h264_mp4toannexb -f h264 "${name}.ts"
     input="${input}${name}.ts|"
   done
   input=${input::-1}
