@@ -125,6 +125,18 @@ function upgrade_zsh() {
   fi
 }
 
+function upgrade_julia_packages() {
+  show_header "Upgrading Julia packages."
+  if ! command -v julia >/dev/null 2>&1; then
+    show_warning "Install julia first. Skipping."
+    echo
+    return
+  fi
+
+  julia -e "using Pkg; Pkg.update()"
+  echo
+}
+
 function upgrade_pkgbuild() {
   command -v makepkg >/dev/null 2>&1 && {
     show_header "Upgrading AUR pkgbuilds."
@@ -149,22 +161,28 @@ function upgrade_pkgbuild() {
 #
 
 OPTIONS=ahjpstvz
-LONGOPTIONS=all,help,pkgbuild,system,theme,vim,zsh
+LONGOPTIONS=all,help,julia,pkgbuild,system,theme,vim,zsh
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n ${0} -- ${@})
 eval set -- ${PARSED}
 
 while [ ${#} -ge 1 ]; do
   case ${1} in
     -a|--all)
-      upgrade_system
       upgrade_themes
       upgrade_pkgbuild
+      upgrade_vim_packages
+      upgrade_julia_packages
       upgrade_zsh
+      upgrade_system
       shift
       break
       ;;
     -h|--help)
       print_usage
+      shift
+      ;;
+    -j|--julia)
+      upgrade_julia_packages
       shift
       ;;
     -p|--pkgbuild)
