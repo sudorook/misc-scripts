@@ -17,3 +17,7 @@ fi
 if [[ ${extension} =~ ^(tex)$ ]]; then
   lualatex -shell-escape ${1}
 fi
+
+if [[ ${extension} =~ ^([J|j][MD|md|markdown|Markdown]*)$ ]]; then
+  julia -e "using Weave; weave(\"${1}\")"
+fi
