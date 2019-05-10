@@ -113,7 +113,7 @@ function upgrade_zsh() {
   else
     if [ -d "${zshdir}" ]; then
       for dir in ${zshdir}/*; do
-        if [ -d $dir}/.git ]; then
+        if [ -d ${dir}/.git ]; then
           show_info "$(basename ${dir})"
           git -C ${dir} pull
           echo
