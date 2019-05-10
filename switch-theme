@@ -32,7 +32,9 @@ switch_vim_background() {
 
 switch_tmux_theme() {
   if [ -f ${HOME}/.tmux.conf ]; then
-    sed -i "s,^source-file \(.*\)/[a-z0-9]\+\.\([a-z]\+\)$,source-file \1/${1}\.\2,g" ${HOME}/.tmux.conf
+    themefile=$(sed -n "s/^\ *\"source-file\ \(.*\)\"$/\1/p" "${HOME}/.tmux.conf")
+    eval themefile=${themefile}
+    sed -i "s,^theme=\"[a-z0-9]\+\",theme=\"${1}\",g" ${themefile}
   fi
 }
 
