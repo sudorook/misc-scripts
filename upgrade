@@ -168,12 +168,12 @@ eval set -- ${PARSED}
 while [ ${#} -ge 1 ]; do
   case ${1} in
     -a|--all)
-      upgrade_themes
-      upgrade_pkgbuild
-      upgrade_vim_packages
-      upgrade_julia_packages
-      upgrade_zsh
       upgrade_system
+      upgrade_julia_packages
+      upgrade_pkgbuild
+      upgrade_themes
+      upgrade_vim_packages
+      upgrade_zsh
       shift
       break
       ;;
