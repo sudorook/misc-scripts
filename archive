@@ -33,8 +33,8 @@ function make_archivename() {
     if [ "${dir:0:2}" = "~/" ]; then
       dir="${HOME}/${dir:2}"
     fi
-    archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]" | \
-              sed -e "s/^\.//g")_$(date +%Y%m%d-%I%M%S)
+    archive=$(basename "${dir}" | tr "[:upper:]" "[:lower:]" | \
+              sed -e "s/^\.//g" | sed -e "s/\ /_/g")_$(date +%Y%m%d-%I%M%S)
   elif [ $# -gt 1 ]; then
     dir=`pwd`
     if [ "${dir:0:2}" = "~/" ]; then
