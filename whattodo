@@ -5,6 +5,9 @@ source globals
 # File name(s) that contain todo lists.
 files=(TODO.md TODO.txt)
 
+# Extra hard-coded files not in ${projectsdir} (can be left empty).
+extras=(${HOME}/Desktop/TODO.md ${HOME}/TODO.md)
+
 # Pre-generate the syntax for specifying multiple file names for find.
 names=""
 for file in ${files[@]}; do
@@ -31,5 +34,13 @@ while IFS= read -r -d '' todo; do
         echo && echo
       fi
     done
+  fi
+done
+
+for extra in ${extras[@]}; do
+  if [ -f ${extra} ]; then
+    show_info ${extra}
+    cat "${extra}"
+    echo && echo
   fi
 done
