@@ -5,7 +5,7 @@ source globals
 OPTIONS=t:a:u:f:
 LONGOPTIONS=title:,artist:,url:,format
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+eval set -- "${PARSED}"
 
 while [ $# -ge 1 ]; do
   case "$1" in
@@ -45,4 +45,4 @@ if ! [[ -v FORMAT ]]; then FORMAT=mp3; fi
 # Download the file, extract audio as mp3, and set the id3v2 tags.
 youtube-dl --extract-audio --prefer-ffmpeg --audio-format ${FORMAT} "${URL//\"}" \
   -o "${TITLE} - ${ARTIST}.%(ext)s"
-id3v2 "$TITLE - $ARTIST.${FORMAT}" -a "$ARTIST" -t "$TITLE"
+id3v2 "${TITLE} - ${ARTIST}.${FORMAT}" -a "${ARTIST}" -t "${TITLE}"
