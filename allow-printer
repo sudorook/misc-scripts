@@ -1,0 +1,65 @@
+#! /bin/bash
+set -eu
+source globals
+
+# Command line script to add a routing table entry for a printer. Useful for
+# accessing network printers when behind a VPN that interferes with a
+# local/internal DNS.
+
+OPTIONS=i:m:
+LONGOPTIONS=ip:,mask:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -i|--ip)
+      # If IP address given as xxx.xxx.xxx.xxx:
+      if [[ "${2}" == "$(echo ${2} | \
+                         sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)$/\1/p")" ]]; then
+        PRINTER="${2}"
+      # If IP address and netmask given as xxx.xxx.xxx.xxx/xx:
+      elif [[ "${2}" == "$(echo ${2} | \
+                           sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\/[0-9]\+\)$/\1/p")" ]]; then
+        PRINTER="$(echo "${2}" | cut -d"/" -f1)"
+        MASK="$(echo "${2}" | cut -d"/" -f2)"
+      fi
+      shift 2
+      ;;
+    -m|--mask)
+      if (($2 >= 0 && $2 <= 32)); then
+        MASK="${2}"
+      fi
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "What was that?"
+      exit 3
+      ;;
+  esac
+done
+
+# Exit if no ip address supplied.
+if ! [[ -v PRINTER ]]; then
+  show_error "Give me the printer IP address."
+  exit 3
+fi
+
+# If the net mask is not specified, only allow the IP address given.
+if ! [[ -v MASK ]]; then
+  MASK=32
+fi
+
+GATEWAY=$(ip route list | \
+          grep -e enp0s25 -e wlp3s0 | \
+          sed -n "s/^default via \([0-9\.]\+\) dev .*/\1/p" | head -1)
+
+IFACE=$(ip route show | \
+        grep -e ${GATEWAY} | \
+        sed -n "s/^default via [0-9\.]\+ dev \([a-z0-9]\+\) .*/\1/p")
+
+sudo ip route add ${PRINTER}/${MASK} via ${GATEWAY} dev ${IFACE}
