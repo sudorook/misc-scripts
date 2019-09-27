@@ -155,13 +155,24 @@ function upgrade_pkgbuild() {
   }
 }
 
+weechatdir=${HOME}/.weechat/plugins
+function upgrade_weechat_plugins {
+  show_header "Upgrading weechat plugins."
+  for dir in ${weechatdir}/*; do
+    if [ -d "${dir}/.git" ]; then
+      show_info "$(basename ${dir})"
+      git -C ${dir} pull
+      echo
+    fi
+  done
+}
 
 #
 # Main
 #
 
-OPTIONS=ahjpstvz
-LONGOPTIONS=all,help,julia,pkgbuild,system,theme,vim,zsh
+OPTIONS=ahjpstvwz
+LONGOPTIONS=all,help,julia,pkgbuild,system,theme,vim,weechat,zsh
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n ${0} -- ${@})
 eval set -- ${PARSED}
 
@@ -173,6 +184,7 @@ while [ ${#} -ge 1 ]; do
       upgrade_pkgbuild
       upgrade_themes
       upgrade_vim_packages
+      upgrade_weechat_plugins
       upgrade_zsh
       shift
       break
@@ -199,6 +211,10 @@ while [ ${#} -ge 1 ]; do
       ;;
     -v|--vim)
       upgrade_vim_packages
+      shift
+      ;;
+    -w|--weechat)
+      upgrade_weechat_plugins
       shift
       ;;
     -z|--zsh)
