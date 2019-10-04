@@ -2,9 +2,9 @@
 set -eu
 source globals
 
-# Command line script to add a routing table entry for a printer. Useful for
-# accessing network printers when behind a VPN that interferes with a
-# local/internal DNS.
+# Command line script to add a routing table entry for an IP address. Useful
+# for accessing network printers when behind a VPN that interferes with access
+# to local machines addressed by a local/internal DNS.
 
 OPTIONS=i:m:
 LONGOPTIONS=ip:,mask:
@@ -17,11 +17,11 @@ while [ $# -ge 1 ]; do
       # If IP address given as xxx.xxx.xxx.xxx:
       if [[ "${2}" == "$(echo ${2} | \
                          sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)$/\1/p")" ]]; then
-        PRINTER="${2}"
+        IP="${2}"
       # If IP address and netmask given as xxx.xxx.xxx.xxx/xx:
       elif [[ "${2}" == "$(echo ${2} | \
                            sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\/[0-9]\+\)$/\1/p")" ]]; then
-        PRINTER="$(echo "${2}" | cut -d"/" -f1)"
+        IP="$(echo "${2}" | cut -d"/" -f1)"
         MASK="$(echo "${2}" | cut -d"/" -f2)"
       fi
       shift 2
@@ -44,8 +44,8 @@ while [ $# -ge 1 ]; do
 done
 
 # Exit if no ip address supplied.
-if ! [[ -v PRINTER ]]; then
-  show_error "Give me the printer IP address."
+if ! [[ -v IP ]]; then
+  show_error "Give me the IP address."
   exit 3
 fi
 
@@ -62,4 +62,4 @@ IFACE=$(ip route show | \
         grep -e ${GATEWAY} | \
         sed -n "s/^default via [0-9\.]\+ dev \([a-z0-9]\+\) .*/\1/p")
 
-sudo ip route add ${PRINTER}/${MASK} via ${GATEWAY} dev ${IFACE}
+sudo ip route add ${IP}/${MASK} via ${GATEWAY} dev ${IFACE}

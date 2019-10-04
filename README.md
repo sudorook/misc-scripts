@@ -7,7 +7,7 @@ Scripts that help maintain my sanity.
 | add-cover        | embeds images in audio files                                         |
 | add-song         | just edits a list of songs                                           |
 | add-subtitles    | embed srt files into video                                           |
-| allow-printer    | add rule to routing table to allow local network printer             |
+| allow-ip         | add rule to routing table for an IP address (e.g. a local printer)   |
 | alphabetize      | sorts line alphabetically and deletes repeats                        |
 | archive          | tar a directory and output to ~/Desktop with a unique filename       |
 | backup           | backup home directory to external drive (up to 2 backups at once)    |
