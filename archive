@@ -43,21 +43,21 @@ function make_archivename() {
       dir="${HOME}/${dir:2}"
     fi
     archive=$(basename "${dir}" | tr "[:upper:]" "[:lower:]" | \
-              sed -e "s/^\.//g" | sed -e "s/\ /_/g")_$(date +%Y%m%d-%I%M%S)
+              sed -e "s/^\.//g" | sed -e "s/\ /_/g")_$(date +%Y%m%d-%H%M%S)
   elif [ $# -eq 1 ] && [ -f "${1}" ]; then
     file=${1}
     if [ "${file:0:2}" = "~/" ]; then
       file="${HOME}/${file:2}"
     fi
     archive=$(echo "${file%.*}" | tr "[:upper:]" "[:lower:]" | \
-              sed -e "s/^\.//g" | sed -e "s/\ /_/g")_$(date +%Y%m%d-%I%M%S)
+              sed -e "s/^\.//g" | sed -e "s/\ /_/g")_$(date +%Y%m%d-%H%M%S)
   elif [ $# -gt 1 ]; then
     dir=`pwd`
     if [ "${dir:0:2}" = "~/" ]; then
       dir="${HOME}/${dir:2}"
     fi
     archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]" | \
-              sed -e "s/^\.//g")_$(date +%Y%m%d-%I%M%S)
+              sed -e "s/^\.//g")_$(date +%Y%m%d-%H%M%S)
   fi
   echo ${archive}
 }
