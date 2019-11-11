@@ -2,17 +2,29 @@
 set -eu
 source globals
 
-ignore="-path '*/.git*' -prune -o -name '*.o' -o -name '*.tar.gz' -o -name '*.zip'"
+ignorefiles="-name '*.o' \
+             -o -name '*.tar.*'\
+             -o -name '*.zip' \
+             -o -name '*.git*'
+             -o -name '*.tgz'"
+ignoredirs="-path '*/.git/*' \
+            -o -path '*/.deps/*'"
 
 if [ ${#} = 0 ]; then
-  $(eval echo find . -type f ! \\\( "${ignore}" \\\)  -exec wc -l {} +) 
+  eval "find . -type f \
+    -not \( "${ignorefiles}" \) \
+    -not \( "${ignoredirs}" \) \
+    -exec wc -l {} +"
 else
   if [ -d "${1}" ]; then
     # As tempting as it may be, don't try to generate a list of ignore paths by
     # parsing the gitignore. People normally stick globs and all sorts of stuff
     # in them, and it's not possible to handle any permutation of them safely
     # as text and not accidentally execute them.
-    $(eval echo find ${1} -type f -not \\\( "${ignore}" \\\)  -exec wc -l {} +) 
+    eval "find ${1} -type f \
+      -not \( "${ignorefiles}" \) \
+      -not \( "${ignoredirs}" \) \
+      -exec wc -l {} +"
   elif [ -f "${1}" ]; then
     wc -l "${1}"
   else
