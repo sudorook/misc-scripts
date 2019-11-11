@@ -35,6 +35,9 @@ show_listitem() {
 # Global variables
 #
 
+# archive destination dir
+archivedir=
+
 # backup-home, backup-vms
 backup1=
 backup2=

@@ -51,6 +51,7 @@ specific scripts.
 
 | Variable          | Description                                     | Required By                             |
 | :---:             | :---:                                           | :---:                                   |
+| archivedir           | destination for archive files                | archive                                 |
 | backup1           | path to backup destination device               | backup                                  |
 | backup2           | path of device to mirror backup1                | backup                                  |
 | kvmdir            | directory containing kvm images                 | backup                                  |
