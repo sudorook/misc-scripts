@@ -94,8 +94,10 @@ archive="$(make_archivename "${items[@]}")"
 
 if [ -z "${pathstring}" ]; then
   show_error "Path string is empty. Exiting."
+  exit 1
 elif [ -z "${archive}" ]; then
   show_error "Archive name is empty. Exiting."
+  exit 1
 fi
 
 compress_archive "${archive}" "$pathstring"
