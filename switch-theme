@@ -73,7 +73,7 @@ set_gtk_theme() {
     ubuntu:GNOME|GNOME)
       gsettings set org.gnome.desktop.wm.preferences theme "'$1'"
       gsettings set org.gnome.desktop.interface gtk-theme "'$1'"
-      gnome-shell-extension-tool -e "user-theme@gnome-shell-extensions.gcampax.github.com" || true >/dev/null
+      gnome-extensions enable "user-theme@gnome-shell-extensions.gcampax.github.com" || true >/dev/null
       gsettings set org.gnome.shell.extensions.user-theme name "'$1'"
       ;;
     *)
