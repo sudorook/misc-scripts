@@ -3,4 +3,4 @@ set -eu
 source globals
 
 mkdir -p ${kvmshare}
-find ${kvmshare} -maxdepth 1 ! -path ${kvmshare} -exec rm -rf {} +
+find ${kvmshare} -maxdepth 1 ! -path ${kvmshare} -exec rm -rf -- '{}' +

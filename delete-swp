@@ -4,8 +4,8 @@ source globals
 
 if [ $# = 0 ]; then
   find . \( -name '*.sw[a-p]' -o -name '*.bak' -o -name '*~' \) \
-    -exec rm -rf {} +
+    -exec rm -rf -- '{}' +
 else
   find ${@} \( -name '*.sw[a-p]' -o -name '*.bak' -o -name '*~' \) \
-    -exec rm -rf {} +
+    -exec rm -rf -- '{}' +
 fi

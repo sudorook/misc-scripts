@@ -14,7 +14,7 @@ if [ ${#} = 0 ]; then
   eval "find . -type f \
     -not \( "${ignorefiles}" \) \
     -not \( "${ignoredirs}" \) \
-    -exec wc -l {} +"
+    -exec wc -l -- '{}' +"
 else
   if [ -d "${1}" ]; then
     # As tempting as it may be, don't try to generate a list of ignore paths by
@@ -24,7 +24,7 @@ else
     eval "find ${1} -type f \
       -not \( "${ignorefiles}" \) \
       -not \( "${ignoredirs}" \) \
-      -exec wc -l {} +"
+      -exec wc -l -- '{}' +"
   elif [ -f "${1}" ]; then
     wc -l "${1}"
   else
