@@ -32,6 +32,7 @@ while [ $# -ge 1 ]; do
       echo "  -i|--input  <pdf input>"
       echo "  -f|--first  <# of first page to split>"
       echo "  -l|--last   <# of last page to split>"
+      echo "  -j|--join   <flag to join split pdf pages together (def: false)"
       exit 0
       ;;
     --)
@@ -92,10 +93,11 @@ else
 fi
 
 # Join
-if [[ $joinpdfs = true ]]; then
-  echo hi
-  new="${in%.*}-new.pdf"
-  rm -f "$new"
-  pdfunite ${out}-*.pdf "$new"
-  rm ${out}-[0-9]*.pdf
+if [[ -v joinpdfs ]]; then
+  if [[ $joinpdfs = true ]]; then
+    new="${in%.*}-new.pdf"
+    rm -f "$new"
+    pdfunite "${out}"-*.pdf "$new"
+    rm "${out}"-[0-9]*.pdf
+  fi
 fi
