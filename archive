@@ -7,9 +7,8 @@ source globals
 #
 
 # Returns a string containing all the files and directories passed in the
-# command line. Paths prefixed with '~/' are converted to '/home/<user>'.
-# Symlinks are expanded and included as if they were in the current working
-# directory.
+# command line. Paths prefixed with '~/' are converted to '${HOME}'. Symlinks
+# are expanded and included as if they were in the current working directory.
 function make_pathstring() {
   pathstring=""
   for item in "${@}"; do
@@ -34,7 +33,7 @@ function make_pathstring() {
 # Generate a name for the archive. For single directories, the name will be
 # <dirname>_<timestamp>. For multiple files and directories, the name will be
 # the basename of the directory from which the script is called. For single
-# files, the name sill be <basname>_<timestamp>.
+# files, the name sill be <basename>_<timestamp>.
 function make_archivename() {
   archive=""
   if [ $# -eq 1 ] && [ -d "${1}" ]; then
