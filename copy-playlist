@@ -1,0 +1,50 @@
+#! /bin/bash
+set -eu
+source globals
+
+function print_usage() {
+  echo "Usage: copy-playlist -i|--input <m3u file> -d|--dest <destinatior directory>"
+}
+
+OPTIONS=hi:d:
+LONGOPTIONS=help,input:,dest:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -i|--input)
+      export INPUT=${2}
+      shift 2
+      ;;
+    -d|--dest)
+      export DEST=${2}
+      shift 2
+      ;;
+    -h|--help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR"
+      exit 3
+      ;;
+  esac
+done
+
+if [[ -v INPUT ]] && [[ -v DEST ]]; then
+  mkdir -p "${DEST}"
+  if [ -f "${INPUT}" ]; then
+    while read file; do
+      newfile="$(echo "${file}" | \
+                 sed -e "s,\(.*\)/\(.*\)/[0-9]\+ \(.*\.mp3\)$,\3,g")"
+      cp -u -v "${musicdir}/${file}" -d "${DEST}/${newfile}"
+    done < "${INPUT}"
+  fi
+else
+  show_error "Try again."
+fi

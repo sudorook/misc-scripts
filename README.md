@@ -15,6 +15,7 @@ Scripts that help maintain my sanity.
 | clipify          | cut clips out of videos                                              |
 | count-commits    | count commits made by an author over specified period of time        |
 | count-lines      | count number of lines in all files in directory                      |
+| copy-playist     | copy files in a playlist (e.g. m3u) to a destination directory       |
 | decrypt-secrets  | decrypt an encfs-encrypted folder                                    |
 | delete-swp       | clear sw[a-p] files in directory (vim backups)                       |
 | drop-caches      | clear system cache                                                   |
@@ -65,4 +66,5 @@ specific scripts.
 | zshdir            | where zsh themes are downloaded                 | upgrade                                 |
 | pkgbuilddir       | where AUR pkgbuilds are stored                  | seek-and-destroy,upgrade                |
 | projectdir        | directory containing git repos and projects     | count-commits,seek-and-destroy,whattodo |
+| musicdir          | directory containing music files in playlists   | copy-playlist                           |
 | ignoreprojectdirs | list of directories in projectdir to ignore     | whattodo                                |

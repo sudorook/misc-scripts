@@ -70,6 +70,9 @@ pkgbuilddir=
 projectdir=
 ignoreprojectdirs=()
 
+# music folders
+musicdir=
+
 # entry dir
 entrydir=
 template=
