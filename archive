@@ -27,7 +27,7 @@ function make_pathstring() {
       exit 2
     fi
   done
-  echo ${pathstring}
+  echo "${pathstring}"
 }
 
 # Generate a name for the archive. For single directories, the name will be
@@ -51,27 +51,27 @@ function make_archivename() {
     archive=$(echo "${file%.*}" | tr "[:upper:]" "[:lower:]" | \
               sed -e "s/^\.//g" | sed -e "s/\ /_/g")_$(date +%Y%m%d-%H%M%S)
   elif [ $# -gt 1 ]; then
-    dir=`pwd`
+    dir=$(pwd)
     if [ "${dir:0:2}" = "~/" ]; then
       dir="${HOME}/${dir:2}"
     fi
-    archive=$(basename ${dir} | tr "[:upper:]" "[:lower:]" | \
-              sed -e "s/^\.//g")_$(date +%Y%m%d-%H%M%S)
+    archive="$(basename ${dir} | tr "[:upper:]" "[:lower:]" | \
+               sed -e "s/^\.//g")_$(date +%Y%m%d-%H%M%S)"
   fi
-  echo ${archive}
+  echo "${archive}"
 }
 
 # Take the (1) archive name and the (2) pathstring and compress into a tarball
 # to be found in $archivedir (see globals). Uses pigz (parallelized gzip
 # compression) if available.
 function compress_archive() {
-  mkdir -p ${archivedir}
+  mkdir -p "${archivedir}"
   if command -v pigz >/dev/null 2>&1; then
-    run=$(echo tar cf - --exclude='*.sw[a-p]' ${2})
-    eval ${run} | pigz > "${archivedir}/${1}.tar.gz"
+    run="$(echo tar cf - --exclude='*.sw[a-p]' "${2}")"
+    eval "${run}" | pigz > "${archivedir}/${1}.tar.gz"
   else
-    run=$(echo tar czf "${archivedir}/${1}.tar.gz" --exclude='*.sw[a-p]' ${2})
-    eval ${run}
+    run="$(echo tar czf "${archivedir}/${1}.tar.gz" --exclude='*.sw[a-p]' ${2})"
+    eval "${run}"
   fi
 }
 
@@ -99,4 +99,4 @@ elif [ -z "${archive}" ]; then
   exit 1
 fi
 
-compress_archive "${archive}" "$pathstring"
+compress_archive "${archive}" "${pathstring}"
