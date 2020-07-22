@@ -21,6 +21,7 @@ Scripts that help maintain my sanity.
 | drop-caches      | clear system cache                                                   |
 | encrypt-secrets  | (re)encrypt directory with encfs                                     |
 | extract-audio    | extract audio track from video                                       |
+| format           | format source code with language-specific tools                      |
 | gen-playlist     | generate playlists based on beets database                           |
 | get-song         | download song (audio) from url and set id3v2 metadata                |
 | gifify           | generate a gif from part of a video                                  |

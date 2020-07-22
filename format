@@ -1,0 +1,91 @@
+#! /bin/bash
+set -eu
+source globals
+
+function format_c() {
+  clang-format -style=mozilla "$1" > tmp.cc && \
+    mv tmp.cc "$1"
+}
+
+function format_python() {
+  black -l 79 "$1"
+}
+
+function print_usage() {
+  echo "go fuck yourself"
+}
+
+OPTIONS=hi:l:
+LONGOPTIONS=help,input:language:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -l|--language)
+      export LANGUAGE="${2}"
+      shift 2
+      ;;
+    -i|--input)
+      export INPUT="${2}"
+      shift 2
+      ;;
+    -h|--help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error"
+      exit 3
+      ;;
+  esac
+done
+
+
+if [[ -v LANGUAGE ]]; then
+  if [[ -v INPUT ]]; then
+    case "$LANGUAGE" in
+      "c"|"C"|"c++"|"C++"|"cpp"|"CPP")
+        format_c "$INPUT"
+        ;;
+      "python"|"Python")
+        format_python "$INPUT"
+        ;;
+      *)
+        show_error "error"
+        exit 3
+        ;;
+    esac
+  else
+    case "$LANGUAGE" in
+      "c"|"C"|"c++"|"C++"|"cpp"|"CPP")
+        files=$(find . -type f \( -name "*.c" -o \
+                                  -name "*.cc" -o \
+                                  -name "*.cpp" -o \
+                                  -name "*.cu" -o \
+                                  -name "*.h" -o \
+                                  -name "*.hh" -o \
+                                  -name "*.hpp" \))
+        for file in $files; do
+          format_c "$file"
+        done
+        ;;
+      "python"|"Python")
+        files=$(find . -type f \( -name "*.py" \))
+        for file in $files; do
+          format_python "$file"
+        done
+        ;;
+      *)
+        show_error "error"
+        exit 3
+        ;;
+    esac
+  fi
+fi
+
+show_success "done!"
