@@ -9,10 +9,10 @@ source globals
 function convert_codec() {
   case "${3}" in
     h264)
-      ffmpeg -i "${1}" -vcodec libx264 -acodec copy "${2}"
+      ffmpeg -i "${1}" -vcodec libx264 -acodec copy -map 0:s:? -c copy "${2}"
       ;;
     h265)
-      ffmpeg -i "${1}" -vcodec libx265 -acodec copy "${2}"
+      ffmpeg -i "${1}" -vcodec libx265 -acodec copy -map 0:s:? -c copy "${2}"
       ;;
     *)
       show_error "Codec ${3} not supported."
