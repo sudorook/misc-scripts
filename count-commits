@@ -3,7 +3,11 @@ set -eu
 source globals
 
 get_count() {
-  dir=${@:-1}
+  local dir
+  local count
+  local cmd
+
+  dir=${1%/*}
   if [ -d "${dir}/.git" ]; then
     if git -C "${dir}" log --oneline >/dev/null 2>&1; then
       #                                         ^^^^
@@ -59,5 +63,5 @@ while [ $# -ge 1 ]; do
   esac
 done
 
-find -L ${projectdir} -maxdepth 3 -type d \
+find -L "${projectdir}" -maxdepth 3 -type d -name ".git" \
   -exec bash -c 'get_count "{}"' \; | awk '{s+=$1}END{print s}'
