@@ -15,11 +15,11 @@ while [ $# -ge 1 ]; do
   case "$1" in
     -i|--ip)
       # If IP address given as xxx.xxx.xxx.xxx:
-      if [[ "${2}" == "$(echo ${2} | \
+      if [[ "${2}" == "$(echo "${2}" | \
                          sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)$/\1/p")" ]]; then
         IP="${2}"
       # If IP address and netmask given as xxx.xxx.xxx.xxx/xx:
-      elif [[ "${2}" == "$(echo ${2} | \
+      elif [[ "${2}" == "$(echo "${2}" | \
                            sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\/[0-9]\+\)$/\1/p")" ]]; then
         IP="$(echo "${2}" | cut -d"/" -f1)"
         MASK="$(echo "${2}" | cut -d"/" -f2)"
@@ -59,7 +59,7 @@ GATEWAY=$(ip route list | \
           sed -n "s/^default via \([0-9\.]\+\) dev .*/\1/p" | head -1)
 
 IFACE=$(ip route show | \
-        grep -e ${GATEWAY} | \
+        grep -e "${GATEWAY}" | \
         sed -n "s/^default via [0-9\.]\+ dev \([a-z0-9]\+\) .*/\1/p")
 
-sudo ip route add ${IP}/${MASK} via ${GATEWAY} dev ${IFACE}
+sudo ip route add "${IP}/${MASK}" via "${GATEWAY}" dev "${IFACE}"
