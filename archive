@@ -67,10 +67,10 @@ function make_archivename() {
 function compress_archive() {
   mkdir -p "${archivedir}"
   if command -v pigz >/dev/null 2>&1; then
-    run="$(echo tar cf - --exclude='*.sw[a-p]' "${2}")"
+    run="tar cf - --exclude='*.sw[a-p]' ${2}"
     eval "${run}" | pigz > "${archivedir}/${1}.tar.gz"
   else
-    run="$(echo tar czf "${archivedir}/${1}.tar.gz" --exclude='*.sw[a-p]' ${2})"
+    run="tar czf ${archivedir}/${1}.tar.gz --exclude='*.sw[a-p]' ${2}"
     eval "${run}"
   fi
 }
