@@ -26,8 +26,10 @@ while [ $# -ge 1 ]; do
 done
 
 temp="${1}_$RANDOM"
-trap "rm -f ${temp}; exit" INT TERM EXIT
+trap 'rm -f "${temp}"; exit' INT TERM EXIT
 
 sort -u "${1}" > "${temp}"
-if ${isbackup}; then mv "${1}" "${1}.bak"; fi
+if "${isbackup}"; then
+  mv "${1}" "${1}.bak"
+fi
 mv "${temp}" "${1}"
