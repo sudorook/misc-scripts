@@ -51,20 +51,20 @@ function upgrade_system() {
 function upgrade_themes() {
   show_header "Upgrading GTK and icon themes."
   if [ -d "${gtkdir}" ]; then
-    for dir in ${gtkdir}/*; do
+    for dir in "${gtkdir}"/*; do
       if [ -d "${dir}" ] && [ -d "${dir}/.git" ]; then
         show_info "$(basename ${dir})"
-        git -C ${dir} checkout master && git -C ${dir} pull
+        git -C "${dir}" checkout master && git -C "${dir}" pull origin master
         echo
       fi
     done
   fi
 
   if [ -d "${icondir}" ]; then
-    for dir in ${icondir}/*; do
-      if [ -d ${dir}/.git ]; then
+    for dir in "${icondir}"/*; do
+      if [ -d "${dir}/.git" ]; then
         show_info "$(basename ${dir})"
-        git -C ${dir} checkout master && git -C ${dir} pull
+        git -C "${dir}" checkout master && git -C "${dir}" pull origin master
         echo
       fi
     done
@@ -72,7 +72,7 @@ function upgrade_themes() {
 
   if [ -d "${thunderbirddir}" ]; then
     show_info "$(basename ${thunderbirddir}) (thunderbird)"
-    git -C ${thunderbirddir}/chrome pull
+    git -C "${thunderbirddir}/chrome" pull origin master
     echo
   fi
 }
@@ -86,16 +86,16 @@ function upgrade_vim_packages() {
     return
   fi
 
-  if [ -d ${vimpack} ]; then
-    for dir in ${vimpack}/*; do
-      if [ -d ${dir}/.git ]; then
+  if [ -d "${vimpack}" ]; then
+    for dir in "${vimpack}"/*; do
+      if [ -d "${dir}/.git" ]; then
         show_info "$(basename ${dir})"
-        git -C ${dir} pull
+        git -C "${dir}" pull origin master
         echo
       fi
     done
   else
-    show_warning "No vim packages found in ${vimpack}. Skipping."
+    show_warning "No vim packages installed in ${vimpack}. Skipping."
     echo
   fi
 }
@@ -114,10 +114,10 @@ function upgrade_zsh() {
     zsh -ic "antigen-update"
   else
     if [ -d "${zshdir}" ]; then
-      for dir in ${zshdir}/*; do
-        if [ -d ${dir}/.git ]; then
+      for dir in "${zshdir}"/*; do
+        if [ -d "${dir}/.git" ]; then
           show_info "$(basename ${dir})"
-          git -C ${dir} pull
+          git -C "${dir}" pull origin master
           echo
         fi
       done
@@ -142,11 +142,11 @@ function upgrade_julia_packages() {
 function upgrade_pkgbuild() {
   command -v makepkg >/dev/null 2>&1 && {
     show_header "Upgrading AUR pkgbuilds."
-    for dir in ${pkgbuilddir}/*; do
+    for dir in "${pkgbuilddir}"/*; do
       if [ -d "${dir}/.git" ]; then
         show_info "$(basename ${dir})"
         if git_update "${dir}"; then
-          cur=`pwd`
+          cur=$(pwd)
           cd "${dir}"
           makepkg -si
           cd "${cur}"
@@ -160,10 +160,10 @@ function upgrade_pkgbuild() {
 weechatdir=${HOME}/.weechat/plugins
 function upgrade_weechat_plugins {
   show_header "Upgrading weechat plugins."
-  for dir in ${weechatdir}/*; do
+  for dir in "${weechatdir}"/*; do
     if [ -d "${dir}/.git" ]; then
       show_info "$(basename ${dir})"
-      git -C ${dir} pull
+      git -C "${dir}" pull origin master
       echo
     fi
   done
