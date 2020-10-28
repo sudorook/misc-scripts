@@ -16,9 +16,9 @@ function print_usage() {
 }
 
 # Set default values globally.
-ASPECTRATIO=16:9
-RESOLUTION=480
-DIMENSIONS=unset
+ASPECTRATIO="16:9"
+RESOLUTION="480"
+DIMENSIONS="unset"
 
 OPTIONS=i:o:s:l:r:d:t:
 LONGOPTIONS=input:,output:,start:,length:,resolution:,dimensions:,subtitle:
@@ -108,17 +108,17 @@ while [ $# -ge 1 ]; do
 done
 
 # Calculate dimensions (if not manually specified) from the resolution.
-if ! [[ -v DIMENSIONS ]] || [ $DIMENSIONS = "unset" ]; then
+if ! [[ -v DIMENSIONS ]] || [ "$DIMENSIONS" = "unset" ]; then
   if ! [[ -v RESOLUTION ]] || [ $RESOLUTION = "unset" ]; then
     show_error "Specify a resolution or manually specify the dimensions."
     exit 3
   else
-    if [[ $(( (($WIDTH+(2*$HEIGHT+8)/9)+$HEIGHT-1)/$HEIGHT )) -gt 2 ]]; then
-      NEW_WIDTH=$(( ($RESOLUTION*16+8)/9 ))
-      NEW_HEIGHT=$(( ($NEW_WIDTH*$HEIGHT+$WIDTH-1)/$WIDTH ))
-      DIMENSIONS="$(( $NEW_WIDTH ))x$(( $NEW_HEIGHT ))"
+    if [[ $(( ((WIDTH+(2*HEIGHT+8)/9)+HEIGHT-1)/HEIGHT )) -gt 2 ]]; then
+      NEW_WIDTH=$(( (RESOLUTION*16+8)/9 ))
+      NEW_HEIGHT=$(( (NEW_WIDTH*HEIGHT+WIDTH-1)/WIDTH ))
+      DIMENSIONS="$(( NEW_WIDTH ))x$(( NEW_HEIGHT ))"
     else
-      DIMENSIONS="$(( ($RESOLUTION*$WIDTH+$HEIGHT-1) / $HEIGHT ))x$RESOLUTION"
+      DIMENSIONS="$(( (RESOLUTION*WIDTH+HEIGHT-1) / HEIGHT ))x$RESOLUTION"
     fi
   fi
 fi
@@ -148,11 +148,11 @@ if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
            -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
   fi
 
-  if test $(command -v gifsicle); then
+  if test "$(command -v gifsicle)"; then
     gifsicle -O3 "$OUT" -o "$OUT"
   fi
 
-  if test $(command -v eog); then
+  if test "$(command -v eog)"; then
     eog "$OUT"
   fi
 else
