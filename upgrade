@@ -148,7 +148,9 @@ function upgrade_pkgbuild() {
         if git_update "${dir}"; then
           cur=$(pwd)
           cd "${dir}"
-          makepkg -si
+          makepkg -s --noconfirm
+          sudo pacman -U "${dir}*.tar.xz"
+          git clean -xdf
           cd "${cur}"
         fi
         echo
