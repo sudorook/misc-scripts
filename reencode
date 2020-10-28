@@ -7,12 +7,19 @@ source globals
 #
 
 function convert_codec() {
-  case "${3}" in
+  local codec="${3}"
+  local in="${1}"
+  local out="${2}"
+  local crf="${4}"
+
+  case "${codec}" in
     h264)
-      ffmpeg -i "${1}" -vcodec libx264 -acodec copy -map 0:s:? -c copy "${2}"
+      ffmpeg -i "${in}" \
+        -c:v libx264 -c:a copy -map 0:s:? -x264-params crf="${crf}" "${out}"
       ;;
     h265)
-      ffmpeg -i "${1}" -vcodec libx265 -acodec copy -map 0:s:? -c copy "${2}"
+      ffmpeg -i "${in}" \
+        -c:v libx265 -c:a copy -map 0:s:? -x265-params crf="${crf}" "${out}"
       ;;
     *)
       show_error "Codec ${3} not supported."
@@ -22,8 +29,9 @@ function convert_codec() {
 }
 
 function print_usage() {
-  echo "Usage:"
-  echo "  reencode -i|--input <input> -c|--c <codec>"
+  echo "Usage: reencode -i|--input <input> \\"
+  echo "                -c|--codec <codec> \\"
+  echo "                -f|--crf   <compression factor>"
 }
 
 
@@ -31,8 +39,8 @@ function print_usage() {
 # Parse command line options
 #
 
-OPTIONS=i:c:
-LONGOPTIONS=input:,codec:
+OPTIONS=i:c:f:h
+LONGOPTIONS=input:,codec:crf:help
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 while [ $# -ge 1 ]; do
@@ -60,12 +68,20 @@ while [ $# -ge 1 ]; do
       esac
       shift 2
       ;;
+    -f|--crf)
+      CRF="${2}"
+      shift 2
+      ;;
+    -h|--help)
+      print_usage
+      exit
+      ;;
     --)
       shift
       break
       ;;
     *)
-      show_error "Error: unknown command line option."
+      show_error "ERROR: unknown command line option."
       print_usage
       exit 3
       ;;
@@ -77,16 +93,35 @@ done
 # Main
 #
 
+if ! [[ -v IN ]]; then
+  show_error "ERROR: missing input file."
+fi
+
+if ! [[ -v CODEC ]]; then
+  CODEC=h265
+fi
+
+if ! [[ -v CRF ]]; then
+  case "${CODEC}" in
+    h264)
+      CRF=18
+      ;;
+    h265)
+      CRF=23
+      ;;
+  esac
+fi
+
 case ${FILETYPE} in
   avi)
-    convert_codec "${IN}" "${NAME}.mp4" "${CODEC}"
+    convert_codec "${IN}" "${NAME}.mp4" "${CODEC}" "${CRF}"
     ;;
   mkv)
-    convert_codec "${IN}" "${NAME}.mp4" "${CODEC}"
+    convert_codec "${IN}" "${NAME}.mp4" "${CODEC}" "${CRF}"
     ;;
   mp4)
     mv "${IN}" "${IN}.bak"
-    convert_codec "${IN}.bak" "${NAME}.mp4" "${CODEC}"
+    convert_codec "${IN}.bak" "${NAME}.mp4" "${CODEC}" "${CRF}"
     ;;
   *)
     show_error "Filetype ${FILETYPE} not supported."
