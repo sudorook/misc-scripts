@@ -3,7 +3,8 @@ set -eu
 source globals
 
 function print_usage() {
-  echo "Usage: copy-playlist -i|--input <m3u file> -d|--dest <destinatior directory>"
+  echo "Usage:"
+  echo "  copy-playlist -i|--input <m3u file> -d|--dest <destination directory>"
 }
 
 OPTIONS=hi:d:
@@ -39,7 +40,7 @@ done
 if [[ -v INPUT ]] && [[ -v DEST ]]; then
   mkdir -p "${DEST}"
   if [ -f "${INPUT}" ]; then
-    while read file; do
+    while read -r file; do
       newfile="$(echo "${file}" | \
                  sed -e "s,\(.*\)/\(.*\)/[0-9]\+ \(.*\.mp3\)$,\3,g")"
       cp -u -v "${musicdir}/${file}" -d "${DEST}/${newfile}"
