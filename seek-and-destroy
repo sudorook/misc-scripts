@@ -8,7 +8,7 @@ source globals
 #
 
 function sloppy_seek {
-  find ${HOME}/ \
+  find "${HOME}/" \
     ! -path "${HOME}/Desktop*" \
     ! -path "${HOME}/Documents*" \
     ! -path "${HOME}/Downloads*" \
@@ -24,7 +24,7 @@ function sloppy_seek {
 }
 
 function precise_seek {
-  find ${HOME}/ \
+  find "${HOME}/" \
     ! -path "${HOME}/Desktop*" \
     ! -path "${HOME}/Documents*" \
     ! -path "${HOME}/Downloads*" \
@@ -92,11 +92,11 @@ case ${MODE} in
   precise)
     show_header "--- Running precise seeker ---"
     if test "$(precise_seek ${1})"; then
-      precise_seek ${1}
+      precise_seek "${1}"
       check=$(ask_question 'Permission to destroy? (y/N)')
       if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
         echo "Yessir!"
-        precise_seek ${1} | destroy
+        precise_seek "${1}" | destroy
       else
         echo "As you wish..."
       fi
@@ -107,11 +107,11 @@ case ${MODE} in
   sloppy)
     show_header "--- Running sloppy seeker ---"
     if test "$(sloppy_seek ${1})"; then
-      sloppy_seek ${1}
+      sloppy_seek "${1}"
       check=$(ask_question 'Permission to destroy? (y/N)')
       if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
         echo "Yessir!"
-        sloppy_seek ${1} | destroy
+        sloppy_seek "${1}" | destroy
       else
         echo "As you wish..."
       fi
