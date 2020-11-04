@@ -13,9 +13,9 @@ Scripts that help maintain my sanity.
 | backup           | backup home directory to external drive (up to 2 backups at once)    |
 | battery-notify   | use notify-send to display when the battery level is too high or low |
 | clipify          | cut clips out of videos                                              |
+| copy-playist     | copy files in a playlist (e.g. m3u) to a destination directory       |
 | count-commits    | count commits made by an author over specified period of time        |
 | count-lines      | count number of lines in all files in directory                      |
-| copy-playist     | copy files in a playlist (e.g. m3u) to a destination directory       |
 | decrypt-secrets  | decrypt an encfs-encrypted folder                                    |
 | delete-swp       | clear sw[a-p] files in directory (vim backups)                       |
 | drop-caches      | clear system cache                                                   |
@@ -35,6 +35,7 @@ Scripts that help maintain my sanity.
 | rate-song        | write song rating metadata to beets database                         |
 | reencode         | convert video's encoding                                             |
 | rename-user      | rename an existing user and migrate all files, symlinks, etc.        |
+| render           | compile LaTeX, RMarkdown and Julia Markdown files to PDF             |
 | restart-network  | restart network connection (for getting new mac address)             |
 | seek-and-destroy | find and delete pesky dotfiles and dotdirectories                    |
 | set-gdm-theme    | overwrite the gdm theme with the css in the current gtk theme        |
