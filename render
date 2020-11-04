@@ -2,8 +2,7 @@
 set -eu
 source globals
 
-file=${1%.*}
-extension=${1##*.}
+extension="${1##*.}"
 
 if ! [ -f "$1" ]; then
   show_error "Error: $1 does not exist."
@@ -15,7 +14,7 @@ if [[ ${extension} =~ ^([R|r][MD|md|markdown|Markdown]*)$ ]]; then
 fi
 
 if [[ ${extension} =~ ^(tex)$ ]]; then
-  lualatex -shell-escape ${1}
+  lualatex -shell-escape "${1}"
 fi
 
 if [[ ${extension} =~ ^([J|j][MD|md|markdown|Markdown]*)$ ]]; then

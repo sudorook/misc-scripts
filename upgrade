@@ -149,7 +149,7 @@ function upgrade_pkgbuild() {
           cur=$(pwd)
           cd "${dir}"
           makepkg -s --noconfirm
-          sudo pacman -U "${dir}*.tar.xz"
+          sudo pacman -U "${dir}"*.tar.xz
           git clean -xdf
           cd "${cur}"
         fi

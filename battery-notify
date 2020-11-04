@@ -16,11 +16,11 @@ display=:0
 
 lockfile=/tmp/battery-notify.lock
 
-if [ -e ${lockfile} ] && kill -0 `cat ${lockfile}`; then
+if [ -e "${lockfile}" ] && kill -0 "$(cat "${lockfile}")"; then
   exit
 fi
 
-trap "rm -f ${lockfile}; exit" INT TERM EXIT
+trap 'rm -f ${lockfile}; exit' INT TERM EXIT
 echo $$ > ${lockfile}
 
 while true; do
@@ -28,9 +28,9 @@ while true; do
     battery_state=$(<${battery_path}/status)
     battery_level=$(<${battery_path}/capacity)
 
-    if [ ${battery_state} == "Discharging" ]; then
+    if [ "${battery_state}" == "Discharging" ]; then
       # Send flag when battery drops below critical threshold.
-      if [ ${battery_level} -le ${critical_battery} ]; then
+      if [ "${battery_level}" -le "${critical_battery}" ]; then
         if ! ${critical_flag_sent}; then
           DISPLAY=${display} notify-send -u critical -i ${critical_icon} \
             "Battery critical" \
@@ -39,8 +39,8 @@ while true; do
         fi
       # If battery level is above critical, check if it is below the low
       # threshold and send flag if so.
-      elif [ ${battery_level} -le ${low_battery} ]; then
-        if ! ${low_flag_sent}; then
+      elif [ "${battery_level}" -le "${low_battery}" ]; then
+        if ! "${low_flag_sent}"; then
           DISPLAY=${display} notify-send -u critical -i ${low_icon} \
             "Battery low" \
             "Battery is at ${battery_level}%. Plug in the power supply soon."
@@ -52,9 +52,9 @@ while true; do
       full_flag_sent=false
     fi
 
-    if [ ${battery_state} == "Charging" ]; then
+    if [ "${battery_state}" == "Charging" ]; then
       # Send flag when battery is full (i.e. above the full battery threshold).
-      if [ ${battery_level} -gt ${full_battery} ]; then
+      if [ "${battery_level}" -gt "${full_battery}" ]; then
         # Check if the full battery message has been sent already. If not, send
         # it out.
         if ! ${full_flag_sent}; then
@@ -68,12 +68,10 @@ while true; do
       # Unset critical battery flag if charging, and unset the low flag if the
       # battery level is above the critical threshold.
       critical_flag_sent=false
-      if [ ${battery_level} -gt ${critical_battery} ]; then
+      if [ "${battery_level}" -gt "${critical_battery}" ]; then
         low_flag_sent=false
       fi
     fi
   fi
   sleep 120s
 done
-
-rm -f ${lockfile}
