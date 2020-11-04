@@ -31,6 +31,7 @@ function encfs_unmounted() {
 # Backup home directory to Backups 1 and 2
 function sync_home() {
   show_info "Syncing ${HOME} to ${backup1}."
+  mkdir -p "${backup1}/${USER^}/"
   sudo rsync -Pradog --delete-excluded \
     "${HOME}/" "${backup1}/${USER^}/" \
     --exclude "${vboxdir#$HOME}/*" \
