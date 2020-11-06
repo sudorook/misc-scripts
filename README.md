@@ -24,6 +24,7 @@ Scripts that help maintain my sanity.
 | format           | format source code with language-specific tools                      |
 | gen-playlist     | generate playlists based on beets database                           |
 | get-song         | download song (audio) from url and set id3v2 metadata                |
+| get-webseries    | youtube-dl wrapper to download web series / playlists / etc.         |
 | gifify           | generate a gif from part of a video                                  |
 | join-vids        | concatenate videos                                                   |
 | kvm-clear        | clear out shared kvm directory                                       |

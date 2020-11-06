@@ -1,0 +1,69 @@
+#! /bin/bash
+set -eu
+source globals
+
+OPTIONS=n:r:s:u:
+LONGOPTIONS=name:,resolution:,start:,url:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "${PARSED}"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -n|--name)
+      NAME="$2"
+      shift 2
+      ;;
+    -u|--url)
+      URL="$2"
+      shift 2
+      ;;
+    -r|--resolution)
+      RESOLUTION="$2"
+      shift 2
+      ;;
+    -s|--start)
+      START="$2"
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error: unknown command line option \"$2\"."
+      exit 3
+      ;;
+  esac
+done
+
+# Prompt for inputs if they were not already specified on the command line.
+if ! [[ -v NAME ]]; then
+  NAME=$(ask_question "What is the name of the series?");
+fi
+if ! [[ -v URL ]]; then
+  URL=$(ask_question "What is the URL?");
+fi
+if ! [[ -v RESOLUTION ]]; then
+  RESOLUTION=720
+fi
+
+VIDEODIR="${HOME}/Videos/${NAME}"
+
+# Download the file, extract audio as mp3, and set the id3v2 tags.
+mkdir -p "${VIDEODIR}"
+cd "${VIDEODIR}"
+
+if [[ -v START ]]; then
+  youtube-dl "${URL}" \
+    --playlist-start "${START}" \
+    --download-archive .archive.txt \
+    --prefer-free-formats \
+    -f "best[height<=${RESOLUTION}]" \
+    -i
+else
+  youtube-dl "${URL}" \
+    --prefer-free-formats \
+    --download-archive .archive.txt \
+    -f "best[height<=${RESOLUTION}]" \
+    -i
+fi
