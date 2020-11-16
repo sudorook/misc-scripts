@@ -20,6 +20,12 @@ ask_question() {
   read -r -p $'\033[1;34m'"$* "$'\033[0m' var
   echo "${var}"
 }
+ask_secret() {
+  stty -echo
+  read -r -p $'\033[1;34m'"$* "$'\033[0m' var
+  stty echo
+  echo
+}
 show_success() {
   echo -e $'\033[1;35m'"$*"$'\033[0m'
 }
