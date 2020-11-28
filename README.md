@@ -40,6 +40,7 @@ Scripts that help maintain my sanity.
 | restart-network  | restart network connection (for getting new mac address)             |
 | seek-and-destroy | find and delete pesky dotfiles and dotdirectories                    |
 | set-gdm-theme    | overwrite the gdm theme with the css in the current gtk theme        |
+| set-replaygain   | compute replay gain for directory of audio files                     |
 | shrink-vm        | resize a qcow2 image                                                 |
 | switch-theme     | switch gtk or icon theme (and edit vim/ui settings accordingly)      |
 | upgrade          | upgrade system, aur, zsh plugins, and julia packages                 |
