@@ -5,6 +5,7 @@ Scripts that help maintain my sanity.
 | Title            | Description                                                          |
 | :---:            | :---:                                                                |
 | add-cover        | embeds images in audio files                                         |
+| add-ovpn         | nmcli wrapper for importing an OpenVPN configuration file            |
 | add-song         | just edits a list of songs                                           |
 | add-subtitles    | embed srt files into video                                           |
 | allow-ip         | add rule to routing table for an IP address (e.g. a local printer)   |

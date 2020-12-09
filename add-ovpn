@@ -1,0 +1,60 @@
+#! /bin/bash
+set -eu
+source globals
+
+# Script requries nm-cli, so check that the Network Manager service is running.
+if ! systemctl is-active --quiet NetworkManager; then
+  show_info "Enabling Network Manager systemd service."
+  sudo systemctl enable --now NetworkManager
+fi
+
+# Check that the input files exist.
+for VPN_CONFIG in "$@"; do
+  VPN_CONFIG="${1}"
+  if ! [ -f "${VPN_CONFIG}" ]; then
+    show_error "ERROR: config ${VPN_CONFIG} not found."
+    exit 1
+  fi
+done
+
+TMP_DIR="$(pwd)/tmp-$$"
+mkdir -p "${TMP_DIR}"
+trap 'rm -rf "${TMP_DIR}"; exit' INT TERM EXIT
+
+CURRENT="$(nmcli connection show || true)"
+
+# Prompt for the VPN username.
+ask_question "Username: " VPN_USER
+ask_secret "Password: " VPN_PASS
+
+cd "${TMP_DIR}"
+for VPN_CONFIG in "$@"; do
+  VPN_CONFIG="${1}"
+  if [[ "${VPN_CONFIG}" =~ \.opvn$ ]]; then
+    VPN_NAME="${VPN_CONFIG%.*}"
+  else
+    VPN_NAME="${VPN_CONFIG}"
+  fi
+
+  # Delete any existing VPN configurations.
+  IS_CURRENT="$(echo "${CURRENT}" | grep "^${VPN_NAME}")"
+  if [[ -n "${IS_CURRENT}" ]]; then
+    show_info "Deleting existing OVPN config for ${VPN_NAME}..."
+    nmcli connection delete "${VPN_NAME}"
+    # ask_question "Delete existing OVPN config? (y/N)" REPLY
+    # if [[ "${REPLY}" =~ ^([Yy]$|[Yy][Ee][Ss]$) ]]; then
+    #   nmcli connection delete "${VPN_NAME}"
+    # fi
+  fi
+
+  # Import the ovpn configs and set the username.
+  cp "../${VPN_CONFIG}" "${VPN_NAME}"
+  nmcli connection import type openvpn file "${VPN_NAME}"
+  nmcli connection modify "${VPN_NAME}" +vpn.data "username = ${VPN_USER}"
+  if [[ -n "${VPN_PASS}" ]]; then
+    nmcli connection modify "${VPN_NAME}" +vpn.secrets "password = ${VPN_PASS}"
+  fi
+done
+cd ..
+
+show_success "Done!"
