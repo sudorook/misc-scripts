@@ -53,9 +53,10 @@ function upgrade_themes() {
   if [ -d "${gtkdir}" ]; then
     for dir in "${gtkdir}"/*; do
       if [ -d "${dir}" ] && [ -d "${dir}/.git" ]; then
-        show_info "$(basename ${dir})"
+        show_info "$(basename "${dir}")"
         git -C "${dir}" checkout master && git -C "${dir}" pull origin master
         echo
+        sleep 2
       fi
     done
   fi
@@ -63,16 +64,18 @@ function upgrade_themes() {
   if [ -d "${icondir}" ]; then
     for dir in "${icondir}"/*; do
       if [ -d "${dir}/.git" ]; then
-        show_info "$(basename ${dir})"
+        show_info "$(basename "${dir}")"
         git -C "${dir}" checkout master && git -C "${dir}" pull origin master
+        sleep 2
         echo
       fi
     done
   fi
 
   if [ -d "${thunderbirddir}" ]; then
-    show_info "$(basename ${thunderbirddir}) (thunderbird)"
+    show_info "$(basename "${thunderbirddir}") (thunderbird)"
     git -C "${thunderbirddir}/chrome" pull origin master
+    sleep 2
     echo
   fi
 }
@@ -83,20 +86,20 @@ function upgrade_vim_packages() {
   if ! command -v vim >/dev/null 2>&1; then
     show_warning "Install vim first. Skipping."
     echo
-    return
-  fi
-
-  if [ -d "${vimpack}" ]; then
-    for dir in "${vimpack}"/*; do
-      if [ -d "${dir}/.git" ]; then
-        show_info "$(basename ${dir})"
-        git -C "${dir}" pull origin master
-        echo
-      fi
-    done
   else
-    show_warning "No vim packages installed in ${vimpack}. Skipping."
-    echo
+    if [ -d "${vimpack}" ]; then
+      for dir in "${vimpack}"/*; do
+        if [ -d "${dir}/.git" ]; then
+          show_info "$(basename "${dir}")"
+          git -C "${dir}" pull origin master
+          sleep 2
+          echo
+        fi
+      done
+    else
+      show_warning "No vim packages installed in ${vimpack}. Skipping."
+      echo
+    fi
   fi
 }
 
@@ -105,24 +108,25 @@ function upgrade_zsh() {
   if ! command -v zsh >/dev/null 2>&1; then
     show_warning "Install zsh first. Skipping."
     echo
-    return
-  fi
-
-  # antigen-update may not be in the bash PATH, so check the zsh path if
-  # 'command -v antigen-update' returns false.
-  if zsh -ic "command -v antigen-update" >/dev/null 2>&1; then
-    zsh -ic "antigen-update"
   else
-    if [ -d "${zshdir}" ]; then
-      for dir in "${zshdir}"/*; do
-        if [ -d "${dir}/.git" ]; then
-          show_info "$(basename ${dir})"
-          git -C "${dir}" pull origin master
-          echo
-        fi
-      done
+    # antigen-update may not be in the bash PATH, so check the zsh path if
+    # 'command -v antigen-update' returns false.
+    if zsh -ic "command -v antigen-update" >/dev/null 2>&1; then
+      zsh -ic "antigen-update"
+      sleep 2
     else
-      show_warning "No zsh plugins found in ${zshdir}. Skipping."
+      if [ -d "${zshdir}" ]; then
+        for dir in "${zshdir}"/*; do
+          if [ -d "${dir}/.git" ]; then
+            show_info "$(basename "${dir}")"
+            git -C "${dir}" pull origin master
+            sleep 2
+            echo
+          fi
+        done
+      else
+        show_warning "No zsh plugins found in ${zshdir}. Skipping."
+      fi
     fi
   fi
 }
@@ -131,11 +135,11 @@ function upgrade_julia_packages() {
   show_header "Upgrading Julia packages."
   if ! command -v julia >/dev/null 2>&1; then
     show_warning "Install julia first. Skipping."
-    echo
-    return
+  else
+    julia -e "using Pkg; Pkg.update()"
+    sleep 2
   fi
 
-  julia -e "using Pkg; Pkg.update()"
   echo
 }
 
@@ -144,7 +148,7 @@ function upgrade_pkgbuild() {
     show_header "Upgrading AUR pkgbuilds."
     for dir in "${pkgbuilddir}"/*; do
       if [ -d "${dir}/.git" ]; then
-        show_info "$(basename ${dir})"
+        show_info "$(basename "${dir}")"
         if git_update "${dir}"; then
           cur=$(pwd)
           cd "${dir}"
@@ -152,6 +156,7 @@ function upgrade_pkgbuild() {
           git clean -xdf
           cd "${cur}"
         fi
+        sleep 2
         echo
       fi
     done
@@ -163,8 +168,9 @@ function upgrade_weechat_plugins {
   show_header "Upgrading weechat plugins."
   for dir in "${weechatdir}"/*; do
     if [ -d "${dir}/.git" ]; then
-      show_info "$(basename ${dir})"
+      show_info "$(basename "${dir}")"
       git -C "${dir}" pull origin master
+      sleep 2
       echo
     fi
   done
@@ -177,7 +183,7 @@ function upgrade_weechat_plugins {
 OPTIONS=ahjpstvwz
 LONGOPTIONS=all,help,julia,pkgbuild,system,theme,vim,weechat,zsh
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n ${0} -- ${@})
-eval set -- ${PARSED}
+eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case ${1} in
