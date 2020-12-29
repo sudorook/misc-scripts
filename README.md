@@ -46,6 +46,7 @@ Scripts that help maintain my sanity.
 | switch-theme     | switch gtk or icon theme (and edit vim/ui settings accordingly)      |
 | upgrade          | upgrade system, aur, zsh plugins, and julia packages                 |
 | vidname-cleanup  | use regex to clean up file names                                     |
+| vpn-killswitch   | add iptables rules to block networking if VPN connection is lost     |
 | whattodo         | find all todo lists and print them in the terminal                   |
 | write-entry      | write a entry into your log                                          |
 
