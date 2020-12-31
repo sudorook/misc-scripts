@@ -54,7 +54,7 @@ function upgrade_themes() {
     for dir in "${gtkdir}"/*; do
       if [ -d "${dir}" ] && [ -d "${dir}/.git" ]; then
         show_info "$(basename "${dir}")"
-        git -C "${dir}" checkout master && git -C "${dir}" pull origin master
+        git -C "${dir}" checkout master && git -C "${dir}" pull --ff-only origin master
         echo
         sleep 2
       fi
@@ -65,7 +65,7 @@ function upgrade_themes() {
     for dir in "${icondir}"/*; do
       if [ -d "${dir}/.git" ]; then
         show_info "$(basename "${dir}")"
-        git -C "${dir}" checkout master && git -C "${dir}" pull origin master
+        git -C "${dir}" checkout master && git -C "${dir}" pull --ff-only origin master
         sleep 2
         echo
       fi
@@ -74,7 +74,7 @@ function upgrade_themes() {
 
   if [ -d "${thunderbirddir}" ]; then
     show_info "$(basename "${thunderbirddir}") (thunderbird)"
-    git -C "${thunderbirddir}/chrome" pull origin master
+    git -C "${thunderbirddir}/chrome" pull --ff-only origin master
     sleep 2
     echo
   fi
@@ -91,7 +91,7 @@ function upgrade_vim_packages() {
       for dir in "${vimpack}"/*; do
         if [ -d "${dir}/.git" ]; then
           show_info "$(basename "${dir}")"
-          git -C "${dir}" pull origin master
+          git -C "${dir}" pull --ff-only origin master
           sleep 2
           echo
         fi
@@ -119,7 +119,7 @@ function upgrade_zsh() {
         for dir in "${zshdir}"/*; do
           if [ -d "${dir}/.git" ]; then
             show_info "$(basename "${dir}")"
-            git -C "${dir}" pull origin master
+            git -C "${dir}" pull --ff-only origin master
             sleep 2
             echo
           fi
@@ -169,7 +169,7 @@ function upgrade_weechat_plugins {
   for dir in "${weechatdir}"/*; do
     if [ -d "${dir}/.git" ]; then
       show_info "$(basename "${dir}")"
-      git -C "${dir}" pull origin master
+      git -C "${dir}" pull --ff-only origin master
       sleep 2
       echo
     fi
