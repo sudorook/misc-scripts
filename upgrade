@@ -182,7 +182,7 @@ function upgrade_weechat_plugins {
 
 OPTIONS=ahjpstvwz
 LONGOPTIONS=all,help,julia,pkgbuild,system,theme,vim,weechat,zsh
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n ${0} -- ${@})
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
