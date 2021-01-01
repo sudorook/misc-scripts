@@ -47,11 +47,9 @@ if ! [[ -v RESOLUTION ]]; then
   RESOLUTION=720
 fi
 
-VIDEODIR="${HOME}/Videos/${NAME}"
-
 # Download the file, extract audio as mp3, and set the id3v2 tags.
-mkdir -p "${VIDEODIR}"
-cd "${VIDEODIR}"
+mkdir -p "${videodir}"
+cd "${videodir}"
 
 if [[ -v START ]]; then
   youtube-dl "${URL}" \

@@ -79,6 +79,9 @@ ignoreprojectdirs=()
 # music folders
 musicdir=
 
-# entry dir
+# video folders
+videodir=
+
+# entry
 entrydir=
 template=
