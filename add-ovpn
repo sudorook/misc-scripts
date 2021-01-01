@@ -37,7 +37,7 @@ for VPN_CONFIG in "$@"; do
   fi
 
   # Delete any existing VPN configurations.
-  IS_CURRENT="$(echo "${CURRENT}" | grep "^${VPN_NAME}")"
+  IS_CURRENT="$(echo "${CURRENT}" | grep "^${VPN_NAME}" || true)"
   if [[ -n "${IS_CURRENT}" ]]; then
     show_info "Deleting existing OVPN config for ${VPN_NAME}..."
     nmcli connection delete "${VPN_NAME}"
