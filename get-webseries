@@ -48,8 +48,8 @@ if ! [[ -v RESOLUTION ]]; then
 fi
 
 # Download the file, extract audio as mp3, and set the id3v2 tags.
-mkdir -p "${videodir}"
-cd "${videodir}"
+mkdir -p "${videodir}/${NAME}"
+cd "${videodir}/${NAME}"
 
 if [[ -v START ]]; then
   youtube-dl "${URL}" \
