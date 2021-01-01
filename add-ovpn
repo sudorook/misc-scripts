@@ -24,8 +24,9 @@ trap 'rm -rf "${TMP_DIR}"; exit' INT TERM EXIT
 CURRENT="$(nmcli connection show || true)"
 
 # Prompt for the VPN username.
-ask_question "Username: " VPN_USER
-ask_secret "Password: " VPN_PASS
+VPN_USER=$(ask_question "Username:")
+VPN_PASS=$(ask_secret "Password:")
+echo
 
 cd "${TMP_DIR}"
 for VPN_CONFIG in "$@"; do
