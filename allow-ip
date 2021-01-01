@@ -55,7 +55,7 @@ if ! [[ -v MASK ]]; then
 fi
 
 GATEWAY=$(ip route list | \
-          grep -e enp0s25 -e wlp3s0 | \
+          grep -e "enp[0-9]\+s[0-9a-f]\+" -e "wlp[0-9]\+s[0-9a-f]\+" | \
           sed -n "s/^default via \([0-9\.]\+\) dev .*/\1/p" | head -1)
 
 IFACE=$(ip route show | \
