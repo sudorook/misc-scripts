@@ -30,8 +30,7 @@ echo
 
 cd "${TMP_DIR}"
 for VPN_CONFIG in "$@"; do
-  VPN_CONFIG="${1}"
-  if [[ "${VPN_CONFIG}" =~ \.opvn$ ]]; then
+  if [[ "${VPN_CONFIG}" =~ \.ovpn$ ]]; then
     VPN_NAME="${VPN_CONFIG%.*}"
   else
     VPN_NAME="${VPN_CONFIG}"
