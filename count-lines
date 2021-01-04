@@ -2,18 +2,31 @@
 set -eu
 source globals
 
-ignorefiles="-name '*.o' \
+IGNOREFILES="-name '*.o' \
+             -o -name '*.lo'\
+             -o -name '*.a'\
+             -o -name '*.pdf'\
+             -o -name '*.doc*'\
+             -o -name '*.ppt*'\
+             -o -name '*.png'\
+             -o -name '*.jpg'\
+             -o -name '*.tiff?'\
+             -o -name '*.gif'\
+             -o -name '*.sw[a-p]'\
+             -o -name '*~'\
              -o -name '*.tar.*'\
-             -o -name '*.zip' \
-             -o -name '*.git*'
+             -o -name '*.zip'\
+             -o -name '*.git'\
              -o -name '*.tgz'"
-ignoredirs="-path '*/.git/*' \
-            -o -path '*/.deps/*'"
+IGNOREDIRS="-path '*/.git/*'\
+            -o -path '*/bin/*'\
+            -o -path '*/.deps/*'\
+            -o -path '*/autom4te.cache/*'"
 
 if [ ${#} = 0 ]; then
   eval "find . -type f \
-    -not \( "${ignorefiles}" \) \
-    -not \( "${ignoredirs}" \) \
+    -not \( "${IGNOREFILES}" \) \
+    -not \( "${IGNOREDIRS}" \) \
     -exec wc -l -- '{}' +"
 else
   if [ -d "${1}" ]; then
@@ -22,8 +35,8 @@ else
     # in them, and it's not possible to handle any permutation of them safely
     # as text and not accidentally execute them.
     eval "find ${1} -type f \
-      -not \( "${ignorefiles}" \) \
-      -not \( "${ignoredirs}" \) \
+      -not \( "${IGNOREFILES}" \) \
+      -not \( "${IGNOREDIRS}" \) \
       -exec wc -l -- '{}' +"
   elif [ -f "${1}" ]; then
     wc -l "${1}"
