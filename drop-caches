@@ -1,4 +1,10 @@
 #! /bin/bash
 set -eu
 
-sudo bash -c "echo 3 > /proc/sys/vm/drop_caches"
+if [ -e /proc/sys/vm/drop_caches ]; then
+  sudo bash -c "echo 3 > /proc/sys/vm/drop_caches"
+  show_success "Done!"
+else
+  show_error "Not possible..."
+  exit 3
+fi
