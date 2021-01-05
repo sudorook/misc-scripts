@@ -20,10 +20,10 @@ command -v apt >/dev/null 2>&1 && {
 # Get the current GTK theme.
 case $XDG_CURRENT_DESKTOP in
   X-Cinnamon)
-    gtktheme=$(gsettings get org.cinnamon.desktop.interface gtk-theme | sed -e "s/'//g")
+    GTKTHEME=$(gsettings get org.cinnamon.desktop.interface gtk-theme | sed -e "s/'//g")
     ;;
   GNOME|ubuntu:GNOME)
-    gtktheme=$(gsettings get org.gnome.desktop.interface gtk-theme | sed -e "s/'//g")
+    GTKTHEME=$(gsettings get org.gnome.desktop.interface gtk-theme | sed -e "s/'//g")
     ;;
   *)
     show_error "$XDG_CURRENT_DESKTOP environment not supported."
@@ -31,8 +31,8 @@ case $XDG_CURRENT_DESKTOP in
     ;;
 esac
 
-gnomeshelldir="/usr/share/gnome-shell"
-gnomeshellbak="/usr/share/gnome-shell-$(date +%Y%m%d-%I%M%S)"
+GNOMESHELLDIR="/usr/share/gnome-shell"
+GNOMESHELLBAK="/usr/share/gnome-shell-$(date +%Y%m%d-%I%M%S)"
 
 command -v pacman >/dev/null 2>&1 && {
   if ! pacman -Qi gdm > /dev/null 2>&1; then
@@ -48,17 +48,17 @@ command -v apt >/dev/null 2>&1 && {
   fi
 }
 
-show_info "Backing up current GDM settings to ${gnomeshellbak}."
-sudo cp -rf ${gnomeshelldir} ${gnomeshellbak}
+show_info "Backing up current GDM settings to ${GNOMESHELLBAK}."
+sudo cp -rf "${GNOMESHELLDIR}" "${GNOMESHELLBAK}"
 
-show_info "Copying over ${gtktheme} GDM theme."
-sudo cp -rf /usr/share/themes/${gtktheme}/gnome-shell/* ${gnomeshelldir}
+show_info "Copying over ${GTKTHEME} GDM theme."
+sudo cp -rf /usr/share/themes/"${GTKTHEME}"/gnome-shell/* "${GNOMESHELLDIR}"
 
-if [[ "${gtktheme}" =~ "Adapta" ]]; then
+if [[ "${GTKTHEME}" =~ Adapta ]]; then
   sudo cp -f /usr/share/themes/Adapta/gnome-shell/extensions/window-list/* \
-    ${gnomeshelldir}/extensions/window-list@gnome-shell-extensions.gcampax.github.com/
-  sudo rm -rf ${gnomeshelldir}/extensions/window-list
-  sudo rm -rf ${gnomeshelldir}/extensions/workspaces-to-dock
+    "${GNOMESHELLDIR}"/extensions/window-list@gnome-shell-extensions.gcampax.github.com/
+  sudo rm -rf "${GNOMESHELLDIR}/extensions/window-list"
+  sudo rm -rf "${GNOMESHELLDIR}/extensions/workspaces-to-dock"
 fi
 
 show_success "Done."
