@@ -2,21 +2,21 @@
 set -eu
 source globals
 
-extension="${1##*.}"
+EXTENSION="${1##*.}"
 
 if ! [ -f "$1" ]; then
   show_error "Error: $1 does not exist."
   exit 1
 fi
 
-if [[ ${extension} =~ ^([R|r][MD|md|markdown|Markdown]*)$ ]]; then
+if [[ ${EXTENSION} =~ ^([R|r][MD|md|markdown|Markdown]*)$ ]]; then
   R -q -e "if (require(rmarkdown)) { options(encoding='UTF-8'); render('${1}') }"
 fi
 
-if [[ ${extension} =~ ^(tex)$ ]]; then
+if [[ ${EXTENSION} =~ ^(tex)$ ]]; then
   lualatex -shell-escape "${1}"
 fi
 
-if [[ ${extension} =~ ^([J|j][MD|md|markdown|Markdown]*)$ ]]; then
+if [[ ${EXTENSION} =~ ^([J|j][MD|md|markdown|Markdown]*)$ ]]; then
   julia -e "using Weave; weave(\"${1}\")"
 fi
