@@ -2,14 +2,14 @@
 set -eu
 source globals
 
-name=${1%.*}
-extension=${1##*.}
-case ${extension} in
+NAME=${1%.*}
+EXTENSION=${1##*.}
+case ${EXTENSION} in
   webm)
-    ffmpeg -i "${1}" -y "${name}.mp3"
+    ffmpeg -i "${1}" -y "${NAME}.mp3"
     ;;
   mp4|mkv)
-    ffmpeg -i "${1}" -c:a libmp3lame -y "${name}.mp3"
+    ffmpeg -i "${1}" -c:a libmp3lame -y "${NAME}.mp3"
     ;;
   *)
     show_error "ERROR: '${1}' is not compatible"
