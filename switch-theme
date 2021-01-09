@@ -23,33 +23,33 @@ switch_terminal_profile() {
 }
 
 switch_vim_background() {
-  if [ -f ${HOME}/.vimrc ]; then
-    sed -i "s/^set background=.*$/set background=${1//[0-9]}/g" ${HOME}/.vimrc
-    sed -i "s/^  let g:colorific_style='.*'$/  let g:colorific_style='${1}'/g" ${HOME}/.vimrc
-    sed -i "s/^set bg=.*$/set bg=${1}/g" ${HOME}/.vimrc
+  if [ -f "${HOME}/.vimrc" ]; then
+    sed -i "s/^set background=.*$/set background=${1//[0-9]}/g" "${HOME}/.vimrc"
+    sed -i "s/^  let g:colorific_style='.*'$/  let g:colorific_style='${1}'/g" "${HOME}/.vimrc"
+    sed -i "s/^set bg=.*$/set bg=${1}/g" "${HOME}/.vimrc"
   fi
 }
 
 switch_tmux_theme() {
-  if [ -f ${HOME}/.tmux.conf ]; then
+  if [ -f "${HOME}/.tmux.conf" ]; then
     themefile=$(sed -n "s/^\ *\"source-file\ \(.*\)\"$/\1/p" "${HOME}/.tmux.conf")
-    eval themefile=${themefile}
-    sed -i "s,^theme=\"[a-z0-9]\+\",theme=\"${1}\",g" ${themefile}
+    eval themefile="${themefile}"
+    sed -i "s,^theme=\"[a-z0-9]\+\",theme=\"${1}\",g" "${themefile}"
   fi
 }
 
 switch_thunderbird_theme() {
-  if [ -d ${thunderbirddir}/chrome ]; then
-    local userchrome=${thunderbirddir}/chrome/userChrome.css
+  if [ -d "${thunderbirddir}/chrome" ]; then
+    local userchrome="${thunderbirddir}/chrome/userChrome.css"
     if [ "$1" = "Dark" ]; then
-      sed -i "s,^\(@import \"icons/darkIcons.css\"; /\*For light Folder Tree and Message List\*/\),/\* \1,g" ${userchrome}
-      sed -i "s,^/\* \(@import \"icons/lightIcons.css\"; /\*For dark Folder Tree and Message List\*/\),\1,g" ${userchrome}
-      sed -i "s,^/\* \(@import \"tweaks/dark-folder-pane.css\";\),\1,g" ${userchrome}
+      sed -i "s,^\(@import \"icons/darkIcons.css\"; /\*For light Folder Tree and Message List\*/\),/\* \1,g" "${userchrome}"
+      sed -i "s,^/\* \(@import \"icons/lightIcons.css\"; /\*For dark Folder Tree and Message List\*/\),\1,g" "${userchrome}"
+      sed -i "s,^/\* \(@import \"tweaks/dark-folder-pane.css\";\),\1,g" "${userchrome}"
     elif [ "$1" = "Light" ]; then
-      sed -i "s,^/\* \(@import \"icons/darkIcons.css\"; /\*For light Folder Tree and Message List\*/\),\1,g" ${userchrome}
-      sed -i "s,^/\* \(@import \"icons/lightIcons.css\"; /\*For dark Folder Tree and Message List\*/\),\1,g" ${userchrome}
-      sed -i "s,^\(@import \"tweaks/dark-folder-pane.css\";\),/\* \1,g" ${userchrome}
-      sed -i "s/^set background=.*$/set background=light/g" ${userchrome}
+      sed -i "s,^/\* \(@import \"icons/darkIcons.css\"; /\*For light Folder Tree and Message List\*/\),\1,g" "${userchrome}"
+      sed -i "s,^/\* \(@import \"icons/lightIcons.css\"; /\*For dark Folder Tree and Message List\*/\),\1,g" "${userchrome}"
+      sed -i "s,^\(@import \"tweaks/dark-folder-pane.css\";\),/\* \1,g" "${userchrome}"
+      sed -i "s/^set background=.*$/set background=light/g" "${userchrome}"
     fi
   fi
 }
@@ -85,32 +85,32 @@ set_gtk_theme() {
   gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
   gitkdir="${HOME}/.config/git"
   if [[ "$1" =~ [Nn]okto ]] || [[ "$1" =~ ^[Aa]rc-[Dd]ark ]]; then
-    sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" ${gtksettings}
-    sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
+    sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" "${gtksettings}"
+    sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" "${gtksettings}"
     switch_terminal_profile "Dark"
     switch_vim_background "dark"
     switch_tmux_theme "dark"
     switch_thunderbird_theme "Dark"
     [[ -f ${gitkdir}/gitk-dark ]] && cp "${gitkdir}/gitk-dark" "${gitkdir}/gitk"
   elif [[ "$1" =~ [Nn]oir ]] || [[ "$1" =~ [Dd]ark ]]; then
-    sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" ${gtksettings}
-    sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" ${gtksettings}
+    sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" "${gtksettings}"
+    sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" "${gtksettings}"
     switch_terminal_profile "Dark"
     switch_vim_background "dark2"
     switch_tmux_theme "dark2"
     switch_thunderbird_theme "Dark"
     [[ -f ${gitkdir}/gitk-dark2 ]] && cp "${gitkdir}/gitk-dark2" "${gitkdir}/gitk"
   elif [[ "$1" =~ [Aa]dapta ]]; then
-    sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" ${gtksettings}
-    sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" ${gtksettings}
+    sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" "${gtksettings}"
+    sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" "${gtksettings}"
     switch_terminal_profile "Light"
     switch_vim_background "light"
     switch_tmux_theme "light"
     switch_thunderbird_theme "Light"
     [[ -f ${gitkdir}/gitk-light ]] && cp "${gitkdir}/gitk-light" "${gitkdir}/gitk"
   else
-    sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" ${gtksettings}
-    sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" ${gtksettings}
+    sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" "${gtksettings}"
+    sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" "${gtksettings}"
     switch_terminal_profile "Light"
     switch_vim_background "light2"
     switch_tmux_theme "light2"
@@ -134,8 +134,8 @@ set_icon_theme() {
   esac
 
   qt5ctconf=${HOME}/.config/qt5ct/qt5ct.conf
-  if [ -f ${qt5ctconf} ]; then
-    sed -i "s/^icon_theme=.*$/icon_theme=$1/g" ${qt5ctconf}
+  if [ -f "${qt5ctconf}" ]; then
+    sed -i "s/^icon_theme=.*$/icon_theme=$1/g" "${qt5ctconf}"
   fi
 }
 
