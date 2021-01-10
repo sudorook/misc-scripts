@@ -3,28 +3,28 @@ set -eu
 source globals
 
 OPTIONS=hji:f:l:
-LONGOPTIONS=help,join,input:,first:,last:
+LONGOPTIONS=help,join,input:,FIRST:,LAST:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
 while [ $# -ge 1 ]; do
   case "$1" in
     -i|--input)
-      in="$2"
-      out="${2%.*}"
-      pages=$(pdfinfo "$2" | grep "^Pages:" | sed -n "s/^Pages:\s*\([0-9]\+\)/\1/p")
+      IN="$2"
+      OUT="${2%.*}"
+      PAGES=$(pdfinfo "$2" | grep "^Pages:" | sed -n "s/^Pages:\s*\([0-9]\+\)/\1/p")
       shift 2
       ;;
-    -f|--first)
-      first="$2"
+    -f|--FIRST)
+      FIRST="$2"
       shift 2
       ;;
-    -l|--last)
-      last="$2"
+    -l|--LAST)
+      LAST="$2"
       shift 2
       ;;
     -j|--join)
-      joinpdfs=true
+      JOINPDFS=true
       shift
       ;;
     -h|--help)
@@ -52,24 +52,24 @@ if ! [[ -v in ]]; then
   exit 3
 fi
 
-if ! [[ -v first ]]; then
-  first=1
+if ! [[ -v FIRST ]]; then
+  FIRST=1
 fi
 
-if ! [[ -v last ]]; then
-  last=$pages
+if ! [[ -v LAST ]]; then
+  LAST=$PAGES
 fi
 
-if (( $last > $pages )); then
-  last=$pages
+if (( LAST > PAGES )); then
+  LAST=$PAGES
 fi
 
-if (( $first > $pages )); then
-  show_error "Starting page doesn't exist. The file only has $pages pages."
+if (( FIRST > PAGES )); then
+  show_error "Starting page doesn't exist. The file only has $PAGES pages."
   exit 3
 fi
 
-if (( $first > $last )); then
+if (( FIRST > LAST )); then
   show_error "What are you playing at?"
   exit 3
 fi
@@ -78,26 +78,26 @@ fi
 # that the filenames will get sorted in numerical order. Otherwise, the glob
 # used to join the pages at the end won't work. For examples, 02 is sorted
 # before 10, but 2 is placed after.
-if (( $first >= 10 )); then
-  pdfseparate -f $first -l $last "$in" "$out-%d.pdf"
-elif (( $last >= 10 )); then
-  if (( $last < 10 )); then
-    pdfseparate -f $first -l $last "$in" "$out-0%d.pdf"
+if (( FIRST >= 10 )); then
+  pdfseparate -f $FIRST -l "$LAST" "$IN" "$OUT-%d.pdf"
+elif (( LAST >= 10 )); then
+  if (( LAST < 10 )); then
+    pdfseparate -f $FIRST -l "$LAST" "$IN" "$OUT-0%d.pdf"
   fi
-  if (( $last >= 10 )); then
-    pdfseparate -f $first -l 9 "$in" "$out-0%d.pdf"
-    pdfseparate -f 10 -l $last "$in" "$out-%d.pdf"
+  if (( LAST >= 10 )); then
+    pdfseparate -f $FIRST -l 9 "$IN" "$OUT-0%d.pdf"
+    pdfseparate -f 10 -l "$LAST" "$IN" "$OUT-%d.pdf"
   fi
 else
-  pdfseparate -f $first "$in" "$out-0%d.pdf"
+  pdfseparate -f $FIRST "$IN" "$OUT-0%d.pdf"
 fi
 
 # Join
-if [[ -v joinpdfs ]]; then
-  if [[ $joinpdfs = true ]]; then
-    new="${in%.*}-new.pdf"
-    rm -f "$new"
-    pdfunite "${out}"-*.pdf "$new"
-    rm "${out}"-[0-9]*.pdf
+if [[ -v JOINPDFS ]]; then
+  if [[ $JOINPDFS = true ]]; then
+    NEW="${IN%.*}-new.pdf"
+    rm -f "$NEW"
+    pdfunite "${OUT}"-*.pdf "$NEW"
+    rm "${OUT}"-[0-9]*.pdf
   fi
 fi
