@@ -47,10 +47,12 @@ if ! [[ -v RESOLUTION ]]; then
   RESOLUTION=720
 fi
 
-if [ -d "${backup1}/Web Series" ]; then
-  VIDEODIR="${backup1}/Web Series/${NAME}"
-else
+if [ -d "${mediadir}" ]; then
+  VIDEODIR="${mediadir}/Web Series/${NAME}"
+elif [ -d "${videodir}" ]; then
   VIDEODIR="${videodir}/${NAME}"
+else
+  VIDEODIR=$(pwd)
 fi
 
 # Download the file, extract audio as mp3, and set the id3v2 tags.

@@ -82,6 +82,9 @@ musicdir=
 # video folders
 videodir=
 
+# get-webseries
+mediadir=
+
 # entry
 entrydir=
 template=
