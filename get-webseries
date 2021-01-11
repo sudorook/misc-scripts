@@ -18,7 +18,7 @@ while [ $# -ge 1 ]; do
       shift 2
       ;;
     -r|--resolution)
-      RESOLUTION="$2"
+      RESOLUTION="${2/[pi]/}"
       shift 2
       ;;
     -s|--start)
@@ -47,6 +47,21 @@ if ! [[ -v RESOLUTION ]]; then
   RESOLUTION=720
 fi
 
+case "${RESOLUTION}" in
+  720p|720i|720)
+    HEIGHT=800
+    WIDTH=1300
+    ;;
+  1080p|1080i|1080)
+    HEIGHT=1200
+    WIDTH=2000
+    ;;
+  *)
+    HEIGHT=800
+    WIDTH=1300
+    ;;
+esac
+
 if [ -d "${mediadir}" ]; then
   VIDEODIR="${mediadir}/Web Series/${NAME}"
 elif [ -d "${videodir}" ]; then
@@ -62,14 +77,14 @@ cd "${VIDEODIR}"
 if [[ -v START ]]; then
   youtube-dl "${URL}" \
     --playlist-start "${START}" \
-    --download-archive .archive.txt \
     --prefer-free-formats \
-    -f "best[height<=${RESOLUTION}]" \
-    -i
+    --download-archive .archive.txt \
+    -f "bestvideo[ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
+    --ignore-errors
 else
   youtube-dl "${URL}" \
     --prefer-free-formats \
     --download-archive .archive.txt \
-    -f "best[height<=${RESOLUTION}]" \
-    -i
+    -f "bestvideo[ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
+    --ignore-errors
 fi
