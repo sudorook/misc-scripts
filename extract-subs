@@ -1,0 +1,61 @@
+#! /bin/bash
+set -eu
+source globals
+
+NAME=${1%.*}
+EXTENSION=${1##*.}
+STREAMS=()
+TITLES=()
+FORMATS=()
+
+function parse_streams {
+  local fields
+  local stream
+  local title
+  local format
+  while IFS=$'\n' read -r line; do
+    fields="$(echo "${line}" | \
+              sed -n "s/^ \+Stream #\([0-9]\+:[0-9]\+\)(\([a-z]\+\)): Subtitle: \([a-z\_]\+\)\(, [0-9]\+x[0-9]\+\)\?\( (default)\)\?\( (forced)\)\?/\1\t\2\t\3/p")"
+
+    stream="$(echo "${fields}" | cut -d"	" -f 1)"
+    title="$(echo "${fields}" | cut -d"	" -f 2)"
+    format="$(echo "${fields}" | cut -d"	" -f 3)"
+
+    if ! [[ "${stream}" = "" ]]; then
+      STREAMS+=("${stream}")
+      TITLES+=("${title}")
+      FORMATS+=("${format}")
+    fi
+  done <<< "$(ffprobe "${NAME}.${EXTENSION}" 2>&1 | grep "^ \+Stream.*: Subtitle")"
+}
+
+function extract_streams {
+  local cmd
+  for i in $(seq 0 $(( ${#TITLES[@]} - 1))); do
+    cmd="ffmpeg -i '${NAME}.${EXTENSION}' -map ${STREAMS[${i}]} -c copy"
+    case "${FORMATS[${i}]}" in
+      ass)
+        cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.ass'"
+        ;;
+      srt)
+        cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.srt'"
+        ;;
+      hdmv_pgs_subtitle)
+        cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.sup'"
+        ;;
+      *)
+        show_error "Format ${FORMATS[${i}]} not supported. Exiting."
+        exit 2
+        ;;
+    esac
+    eval "${cmd}"
+  done
+}
+
+parse_streams
+if [ ${#STREAMS[@]} = 0 ]; then
+  show_error "ERROR: No subtitle streams found in ${1}. Exiting."
+  exit 3
+fi
+
+extract_streams
