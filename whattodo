@@ -6,40 +6,46 @@ source globals
 files=(TODO.md TODO.txt)
 
 # Extra hard-coded files not in ${projectsdir} (can be left empty).
-extras=(${HOME}/Desktop/TODO.md ${HOME}/TODO.md)
+extras=("${HOME}/Desktop/TODO.md" "${HOME}/TODO.md")
 
 # Pre-generate the syntax for specifying multiple file names for find.
 names=""
-for file in ${files[@]}; do
+for file in "${files[@]}"; do
   if [[ ${names} = "" ]]; then
-    names="${names}-name ${file} "
+    names="-name ${file} "
   else
-    names="${names}-o -name ${file} "
+    names+="-o -name ${file} "
   fi
 done
 
 # Search every directory in ${projectdir} for a file matching one in ${files}
 # as long as it is not also specified in ${ignoreprojectdirs}.
-find ${projectdir} -type f \( ${names} \) -print0 |
+find "${projectdir}" -type f \( ${names} \) -print0 |
 while IFS= read -r -d '' todo; do
-  if [ ${#ignoreprojectdirs[@]} -eq 0 ] || [ "${ignoreprojectdirs}" = "" ]; then
-    show_info ${todo}
+  if [ "${#ignoreprojectdirs[@]}" -eq 0 ] || \
+     [ "${ignoreprojectdirs[*]}" = "" ]; then
+    show_info "${todo}"
     cat "${todo}"
     echo && echo
   else
-    for ignore in ${ignoreprojectdirs}; do
-      if ! [[ ${todo} =~ ${ignore} ]]; then
-        show_info ${todo}
-        cat "${todo}"
-        echo && echo
+    flag=false
+    for ignore in "${ignoreprojectdirs[@]}"; do
+      if [[ ${todo} =~ /${ignore}/ ]]; then
+        flag=true
+        break
       fi
     done
+    if [ "${flag}" = false ]; then
+      show_info "${todo}"
+      cat "${todo}"
+      echo && echo
+    fi
   fi
 done
 
-for extra in ${extras[@]}; do
-  if [ -f ${extra} ]; then
-    show_info ${extra}
+for extra in "${extras[@]}"; do
+  if [ -f "${extra}" ]; then
+    show_info "${extra}"
     cat "${extra}"
     echo && echo
   fi
