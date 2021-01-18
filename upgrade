@@ -50,33 +50,37 @@ function upgrade_system() {
 
 function upgrade_themes() {
   show_header "Upgrading GTK and icon themes."
-  if [ -d "${gtkdir}" ]; then
+  if [[ -v gtkdir ]] && [ -d "${gtkdir}" ]; then
     for dir in "${gtkdir}"/*; do
       if [ -d "${dir}" ] && [ -d "${dir}/.git" ]; then
         show_info "$(basename "${dir}")"
-        git -C "${dir}" checkout master && git -C "${dir}" pull --ff-only origin master
+        git -C "${dir}" checkout master \
+          && git -C "${dir}" pull --ff-only origin master
         echo
         sleep 2
       fi
     done
   fi
 
-  if [ -d "${icondir}" ]; then
+  if [[ -v icondir ]] && [ -d "${icondir}" ]; then
     for dir in "${icondir}"/*; do
       if [ -d "${dir}/.git" ]; then
         show_info "$(basename "${dir}")"
-        git -C "${dir}" checkout master && git -C "${dir}" pull --ff-only origin master
+        git -C "${dir}" checkout master \
+          && git -C "${dir}" pull --ff-only origin master
         sleep 2
         echo
       fi
     done
   fi
 
-  if [ -d "${thunderbirddir}" ]; then
-    show_info "$(basename "${thunderbirddir}") (thunderbird)"
-    git -C "${thunderbirddir}/chrome" pull --ff-only origin master
-    sleep 2
-    echo
+  if [[ -v thunderbirddir ]] && [[ -d "${thunderbirddir}" ]]; then
+    if [ -d "${thunderbirddir}" ]; then
+      show_info "$(basename "${thunderbirddir}") (thunderbird)"
+      git -C "${thunderbirddir}/chrome" pull --ff-only origin master
+      sleep 2
+      echo
+    fi
   fi
 }
 
@@ -87,7 +91,7 @@ function upgrade_vim_packages() {
     show_warning "Install vim first. Skipping."
     echo
   else
-    if [ -d "${vimpack}" ]; then
+    if [[ -v vimpack ]] && [ -d "${vimpack}" ]; then
       for dir in "${vimpack}"/*; do
         if [ -d "${dir}/.git" ]; then
           show_info "$(basename "${dir}")"
@@ -115,7 +119,7 @@ function upgrade_zsh() {
       zsh -ic "antigen-update"
       sleep 2
     else
-      if [ -d "${zshdir}" ]; then
+      if [[ -v zshdir ]] && [ -d "${zshdir}" ]; then
         for dir in "${zshdir}"/*; do
           if [ -d "${dir}/.git" ]; then
             show_info "$(basename "${dir}")"
@@ -146,20 +150,22 @@ function upgrade_julia_packages() {
 function upgrade_pkgbuild() {
   command -v makepkg >/dev/null 2>&1 && {
     show_header "Upgrading AUR pkgbuilds."
-    for dir in "${pkgbuilddir}"/*; do
-      if [ -d "${dir}/.git" ]; then
-        show_info "$(basename "${dir}")"
-        if git_update "${dir}"; then
-          cur=$(pwd)
-          cd "${dir}"
-          makepkg -si --noconfirm
-          git clean -xdf
-          cd "${cur}"
+    if [[ -v pkgbuilddir ]] && [[ -d "${pkgbuilddir}" ]]; then
+      for dir in "${pkgbuilddir}"/*; do
+        if [ -d "${dir}/.git" ]; then
+          show_info "$(basename "${dir}")"
+          if git_update "${dir}"; then
+            cur=$(pwd)
+            cd "${dir}"
+            makepkg -si --noconfirm
+            git clean -xdf
+            cd "${cur}"
+          fi
+          sleep 2
+          echo
         fi
-        sleep 2
-        echo
-      fi
-    done
+      done
+    fi
   }
 }
 
