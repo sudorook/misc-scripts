@@ -25,6 +25,11 @@ while [ $# -ge 1 ]; do
   esac
 done
 
+if ! [ -e "${1}" ]; then
+  show_error "ERROR: ${1} does not exist."
+  exit 2
+fi
+
 temp="${1}_$RANDOM"
 trap 'rm -f "${temp}"; exit' INT TERM EXIT
 
