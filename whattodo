@@ -2,6 +2,16 @@
 set -eu
 source globals
 
+# Check that required globals are set.
+if [[ -v projectdir ]] && [[ -v ignoreprojectdirs ]]; then
+  if [[ -z "${projectdir}" ]]; then
+    show_error "ERROR: 'projectdir' variable unset (see globals)."
+    exit 3
+  fi
+else
+  exit 1
+fi
+
 # File name(s) that contain todo lists.
 files=(TODO.md TODO.txt)
 
