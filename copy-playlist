@@ -4,11 +4,13 @@ source globals
 
 function print_usage() {
   echo "Usage:"
-  echo "  copy-playlist -i|--input <m3u file> -d|--dest <destination directory>"
+  echo "  copy-playlist -i|--input <m3u file> \\"
+  echo "                -d|--dest <destination directory> \\"
+  echo "                -m|--music <music directory>"
 }
 
-OPTIONS=hi:d:
-LONGOPTIONS=help,input:,dest:
+OPTIONS=hi:d:m:
+LONGOPTIONS=help,input:,dest:,music:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -20,6 +22,10 @@ while [ $# -ge 1 ]; do
       ;;
     -d|--dest)
       export DEST=${2}
+      shift 2
+      ;;
+    -m|--music)
+      export MUSIC=${2}
       shift 2
       ;;
     -h|--help)
@@ -37,13 +43,19 @@ while [ $# -ge 1 ]; do
   esac
 done
 
+if ! [[ -v MUSIC ]]; then
+  if [[ -v musicdir ]] && [ -e "${musicdir}" ]; then
+    MUSIC="${musicdir}"
+  fi
+fi
+
 if [[ -v INPUT ]] && [[ -v DEST ]]; then
   mkdir -p "${DEST}"
   if [ -f "${INPUT}" ]; then
     while read -r file; do
       newfile="$(echo "${file}" | \
                  sed -e "s,\(.*\)/\(.*\)/[0-9]\+ \(.*\.mp3\)$,\3,g")"
-      cp -u -v "${musicdir}/${file}" -d "${DEST}/${newfile}"
+      cp -u -v "${MUSIC}/${file}" -d "${DEST}/${newfile}"
     done < "${INPUT}"
   fi
 else
