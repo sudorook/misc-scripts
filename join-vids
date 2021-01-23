@@ -31,10 +31,12 @@ function is_all_mkvs() {
 # Join mp4s by converting them to a transport stream (ts), concatenating the
 # streams, and converting the result back to an mp4.
 function join_mp4s() {
-  input="concat:"
-  idx=0
+  local name
+  local extension
+  local input="concat:"
+  local idx=0
   for file in "${@}"; do
-    if [ "${file}" = "${outfile}" ]; then
+    if [ "${file}" = "${OUTFILE}" ]; then
       continue
     fi
     name=${file%.*}
@@ -44,8 +46,8 @@ function join_mp4s() {
   done
   input=${input::-1}
 
-  rm -f "${outfile}"
-  ffmpeg -i "${input}" -codec copy -bsf:a aac_adtstoasc "${outfile}"
+  rm -f "${OUTFILE}"
+  ffmpeg -i "${input}" -codec copy -bsf:a aac_adtstoasc "${OUTFILE}"
 
   for file in "${@}"; do
     name=${file%.*}
@@ -55,16 +57,16 @@ function join_mp4s() {
 
 # Join mkvs by using a concatenation file.
 function join_mkvs() {
-  concatfile="concat.txt"
-  idx=0
+  local concatfile="concat.txt"
+  local idx=0
   for file in "${@}"; do
-    if [ "${file}" = "${outfile}" ]; then
+    if [ "${file}" = "${OUTFILE}" ]; then
       continue
     fi
     echo "file '${file}'" >> "${concatfile}"
   done
 
-  rm -f "${outfile}"
+  rm -f "${OUTFILE}"
   ffmpeg -f concat -i "${concatfile}" -codec copy output.mkv
 
   rm -f "${concatfile}"
@@ -72,23 +74,24 @@ function join_mkvs() {
 
 # Join videos with mixed codecs using ffmpeg concat filter.
 function join_mixed() {
-  input=""
-  filter=""
-  idx=0
+  local input=""
+  local filter=""
+  local idx=0
+  local cmd
   for file in "${@}"; do
-    if [ "${file}" = "${outfile}" ]; then
+    if [ "${file}" = "${OUTFILE}" ]; then
       continue
     fi
     input="${input}-i ${file@Q} "
     filter="${filter}[${idx}:v:0] [${idx}:a:0] "
-    idx=$(( $idx + 1 ))
+    idx=$(( idx + 1 ))
   done
   filter="${filter}concat=n=${#}:v=1:a=1 [v] [a]"
 
-  rm -f "${outfile}"
-  dothis=$(echo ffmpeg ${input} -filter_complex \"${filter}\" \
-             -map \"[v]\" -map \"[a]\" ${options} ${outfile})
-  eval $dothis
+  rm -f "${OUTFILE}"
+  cmd=$(echo ffmpeg "${input}" -filter_complex \"${filter}\" \
+             -map \"[v]\" -map \"[a]\" "${OPTIONS}" "${OUTFILE}")
+  eval "${cmd}"
 }
 
 
@@ -96,8 +99,8 @@ function join_mixed() {
 # Globals
 #
 
-outfile=output.mp4
-options=""
+OUTFILE=output.mp4
+OPTIONS=""
 
 
 #
@@ -129,7 +132,7 @@ else
   mp4s=()
   temp=()
   for file in "${@}"; do
-    if [ "${file}" = "${outfile}" ]; then
+    if [ "${file}" = "${OUTFILE}" ]; then
       continue
     fi
     name=${file%.*}
