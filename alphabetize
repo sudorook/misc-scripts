@@ -7,11 +7,11 @@ LONGOPTIONS=backup
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
-isbackup=false
+ISBACKUP=false
 while [ $# -ge 1 ]; do
   case "$1" in
     -b|--backup)
-      isbackup=true
+      ISBACKUP=true
       shift 1
       ;;
     --)
@@ -30,11 +30,11 @@ if ! [ -e "${1}" ]; then
   exit 2
 fi
 
-temp="${1}_$RANDOM"
-trap 'rm -f "${temp}"; exit' INT TERM EXIT
+TMP="${1}_$RANDOM"
+trap 'rm -f "${TMP}"; exit' INT TERM EXIT
 
-sort -u "${1}" > "${temp}"
-if "${isbackup}"; then
+sort -u "${1}" > "${TMP}"
+if "${ISBACKUP}"; then
   mv "${1}" "${1}.bak"
 fi
-mv "${temp}" "${1}"
+mv "${TMP}" "${1}"
