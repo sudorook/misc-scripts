@@ -7,6 +7,13 @@ source globals
 # Global functions
 #
 
+if ! [[ -v projectdir ]]; then
+  projectdir=${HOME}/Desktop
+fi
+if ! [[ -v pkgbuilddir ]]; then
+  pkgbuilddir=${HOME}/Desktop
+fi
+
 function sloppy_seek {
   find "${HOME}/" \
     ! -path "${HOME}/Desktop*" \
@@ -51,10 +58,10 @@ function destroy {
 # Parse command line options
 #
 
-OPTIONS=ps
+OPTIONS="ps"
 LONGOPTIONS=precise,sloppy
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n ${0} -- ${@})
-eval set -- ${PARSED}
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
 MODE=
 
 while [ ${#} -ge 1 ]; do
@@ -91,7 +98,7 @@ fi
 case ${MODE} in
   precise)
     show_header "--- Running precise seeker ---"
-    if test "$(precise_seek ${1})"; then
+    if test "$(precise_seek "${1}")"; then
       precise_seek "${1}"
       check=$(ask_question 'Permission to destroy? (y/N)')
       if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
@@ -106,7 +113,7 @@ case ${MODE} in
     ;;
   sloppy)
     show_header "--- Running sloppy seeker ---"
-    if test "$(sloppy_seek ${1})"; then
+    if test "$(sloppy_seek "${1}")"; then
       sloppy_seek "${1}"
       check=$(ask_question 'Permission to destroy? (y/N)')
       if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
