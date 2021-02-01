@@ -7,33 +7,33 @@ function hardcode_cleanup {
   sed -i "s/\(\x94\|\x93\)/\"/g" "${1}"
 }
 
-name=${1%.*}
-extension=${1##*.}
-output="subbed_video.${extension}"
+NAME=${1%.*}
+EXTENSION=${1##*.}
+OUTPUT="subbed_video.${EXTENSION}"
 
-if [ -f "${name}.srt" ]; then
-  encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
-  subextension="srt"
-  if ! [[ "${encoding}" = "utf-8" ]]; then
-    hardcode_cleanup "${name}.srt"
-    encoding=$(file -i "$name.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
+if [ -f "${NAME}.srt" ]; then
+  ENCODING=$(file -i "$NAME.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
+  SUBEXTENSION="srt"
+  if ! [[ "${ENCODING}" = "utf-8" ]]; then
+    hardcode_cleanup "${NAME}.srt"
+    ENCODING=$(file -i "$NAME.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
   fi
-  if ! [[ "${encoding}" = "utf-8" ]]; then
-    show_info "Converting ${name}.srt encoding from ${encoding} to utf-8."
-    iconv -f "${encoding}" -t "utf-8" "${name}.srt" > temp.srt && \
-      mv temp.srt "${name}.srt"
+  if ! [[ "${ENCODING}" = "utf-8" ]]; then
+    show_info "Converting ${NAME}.srt ENCODING from ${ENCODING} to utf-8."
+    iconv -f "${ENCODING}" -t "utf-8" "${NAME}.srt" > temp.srt && \
+      mv temp.srt "${NAME}.srt"
   fi
-elif [ -f "${name}.ass" ]; then
-  encoding=$(file -i "$name.ass" | sed -n "s/.*charset=\(.*\)$/\1/p")
-  subextension="ass"
-  if ! [[ "${encoding}" = "utf-8" ]]; then
-    hardcode_cleanup "${name}.ass"
-    encoding=$(file -i "$name.ass" | sed -n "s/.*charset=\(.*\)$/\1/p")
+elif [ -f "${NAME}.ass" ]; then
+  ENCODING=$(file -i "$NAME.ass" | sed -n "s/.*charset=\(.*\)$/\1/p")
+  SUBEXTENSION="ass"
+  if ! [[ "${ENCODING}" = "utf-8" ]]; then
+    hardcode_cleanup "${NAME}.ass"
+    ENCODING=$(file -i "$NAME.ass" | sed -n "s/.*charset=\(.*\)$/\1/p")
   fi
-  if ! [[ "${encoding}" = "utf-8" ]]; then
-    show_info "Converting ${name}.ass encoding from ${encoding} to utf-8."
-    iconv -f "${encoding}" -t "utf-8" "${name}.ass" > temp.ass && \
-      mv temp.ass "${name}.ass"
+  if ! [[ "${ENCODING}" = "utf-8" ]]; then
+    show_info "Converting ${NAME}.ass ENCODING from ${ENCODING} to utf-8."
+    iconv -f "${ENCODING}" -t "utf-8" "${NAME}.ass" > temp.ass && \
+      mv temp.ass "${NAME}.ass"
   fi
 else
   show_error "No subtitle file detected."
@@ -41,35 +41,35 @@ else
 fi
 
 
-case ${extension} in
+case ${EXTENSION} in
   avi)
-    output="subbed_video.mp4"
-    extension="mp4"
-    ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${name}.${subextension}" \
+    OUTPUT="subbed_video.mp4"
+    EXTENSION="mp4"
+    ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${NAME}.${SUBEXTENSION}" \
       -c:v copy -c:a copy -c:s mov_text \
       -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
       -id3v2_version 3 -write_id3v1 1 \
-      "${output}"
+      "${OUTPUT}"
     ;;
   mp4|m4v)
-    ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${name}.${subextension}" \
+    ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${NAME}.${SUBEXTENSION}" \
       -c:v copy -c:a copy -c:s mov_text \
       -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
       -id3v2_version 3 -write_id3v1 1 \
-      "${output}"
+      "${OUTPUT}"
     ;;
   mkv)
-    ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${name}.${subextension}" \
+    ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${NAME}.${SUBEXTENSION}" \
       -c:v copy -c:a copy -c:s srt \
       -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
       -id3v2_version 3 -write_id3v1 1 \
-      "${output}"
+      "${OUTPUT}"
     ;;
   *)
-    show_error "${extension} files are not supported."
+    show_error "${EXTENSION} files are not supported."
     exit 3
 esac
 
 mv "${1}" "${1}.bak"
-mv "${name}.${subextension}" "${name}.${subextension}.bak"
-mv "${output}" "${name}.${extension}"
+mv "${NAME}.${SUBEXTENSION}" "${NAME}.${SUBEXTENSION}.bak"
+mv "${OUTPUT}" "${NAME}.${EXTENSION}"
