@@ -3,10 +3,12 @@ set -eu
 source globals
 
 function cleanup_filename() {
-  vid="$1"
-  name="${vid%.*}"
-  extension="${vid##*.}"
+  local name
+  local extension
+  local newname
 
+  name="${1%.*}"
+  extension="${1##*.}"
   newname=$(echo "$name" | \
     sed -e "s/_\|\./\ /g" | \
     sed -e "s/\[[^][]*\]\ //g" | \
@@ -23,25 +25,25 @@ function cleanup_filename() {
   return 0
 }
 
-for vid in *; do
-  if [ -f "$vid" ]; then
-    newvid=$(cleanup_filename "$vid")
-    echo "$newvid"
+for VID in *; do
+  if [ -f "$VID" ]; then
+    NEWVID=$(cleanup_filename "$VID")
+    echo "$NEWVID"
   fi
 done
 
-check=$(ask_question "Is this good? (y/N)")
+REPLY=$(ask_question "Is this good? (y/N)")
 
-if [ "$check" = "y" ] || [ "$check" = "Y" ]; then
-  for vid in *; do
-    if [ -f "$vid" ]; then
-      newvid=$(cleanup_filename "$vid")
-      if [ "$vid" != "$newvid" ]; then
-        mv "$vid" "$newvid"
-        echo "$vid"
-        echo " --> $newvid"
+if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
+  for VID in *; do
+    if [ -f "$VID" ]; then
+      NEWVID=$(cleanup_filename "$VID")
+      if [ "$VID" != "$NEWVID" ]; then
+        mv "$VID" "$NEWVID"
+        echo "$VID"
+        echo " --> $NEWVID"
       else
-        echo "$vid unchanged"
+        echo "$VID unchanged"
       fi
     fi
   done
