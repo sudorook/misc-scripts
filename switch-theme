@@ -6,15 +6,14 @@ get_terminal_profiles() {
   IFS=' ' read -r -a ids <<< \
     "$(dconf read /org/gnome/terminal/legacy/profiles:/list | tr -d "[]',")"
   names=()
-  declare -A profiles
   for id in "${ids[@]}"; do
-    names+=("$(dconf read /org/gnome/terminal/legacy/profiles:/:$id/visible-name)")
+    names+=("$(dconf read "/org/gnome/terminal/legacy/profiles:/:${id}/visible-name")")
   done
 }
 
 switch_terminal_profile() {
   local idx=0
-  for name in ${names[@]}; do
+  for name in "${names[@]}"; do
     if [ "$name" = "'$1'" ]; then
       dconf write /org/gnome/terminal/legacy/profiles:/default "'${ids[$idx]}'"
     fi
@@ -39,7 +38,7 @@ switch_tmux_theme() {
 }
 
 switch_thunderbird_theme() {
-  if [ -d "${thunderbirddir}/chrome" ]; then
+  if [[ -v thunderbirddir ]] && [ -d "${thunderbirddir}/chrome" ]; then
     local userchrome="${thunderbirddir}/chrome/userChrome.css"
     if [ "$1" = "Dark" ]; then
       sed -i "s,^\(@import \"icons/darkIcons.css\"; /\*For light Folder Tree and Message List\*/\),/\* \1,g" "${userchrome}"
