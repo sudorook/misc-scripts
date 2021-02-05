@@ -63,5 +63,10 @@ while [ $# -ge 1 ]; do
   esac
 done
 
-find -L "${projectdir}" -maxdepth 3 -type d -name ".git" \
-  -exec bash -c 'get_count "{}"' \; | awk '{s+=$1}END{print s}'
+if [[ -v projectdir ]] && [ -e "${projectdir}" ]; then
+  find -L "${projectdir}" -maxdepth 3 -type d -name ".git" \
+    -exec bash -c 'get_count "{}"' \; | awk '{s+=$1}END{print s}'
+else
+  find -L "${HOME}" -maxdepth 3 -type d -name ".git" \
+    -exec bash -c 'get_count "{}"' \; | awk '{s+=$1}END{print s}'
+fi
