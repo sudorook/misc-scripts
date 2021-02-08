@@ -2,6 +2,13 @@
 set -eu
 source globals
 
+if ! [[ -v entrydir ]] || [[ -z "${entrydir}" ]]; then
+  show_error "entrydir missing in globals. Exiting."
+  exit 3
+fi
+
+mkdir -p "${entrydir}"
+
 FILE=${entrydir}/$(date -d '-6 hours' +%F).md
 
 if ! [ -f "${FILE}" ]; then
