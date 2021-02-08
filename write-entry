@@ -2,19 +2,19 @@
 set -eu
 source globals
 
-file=${entrydir}/$(date -d '-6 hours' +%F).md
+FILE=${entrydir}/$(date -d '-6 hours' +%F).md
 
-if ! [ -f "${file}" ]; then
-  if [ -z ${template+x} ] || [ "${template}" = "" ]; then
-    echo "# $(date -d '-6 hours' '+%A, %B %d, %Y')" >> ${file}
-    echo >> ${file}
+if ! [ -f "${FILE}" ]; then
+  if ! [[ -v template ]] || [[ -z "${template}" ]]; then
+    echo "# $(date -d '-6 hours' '+%A, %B %d, %Y')" >> "${FILE}"
+    echo >> "${FILE}"
   elif ! [ -f "${template}" ]; then
     show_error "Template ${template} does not exist."
     exit 3
   else
-    cat ${template} >> ${file}
-    sed -i "s/@date@/$(date -d '-6 hours' '+%A, %B %d, %Y')/g" ${file}
+    cat "${template}" >> "${FILE}"
+    sed -i "s/@date@/$(date -d '-6 hours' '+%A, %B %d, %Y')/g" "${FILE}"
   fi
 fi
 
-eval ${EDITOR} ${file}
+eval "${EDITOR}" "${FILE}"
