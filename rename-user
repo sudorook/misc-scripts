@@ -8,10 +8,13 @@ source globals
 #
 
 function migrate_symlink() {
+  local symlink
+  local sympath
+  local newsympath
   symlink="${1}"
-  sympath="$(file ${symlink} | sed -n "s,.*symbolic link to \(.*\)$,\1,p")"
-  if [[ "${sympath}" =~ ^/home/${oldname} ]]; then
-    newsympath=$(echo ${sympath} | sed -e "s/${oldname}/${newname}/g")
+  sympath="$(file "${symlink}" | sed -n "s,.*symbolic link to \(.*\)$,\1,p")"
+  if [[ "${sympath}" =~ ^/home/${OLDNAME} ]]; then
+    newsympath=$(echo "${sympath}" | sed -e "s/${OLDNAME}/${NEWNAME}/g")
     rm "${symlink}"
     ln -s "${newsympath}" "${symlink}"
   fi
@@ -37,17 +40,17 @@ eval set -- "$PARSED"
 while [ $# -ge 1 ]; do
   case "$1" in
     -o|--old)
-      oldname=${2}
-      if ! $(check_username "${oldname}"); then
-        show_error "${oldname} is not a valid name. Exiting."
+      OLDNAME=${2}
+      if ! check_username "${OLDNAME}"; then
+        show_error "${OLDNAME} is not a valid name. Exiting."
         exit
       fi
       shift 2
       ;;
     -n|--new)
-      newname=${2}
-      if ! $(check_username "${newname}"); then \
-        show_error "${newname} is not a valid name. Exiting."
+      NEWNAME=${2}
+      if ! check_username "${NEWNAME}"; then \
+        show_error "${NEWNAME} is not a valid name. Exiting."
         exit
       fi
       shift 2
@@ -65,62 +68,62 @@ done
 
 # If the user didn't supply user names via that command line, ask for them in
 # the prompt.
-if ! [[ -v oldname ]]; then
-  oldname=$(ask_question "Change which user name?")
-  if ! $(check_username "${oldname}"); then
-    show_error "${oldname} is not a valid name. Exiting."
+if ! [[ -v OLDNAME ]]; then
+  OLDNAME=$(ask_question "Change which user name?")
+  if ! check_username "${OLDNAME}"; then
+    show_error "${OLDNAME} is not a valid name. Exiting."
     exit
   fi
 fi
-if ! [[ -v newname ]]; then
-  newname=$(ask_question "What is the new user name?")
-  if ! $(check_username "${newname}"); then \
-    show_error "${newname} is not a valid name. Exiting."
+if ! [[ -v NEWNAME ]]; then
+  NEWNAME=$(ask_question "What is the new user name?")
+  if ! check_username "${NEWNAME}"; then \
+    show_error "${NEWNAME} is not a valid name. Exiting."
     exit
   fi
 fi
 
-# Make sure that oldname and newname entries are valid.
-if [[ -z "$oldname" ]]; then echo "Error: empty old user name."; fi
-if [[ -z "$newname" ]]; then echo "Error: empty new user name."; fi
+# Make sure that OLDNAME and NEWNAME entries are valid.
+if [[ -z "$OLDNAME" ]]; then echo "Error: empty old user name."; fi
+if [[ -z "$NEWNAME" ]]; then echo "Error: empty new user name."; fi
 
-export oldname
-export newname
+export OLDNAME
+export NEWNAME
 
 #
 # Rename user and migrate files
 #
 
 # Check that old user exists.
-if ! $(getent group | grep ^${oldname} >/dev/null); then
-  show_error "User ${oldname} does not exist. Exiting."
+if ! getent group | grep "^${OLDNAME}" >/dev/null; then
+  show_error "User ${OLDNAME} does not exist. Exiting."
   exit
 fi
 
 # Check that old user has no currently running processes.
-if ps -u "${oldname}" >/dev/null 2>&1; then
-  show_error "User ${oldname} has running processes. Exiting."
+if ps -u "${OLDNAME}" >/dev/null 2>&1; then
+  show_error "User ${OLDNAME} has running processes. Exiting."
   exit
 fi
 
-# Check that newname is not an existing group.
-if $(getent group | grep ${newname} >/dev/null); then
-  show_error "${newname} already taken (see getent group output). Exiting."
+# Check that NEWNAME is not an existing group.
+if getent group | grep "${NEWNAME}" >/dev/null; then
+  show_error "${NEWNAME} already taken (see getent group output). Exiting."
   exit
 fi
 
 # Migrate the user.
-show_info "Renaming '${oldname}' to '${newname}' (provide sudo password)."
-sudo usermod -l ${newname} -d /home/${newname} -m ${oldname}
-sudo groupmod -n ${newname} ${oldname}
+show_info "Renaming '${OLDNAME}' to '${NEWNAME}' (provide sudo password)."
+sudo usermod -l "${NEWNAME}" -d "/home/${NEWNAME}" -m "${OLDNAME}"
+sudo groupmod -n "${NEWNAME}" "${OLDNAME}"
 
-show_info "Fixing symlinks in /home/${newname} (provide ${newname} pasword)."
-su ${newname} -c "find /home/${newname} -type l -exec bash -c 'migrate_symlink "{}"' \;"
+show_info "Fixing symlinks in /home/${NEWNAME} (provide ${NEWNAME} pasword)."
+su "${NEWNAME}" -c "find /home/${NEWNAME} -type l -exec bash -c 'migrate_symlink "{}"' \;"
 
 # Prompt to change password.
-check=$(ask_question "Change password for ${newname}? (y/N)")
-if [[ $check =~ ^([Yy][Ee][Ss]|[Yy])$ ]]; then
-  passwd ${newname}
+REPLY=$(ask_question "Change password for ${NEWNAME}? (y/N)")
+if [[ $REPLY =~ ^([Yy][Ee][Ss]|[Yy])$ ]]; then
+  passwd "${NEWNAME}"
 fi
 
 show_success "Migrated!"
