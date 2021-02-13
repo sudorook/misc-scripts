@@ -1,0 +1,113 @@
+#! /usr/bin/env python3
+""" docstring """
+
+import sys
+import os.path
+import subprocess
+import re
+
+CUE_FILE = sys.argv[1]
+
+with open(CUE_FILE, "rb") as f:
+    try:
+        DATA = f.read().decode("utf-8").splitlines()
+    except BaseException as error:
+        print("ERROR: " + str(error), file=sys.stderr)
+        DATA = None
+
+if DATA is None:
+    with open(CUE_FILE, "rb") as f:
+        try:
+            DATA = f.read().decode("latin-1").splitlines()
+        except BaseException as error:
+            print("ERROR: " + str(error), file=sys.stderr)
+            sys.exit(1)
+
+GENERAL = {}
+TRACKS = []
+
+CURRENT_FILE = None
+CURRENT_DIR = os.path.dirname(CUE_FILE)
+
+for line in DATA:
+    if line.startswith("REM GENRE "):
+        GENERAL["genre"] = (" ".join(line.split(" ")[2:])).strip('"')
+        print(GENERAL["genre"])
+    if line.startswith("REM DATE "):
+        GENERAL["date"] = " ".join(line.split(" ")[2:])
+    if line.startswith("PERFORMER "):
+        GENERAL["artist"] = " ".join(line.split(" ")[1:]).replace('"', "")
+    if line.startswith("TITLE "):
+        GENERAL["album"] = " ".join(line.split(" ")[1:]).replace('"', "")
+    if line.startswith("FILE "):
+        CURRENT_FILE = " ".join(line.split(" ")[1:-1]).replace('"', "")
+
+    if line.startswith("  TRACK "):
+        track = GENERAL.copy()
+        track["track"] = int(line.strip().split(" ")[1], 10)
+
+        TRACKS.append(track)
+
+    if line.startswith("    TITLE "):
+        TRACKS[-1]["title"] = " ".join(line.strip().split(" ")[1:]).replace(
+            '"', ""
+        )
+    if line.startswith("    PERFORMER "):
+        TRACKS[-1]["artist"] = " ".join(line.strip().split(" ")[1:]).replace(
+            '"', ""
+        )
+    if line.startswith("    INDEX 01 "):
+        t = list(
+            map(
+                int,
+                " ".join(line.strip().split(" ")[2:])
+                .replace('"', "")
+                .split(":"),
+            )
+        )
+        TRACKS[-1]["start"] = 60 * t[0] + t[1] + t[2] / 100.0
+
+for i in range(len(TRACKS)):
+    if i != len(TRACKS) - 1:
+        TRACKS[i]["duration"] = TRACKS[i + 1]["start"] - TRACKS[i]["start"]
+
+for track in TRACKS:
+    metadata = {
+        "artist": track["artist"],
+        "title": track["title"],
+        "album": track["album"],
+        "track": str(track["track"]) + "/" + str(len(TRACKS)),
+    }
+
+    if "genre" in track:
+        metadata["genre"] = track["genre"]
+    if "date" in track:
+        metadata["date"] = track["date"]
+
+    CMD = "ffmpeg"
+    CMD += ' -i "%s"' % os.path.join(CURRENT_DIR, CURRENT_FILE)
+    CMD += " -ss %.2d:%.2d:%.2d" % (
+        track["start"] / 60 / 60,
+        track["start"] / 60 % 60,
+        int(track["start"] % 60),
+    )
+
+    if "duration" in track:
+        CMD += " -t %.2d:%.2d:%.2d" % (
+            track["duration"] / 60 / 60,
+            track["duration"] / 60 % 60,
+            int(track["duration"] % 60),
+        )
+
+    CMD += " " + " ".join(
+        '-metadata %s="%s"' % (k, v) for (k, v) in metadata.items()
+    )
+    CMD += " -b:a 320k"
+    output_file = "%.2d - %s - %s.mp3" % (
+        track["track"],
+        track["artist"],
+        re.sub("/", "_", track["title"]),
+    )
+    CMD += ' "%s"' % os.path.join(CURRENT_DIR, output_file)
+
+    subprocess.call(CMD, shell=True)

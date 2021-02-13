@@ -44,6 +44,7 @@ Scripts that help maintain my sanity.
 | set-gdm-theme    | overwrite the gdm theme with the css in the current gtk theme        |
 | set-replaygain   | compute replay gain for directory of audio files                     |
 | shrink-vm        | resize a qcow2 image                                                 |
+| split-cue        | use a cue file to split a large audio file into mp3 components       |
 | switch-theme     | switch gtk or icon theme (and edit vim/ui settings accordingly)      |
 | upgrade          | upgrade system, aur, zsh plugins, and julia packages                 |
 | vidname-cleanup  | use regex to clean up file names                                     |
