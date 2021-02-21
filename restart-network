@@ -48,7 +48,7 @@ if [ "$iface" = "all" ]; then
   exit 0
 fi
 
-if test `ip link show | grep -c "$iface"` -ne 0; then
+if test "$(ip link show | grep -c "$iface")" -ne 0; then
   sudo bash -c "\
     systemctl stop NetworkManager.service && \
     ip link set dev $iface down && \
