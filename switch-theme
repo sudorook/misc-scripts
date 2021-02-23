@@ -31,6 +31,7 @@ switch_vim_background() {
 
 switch_tmux_theme() {
   if [ -f "${HOME}/.tmux.conf" ]; then
+    local themefile
     themefile=$(sed -n "s/^\ *\"source-file\ \(.*\)\"$/\1/p" "${HOME}/.tmux.conf")
     eval themefile="${themefile}"
     sed -i "s,^theme=\"[a-z0-9]\+\",theme=\"${1}\",g" "${themefile}"
@@ -81,8 +82,8 @@ set_gtk_theme() {
       ;;
   esac
 
-  gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
-  gitkdir="${HOME}/.config/git"
+  local gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
+  local gitkdir="${HOME}/.config/git"
   if [[ "$1" =~ [Nn]okto ]] || [[ "$1" =~ ^[Aa]rc-[Dd]ark ]]; then
     sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" "${gtksettings}"
     sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" "${gtksettings}"
@@ -132,7 +133,7 @@ set_icon_theme() {
       ;;
   esac
 
-  qt5ctconf=${HOME}/.config/qt5ct/qt5ct.conf
+  local qt5ctconf=${HOME}/.config/qt5ct/qt5ct.conf
   if [ -f "${qt5ctconf}" ]; then
     sed -i "s/^icon_theme=.*$/icon_theme=$1/g" "${qt5ctconf}"
   fi
