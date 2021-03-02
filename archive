@@ -92,6 +92,10 @@ if [ $# == 0 ]; then
   exit 1
 fi
 
+if ! [[ -v archivedir ]]; then
+  archivedir="${HOME}/Desktop"
+fi
+
 items=("${@}")
 
 pathstring="$(make_pathstring "${items[@]}")"
