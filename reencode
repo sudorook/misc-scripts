@@ -114,9 +114,15 @@ fi
 
 case ${FILETYPE} in
   avi)
+    if [[ -f "${NAME}.mp4" ]]; then
+      mv "${NAME}.mp4" "${IN}-$$.mp4.bak"
+    fi
     convert_codec "${IN}" "${NAME}.mp4" "${CODEC}" "${CRF}"
     ;;
   mkv)
+    if [[ -f "${NAME}.mp4" ]]; then
+      mv "${NAME}.mp4" "${IN}-$$.mp4.bak"
+    fi
     convert_codec "${IN}" "${NAME}.mp4" "${CODEC}" "${CRF}"
     ;;
   mp4)
