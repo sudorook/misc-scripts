@@ -2,13 +2,17 @@
 set -eu
 source globals
 
-OPTIONS=n:r:s:u:
-LONGOPTIONS=name:,resolution:,start:,url:
+OPTIONS=d:n:r:s:u:
+LONGOPTIONS=destination:,name:,resolution:,start:,url:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "${PARSED}"
 
 while [ $# -ge 1 ]; do
   case "$1" in
+    -d|--destination)
+      VIDEODIR="$2"
+      shift 2
+      ;;
     -n|--name)
       NAME="$2"
       shift 2
@@ -62,17 +66,25 @@ case "${RESOLUTION}" in
     ;;
 esac
 
-if [ -d "${mediadir}" ]; then
-  VIDEODIR="${mediadir}/Web Series/${NAME}"
-elif [ -d "${videodir}" ]; then
-  VIDEODIR="${videodir}/${NAME}"
+if ! [[ -v VIDEODIR ]]; then
+  if [[ -v mediadir ]]; then
+    if [ -d "${mediadir}" ]; then
+      VIDEODIR="${mediadir}/Web Series"
+    elif [[ -v videodir ]]; then
+      if [ -d "${videodir}" ]; then
+        VIDEODIR="${videodir}"
+      else
+        VIDEODIR="$(pwd)"
+      fi
+    fi
+  fi
 else
-  VIDEODIR=$(pwd)
+  VIDEODIR="$(pwd)"
 fi
 
 # Download the file, extract audio as mp3, and set the id3v2 tags.
-mkdir -p "${VIDEODIR}"
-cd "${VIDEODIR}"
+mkdir -p "${VIDEODIR}/${NAME}"
+cd "${VIDEODIR}/${NAME}"
 
 if [[ -v START ]]; then
   youtube-dl "${URL}" \
