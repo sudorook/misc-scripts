@@ -88,6 +88,9 @@ cd "${VIDEODIR}/${NAME}"
 
 if [[ -v START ]]; then
   youtube-dl "${URL}" \
+    --write-sub \
+    --embed-subs \
+    --add-metadata \
     --playlist-start "${START}" \
     --prefer-free-formats \
     --download-archive .archive.txt \
@@ -95,6 +98,9 @@ if [[ -v START ]]; then
     --ignore-errors
 else
   youtube-dl "${URL}" \
+    --write-sub \
+    --embed-subs \
+    --add-metadata \
     --prefer-free-formats \
     --download-archive .archive.txt \
     -f "bestvideo[ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
