@@ -37,7 +37,7 @@ function extract_streams {
       ass)
         cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.ass'"
         ;;
-      srt)
+      srt|subrip)
         cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.srt'"
         ;;
       hdmv_pgs_subtitle)
