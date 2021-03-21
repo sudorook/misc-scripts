@@ -60,7 +60,7 @@ specific scripts.
 
 | Variable          | Description                                     | Required By                             |
 | :---:             | :---:                                           | :---:                                   |
-| archivedir           | destination for archive files                | archive                                 |
+| archivedir        | destination for archive files                   | archive                                 |
 | backup1           | path to backup destination device               | backup                                  |
 | backup2           | path of device to mirror backup1                | backup                                  |
 | kvmdir            | directory containing kvm images                 | backup                                  |
@@ -74,5 +74,7 @@ specific scripts.
 | zshdir            | where zsh themes are downloaded                 | upgrade                                 |
 | pkgbuilddir       | where AUR pkgbuilds are stored                  | seek-and-destroy,upgrade                |
 | projectdir        | directory containing git repos and projects     | count-commits,seek-and-destroy,whattodo |
-| musicdir          | directory containing music files in playlists   | copy-playlist                           |
+| musicdir          | directory containing music files                | copy-playlist                           |
+| videodir          | directory for video files                       | get-webseries                           |
+| mediadir          | path to base of large media storage             | get-webseries                           |
 | ignoreprojectdirs | list of directories in projectdir to ignore     | whattodo                                |
