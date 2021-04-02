@@ -38,6 +38,7 @@
 | `rename-user`      | rename an existing user and migrate all files, symlinks, etc.          |
 | `render`           | compile LaTeX, RMarkdown and Julia Markdown files to PDF               |
 | `restart-network`  | restart network connection (for getting new mac address)               |
+| `scourify`         | wrapper to scour for simplifying SVG files                             |
 | `seek-and-destroy` | find and delete pesky dotfiles and dot-directories                     |
 | `set-gdm-theme`    | overwrite the GDM theme with the CSS in the current gtk theme          |
 | `set-replaygain`   | compute replay gain for directory of audio files                       |

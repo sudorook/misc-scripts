@@ -1,0 +1,11 @@
+#! /bin/bash
+set -eu
+
+NAME=${1%.*}
+EXTENSION=${1##*.}
+OUTFILE="${NAME}-$$.${EXTENSION}"
+
+if [ -f "${1}" ] && [[ "${EXTENSION}" =~ svg|SVG ]]; then
+  scour -i "${1}" -o "${OUTFILE}"
+  mv "${OUTFILE}" "${1}"
+fi
