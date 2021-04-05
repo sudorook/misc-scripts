@@ -18,6 +18,7 @@
 | `decrypt-secrets`  | decrypt an EncFS-encrypted folder                                      |
 | `delete-swp`       | clear sw[a-p] files in directory (Vim backups)                         |
 | `drop-caches`      | clear system cache                                                     |
+| `dump-streams`     | copy container streams into one file each                              |
 | `encrypt-secrets`  | (re)encrypt directory with EncFS                                       |
 | `extract-audio`    | extract audio track from video                                         |
 | `extract-subs`     | extract all subtitle streams from video                                |

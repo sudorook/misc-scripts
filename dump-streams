@@ -1,0 +1,53 @@
+#! /bin/bash
+set -eu
+source globals
+
+if ! [ -f "$1" ]; then
+  show_error "ERROR: invalid input $1. Exiting."
+fi
+
+function get_stream_count {
+  ffprobe -v error -show_format "${1}" | \
+    sed -n "s/nb_streams=\([0-9]\+\)/\1/p" 2>/dev/null
+}
+
+function dump_stream {
+  local info
+  local codec_name
+  local codec_type
+  local font_file
+  local in="${1}"
+  local idx="${2}"
+  local name=${1%.*}
+  local filetype=${1##*.}
+
+  info="$(ffprobe -v error -show_entries stream -select_streams "$idx" "$in")"
+  codec_name="$(echo "$info" | sed -n "s/^codec_name=\(.*\)/\1/p")"
+  codec_type="$(echo "$info" | sed -n "s/^codec_type=\(.*\)/\1/p")"
+
+  case "${codec_type}" in
+    "video")
+      cmd="ffmpeg -i \"${in}\" -map 0:${idx} -c copy \"${name}_${idx}.${filetype}\""
+      return
+      ;;
+    "audio"|"subtitle")
+      cmd="ffmpeg -i \"${in}\" -map 0:${idx} -c copy \"${name}_${idx}.${codec_name}\""
+      return
+      ;;
+    "attachment")
+      if [[ "${codec_name}" =~ ^[o|t]tf ]]; then
+        mkdir -p "${name}_fonts"
+        font_file="$(echo "$info" | sed -n "s/^TAG:filename=\(.*\)/\1/p")"
+        cmd="ffmpeg -dump_attachment:$idx \"\" -i \"${in}\" -y"
+        eval "${cmd}" 2>/dev/null || true
+        mv "${font_file}" "${name}_fonts"
+      fi
+      return
+      ;;
+  esac
+}
+
+STREAM_N="$(get_stream_count "${1}")"
+for i in $(seq 1 "${STREAM_N}"); do
+  dump_stream "${1}" "$((i - 1))"
+done
