@@ -16,7 +16,8 @@ function dump_stream {
   local codec_name
   local codec_type
   local font_file
-  local in="$(basename "${1}")"
+  local in
+  in="$(basename "${1}")"
   local name=${in%.*}
   local filetype=${in##*.}
   local idx="${2}"
