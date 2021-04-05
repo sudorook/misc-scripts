@@ -16,23 +16,23 @@ function dump_stream {
   local codec_name
   local codec_type
   local font_file
-  local in="${1}"
+  local in="$(basename "${1}")"
+  local name=${in%.*}
+  local filetype=${in##*.}
   local idx="${2}"
-  local name=${1%.*}
-  local filetype=${1##*.}
 
-  info="$(ffprobe -v error -show_entries stream -select_streams "$idx" "$in")"
+  info="$(ffprobe -v error -show_entries stream -select_streams "$idx" "$1")"
   codec_name="$(echo "$info" | sed -n "s/^codec_name=\(.*\)/\1/p")"
   codec_type="$(echo "$info" | sed -n "s/^codec_type=\(.*\)/\1/p")"
 
   case "${codec_type}" in
     "video")
-      cmd="ffmpeg -i \"${in}\" -map 0:${idx} -c copy \"${name}_${idx}.${filetype}\""
+      cmd="ffmpeg -i \"${1}\" -map 0:${idx} -c copy \"${name}_${idx}.${filetype}\""
       eval "${cmd}" 2>/dev/null || true
       return
       ;;
     "audio"|"subtitle")
-      cmd="ffmpeg -i \"${in}\" -map 0:${idx} -c copy \"${name}_${idx}.${codec_name}\""
+      cmd="ffmpeg -i \"${1}\" -map 0:${idx} -c copy \"${name}_${idx}.${codec_name}\""
       eval "${cmd}" 2>/dev/null || true
       return
       ;;
@@ -40,7 +40,7 @@ function dump_stream {
       if [[ "${codec_name}" =~ ^[o|t]tf ]]; then
         mkdir -p "${name}_fonts"
         font_file="$(echo "$info" | sed -n "s/^TAG:filename=\(.*\)/\1/p")"
-        cmd="ffmpeg -dump_attachment:$idx \"\" -i \"${in}\" -y"
+        cmd="ffmpeg -dump_attachment:$idx \"\" -i \"${1}\" -y"
         eval "${cmd}" 2>/dev/null || true
         mv "${font_file}" "${name}_fonts"
       fi
