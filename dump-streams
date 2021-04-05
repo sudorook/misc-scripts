@@ -28,10 +28,12 @@ function dump_stream {
   case "${codec_type}" in
     "video")
       cmd="ffmpeg -i \"${in}\" -map 0:${idx} -c copy \"${name}_${idx}.${filetype}\""
+      eval "${cmd}" 2>/dev/null || true
       return
       ;;
     "audio"|"subtitle")
       cmd="ffmpeg -i \"${in}\" -map 0:${idx} -c copy \"${name}_${idx}.${codec_name}\""
+      eval "${cmd}" 2>/dev/null || true
       return
       ;;
     "attachment")
