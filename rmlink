@@ -1,0 +1,21 @@
+#! /bin/bash
+set -eu
+source globals
+
+if ! [[ -L "${1}" ]]; then
+  show_error "ERROR: not a symbolic link."
+  exit 3
+fi
+
+if ! [[ -e "${1}" ]]; then
+  show_error "ERROR: broken symbolic link."
+  exit 3
+fi
+
+if ! [[ -f "$(readlink -f "${1}")" ]]; then
+  show_error "ERROR: link needs to point to a file."
+  exit 3
+fi
+
+rm "$(readlink -f "${1}")"
+rm "${1}"
