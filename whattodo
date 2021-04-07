@@ -13,24 +13,24 @@ else
 fi
 
 # File name(s) that contain todo lists.
-files=(TODO.md TODO.txt)
+FILES=(TODO.md TODO.txt)
 
 # Extra hard-coded files not in ${projectsdir} (can be left empty).
-extras=("${HOME}/Desktop/TODO.md" "${HOME}/TODO.md")
+EXTRAS=("${HOME}/Desktop/TODO.md" "${HOME}/TODO.md")
 
 # Pre-generate the syntax for specifying multiple file names for find.
-names=""
-for file in "${files[@]}"; do
-  if [[ ${names} = "" ]]; then
-    names="-name ${file} "
+NAMES=""
+for FILE in "${FILES[@]}"; do
+  if [[ ${NAMES} = "" ]]; then
+    NAMES="-name ${FILE} "
   else
-    names+="-o -name ${file} "
+    NAMES+="-o -name ${FILE} "
   fi
 done
 
-# Search every directory in ${projectdir} for a file matching one in ${files}
+# Search every directory in ${projectdir} for a file matching one in ${FILES}
 # as long as it is not also specified in ${ignoreprojectdirs}.
-find "${projectdir}" -type f \( ${names} \) -print0 |
+find "${projectdir}" -type f \( ${NAMES} \) -print0 |
 while IFS= read -r -d '' todo; do
   if [ "${#ignoreprojectdirs[@]}" -eq 0 ] || \
      [ "${ignoreprojectdirs[*]}" = "" ]; then
@@ -53,10 +53,10 @@ while IFS= read -r -d '' todo; do
   fi
 done
 
-for extra in "${extras[@]}"; do
-  if [ -f "${extra}" ]; then
-    show_info "${extra}"
-    cat "${extra}"
+for EXTRA in "${EXTRAS[@]}"; do
+  if [ -f "${EXTRA}" ]; then
+    show_info "${EXTRA}"
+    cat "${EXTRA}"
     echo && echo
   fi
 done
