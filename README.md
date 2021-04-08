@@ -32,6 +32,7 @@
 | `kvm-cp`           | copy file to shared KVM directory                                      |
 | `kvm-ls`           | list files in shared KVM directory                                     |
 | `kvm-mv`           | move file to shared KVM directory                                      |
+| `pdffixup`         | fix up the metadata in PDF files (newlines in tags, covers, etc.)      |
 | `pdfsplit`         | extract range of pages from a PDF                                      |
 | `print-colors`     | print terminal colors                                                  |
 | `rate-song`        | write song rating metadata to beets database                           |
