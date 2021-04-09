@@ -1,0 +1,24 @@
+#! /bin/bash
+set -eu
+
+FILE="${1}"
+NAME="${1%.*}"
+EXTENSION="${1##*.}"
+
+if ! file "${1}" | grep "EPUB" >/dev/null; then
+  show_error "ERROR: Input not EPUB format."
+fi
+
+BUILDDIR="/tmp/book-$$"
+trap 'rm -rf "${BUILDDIR}"; exit' INT TERM EXIT
+
+mkdir -p "${BUILDDIR}"
+cp "${FILE}" "${BUILDDIR}"
+pushd "${BUILDDIR}"
+unzip "${FILE}"
+find . -type f -name "*.css" \
+  -exec sed -i "s,text-align:\ *justify;,/*text-align: justify;*/,g" {} +
+zip -rg "${FILE}" META-INF -x \*.DS_Store
+zip -rg "${FILE}" OEBPS -x \*.DS_Store
+popd
+mv "${BUILDDIR}/${FILE}" "${NAME} new.${EXTENSION}"

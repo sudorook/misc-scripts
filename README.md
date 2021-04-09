@@ -20,6 +20,7 @@
 | `drop-caches`      | clear system cache                                                     |
 | `dump-streams`     | copy container streams into one file each                              |
 | `encrypt-secrets`  | (re)encrypt directory with EncFS                                       |
+| `epub-unjustify`   | comment out CSS rules that justify text in EPUB files                  |
 | `extract-audio`    | extract audio track from video                                         |
 | `extract-subs`     | extract all subtitle streams from video                                |
 | `format`           | format source code with language-specific tools                        |
