@@ -3,7 +3,7 @@ set -eu
 source globals
 
 function print_usage() {
-  echo "Usage: add-mp3cover -a|--audio <audio file> -c|--cover <cover image>"
+  echo "Usage: add-cover -a|--audio <audio file> -c|--cover <cover image>"
 }
 
 OPTIONS=ha:c:
@@ -40,6 +40,7 @@ if [[ -v COVER ]] || [[ -v AUDIO ]]; then
   mv "${AUDIO}" "${AUDIO}.bak"
   ffmpeg -i "${COVER}" -i "${AUDIO}.bak" -map 0:0 -map 1:0 -c copy "${AUDIO}"
 else
-  show_error "Error: missing parameters"
+  show_error "ERROR: missing parameters"
   print_usage
+  exit 3
 fi
