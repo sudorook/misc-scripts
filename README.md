@@ -36,6 +36,7 @@
 | `pdffixup`         | fix up the metadata in PDF files (newlines in tags, covers, etc.)      |
 | `pdfsplit`         | extract range of pages from a PDF                                      |
 | `print-colors`     | print terminal colors                                                  |
+| `print-fontstring` | generate the FFmpeg format string to embed fonts in a container        |
 | `rate-song`        | write song rating metadata to beets database                           |
 | `reencode`         | convert video's encoding                                               |
 | `rename-user`      | rename an existing user and migrate all files, symlinks, etc.          |
