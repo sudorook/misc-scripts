@@ -1,75 +1,87 @@
 #! /bin/bash
 set -eu
 
-low_battery=40
-full_battery=80
-critical_battery=10
-low_icon=battery-low
-full_icon=battery-full-charging
-critical_icon=battery-caution
-low_flag_sent=false
-full_flag_sent=false
-critical_flag_sent=false
+#
+# Globals
+#
 
-battery_path=/sys/class/power_supply/BAT0
-display=:0
+# Thresholds
+LOW=40
+FULL=80
+CRITICAL=10
 
-lockfile=/tmp/battery-notify.lock
+# Icons
+LOW_ICON=battery-low
+FULL_ICON=battery-full-charging
+CRITICAL_ICON=battery-caution
 
-if [ -e "${lockfile}" ] && kill -0 "$(cat "${lockfile}")"; then
+# Notification flags
+LOW_FLAG_SENT=false
+FULL_FLAG_SENT=false
+CRITICAL_FLAG_SENT=false
+
+BATTERY_PATH=/sys/class/power_supply/BAT0
+DISPLAY=:0
+LOCKFILE=/tmp/battery-notify.lock
+
+if [ -e "${LOCKFILE}" ] && kill -0 "$(cat "${LOCKFILE}")"; then
   exit
 fi
 
-trap 'rm -f ${lockfile}; exit' INT TERM EXIT
-echo $$ > ${lockfile}
+if ! command -v notify-send >/dev/null; then
+  exit
+fi
+
+trap 'rm -f ${LOCKFILE}; exit' INT TERM ERR EXIT
+echo $$ > ${LOCKFILE}
 
 while true; do
-  if [ -e ${battery_path} ]; then
-    battery_state=$(<${battery_path}/status)
-    battery_level=$(<${battery_path}/capacity)
+  if [ -e ${BATTERY_PATH} ]; then
+    STATE=$(<${BATTERY_PATH}/status)
+    LEVEL=$(<${BATTERY_PATH}/capacity)
 
-    if [ "${battery_state}" == "Discharging" ]; then
+    if [ "${STATE}" == "Discharging" ]; then
       # Send flag when battery drops below critical threshold.
-      if [ "${battery_level}" -le "${critical_battery}" ]; then
-        if ! ${critical_flag_sent}; then
-          DISPLAY=${display} notify-send -u critical -i ${critical_icon} \
+      if [ "${LEVEL}" -le "${CRITICAL}" ]; then
+        if ! ${CRITICAL_FLAG_SENT}; then
+          notify-send -u critical -i ${CRITICAL_ICON} \
             "Battery critical" \
-            "Battery is at ${battery_level}%. Plug in the power supply now."
-          critical_flag_sent=true
+            "Battery is at ${LEVEL}%. Plug in the power supply now."
+          CRITICAL_FLAG_SENT=true
         fi
       # If battery level is above critical, check if it is below the low
       # threshold and send flag if so.
-      elif [ "${battery_level}" -le "${low_battery}" ]; then
-        if ! "${low_flag_sent}"; then
-          DISPLAY=${display} notify-send -u critical -i ${low_icon} \
+      elif [ "${LEVEL}" -le "${LOW}" ]; then
+        if ! "${LOW_FLAG_SENT}"; then
+          notify-send -u critical -i ${LOW_ICON} \
             "Battery low" \
-            "Battery is at ${battery_level}%. Plug in the power supply soon."
-          low_flag_sent=true
+            "Battery is at ${LEVEL}%. Plug in the power supply soon."
+          LOW_FLAG_SENT=true
         fi
       fi
 
       # Unset the full battery flag while discharging.
-      full_flag_sent=false
+      FULL_FLAG_SENT=false
     fi
 
-    if [ "${battery_state}" == "Charging" ]; then
+    if [ "${STATE}" == "Charging" ]; then
       # Send flag when battery is full (i.e. above the full battery threshold).
-      if [ "${battery_level}" -gt "${full_battery}" ]; then
+      if [ "${LEVEL}" -gt "${FULL}" ]; then
         # Check if the full battery message has been sent already. If not, send
         # it out.
-        if ! ${full_flag_sent}; then
-          DISPLAY=${display} notify-send -u critical -i ${full_icon} \
+        if ! ${FULL_FLAG_SENT}; then
+          notify-send -u critical -i ${FULL_ICON} \
             "Battery full" \
-            "Battery is at ${battery_level}%. Unplug the power supply."
-          full_flag_sent=true
+            "Battery is at ${LEVEL}%. Unplug the power supply."
+          FULL_FLAG_SENT=true
         fi
       fi
 
       # Unset critical battery flag if charging, and unset the low flag if the
       # battery level is above the critical threshold.
-      critical_flag_sent=false
-      if [ "${battery_level}" -gt "${critical_battery}" ]; then
-        low_flag_sent=false
+      CRITICAL_FLAG_SENT=false
+      if [ "${LEVEL}" -gt "${CRITICAL}" ]; then
+        LOW_FLAG_SENT=false
       fi
     fi
   fi
