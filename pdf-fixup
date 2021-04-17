@@ -88,10 +88,16 @@ sed -i "s///g" "${DATA}"
 sed -i "/^BookmarkTitle/N;s/\n\([^BookmarkLevel]\)/\1/g" "${DATA}"
 
 if [[ "${START}" -ne 1 ]]; then
-  show_info "Manually edit the metadata to fix bookmark and media references."
-  show_info "Then, run: pdftk ${TMP} update_info ${DATA} output ${OUTPUT}"
+  show_info "Edit the metadata to fix bookmark and media page #s. Then, run:"
+  show_info "pdftk ${TMP} update_info ${DATA} output ${OUTPUT}"
   exit
 fi
 
 pdftk ${TMP} update_info ${DATA} output "${OUTPUT}"
-if ! $KEEP; then rm "${TMP}" "${DATA}"; fi
+
+if ! $KEEP; then
+  rm -f "${TMP}" "${DATA}"
+else
+  show_info "To re-assemble, run:"
+  show_info "pdftk ${TMP} update_info ${DATA} output ${OUTPUT}"
+fi
