@@ -2,26 +2,35 @@
 set -eu
 source globals
 
-if command -v bs1770gain >/dev/null 2>&1; then
-  TMPDIR="tmp-$$"
-  mkdir -p "${TMPDIR}"
-  trap 'rm -rf "${TMPDIR}"; exit' INT TERM
-  if [ $# = 2 ]; then
-    if [[ "$*" =~ ^-k ]]; then
-      bs1770gain "${2}" -o "${TMPDIR}"
-      mv "${2}" "${2}.bak"
-      mv "${TMPDIR}" "${2}"
-    elif [[ "$*" =~ \ -k$ ]]; then
-      bs1770gain "${1}" -o "${TMPDIR}"
-      mv "${1}" "${1}.bak"
-      mv "${TMPDIR}" "${1}"
-    fi
-  elif [ $# = 1 ]; then
-    bs1770gain "${1}" -o "${TMPDIR}"
-    rm -r "${1}"
-    mv "${TMPDIR}" "${1}"
-  fi
-else
+#
+# Check inputs and requirements
+#
+
+if ! command -v bs1770gain >/dev/null 2>&1; then
   show_error "bs1770gain not installed. Exiting."
   exit 3
+fi
+
+#
+# Main
+#
+
+TMPDIR="tmp-$$"
+mkdir -p "${TMPDIR}"
+trap 'rm -rf "${TMPDIR}"; exit' INT TERM ERR
+
+if [ $# = 2 ]; then
+  if [[ "$*" =~ ^-k ]]; then
+    bs1770gain "${2}" -o "${TMPDIR}"
+    mv "${2}" "${2}.bak"
+    mv "${TMPDIR}" "${2}"
+  elif [[ "$*" =~ \ -k$ ]]; then
+    bs1770gain "${1}" -o "${TMPDIR}"
+    mv "${1}" "${1}.bak"
+    mv "${TMPDIR}" "${1}"
+  fi
+elif [ $# = 1 ]; then
+  bs1770gain "${1}" -o "${TMPDIR}"
+  rm -r "${1}"
+  mv "${TMPDIR}" "${1}"
 fi
