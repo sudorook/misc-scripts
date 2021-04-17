@@ -80,7 +80,7 @@ fi
 
 TMP="tmp-$$.pdf"
 DATA="data-$$.txt"
-trap 'rm -f "${TMP}" "${DATA}"; exit' INT TERM
+trap 'rm -f "${TMP}" "${DATA}"; exit' INT TERM ERR
 
 pdftk "$INPUT" cat "${START}"-"${END}" output ${TMP}
 pdftk "$INPUT" dump_data output ${DATA}
