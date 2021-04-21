@@ -49,6 +49,7 @@ while [ $# -ge 1 ]; do
       IN="$2"
       NAME=${IN%.*}
       FILETYPE=${IN##*.}
+      BACKUP="${NAME}-$(date +%Y%m%d-%H%M%S).${FILETYPE}.bak"
       shift 2
       ;;
     -c|--codec)
@@ -94,7 +95,13 @@ done
 #
 
 if ! [[ -v IN ]]; then
-  show_error "ERROR: missing input file."
+  show_error "ERROR: input file not given."
+  exit 3
+fi
+
+if ! [[ -f "${IN}" ]]; then
+  show_error "ERROR: input file not found."
+  exit 3
 fi
 
 if ! [[ -v CODEC ]]; then
@@ -113,21 +120,17 @@ if ! [[ -v CRF ]]; then
 fi
 
 case ${FILETYPE} in
-  avi)
-    if [[ -f "${NAME}.mp4" ]]; then
-      mv "${NAME}.mp4" "${IN}-$$.mp4.bak"
-    fi
-    convert_codec "${IN}" "${NAME}.mp4" "${CODEC}" "${CRF}"
+  avi|mpg)
+    mv "${IN}" "${BACKUP}"
+    convert_codec "${BACKUP}" "${NAME}.mp4" "${CODEC}" "${CRF}"
     ;;
   mkv)
-    if [[ -f "${NAME}.mp4" ]]; then
-      mv "${NAME}.mp4" "${IN}-$$.mp4.bak"
-    fi
-    convert_codec "${IN}" "${NAME}.mp4" "${CODEC}" "${CRF}"
+    mv "${IN}" "${BACKUP}"
+    convert_codec "${BACKUP}" "${NAME}.${FILETYPE}" "${CODEC}" "${CRF}"
     ;;
   mp4)
-    mv "${IN}" "${IN}.bak"
-    convert_codec "${IN}.bak" "${NAME}.mp4" "${CODEC}" "${CRF}"
+    mv "${IN}" "${BACKUP}"
+    convert_codec "${BACKUP}" "${NAME}.${FILETYPE}" "${CODEC}" "${CRF}"
     ;;
   *)
     show_error "Filetype ${FILETYPE} not supported."
