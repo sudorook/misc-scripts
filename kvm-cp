@@ -8,4 +8,4 @@ if ! [[ -v kvmshare ]]; then
 fi
 
 mkdir -p "${kvmshare}"
-cp -r "${@}" "${kvmshare}"
+cp -raf "${@}" "${kvmshare}"
