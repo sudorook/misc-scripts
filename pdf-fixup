@@ -89,7 +89,7 @@ sed -i "/^BookmarkTitle/N;s/\n\([^BookmarkLevel]\)/\1/g" "${DATA}"
 
 if [[ "${START}" -ne 1 ]]; then
   show_info "Edit the metadata to fix bookmark and media page #s. Then, run:"
-  show_info "pdftk ${TMP} update_info ${DATA} output ${OUTPUT}"
+  show_info "pdftk \"${TMP}\" update_info \"${DATA}\" output \"${OUTPUT}\""
   exit
 fi
 
