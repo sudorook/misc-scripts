@@ -1,12 +1,16 @@
 #! /bin/bash
 set -eu
+source globals
 
 FILE="${1}"
 NAME="${1%.*}"
 EXTENSION="${1##*.}"
 
 if ! file "${1}" | grep "EPUB" >/dev/null; then
-  show_error "ERROR: Input not EPUB format."
+  if ! [[ "${EXTENSION,,}" = epub ]]; then
+    show_error "ERROR: Input not EPUB format."
+    exit 3
+  fi
 fi
 
 BUILDDIR="/tmp/book-$$"
@@ -18,7 +22,14 @@ pushd "${BUILDDIR}"
 unzip "${FILE}"
 find . -type f -name "*.css" \
   -exec sed -i "s,text-align:\ *justify;,/*text-align: justify;*/,g" {} +
-zip -rg "${FILE}" META-INF -x \*.DS_Store
-zip -rg "${FILE}" OEBPS -x \*.DS_Store
+if [ -e META_INF ]; then
+  zip -rg "${FILE}" META-INF -x \*.DS_Store
+fi
+if [ -e images ]; then
+  zip -rg "${FILE}" images -x \*.DS_Store
+fi
+if [ -e OEBPS ]; then
+  zip -rg "${FILE}" OEBPS -x \*.DS_Store
+fi
 popd
 mv "${BUILDDIR}/${FILE}" "${NAME} new.${EXTENSION}"
