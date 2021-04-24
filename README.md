@@ -48,7 +48,7 @@
 | `set-gdm-theme`    | overwrite the GDM theme with the CSS in the current gtk theme          |
 | `set-replaygain`   | compute replay gain for directory of audio files                       |
 | `shrink-vm`        | resize a qcow2 image                                                   |
-| `split-cue`        | use a cue file to split a large audio file into mp3 components         |
+| `split-cue`        | use a cue file to split a large audio file into MP3 components         |
 | `switch-theme`     | switch gtk or icon theme (and edit Vim/UI settings accordingly)        |
 | `upgrade`          | upgrade system, AUR, Zsh plugins, and Julia packages                   |
 | `vidname-cleanup`  | use regex to clean up file names                                       |
