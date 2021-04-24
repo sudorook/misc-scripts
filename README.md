@@ -49,6 +49,7 @@
 | `set-replaygain`   | compute replay gain for directory of audio files                       |
 | `shrink-vm`        | resize a qcow2 image                                                   |
 | `split-cue`        | use a cue file to split a large audio file into MP3 components         |
+| `strip-mp3`        | use `id3convert` and `ffmpeg` to strip metadata from MP3 files         |
 | `switch-theme`     | switch gtk or icon theme (and edit Vim/UI settings accordingly)        |
 | `upgrade`          | upgrade system, AUR, Zsh plugins, and Julia packages                   |
 | `vidname-cleanup`  | use regex to clean up file names                                       |

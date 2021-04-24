@@ -1,0 +1,37 @@
+#! /bin/bash
+set -eu
+source globals
+
+#
+# Check inputs and requirements.
+#
+
+if ! [ -f "${1}" ]; then
+  show_error "ERROR: ${1} not found. Exiting."
+  exit 3
+fi
+
+if ! command -v id3convert >/dev/null; then
+  show_error "ERROR: id3convert not installed. Exiting."
+  exit 3
+fi
+
+if ! command -v ffmpeg >/dev/null; then
+  show_error "ERROR: ffmpeg not installed. Exiting."
+  exit 3
+fi
+
+#
+# Main
+#
+
+NAME=${1%.*}
+EXTENSION=${1##*.}
+TMP="${NAME}-$$.${EXTENSION}"
+
+trap 'rm -f ${TMP}; exit' INT TERM ERR
+
+ffmpeg -i "${1}" -c:a copy "${TMP}"
+id3convert -s "${TMP}"
+mv "${TMP}" "${1}"
+sync
