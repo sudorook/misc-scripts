@@ -25,7 +25,7 @@
 | `extract-subs`     | extract all subtitle streams from video                                |
 | `format`           | format source code with language-specific tools                        |
 | `gen-playlist`     | generate playlists based on beets database                             |
-| `get-song`         | download song (audio) from url and set ID3v2 metadata                  |
+| `get-song`         | download song (audio) from URL and set ID3v2 metadata                  |
 | `get-webseries`    | `youtube-dl` wrapper to download web series / playlists / etc.         |
 | `gifify`           | generate a GIF from part of a video                                    |
 | `join-vids`        | concatenate videos                                                     |
@@ -45,12 +45,12 @@
 | `rmlink`           | delete symlink and the file it references                              |
 | `scourify`         | wrapper to scour for simplifying SVG files                             |
 | `seek-and-destroy` | find and delete pesky dotfiles and dot-directories                     |
-| `set-gdm-theme`    | overwrite the GDM theme with the CSS in the current gtk theme          |
+| `set-gdm-theme`    | overwrite the GDM theme with the CSS in the current GTK theme          |
 | `set-replaygain`   | compute replay gain for directory of audio files                       |
 | `shrink-vm`        | resize a qcow2 image                                                   |
-| `split-cue`        | use a cue file to split a large audio file into MP3 components         |
+| `split-cue`        | use a CUE file to split a single large audio file into MP3 components  |
 | `strip-mp3`        | use `id3convert` and `ffmpeg` to strip metadata from MP3 files         |
-| `switch-theme`     | switch gtk or icon theme (and edit Vim/UI settings accordingly)        |
+| `switch-theme`     | switch GTK or icon theme (and edit Vim/UI settings accordingly)        |
 | `upgrade`          | upgrade system, AUR, Zsh plugins, and Julia packages                   |
 | `vidname-cleanup`  | use regex to clean up file names                                       |
 | `vpn-killswitch`   | add `iptables` rules to block networking if VPN connection is lost     |
