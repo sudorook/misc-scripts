@@ -39,9 +39,7 @@ if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
     if [ -f "$VID" ]; then
       NEWVID=$(cleanup_filename "$VID")
       if [ "$VID" != "$NEWVID" ]; then
-        mv "$VID" "$NEWVID"
-        echo "$VID"
-        echo " --> $NEWVID"
+        mv -v "$VID" "$NEWVID"
       else
         echo "$VID unchanged"
       fi
