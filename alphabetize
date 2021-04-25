@@ -30,7 +30,7 @@ if ! [ -e "${1}" ]; then
   exit 2
 fi
 
-TMP="${1}_$RANDOM"
+TMP="$(mktemp)"
 trap 'rm -f "${TMP}"; exit' INT TERM EXIT
 
 sort -u "${1}" > "${TMP}"
