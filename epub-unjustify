@@ -13,7 +13,7 @@ if ! file "${1}" | grep "EPUB" >/dev/null; then
   fi
 fi
 
-BUILDDIR="/tmp/book-$$"
+BUILDDIR="$(mktemp -d)"
 trap 'rm -rf "${BUILDDIR}"; exit' INT TERM EXIT
 
 mkdir -p "${BUILDDIR}"

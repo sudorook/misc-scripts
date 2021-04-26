@@ -17,7 +17,7 @@ for VPN_CONFIG in "$@"; do
   fi
 done
 
-TMP_DIR="$(pwd)/tmp-$$"
+TMP_DIR="$(mktemp -d)"
 mkdir -p "${TMP_DIR}"
 trap 'rm -rf "${TMP_DIR}"; exit' INT TERM EXIT
 

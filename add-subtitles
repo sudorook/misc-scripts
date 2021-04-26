@@ -9,7 +9,7 @@ function hardcode_cleanup {
 
 NAME=${1%.*}
 EXTENSION=${1##*.}
-OUTPUT="subbed_video.${EXTENSION}"
+OUTPUT="$(mktemp)"
 
 if [ -f "${NAME}.srt" ]; then
   ENCODING=$(file -i "$NAME.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
