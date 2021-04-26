@@ -18,7 +18,7 @@ trap 'rm -rf "${BUILDDIR}"; exit' INT TERM EXIT
 
 mkdir -p "${BUILDDIR}"
 cp "${FILE}" "${BUILDDIR}"
-pushd "${BUILDDIR}"
+pushd "${BUILDDIR}" -q
 unzip "${FILE}"
 find . -type f -name "*.css" \
   -exec sed -i "s,text-align:\ *justify;,/*text-align: justify;*/,g" {} +
@@ -31,5 +31,5 @@ fi
 if [ -e OEBPS ]; then
   zip -rg "${FILE}" OEBPS -x \*.DS_Store
 fi
-popd
+popd -q
 mv "${BUILDDIR}/${FILE}" "${NAME} new.${EXTENSION}"

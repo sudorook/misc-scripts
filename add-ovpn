@@ -28,7 +28,7 @@ VPN_USER=$(ask_question "Username:")
 VPN_PASS=$(ask_secret "Password:")
 echo
 
-cd "${TMP_DIR}"
+pushd "${TMP_DIR}" -q
 for VPN_CONFIG in "$@"; do
   if [[ "${VPN_CONFIG}" =~ \.ovpn$ ]]; then
     VPN_NAME="${VPN_CONFIG%.*}"
@@ -55,6 +55,6 @@ for VPN_CONFIG in "$@"; do
     nmcli connection modify "${VPN_NAME}" +vpn.secrets "password = ${VPN_PASS}"
   fi
 done
-cd ..
+popd -q
 
 show_success "Done!"
