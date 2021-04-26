@@ -1,0 +1,47 @@
+#! /bin/bash
+set -euo pipefail
+source globals
+
+if ! check_command "file" "sort"; then
+  exit 3
+fi
+
+print_fonts() {
+  local line="${1}"
+  local font
+  local is_bold
+  local is_italic
+  local res
+
+  font="$(echo "${line}" | cut -d"," -f2)"
+  is_bold="$(echo "${line}" | cut -d"," -f8)"
+  is_italic="$(echo "${line}" | cut -d"," -f9)"
+
+  res="${font}"
+  if (( is_bold == -1 )); then
+    res+=" (Bold)"
+  fi
+  if (( is_italic == -1 )); then
+    res+=" (Italic)"
+  fi
+  echo "${res}"
+}
+
+iterate_files() {
+  if [ -d "${1}" ]; then
+    for FILE in "${1}"/*; do
+      if ! [[ "$(file -ib "${FILE}")" =~ text/plain ]]; then continue; fi
+      while read -r LINE; do
+        print_fonts "${LINE}"
+      done <<< "$(sed -n "s/^Style: \(.*\)/\1/p" "${FILE}")"
+    done
+  elif [ -f "${1}" ]; then
+    if [[ "$(file -ib "${1}")" =~ text/plain ]]; then
+      while read -r LINE; do
+        print_fonts "${LINE}"
+      done <<< "$(sed -n "s/^Style: \(.*\)/\1/p" "${1}")"
+    fi
+  fi
+}
+
+iterate_files "${@}" | sort -u
