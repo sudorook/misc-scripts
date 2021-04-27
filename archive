@@ -41,7 +41,10 @@ function make_pathstring() {
 # the basename of the directory from which the script is called. For single
 # files, the name sill be <basename>_<timestamp>.
 function make_archivename() {
-  archive=""
+  local archive
+  local dir
+  local file
+
   if [ $# -eq 1 ] && [ -d "${1}" ]; then
     dir=${1}
     if [ "${dir:0:2}" = "~/" ]; then
@@ -122,17 +125,17 @@ fi
 
 Z=zstd
 
-items=("${@}")
+ITEMS=("${@}")
 
-pathstring="$(make_pathstring "${items[@]}")"
-archive="$(make_archivename "${items[@]}")"
+PATHSTRING="$(make_pathstring "${ITEMS[@]}")"
+ARCHIVE="$(make_archivename "${ITEMS[@]}")"
 
-if [ -z "${pathstring}" ]; then
+if [ -z "${PATHSTRING}" ]; then
   show_error "Path string is empty. Exiting."
   exit 1
-elif [ -z "${archive}" ]; then
+elif [ -z "${ARCHIVE}" ]; then
   show_error "Archive name is empty. Exiting."
   exit 1
 fi
 
-compress_archive "${archive}" "${pathstring}"
+compress_archive "${ARCHIVE}" "${PATHSTRING}"
