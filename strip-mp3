@@ -25,9 +25,7 @@ fi
 # Main
 #
 
-NAME=${1%.*}
-EXTENSION=${1##*.}
-TMP="${NAME}-$$.${EXTENSION}"
+TMP="$(mktemp)"
 
 trap 'rm -f ${TMP}; exit' INT TERM ERR
 
