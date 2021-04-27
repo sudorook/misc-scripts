@@ -36,9 +36,11 @@ while [ $# -ge 1 ]; do
   esac
 done
 
+TMP="$(mktemp)"
+
 if [[ -v COVER ]] || [[ -v AUDIO ]]; then
-  mv "${AUDIO}" "${AUDIO}.bak"
-  ffmpeg -i "${COVER}" -i "${AUDIO}.bak" -map 0:0 -map 1:0 -c copy "${AUDIO}"
+  ffmpeg -i "${COVER}" -i "${AUDIO}" -map 0:0 -map 1:0 -c copy "${TMP}"
+  mv "${TMP}" "${AUDIO}"
 else
   show_error "ERROR: missing parameters"
   print_usage
