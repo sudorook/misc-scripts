@@ -4,6 +4,7 @@ source globals
 
 # Global functions.
 function print_usage() {
+  echo "Usage:"
   echo "  -i  --input                 input video (e.g. input.mp4)"
   echo "  -o  --output                output gif (e.g. output.gif)"
   echo "  -s  --start                 starting timestamp (e.g. 01:20.5)"
@@ -29,9 +30,9 @@ while [ $# -ge 1 ]; do
     -i|--input)
       IN="$2"
       WIDTH=$(ffprobe -v error -select_streams v:0 \
-                      -show_entries stream=width -of default=nw=1:nk=1 "${IN}")
+                -show_entries stream=width -of default=nw=1:nk=1 "${IN}")
       HEIGHT=$(ffprobe -v error -select_streams v:0 \
-                       -show_entries stream=height -of default=nw=1:nk=1 "${IN}")
+                 -show_entries stream=height -of default=nw=1:nk=1 "${IN}")
       shift 2
       ;;
     -o|--output)
