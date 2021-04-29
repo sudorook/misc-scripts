@@ -15,8 +15,7 @@ fi
 # Main
 #
 
-TMPDIR="tmp-$$"
-mkdir -p "${TMPDIR}"
+TMPDIR="$(mktemp -d)"
 trap 'rm -rf "${TMPDIR}"; exit' INT TERM ERR
 
 if [ $# = 2 ]; then
