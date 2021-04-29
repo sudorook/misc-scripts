@@ -2,6 +2,8 @@
 set -eu
 source globals
 
+# Generate an ffmpeg format string to add all the fonts in a directory to a
+# video container. String will specify the stream index numbers.
 function make_string_v1 {
   local fontstring=""
   local fonttype
@@ -21,6 +23,8 @@ function make_string_v1 {
   echo "${fontstring}"
 }
 
+# Generate an ffmpeg format string to add all the fonts in a directory to a
+# video container.
 function make_string_v2 {
   local fontstring=""
   local fonttype
@@ -37,6 +41,12 @@ function make_string_v2 {
   echo "${fontstring}"
 }
 
+# Generate an ffmpeg format string to add any the fonts in a directory to a
+# video container if the font isn't already found it it. String will specify
+# the stream index numbers.
+#
+# FIXME: incremting counts from 0 will result in a string that removes fonts in
+# the container and adds those that aren't, which isn't useful.
 function make_string_v3 {
   local data
   local fontstring=""
@@ -65,6 +75,9 @@ function make_string_v3 {
   echo "${fontstring}"
 }
 
+# Generate an ffmpeg format string to add any the fonts in a directory to a
+# video container if the font isn't already found it it. String will specify
+# the stream index numbers.
 function make_string_v4 {
   local data
   local fontstring=""
@@ -132,7 +145,8 @@ fi
 if [[ -v INPUT ]]; then
   if [[ -f "${INPUT}" ]]; then
     if $FORCE; then
-      make_string_v3 "${INPUT}" "${FONTDIR}"
+      show_warning "Why search input fonts when they are to be overridden?"
+      # make_string_v3 "${INPUT}" "${FONTDIR}"
     else
       make_string_v4 "${INPUT}" "${FONTDIR}"
     fi
