@@ -47,7 +47,7 @@ while [ $# -ge 1 ]; do
 done
 
 # Checks
-if ! [[ -v in ]]; then
+if ! [[ -v IN ]]; then
   show_error "No input file specified. Exiting."
   exit 3
 fi
