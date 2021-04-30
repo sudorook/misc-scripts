@@ -46,6 +46,15 @@ def get_current_song():
     )
     if len(item) > 1:
         print("Multiple files found. Exiting")
+        for i in item:
+            print(
+                "'"
+                + i["title"]
+                + "' from '"
+                + i["album"]
+                + "' by "
+                + i["artist"]
+            )
         sys.exit()
     elif len(item) == 0:
         print("First pass parsing failed. Trying again.")
