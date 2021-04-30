@@ -9,12 +9,12 @@ import yaml
 import beets.library
 
 # Load the YAML config file.
-configpath = os.path.expanduser('~/.config/beets/config.yaml')
+configpath = os.path.expanduser("~/.config/beets/config.yaml")
 with open(configpath) as f:
     data = yaml.safe_load(f)
 
 # Load the Beets library.
-libpath = os.path.expanduser('~/.config/beets/library.db')
+libpath = os.path.expanduser("~/.config/beets/library.db")
 lib = beets.library.Library(libpath)
 
 # Get a list of artists.
@@ -25,13 +25,17 @@ artists = list(artists)
 
 # Generate a list of playlists from the artists in the Beets database.
 playlists = []
-playlists.append({'name': 'All Songs.m3u', 'query': ''})
-playlists.append({'name': 'Top Rated.m3u', 'query': 'rating:5'})
+playlists.append({"name": "All Songs.m3u", "query": ""})
+playlists.append({"name": "Top Rated.m3u", "query": "rating:5"})
 for artist in artists:
-    playlists.append({'name': 'Best of ' + artist + '.m3u',
-                      'query': 'artist:"' + artist + '" rating:5'})
+    playlists.append(
+        {
+            "name": "Best of " + artist + ".m3u",
+            "query": 'artist:"' + artist + '" rating:5',
+        }
+    )
 
 # Write playlists to the beets YAML config file.
-data['smartplaylist']['playlists'] = playlists
-with open(configpath, 'w') as f:
+data["smartplaylist"]["playlists"] = playlists
+with open(configpath, "w") as f:
     yaml.dump(data, f, default_flow_style=False)

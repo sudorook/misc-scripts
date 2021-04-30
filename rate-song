@@ -15,6 +15,7 @@ import beets.library
 # Functions
 #
 
+
 def get_current_song():
     """Get the current song from MPD. Returns an Item."""
     # Connect to MPD.
@@ -27,37 +28,63 @@ def get_current_song():
     client.disconnect()
 
     # Load the Beets library
-    libpath = os.path.expanduser('~/.config/beets/library.db')
+    libpath = os.path.expanduser("~/.config/beets/library.db")
     lib = beets.library.Library(libpath)
 
     # Find the song in the beets database based on the title, artist, and album
     # information provided by MPD.
     item = lib.items(
-            '"title::^' + re.escape(info['title']) + '$"' +
-            ' "artist::^' + re.escape(info['artist']) + '$"' +
-            ' "album::^' + re.escape(info['album']) + '$"')
+        '"title::^'
+        + re.escape(info["title"])
+        + '$"'
+        + ' "artist::^'
+        + re.escape(info["artist"])
+        + '$"'
+        + ' "album::^'
+        + re.escape(info["album"])
+        + '$"'
+    )
     if len(item) > 1:
-        print('Multiple files found. Exiting.')
+        print("Multiple files found. Exiting")
         sys.exit()
     elif len(item) == 0:
-        print('First pass parsing failed. Trying again.')
+        print("First pass parsing failed. Trying again.")
         item = lib.items(
-                '"title::^' + re.escape(info['title']) + '$"' +
-                ' "artist::^' + re.escape(info['artist']) + '$"')
+            '"title::^'
+            + re.escape(info["title"])
+            + '$"'
+            + ' "artist::^'
+            + re.escape(info["artist"])
+            + '$"'
+        )
         if len(item) == 1:
             return item[0]
         else:
-            print('Second pass parsing failed. Trying again.')
+            print("Second pass parsing failed. Trying again.")
             item = lib.items(
-                    '"title::^' + re.escape(info['title']) + '$"' +
-                    ' "album::^' + re.escape(info['album']) + '$"')
+                '"title::^'
+                + re.escape(info["title"])
+                + '$"'
+                + ' "album::^'
+                + re.escape(info["album"])
+                + '$"'
+            )
             if len(item) == 1:
                 return item[0]
             else:
-                print('Parsing failed. See below:')
-                print('Title:', info['title'], ' -> ', re.escape(info['title']))
-                print('Artist:', info['artist'], ' -> ', re.escape(info['artist']))
-                print('Album:', info['album'], ' -> ', re.escape(info['album']))
+                print("Parsing failed. See below:")
+                print(
+                    "Title:", info["title"], " -> ", re.escape(info["title"])
+                )
+                print(
+                    "Artist:",
+                    info["artist"],
+                    " -> ",
+                    re.escape(info["artist"]),
+                )
+                print(
+                    "Album:", info["album"], " -> ", re.escape(info["album"])
+                )
                 sys.exit()
     else:
         return item[0]
@@ -66,12 +93,12 @@ def get_current_song():
 def get_song_from_file(f):
     """Get a song from the database based on its path in the filesystem."""
     # Load the Beets library
-    libpath = os.path.expanduser('~/.config/beets/library.db')
+    libpath = os.path.expanduser("~/.config/beets/library.db")
     lib = beets.library.Library(libpath)
 
     item = lib.items('"path:' + f + '"')
     if len(item) > 1:
-        print('Multiple files found. Exiting.')
+        print("Multiple files found. Exiting.")
         sys.exit()
     else:
         return item[0]
@@ -83,7 +110,7 @@ def prompt_user_rating():
     if 1 <= int(r) <= 5:
         return r
     else:
-        print('Invalid rating. Exiting.')
+        print("Invalid rating. Exiting.")
         sys.exit()
 
 
@@ -91,9 +118,11 @@ def prompt_user_rating():
 # Command line parsing
 #
 
-parser = argparse.ArgumentParser(description='Rate songs in your beets database.')
-parser.add_argument('-f', '--file', help='Song file', required=False)
-parser.add_argument('-r', '--rating', help='Rating', required=False)
+parser = argparse.ArgumentParser(
+    description="Rate songs in your beets database."
+)
+parser.add_argument("-f", "--file", help="Song file", required=False)
+parser.add_argument("-r", "--rating", help="Rating", required=False)
 args = parser.parse_args()
 
 
@@ -103,8 +132,14 @@ args = parser.parse_args()
 
 if args.file is None:
     song = get_current_song()
-    print("Playing '" + song['title'] + "' from '" +
-          song['album'] + "' by " + song['artist'])
+    print(
+        "Playing '"
+        + song["title"]
+        + "' from '"
+        + song["album"]
+        + "' by "
+        + song["artist"]
+    )
 else:
     song = get_song_from_file(args.file)
 
@@ -114,9 +149,9 @@ else:
     if 0 <= int(args.rating) <= 5:
         rating = int(args.rating)
     else:
-        print('Invalid rating. Exiting.')
+        print("Invalid rating. Exiting.")
         sys.exit()
 
 song.load()
-song['rating'] = rating
+song["rating"] = rating
 song.store()
