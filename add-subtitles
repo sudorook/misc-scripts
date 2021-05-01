@@ -1,6 +1,632 @@
 #! /bin/bash
-set -eu
+set -euo pipefail
 source globals
+
+! check_command ffmpeg iconv enconv && exit 3
+
+#
+# Globals
+#
+
+declare -A LANG
+LANG=(
+  ["abk"]="Abkhazian"
+  ["ace"]="Achinese"
+  ["ach"]="Acoli"
+  ["ada"]="Adangme"
+  ["ady"]="Adygei"
+  ["ady"]="Adyghe"
+  ["aar"]="Afar"
+  ["afh"]="Afrihili"
+  ["afr"]="Afrikaans"
+  ["afa"]="Afro-Asiatic languages"
+  ["ain"]="Ainu"
+  ["aka"]="Akan"
+  ["akk"]="Akkadian"
+  ["alb"]="Albanian"
+  ["gsw"]="Alemannic"
+  ["ale"]="Aleut"
+  ["alg"]="Algonquian languages"
+  ["gsw"]="Alsatian"
+  ["tut"]="Altaic languages"
+  ["amh"]="Amharic"
+  ["anp"]="Angika"
+  ["apa"]="Apache languages"
+  ["ara"]="Arabic"
+  ["arg"]="Aragonese"
+  ["arp"]="Arapaho"
+  ["arw"]="Arawak"
+  ["arm"]="Armenian"
+  ["rup"]="Aromanian"
+  ["art"]="Artificial languages"
+  ["rup"]="Arumanian"
+  ["asm"]="Assamese"
+  ["ast"]="Asturian"
+  ["ast"]="Asturleonese"
+  ["ath"]="Athapascan languages"
+  ["aus"]="Australian languages"
+  ["map"]="Austronesian languages"
+  ["ava"]="Avaric"
+  ["ave"]="Avestan"
+  ["awa"]="Awadhi"
+  ["aym"]="Aymara"
+  ["aze"]="Azerbaijani"
+  ["ast"]="Bable"
+  ["ban"]="Balinese"
+  ["bat"]="Baltic languages"
+  ["bal"]="Baluchi"
+  ["bam"]="Bambara"
+  ["bai"]="Bamileke languages"
+  ["bad"]="Banda languages"
+  ["bnt"]="Bantu languages"
+  ["bas"]="Basa"
+  ["bak"]="Bashkir"
+  ["baq"]="Basque"
+  ["btk"]="Batak languages"
+  ["bej"]="Bedawiyet"
+  ["bej"]="Beja"
+  ["bel"]="Belarusian"
+  ["bem"]="Bemba"
+  ["ben"]="Bengali"
+  ["ber"]="Berber languages"
+  ["bho"]="Bhojpuri"
+  ["bih"]="Bihari languages"
+  ["bik"]="Bikol"
+  ["byn"]="Bilin"
+  ["bin"]="Bini"
+  ["bis"]="Bislama"
+  ["byn"]="Blin"
+  ["zbl"]="Bliss"
+  ["zbl"]="Blissymbolics"
+  ["zbl"]="Blissymbols"
+  ["nob"]="Bokmål, Norwegian"
+  ["bos"]="Bosnian"
+  ["bra"]="Braj"
+  ["bre"]="Breton"
+  ["bug"]="Buginese"
+  ["bul"]="Bulgarian"
+  ["bua"]="Buriat"
+  ["bur"]="Burmese"
+  ["cad"]="Caddo"
+  ["spa"]="Castilian"
+  ["cat"]="Catalan"
+  ["cau"]="Caucasian languages"
+  ["ceb"]="Cebuano"
+  ["cel"]="Celtic languages"
+  ["cai"]="Central American Indian languages"
+  ["khm"]="Central Khmer"
+  ["chg"]="Chagatai"
+  ["cmc"]="Chamic languages"
+  ["cha"]="Chamorro"
+  ["che"]="Chechen"
+  ["chr"]="Cherokee"
+  ["nya"]="Chewa"
+  ["chy"]="Cheyenne"
+  ["chb"]="Chibcha"
+  ["nya"]="Chichewa"
+  ["chi"]="Chinese"
+  ["chn"]="Chinook jargon"
+  ["chp"]="Chipewyan"
+  ["cho"]="Choctaw"
+  ["zha"]="Chuang"
+  ["chu"]="Church Slavic"
+  ["chu"]="Church Slavonic"
+  ["chk"]="Chuukese"
+  ["chv"]="Chuvash"
+  ["nwc"]="Classical Nepal Bhasa"
+  ["nwc"]="Classical Newari"
+  ["syc"]="Classical Syriac"
+  ["rar"]="Cook Islands Maori"
+  ["cop"]="Coptic"
+  ["cor"]="Cornish"
+  ["cos"]="Corsican"
+  ["cre"]="Cree"
+  ["mus"]="Creek"
+  # ["crp"]="Creoles and pidgins"
+  # ["cpe"]="Creoles and pidgins, English based"
+  # ["cpf"]="Creoles and pidgins, French-based"
+  # ["cpp"]="Creoles and pidgins, Portuguese-based"
+  # ["crh"]="Crimean Tatar"
+  # ["crh"]="Crimean Turkish"
+  ["hrv"]="Croatian"
+  # ["cus"]="Cushitic languages"
+  ["cze"]="Czech"
+  ["dak"]="Dakota"
+  ["dan"]="Danish"
+  ["dar"]="Dargwa"
+  ["del"]="Delaware"
+  ["chp"]="Dene Suline"
+  ["div"]="Dhivehi"
+  ["zza"]="Dimili"
+  ["zza"]="Dimli"
+  ["din"]="Dinka"
+  ["div"]="Divehi"
+  ["doi"]="Dogri"
+  ["dgr"]="Dogrib"
+  # ["dra"]="Dravidian languages"
+  ["dua"]="Duala"
+  ["dut"]="Dutch"
+  # ["dum"]="Dutch, Middle (ca.1050-1350)"
+  ["dyu"]="Dyula"
+  ["dzo"]="Dzongkha"
+  ["frs"]="Eastern Frisian"
+  ["bin"]="Edo"
+  ["efi"]="Efik"
+  # ["egy"]="Egyptian (Ancient)"
+  ["eka"]="Ekajuk"
+  ["elx"]="Elamite"
+  ["eng"]="English"
+  # ["enm"]="English, Middle (1100-1500)"
+  # ["ang"]="English, Old (ca.450-1100)"
+  ["myv"]="Erzya"
+  ["epo"]="Esperanto"
+  ["est"]="Estonian"
+  ["ewe"]="Ewe"
+  ["ewo"]="Ewondo"
+  ["fan"]="Fang"
+  ["fat"]="Fanti"
+  ["fao"]="Faroese"
+  ["fij"]="Fijian"
+  ["fil"]="Filipino"
+  ["fin"]="Finnish"
+  ["fiu"]="Finno-Ugrian languages"
+  ["fon"]="Fon"
+  ["fre"]="French"
+  # ["frm"]="French, Middle (ca.1400-1600)"
+  # ["fro"]="French, Old (842-ca.1400)"
+  ["fur"]="Friulian"
+  ["ful"]="Fulah"
+  ["gaa"]="Ga"
+  ["gla"]="Gaelic"
+  ["car"]="Galibi Carib"
+  ["glg"]="Galician"
+  ["lug"]="Ganda"
+  ["gay"]="Gayo"
+  ["gba"]="Gbaya"
+  ["gez"]="Geez"
+  ["geo"]="Georgian"
+  ["ger"]="German"
+  ["nds"]="German, Low"
+  # ["gmh"]="German, Middle High (ca.1050-1500)"
+  # ["goh"]="German, Old High (ca.750-1050)"
+  ["gem"]="Germanic languages"
+  ["kik"]="Gikuyu"
+  ["gil"]="Gilbertese"
+  ["gon"]="Gondi"
+  ["gor"]="Gorontalo"
+  ["got"]="Gothic"
+  ["grb"]="Grebo"
+  # ["grc"]="Greek, Ancient (to 1453)"
+  # ["gre"]="Greek, Modern (1453-)"
+  ["kal"]="Greenlandic"
+  ["grn"]="Guarani"
+  ["guj"]="Gujarati"
+  ["gwi"]="Gwich'in"
+  ["hai"]="Haida"
+  ["hat"]="Haitian"
+  ["hat"]="Haitian Creole"
+  ["hau"]="Hausa"
+  ["haw"]="Hawaiian"
+  ["heb"]="Hebrew"
+  ["her"]="Herero"
+  ["hil"]="Hiligaynon"
+  ["him"]="Himachali languages"
+  ["hin"]="Hindi"
+  ["hmo"]="Hiri Motu"
+  ["hit"]="Hittite"
+  ["hmn"]="Hmong"
+  ["hun"]="Hungarian"
+  ["hup"]="Hupa"
+  ["iba"]="Iban"
+  ["ice"]="Icelandic"
+  ["ido"]="Ido"
+  ["ibo"]="Igbo"
+  ["ijo"]="Ijo languages"
+  ["ilo"]="Iloko"
+  # ["arc"]="Imperial Aramaic (700-300 BCE)"
+  ["smn"]="Inari Sami"
+  ["inc"]="Indic languages"
+  ["ine"]="Indo-European languages"
+  ["ind"]="Indonesian"
+  ["inh"]="Ingush"
+  # ["ina"]="Interlingua (International Auxiliary Language Association)"
+  ["ile"]="Interlingue"
+  ["iku"]="Inuktitut"
+  ["ipk"]="Inupiaq"
+  ["ira"]="Iranian languages"
+  ["gle"]="Irish"
+  # ["mga"]="Irish, Middle (900-1200)"
+  # ["sga"]="Irish, Old (to 900)"
+  ["iro"]="Iroquoian languages"
+  ["ita"]="Italian"
+  ["jpn"]="Japanese"
+  ["jav"]="Javanese"
+  ["kac"]="Jingpho"
+  ["jrb"]="Judeo-Arabic"
+  ["jpr"]="Judeo-Persian"
+  ["kbd"]="Kabardian"
+  ["kab"]="Kabyle"
+  ["kac"]="Kachin"
+  ["kal"]="Kalaallisut"
+  ["xal"]="Kalmyk"
+  ["kam"]="Kamba"
+  ["kan"]="Kannada"
+  ["kau"]="Kanuri"
+  ["pam"]="Kapampangan"
+  ["kaa"]="Kara-Kalpak"
+  ["krc"]="Karachay-Balkar"
+  ["krl"]="Karelian"
+  ["kar"]="Karen languages"
+  ["kas"]="Kashmiri"
+  ["csb"]="Kashubian"
+  ["kaw"]="Kawi"
+  ["kaz"]="Kazakh"
+  ["kha"]="Khasi"
+  ["khi"]="Khoisan languages"
+  ["kho"]="Khotanese"
+  ["kik"]="Kikuyu"
+  ["kmb"]="Kimbundu"
+  ["kin"]="Kinyarwanda"
+  ["zza"]="Kirdki"
+  ["kir"]="Kirghiz"
+  ["zza"]="Kirmanjki"
+  ["tlh"]="Klingon"
+  ["kom"]="Komi"
+  ["kon"]="Kongo"
+  ["kok"]="Konkani"
+  ["kor"]="Korean"
+  ["kos"]="Kosraean"
+  ["kpe"]="Kpelle"
+  ["kro"]="Kru languages"
+  ["kua"]="Kuanyama"
+  ["kum"]="Kumyk"
+  ["kur"]="Kurdish"
+  ["kru"]="Kurukh"
+  ["kut"]="Kutenai"
+  ["kua"]="Kwanyama"
+  ["kir"]="Kyrgyz"
+  ["lad"]="Ladino"
+  ["lah"]="Lahnda"
+  ["lam"]="Lamba"
+  ["day"]="Land Dayak languages"
+  ["lao"]="Lao"
+  ["lat"]="Latin"
+  ["lav"]="Latvian"
+  ["ast"]="Leonese"
+  ["ltz"]="Letzeburgesch"
+  ["lez"]="Lezghian"
+  ["lim"]="Limburgan"
+  ["lim"]="Limburger"
+  ["lim"]="Limburgish"
+  ["lin"]="Lingala"
+  ["lit"]="Lithuanian"
+  ["jbo"]="Lojban"
+  ["nds"]="Low German"
+  ["nds"]="Low Saxon"
+  ["dsb"]="Lower Sorbian"
+  ["loz"]="Lozi"
+  ["lub"]="Luba-Katanga"
+  ["lua"]="Luba-Lulua"
+  ["lui"]="Luiseno"
+  ["smj"]="Lule Sami"
+  ["lun"]="Lunda"
+  # ["luo"]="Luo (Kenya and Tanzania)"
+  ["lus"]="Lushai"
+  ["ltz"]="Luxembourgish"
+  ["rup"]="Macedo-Romanian"
+  ["mac"]="Macedonian"
+  ["mad"]="Madurese"
+  ["mag"]="Magahi"
+  ["mai"]="Maithili"
+  ["mak"]="Makasar"
+  ["mlg"]="Malagasy"
+  ["may"]="Malay"
+  ["mal"]="Malayalam"
+  ["div"]="Maldivian"
+  ["mlt"]="Maltese"
+  ["mnc"]="Manchu"
+  ["mdr"]="Mandar"
+  ["man"]="Mandingo"
+  ["mni"]="Manipuri"
+  ["mno"]="Manobo languages"
+  ["glv"]="Manx"
+  ["mao"]="Maori"
+  ["arn"]="Mapuche"
+  ["arn"]="Mapudungun"
+  ["mar"]="Marathi"
+  ["chm"]="Mari"
+  ["mah"]="Marshallese"
+  ["mwr"]="Marwari"
+  ["mas"]="Masai"
+  ["myn"]="Mayan languages"
+  ["men"]="Mende"
+  ["mic"]="Mi'kmaq"
+  ["mic"]="Micmac"
+  ["min"]="Minangkabau"
+  ["mwl"]="Mirandese"
+  ["moh"]="Mohawk"
+  ["mdf"]="Moksha"
+  ["rum"]="Moldavian"
+  ["rum"]="Moldovan"
+  ["mkh"]="Mon-Khmer languages"
+  ["hmn"]="Mong"
+  ["lol"]="Mongo"
+  ["mon"]="Mongolian"
+  ["cnr"]="Montenegrin"
+  ["mos"]="Mossi"
+  ["mul"]="Multiple languages"
+  ["mun"]="Munda languages"
+  ["nqo"]="N'Ko"
+  ["nah"]="Nahuatl languages"
+  ["nau"]="Nauru"
+  ["nav"]="Navaho"
+  ["nav"]="Navajo"
+  ["nde"]="Ndebele, North"
+  ["nbl"]="Ndebele, South"
+  ["ndo"]="Ndonga"
+  ["nap"]="Neapolitan"
+  ["new"]="Nepal Bhasa"
+  ["nep"]="Nepali"
+  ["new"]="Newari"
+  ["nia"]="Nias"
+  ["nic"]="Niger-Kordofanian languages"
+  ["ssa"]="Nilo-Saharan languages"
+  ["niu"]="Niuean"
+  ["zxx"]="No linguistic content"
+  ["nog"]="Nogai"
+  ["non"]="Norse, Old"
+  ["nai"]="North American Indian languages"
+  ["nde"]="North Ndebele"
+  ["frr"]="Northern Frisian"
+  ["sme"]="Northern Sami"
+  ["nso"]="Northern Sotho"
+  ["nor"]="Norwegian"
+  ["nob"]="Norwegian Bokmål"
+  ["nno"]="Norwegian Nynorsk"
+  ["zxx"]="Not applicable"
+  ["nub"]="Nubian languages"
+  ["iii"]="Nuosu"
+  ["nym"]="Nyamwezi"
+  ["nya"]="Nyanja"
+  ["nyn"]="Nyankole"
+  ["nno"]="Nynorsk, Norwegian"
+  ["nyo"]="Nyoro"
+  ["nzi"]="Nzima"
+  ["ile"]="Occidental"
+  # ["oci"]="Occitan (post 1500)"
+  # ["pro"]="Occitan, Old (to 1500)"
+  # ["arc"]="Official Aramaic (700-300 BCE)"
+  ["xal"]="Oirat"
+  ["oji"]="Ojibwa"
+  ["chu"]="Old Bulgarian"
+  ["chu"]="Old Church Slavonic"
+  ["nwc"]="Old Newari"
+  ["chu"]="Old Slavonic"
+  ["ori"]="Oriya"
+  ["orm"]="Oromo"
+  ["osa"]="Osage"
+  ["oss"]="Ossetian"
+  ["oss"]="Ossetic"
+  ["oto"]="Otomian languages"
+  ["pal"]="Pahlavi"
+  ["pau"]="Palauan"
+  ["pli"]="Pali"
+  ["pam"]="Pampanga"
+  ["pag"]="Pangasinan"
+  ["pan"]="Panjabi"
+  ["pap"]="Papiamento"
+  ["paa"]="Papuan languages"
+  ["pus"]="Pashto"
+  ["nso"]="Pedi"
+  ["per"]="Persian"
+  # ["peo"]="Persian, Old (ca.600-400 B.C.)"
+  ["phi"]="Philippine languages"
+  ["phn"]="Phoenician"
+  ["fil"]="Pilipino"
+  ["pon"]="Pohnpeian"
+  ["pol"]="Polish"
+  ["por"]="Portuguese"
+  ["pra"]="Prakrit languages"
+  # ["pro"]="Provençal, Old (to 1500)"
+  ["pan"]="Punjabi"
+  ["pus"]="Pushto"
+  ["que"]="Quechua"
+  ["raj"]="Rajasthani"
+  ["rap"]="Rapanui"
+  ["rar"]="Rarotongan"
+  ["qaa"]="Reserved for local use"
+  ["roa"]="Romance languages"
+  ["rum"]="Romanian"
+  ["roh"]="Romansh"
+  ["rom"]="Romany"
+  ["run"]="Rundi"
+  ["rus"]="Russian"
+  ["kho"]="Sakan"
+  ["sal"]="Salishan languages"
+  ["sam"]="Samaritan Aramaic"
+  ["smi"]="Sami languages"
+  ["smo"]="Samoan"
+  ["sad"]="Sandawe"
+  ["sag"]="Sango"
+  ["san"]="Sanskrit"
+  ["sat"]="Santali"
+  ["srd"]="Sardinian"
+  ["sas"]="Sasak"
+  ["nds"]="Saxon, Low"
+  ["sco"]="Scots"
+  ["gla"]="Scottish Gaelic"
+  ["sel"]="Selkup"
+  ["sem"]="Semitic languages"
+  ["nso"]="Sepedi"
+  ["srp"]="Serbian"
+  ["srr"]="Serer"
+  ["shn"]="Shan"
+  ["sna"]="Shona"
+  ["iii"]="Sichuan Yi"
+  ["scn"]="Sicilian"
+  ["sid"]="Sidamo"
+  ["sgn"]="Sign Languages"
+  ["bla"]="Siksika"
+  ["snd"]="Sindhi"
+  ["sin"]="Sinhala"
+  ["sin"]="Sinhalese"
+  ["sit"]="Sino-Tibetan languages"
+  ["sio"]="Siouan languages"
+  ["sms"]="Skolt Sami"
+  # ["den"]="Slave (Athapascan)"
+  ["sla"]="Slavic languages"
+  ["slo"]="Slovak"
+  ["slv"]="Slovenian"
+  ["sog"]="Sogdian"
+  ["som"]="Somali"
+  ["son"]="Songhai languages"
+  ["snk"]="Soninke"
+  ["wen"]="Sorbian languages"
+  ["nso"]="Sotho, Northern"
+  ["sot"]="Sotho, Southern"
+  ["sai"]="South American Indian languages"
+  ["nbl"]="South Ndebele"
+  ["alt"]="Southern Altai"
+  ["sma"]="Southern Sami"
+  ["spa"]="Spanish"
+  ["srn"]="Sranan Tongo"
+  ["zgh"]="Standard Moroccan Tamazight"
+  ["suk"]="Sukuma"
+  ["sux"]="Sumerian"
+  ["sun"]="Sundanese"
+  ["sus"]="Susu"
+  ["swa"]="Swahili"
+  ["ssw"]="Swati"
+  ["swe"]="Swedish"
+  ["gsw"]="Swiss German"
+  ["syr"]="Syriac"
+  ["tgl"]="Tagalog"
+  ["tah"]="Tahitian"
+  ["tai"]="Tai languages"
+  ["tgk"]="Tajik"
+  ["tmh"]="Tamashek"
+  ["tam"]="Tamil"
+  ["tat"]="Tatar"
+  ["tel"]="Telugu"
+  ["ter"]="Tereno"
+  ["tet"]="Tetum"
+  ["tha"]="Thai"
+  ["tib"]="Tibetan"
+  ["tig"]="Tigre"
+  ["tir"]="Tigrinya"
+  ["tem"]="Timne"
+  ["tiv"]="Tiv"
+  ["tlh"]="tlhIngan-Hol"
+  ["tli"]="Tlingit"
+  ["tpi"]="Tok Pisin"
+  ["tkl"]="Tokelau"
+  # ["tog"]="Tonga (Nyasa)"
+  # ["ton"]="Tonga (Tonga Islands)"
+  ["tsi"]="Tsimshian"
+  ["tso"]="Tsonga"
+  ["tsn"]="Tswana"
+  ["tum"]="Tumbuka"
+  ["tup"]="Tupi languages"
+  ["tur"]="Turkish"
+  # ["ota"]="Turkish, Ottoman (1500-1928)"
+  ["tuk"]="Turkmen"
+  ["tvl"]="Tuvalu"
+  ["tyv"]="Tuvinian"
+  ["twi"]="Twi"
+  ["udm"]="Udmurt"
+  ["uga"]="Ugaritic"
+  ["uig"]="Uighur"
+  ["ukr"]="Ukrainian"
+  ["umb"]="Umbundu"
+  ["mis"]="Uncoded languages"
+  ["und"]="Undetermined"
+  ["hsb"]="Upper Sorbian"
+  ["urd"]="Urdu"
+  ["uig"]="Uyghur"
+  ["uzb"]="Uzbek"
+  ["vai"]="Vai"
+  ["cat"]="Valencian"
+  ["ven"]="Venda"
+  ["vie"]="Vietnamese"
+  ["vol"]="Volapük"
+  ["vot"]="Votic"
+  ["wak"]="Wakashan languages"
+  ["wln"]="Walloon"
+  ["war"]="Waray"
+  ["was"]="Washo"
+  ["wel"]="Welsh"
+  # ["fry"]="Western Frisian"
+  # ["him"]="Western Pahari languages"
+  ["wal"]="Wolaitta"
+  ["wal"]="Wolaytta"
+  ["wol"]="Wolof"
+  ["xho"]="Xhosa"
+  ["sah"]="Yakut"
+  ["yao"]="Yao"
+  ["yap"]="Yapese"
+  ["yid"]="Yiddish"
+  ["yor"]="Yoruba"
+  # ["ypk"]="Yupik languages"
+  # ["znd"]="Zande languages"
+  ["zap"]="Zapotec"
+  ["zza"]="Zaza"
+  ["zza"]="Zazaki"
+  ["zen"]="Zenaga"
+  ["zha"]="Zhuang"
+  ["zul"]="Zulu"
+  ["zun"]="Zuni"
+)
+
+function convert_charset {
+  local tmp
+  local encoding
+
+  if [[ "${1,,}" =~ belarusian ]]; then
+    enconv -L belarusian "${1}" -x utf-8
+  elif [[ "${1,,}" =~ bulgarian ]]; then
+    enconv -L bulgarian "${1}" -x utf-8
+  elif [[ "${1,,}" =~ czech ]]; then
+    enconv -L czech "${1}" -x utf-8
+  elif [[ "${1,,}" =~ estonian ]]; then
+    enconv -L estonian "${1}" -x utf-8
+  elif [[ "${1,,}" =~ croatian ]]; then
+    enconv -L croatian "${1}" -x utf-8
+  elif [[ "${1,,}" =~ hungarian ]]; then
+    enconv -L hungarian "${1}" -x utf-8
+  elif [[ "${1,,}" =~ lithuanian ]]; then
+    enconv -L lithuanian "${1}" -x utf-8
+  elif [[ "${1,,}" =~ latvian ]]; then
+    enconv -L latvian "${1}" -x utf-8
+  elif [[ "${1,,}" =~ polish ]]; then
+    enconv -L polish "${1}" -x utf-8
+  elif [[ "${1,,}" =~ russian ]]; then
+    enconv -L russian "${1}" -x utf-8
+  elif [[ "${1,,}" =~ slovak ]]; then
+    enconv -L slovak "${1}" -x utf-8
+  elif [[ "${1,,}" =~ slovene ]] || [[ "${1,,}" =~ slovenian ]]; then
+    enconv -L slovene "${1}" -x utf-8
+  elif [[ "${1,,}" =~ ukranian ]]; then
+    enconv -L ukranian "${1}" -x utf-8
+  elif [[ "${1,,}" =~ chinese ]]; then
+    enconv -L chinese "${1}" -x utf-8
+  else
+    tmp="$(mktemp)"
+    encoding="$(file -b --mime-encoding "$1")"
+    iconv -f "${encoding}" -t "utf-8" "${1}" > "${tmp}" && \
+      mv "${tmp}" "${1}"
+  fi
+}
+
+function get_language {
+  local res
+  for lang in "${!LANG[@]}"; do
+    if [[ "${1,,}" =~ ${LANG[${lang}],,} ]]; then
+      res="${lang}"
+      break
+    fi
+  done
+  echo "${res}"
+}
 
 function hardcode_cleanup {
   sed -i "s/\(\x92\|\x91\)/'/g" "${1}"
@@ -9,67 +635,103 @@ function hardcode_cleanup {
 
 NAME=${1%.*}
 EXTENSION=${1##*.}
-OUTPUT="$(mktemp)"
+TMPVID="$(mktemp)"
+SUBLIST=()
 
-if [ -f "${NAME}.srt" ]; then
-  ENCODING=$(file -i "$NAME.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
-  SUBEXTENSION="srt"
-  if ! [[ "${ENCODING}" = "utf-8" ]]; then
-    hardcode_cleanup "${NAME}.srt"
-    ENCODING=$(file -i "$NAME.srt" | sed -n "s/.*charset=\(.*\)$/\1/p")
-  fi
-  if ! [[ "${ENCODING}" = "utf-8" ]]; then
-    show_info "Converting ${NAME}.srt ENCODING from ${ENCODING} to utf-8."
-    iconv -f "${ENCODING}" -t "utf-8" "${NAME}.srt" > temp.srt && \
-      mv temp.srt "${NAME}.srt"
-  fi
-elif [ -f "${NAME}.ass" ]; then
-  ENCODING=$(file -i "$NAME.ass" | sed -n "s/.*charset=\(.*\)$/\1/p")
-  SUBEXTENSION="ass"
-  if ! [[ "${ENCODING}" = "utf-8" ]]; then
-    hardcode_cleanup "${NAME}.ass"
-    ENCODING=$(file -i "$NAME.ass" | sed -n "s/.*charset=\(.*\)$/\1/p")
-  fi
-  if ! [[ "${ENCODING}" = "utf-8" ]]; then
-    show_info "Converting ${NAME}.ass ENCODING from ${ENCODING} to utf-8."
-    iconv -f "${ENCODING}" -t "utf-8" "${NAME}.ass" > temp.ass && \
-      mv temp.ass "${NAME}.ass"
-  fi
-else
-  show_error "No subtitle file detected."
-  exit 3
-fi
+trap 'rm "${TMPVID}"; exit' INT TERM ERR
 
+function detect_subs {
+  local subext
+  local encoding
+  for file in "${1}"*; do
+    subext=${file##*.}
+    case "${subext}" in
+      ass|srt)
+        encoding="$(file -b --mime-encoding "$file")"
+        if ! [[ "${encoding}" = "utf-8" ]]; then
+          show_info "Converting ${file} encoding from ${encoding} to utf-8."
+          convert_charset "${file}"
+        fi
+        SUBLIST+=("${file}")
+        ;;
+      avi|m4v|mp4|mkv|webm)
+        ;;
+      *)
+        show_warning "${1} not supported. Skipping"
+        ;;
+    esac
+  done
+  for sub in "${SUBLIST[@]}"; do
+    echo "${sub}" >&2
+  done
+}
 
-case ${EXTENSION} in
-  avi)
-    OUTPUT="subbed_video.mp4"
-    EXTENSION="mp4"
-    ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${NAME}.${SUBEXTENSION}" \
-      -c:v copy -c:a copy -c:s mov_text \
-      -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
-      -id3v2_version 3 -write_id3v1 1 \
-      "${OUTPUT}"
-    ;;
-  mp4|m4v)
-    ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${NAME}.${SUBEXTENSION}" \
-      -c:v copy -c:a copy -c:s mov_text \
-      -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
-      -id3v2_version 3 -write_id3v1 1 \
-      "${OUTPUT}"
-    ;;
-  mkv)
-    ffmpeg -i "${1}" -sub_charenc UTF-8 -i "${NAME}.${SUBEXTENSION}" \
-      -c:v copy -c:a copy -c:s srt \
-      -metadata:s:s:0 language=eng -metadata:s:s:0 handler="English" \
-      -id3v2_version 3 -write_id3v1 1 \
-      "${OUTPUT}"
-    ;;
-  *)
-    show_error "${EXTENSION} files are not supported."
-    exit 3
-esac
+function make_cmd {
+  local ext=${1##*.}
+  local inputs
+  local mapping
+  local metadata
+  local count
+  local lang
+  local eng_idx=0
+  local cmd
 
-mv "${1}" "${1}.bak"
-mv "${NAME}.${SUBEXTENSION}" "${NAME}.${SUBEXTENSION}.bak"
-mv "${OUTPUT}" "${NAME}.${EXTENSION}"
+  inputs="ffmpeg -i \"${1}\" -sub_charenc UTF-8"
+  mapping="-map 0"
+  metadata=""
+  count=1
+  if [[ "${#SUBLIST[@]}" = 1 ]]; then
+    inputs="${inputs} -i \"${sub}\""
+    mapping="${mapping} -map 1:s"
+    metadata="${metadata} -metadata:s:s:0 language=eng"
+    metadata="${metadata} -metadata:s:s:0 handler=\"English\""
+  elif [[ "${#SUBLIST[@]}" -gt 1 ]]; then
+    for sub in "${SUBLIST[@]}"; do
+      inputs="${inputs} -i \"${sub}\""
+      mapping="${mapping} -map ${count}:s"
+      if [[ "${sub,,}" =~ english ]] && [[ "${eng_idx}" == 0 ]]; then
+        eng_idx="$((count - 1))"
+      fi
+      lang="$(get_language "${sub}")"
+      if [ -n "${lang}" ]; then
+        metadata="${metadata} -metadata:s:s:$((count - 1)) language=\"${lang}\""
+        metadata="${metadata} -metadata:s:s:$((count - 1)) handler=\"${LANG[$lang]}\""
+      fi
+      count=$((count + 1))
+    done
+  fi
+
+  case ${ext} in
+    avi)
+      # AVI does not support embedding text-based subtitles, so convert to MP4
+      # and embed as mov_text.
+      EXTENSION="mp4"
+      cmd="${inputs} ${mapping} -c copy -c:s mov_text -f mp4 ${metadata} -disposition:s:${eng_idx} default \"${TMPVID}\" -y"
+      ;;
+    mp4|m4v)
+      cmd="${inputs} ${mapping} -c copy -c:s mov_text -f mp4 ${metadata} -disposition:s:${eng_idx} default \"${TMPVID}\" -y"
+      ;;
+    mkv)
+      cmd="${inputs} ${mapping} -c copy -f matroska ${metadata} -disposition:s:${eng_idx} default \"${TMPVID}\" -y"
+      ;;
+    *)
+      show_error "${ext} files are not supported."
+      exit 3
+  esac
+  echo "${cmd}"
+}
+
+detect_subs "${NAME}"
+make_cmd "${1}"
+eval "$(make_cmd "${1}")"
+
+BACKUPDIR="backup-$$"
+mkdir -p "${BACKUPDIR}"
+
+mv "${1}" "${BACKUPDIR}/${1}"
+for sub in "${SUBLIST[@]}"; do
+  mv "${sub}" "${BACKUPDIR}"
+done
+sync
+mv "${TMPVID}" "${NAME}.${EXTENSION}"
+sync
