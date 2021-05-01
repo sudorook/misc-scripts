@@ -45,6 +45,17 @@ show_listitem() {
 }
 export -f show_listitem
 
+check_command() {
+  local state=true
+  for package in "${@}"; do
+    if ! command -v "${package}" >/dev/null; then
+      show_error "MISSING: ${package} not installed."
+      state=false
+    fi
+  done
+  "${state}" && return 0 || return 1
+}
+
 
 #
 # Global variables
