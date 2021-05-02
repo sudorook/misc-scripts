@@ -2,10 +2,10 @@
 set -eu
 source globals
 
-IGNOREFILES="-name '*.o' \
-             -o -name '*.lo'\
-             -o -name '*.a'\
-             -o -name '*.pdf'\
+IGNOREFILES="-name '*.pdf'\
+             -o -name '*.db'\
+             -o -name '*.bin'\
+             -o -name '*.Rhistory'\
              -o -name '*.doc*'\
              -o -name '*.ppt*'\
              -o -name '*.png'\
@@ -16,27 +16,77 @@ IGNOREFILES="-name '*.o' \
              -o -name '*~'\
              -o -name '*.tar.*'\
              -o -name '*.zip'\
-             -o -name '*.git'\
+             -o -name '*.git*'\
              -o -name '*.tgz'"
 IGNOREDIRS="-path '*/.git/*'\
             -o -path '*/bin/*'\
             -o -path '*/.deps/*'\
             -o -path '*/autom4te.cache/*'"
+# BINIGNOREFILES=
+GITIGNOREFILES=
+
+# function check_binary {
+#   [[ "$(file -b --mime-encoding "${1}")" = binary ]] && return 0 || return 1
+# }
+# export -f check_binary
+#
+# # Parse out any files with binary character encodings.
+# function find_binfiles {
+#   local binignorefiles
+#
+#   binignorefiles="$(eval \
+#                      "find ""${1}"" -type f \
+#                         -not \( ""${IGNOREFILES}"" \) \
+#                         -not \( ""${IGNOREDIRS}"" \) \
+#                         ${GITIGNOREFILES} \
+#                         -exec bash -c 'check_binary \"{}\"' \; \
+#                         -printf ' -o -path %p'")"
+#
+#   if [ -n "${binignorefiles}" ]; then
+#     binignorefiles="-not \\( ${binignorefiles:4} \\)"
+#   fi
+#   echo "${binignorefiles}"
+# }
+
+# Parse the .gitignore file if the input directory is a Git repository.
+function find_gitignorefiles {
+  local gitignorefiles
+  if [ ${#} = 0 ]; then
+    if [ -d ".git" ]; then
+      gitignorefiles="$(find . -type f \
+                         -exec git check-ignore -q {} \; \
+                         -printf ' -o -path %p')"
+      if [ -n "${gitignorefiles}" ]; then
+        gitignorefiles="-not \\( ${gitignorefiles:4} \\)"
+      fi
+    fi
+  elif [ -d "${1}/.git" ]; then
+    gitignorefiles="$(find "${1}" -type f \
+                        -exec git -C "${1}" check-ignore -q {} \; \
+                        -printf ' -o -path %p')"
+    if [ -n "${gitignorefiles}" ]; then
+      gitignorefiles="-not \\( ${gitignorefiles:4} \\)"
+    fi
+  else
+    gitignorefiles=
+  fi
+  echo "${gitignorefiles}"
+}
 
 if [ ${#} = 0 ]; then
+  GITIGNOREFILES="$(find_gitignorefiles .)"
   eval "find . -type f \
-    -not \( "${IGNOREFILES}" \) \
-    -not \( "${IGNOREDIRS}" \) \
+    -not \( ""${IGNOREFILES}"" \) \
+    -not \( ""${IGNOREDIRS}"" \) \
+    ${GITIGNOREFILES} \
     -exec wc -l -- '{}' +"
 else
   if [ -d "${1}" ]; then
-    # As tempting as it may be, don't try to generate a list of ignore paths by
-    # parsing the gitignore. People normally stick globs and all sorts of stuff
-    # in them, and it's not possible to handle any permutation of them safely
-    # as text and not accidentally execute them.
-    eval "find ${1} -type f \
-      -not \( "${IGNOREFILES}" \) \
-      -not \( "${IGNOREDIRS}" \) \
+    GITIGNOREFILES="$(find_gitignorefiles "${1}")"
+    eval "find \"${1}\" -type f \
+      -not \( ""${IGNOREFILES}"" \) \
+      -not \( ""${IGNOREDIRS}"" \) \
+      ${GITIGNOREFILES} \
       -exec wc -l -- '{}' +"
   elif [ -f "${1}" ]; then
     wc -l "${1}"
