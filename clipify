@@ -2,8 +2,11 @@
 set -eu
 source globals
 
+! check_command ffmpeg && exit 3
+
 # Global functions.
 function print_usage() {
+  echo "Usage:"
   echo "  -i  --input                 input video (e.g. input.mp4)"
   echo "  -o  --output                output gif (e.g. output.gif)"
   echo "  -s  --start                 starting timestamp (e.g. 01:20.5)"
@@ -38,7 +41,8 @@ while [ $# -ge 1 ]; do
       break
       ;;
     *)
-      show_error "Error"
+      show_error "ERROR: invalid flag ${1}."
+      print_usage
       exit 3
       ;;
   esac
@@ -47,4 +51,8 @@ done
 # Check if variables are set before running ffmpeg.
 if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
   ffmpeg -i "$IN" -ss "$START" -t "$LENGTH" "$OUT"
+else
+  show_error "ERROR: missing input flags. Exiting"
+  print_usage
+  exit 3
 fi
