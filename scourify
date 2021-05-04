@@ -1,11 +1,29 @@
 #! /bin/bash
-set -eu
+set -Eeu
+source globals
 
-NAME=${1%.*}
-EXTENSION=${1##*.}
-OUTFILE="${NAME}-$$.${EXTENSION}"
+#
+# Check inputs and requirements.
+#
 
-if [ -f "${1}" ] && [[ "${EXTENSION}" =~ svg|SVG ]]; then
-  scour -i "${1}" -o "${OUTFILE}"
-  mv "${OUTFILE}" "${1}"
+! check_command scour && exit 3
+
+if ! [ -f "${1}" ]; then
+  show_error "ERROR: ${1} not found. Exiting."
+  exit 3
 fi
+
+if ! [[ "$(file "${1}")" =~ SVG ]]; then
+  show_error "ERROR: ${1} not an SVG. Exiting."
+  exit 3
+fi
+
+#
+# Main
+#
+
+TMP="$(mktemp)"
+
+trap 'rm -f "${TMP}"; exit' INT TERM ERR
+scour -i "${1}" -o "${TMP}"
+mv "${TMP}" "${1}"
