@@ -3,16 +3,41 @@ set -eu
 source globals
 
 function format_c() {
-  clang-format -style=mozilla "$1" > tmp.cc && \
-    mv tmp.cc "$1"
+  if command -v clang-format >/dev/null; then
+    if [[ "$(file -bi "${1}")" =~ "x-c++;"|"x-c;" ]]; then
+      local tmp
+      tmp="$(mktemp)"
+      clang-format -style=mozilla "${1}" > "${tmp}"
+      mv "${tmp}" "${1}"
+    else
+      show_warning "WARNING: ${1} incompatible MIME type. Skipping."
+    fi
+  else
+    show_error "ERROR: clang-format missing. Exiting"
+    exit 3
+  fi
 }
+export -f format_c
 
 function format_python() {
-  black -l 79 "$1"
+  if command -v black >/dev/null; then
+    if [[ "$(file -bi "${1}")" =~ x-script.python ]]; then
+      black -q -l 79 "${1}"
+    else
+      show_warning "WARNING: ${1} incompatible MIME type. Skipping."
+    fi
+  else
+    show_error "ERROR: black missing. Exiting"
+    exit 3
+  fi
 }
+export -f format_python
 
 function print_usage() {
-  echo "go fuck yourself"
+  show_header "Usage:"
+  show_listitem "  -l|--language    programming language (e.g. c++, python)"
+  show_listitem "  -i|--input       input file or directory"
+  show_listitem "  -h|--help        print (this) message"
 }
 
 OPTIONS=hi:l:
@@ -23,11 +48,11 @@ eval set -- "$PARSED"
 while [ $# -ge 1 ]; do
   case "$1" in
     -l|--language)
-      export LANGUAGE="${2}"
+      LANGUAGE="${2}"
       shift 2
       ;;
     -i|--input)
-      export INPUT="${2}"
+      INPUT="${2}"
       shift 2
       ;;
     -h|--help)
@@ -46,46 +71,58 @@ while [ $# -ge 1 ]; do
 done
 
 
-if [[ -v LANGUAGE ]]; then
-  if [[ -v INPUT ]]; then
-    case "$LANGUAGE" in
-      "c"|"C"|"c++"|"C++"|"cpp"|"CPP")
-        format_c "$INPUT"
-        ;;
-      "python"|"Python")
-        format_python "$INPUT"
-        ;;
-      *)
-        show_error "error"
-        exit 3
-        ;;
-    esac
-  else
-    case "$LANGUAGE" in
-      "c"|"C"|"c++"|"C++"|"cpp"|"CPP")
-        files=$(find . -type f \( -name "*.c" -o \
-                                  -name "*.cc" -o \
-                                  -name "*.cpp" -o \
-                                  -name "*.cu" -o \
-                                  -name "*.h" -o \
-                                  -name "*.hh" -o \
-                                  -name "*.hpp" \))
-        for file in $files; do
-          format_c "$file"
-        done
-        ;;
-      "python"|"Python")
-        files=$(find . -type f \( -name "*.py" \))
-        for file in $files; do
-          format_python "$file"
-        done
-        ;;
-      *)
-        show_error "error"
-        exit 3
-        ;;
-    esac
-  fi
+if ! [[ -v LANGUAGE ]]; then
+  show_error "ERROR: language ('-l' flag) unset. Exiting."
+  exit 3
 fi
 
-show_success "done!"
+if ! [[ -v INPUT ]]; then
+  show_error "ERROR: input ('-i' flag) unspecified. Exiting."
+  exit 3
+fi
+
+if [[ -f "${INPUT}" ]]; then
+  case "$LANGUAGE" in
+    c|C|c++|C++|cpp|CPP)
+      format_c "$INPUT"
+      ;;
+    python|Python)
+      format_python "$INPUT"
+      ;;
+    *)
+      show_error "error"
+      exit 3
+      ;;
+  esac
+elif [[ -d "${INPUT}" ]]; then
+  case "$LANGUAGE" in
+    c|C|c++|C++|cpp|CPP)
+      find "${INPUT}" -type f \
+        -not \( -path "./.git*" \
+                -o -path "./docs/*" \
+                -o -path "*README*" \
+                -o -path "*readme*" \
+                -o -path "*LICENSE*" \
+                -o -path "*license*" \
+                -o -path "*.Rhistory" \) \
+        -exec bash -c 'format_c "${1}"' bash {} \;
+      ;;
+    python|Python)
+      find "${INPUT}" -type f \
+        -not \( -path "./.git*" \
+                -o -path "./docs/*" \
+                -o -path "*README*" \
+                -o -path "*readme*" \
+                -o -path "*LICENSE*" \
+                -o -path "*license*" \
+                -o -path "*.Rhistory" \) \
+        -exec bash -c 'format_python "${1}"' bash {} \;
+      ;;
+    *)
+      show_error "error"
+      exit 3
+      ;;
+  esac
+fi
+
+show_success "Done!"
