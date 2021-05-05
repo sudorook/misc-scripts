@@ -45,7 +45,7 @@ def get_current_song():
         + '$"'
     )
     if len(item) > 1:
-        print("Multiple files found. Exiting")
+        print("Multiple files found. Exiting.")
         for i in item:
             print(
                 "'"

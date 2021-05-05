@@ -134,7 +134,7 @@ while [ $# -ge 1 ]; do
 done
 
 if ! [[ -v FONTDIR ]]; then
-  show_error "ERROR: font directory missing. Exiting"
+  show_error "ERROR: font directory missing. Exiting."
   exit 3
 fi
 

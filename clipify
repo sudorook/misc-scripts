@@ -52,7 +52,7 @@ done
 if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
   ffmpeg -i "$IN" -ss "$START" -t "$LENGTH" "$OUT"
 else
-  show_error "ERROR: missing input flags. Exiting"
+  show_error "ERROR: missing input flags. Exiting."
   print_usage
   exit 3
 fi

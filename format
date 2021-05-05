@@ -13,7 +13,7 @@ function format_c() {
       show_warning "WARNING: ${1} incompatible MIME type. Skipping."
     fi
   else
-    show_error "ERROR: clang-format missing. Exiting"
+    show_error "ERROR: clang-format missing. Exiting."
     exit 3
   fi
 }
@@ -27,7 +27,7 @@ function format_python() {
       show_warning "WARNING: ${1} incompatible MIME type. Skipping."
     fi
   else
-    show_error "ERROR: black missing. Exiting"
+    show_error "ERROR: black missing. Exiting."
     exit 3
   fi
 }
