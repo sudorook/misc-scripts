@@ -86,9 +86,9 @@ function upgrade_themes() {
 
 vimpack=${HOME}/.vim/pack/dist/start
 function upgrade_vim_packages() {
-  show_header "Upgrading vim plugins."
+  show_header "Upgrading Vim plugins."
   if ! command -v vim >/dev/null 2>&1; then
-    show_warning "Install vim first. Skipping."
+    show_warning "Install Vim first. Skipping."
     echo
   else
     if [[ -v vimpack ]] && [ -d "${vimpack}" ]; then
@@ -101,7 +101,7 @@ function upgrade_vim_packages() {
         fi
       done
     else
-      show_warning "No vim packages installed in ${vimpack}. Skipping."
+      show_warning "No Vim packages installed in ${vimpack}. Skipping."
       echo
     fi
   fi
