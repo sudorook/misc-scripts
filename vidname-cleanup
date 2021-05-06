@@ -34,7 +34,7 @@ done
 
 REPLY=$(ask_question "Is this good? (y/N)")
 
-if [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
+if [[ "$REPLY" =~ ^y ]] || [[ "$REPLY" =~ ^Y ]]; then
   for VID in *; do
     if [ -f "$VID" ]; then
       NEWVID=$(cleanup_filename "$VID")
