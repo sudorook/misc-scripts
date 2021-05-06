@@ -11,7 +11,7 @@ command -v pacman >/dev/null 2>&1 && {
 }
 
 command -v apt >/dev/null 2>&1 && {
-  if dpkg -s gdm >/dev/null 2>&1; then
+  if dpkg -s gdm3 >/dev/null 2>&1; then
     show_error "GDM is not installed. Exiting."
     exit 3
   fi
