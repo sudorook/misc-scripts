@@ -82,7 +82,6 @@ else
   VIDEODIR="$(pwd)"
 fi
 
-# Download the file, extract audio as mp3, and set the id3v2 tags.
 mkdir -p "${VIDEODIR}/${NAME}"
 cd "${VIDEODIR}/${NAME}"
 
