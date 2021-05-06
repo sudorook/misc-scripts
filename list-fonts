@@ -2,10 +2,6 @@
 set -euo pipefail
 source globals
 
-if ! check_command "file" "sort"; then
-  exit 3
-fi
-
 print_fonts() {
   local line="${1}"
   local font
