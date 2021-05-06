@@ -6,10 +6,7 @@ source globals
 # Check inputs and requirements
 #
 
-if ! command -v bs1770gain >/dev/null 2>&1; then
-  show_error "bs1770gain not installed. Exiting."
-  exit 3
-fi
+! check_command bs1770gain && exit 3
 
 #
 # Main
