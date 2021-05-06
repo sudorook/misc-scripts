@@ -155,11 +155,10 @@ function upgrade_pkgbuild() {
         if [ -d "${dir}/.git" ]; then
           show_info "$(basename "${dir}")"
           if git_update "${dir}"; then
-            cur=$(pwd)
-            cd "${dir}"
+            pushd "${dir}" >/dev/null
             makepkg -si --noconfirm
             git clean -xdf
-            cd "${cur}"
+            popd >/dev/null
           fi
           sleep 2
           echo
