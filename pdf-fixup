@@ -2,10 +2,7 @@
 set -eu
 source globals
 
-if ! command -v pdftk >/dev/null; then
-  show_error "ERROR: pdftk not installed. Exiting."
-  exit 3
-fi
+! check_command pdftk && exit 3
 
 OPTIONS=i:e:ko:s:
 LONGOPTIONS=input:,end:,keep,output:,start:
@@ -16,11 +13,11 @@ while [ ${#} -ge 1 ]; do
   case ${1} in
     -i|--input)
       if ! [ -f "${2}" ]; then
-        show_error "ERROR: input ${2} not found. Exiting."
+        show_error "ERROR: input '${2}' not found. Exiting."
         exit 3
       fi
       if ! [[ "$(file "${2}")" =~ pdf|PDF ]]; then
-        show_error "ERROR: PDF not given. Exiting."
+        show_error "ERROR: input '${2}' is not a PDF. Exiting."
         exit 3
       fi
       INPUT="${2}"
