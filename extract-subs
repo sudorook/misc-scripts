@@ -44,8 +44,8 @@ function extract_streams {
         cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.sup'"
         ;;
       *)
-        show_error "Format ${FORMATS[${i}]} not supported. Exiting."
-        exit 2
+        show_warning "Format ${FORMATS[${i}]} not supported. Skipping."
+        continue
         ;;
     esac
     eval "${cmd}"
