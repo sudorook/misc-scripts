@@ -38,13 +38,14 @@ while [ $# -ge 1 ]; do
       ;;
     *)
       show_error "ERROR"
+      print_usage
       exit 3
       ;;
   esac
 done
 
 if ! [[ -v MUSIC ]]; then
-  if [[ -v musicdir ]] && [ -e "${musicdir}" ]; then
+  if [[ -v musicdir ]] && [ -d "${musicdir}" ]; then
     MUSIC="${musicdir}"
   fi
 fi
@@ -57,6 +58,7 @@ if [[ -v INPUT ]] && [[ -v DEST ]]; then
                  sed -e "s,\(.*\)/\(.*\)/[0-9]\+ \(.*\.mp3\)$,\3,g")"
       cp -u -v "${MUSIC}/${file}" -d "${DEST}/${newfile}"
     done < "${INPUT}"
+    sync
   fi
 else
   show_error "Try again."
