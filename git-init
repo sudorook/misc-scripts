@@ -1,0 +1,216 @@
+#! /bin/bash
+set -eu
+source globals
+
+#
+# Global functions.
+#
+  
+make_random_alias() {
+  local range
+  local string
+
+  range="$(date -d "1970-01-01 UTC ${RAND_RANGE}" "+%s")"
+  string='! NEW_DATE="$(TZ='"${TZ}"' date -d "1970-01-01 UTC $(echo "$(date +%s)" - '"${range}"' + $(shuf -i '"0-${range}"' -n 1) | bc -l) seconds" "+%c")"'
+  string="${string}"' && export GIT_AUTHOR_DATE="${NEW_DATE}" && export GIT_COMMITTER_DATE="${NEW_DATE}" &&'
+  echo "$string"
+}
+
+make_workday_alias() {
+  local start_s
+  local end_s
+  local scale
+  local string
+
+  start_s="$(date -d "1970-01-01 UTC ${START}" '+%s')"
+  end_s="$(date -d "1970-01-01 UTC ${END}" '+%s')"
+  scale="$(echo "(${end_s} - ${start_s}) / 86400" | bc -l)"
+  string='! NEW_DATE="$(TZ='"${TZ}"' date -d "00:00 $(echo '"${start_s}"' + '"${scale}"' \* "$(date -d "1970-01-01 UTC $(date +%T)" +%s)" | bc -l) seconds" "+%c")"'
+  string="${string}"' && export GIT_AUTHOR_DATE="${NEW_DATE}" && export GIT_COMMITTER_DATE="${NEW_DATE}" &&'
+  echo "${string}"
+}
+
+set_local_name() {
+  git config --local user.name "${NAME}"
+}
+
+set_local_email() {
+  git config --local user.email "${EMAIL}"
+}
+
+set_local_aliases() {
+  local alias
+
+  case "${SCHEDULE}" in
+    workday)
+      if [[ -v START ]] && [[ -v END ]]; then
+        alias="$(make_workday_alias)"
+        git config --local alias.alt-commit "${alias} git commit"
+        git config --local alias.alt-revert "${alias} git revert"
+      else
+        exit 3
+      fi
+      ;;
+    random)
+      if [[ -v RAND_RANGE ]]; then
+        alias="$(make_random_alias)"
+        git config --local alias.alt-commit "${alias} git commit"
+        git config --local alias.alt-revert "${alias} git revert"
+      else
+        exit 3
+      fi
+      ;;
+    none)
+      return
+      ;;
+    *)
+      return
+      ;;
+  esac
+}
+
+set_global_name() {
+  git config --global user.name "${NAME}"
+}
+
+set_global_email() {
+  git config --global user.email "${EMAIL}"
+}
+
+set_global_aliases() {
+  local alias
+
+  case "${SCHEDULE}" in
+    workday)
+      if [[ -v START ]] && [[ -v END ]]; then
+        alias="$(make_workday_alias)"
+        git config --global alias.alt-commit "${alias} git commit"
+        git config --global alias.alt-revert "${alias} git revert"
+      else
+        exit 3
+      fi
+      ;;
+    random)
+      if [[ -v RAND_RANGE ]]; then
+        alias="$(make_random_alias)"
+        git config --global alias.alt-commit "${alias} git commit"
+        git config --global alias.alt-revert "${alias} git revert"
+      else
+        exit 3
+      fi
+      ;;
+    none)
+      return
+      ;;
+    *)
+      return
+      ;;
+  esac
+}
+
+print_usage() {
+  echo "Usage:"
+  echo "  -n  --name          author name"
+  echo "  -e  --email         author email"
+  echo "  -s  --schedule      schedule (workday, random, or none)"
+  echo "  -r  --range         workday schedule range (e.g. 9AM-5PM)"
+  echo "  -o  --roffset       random schedule offset (e.g. '3 days', '1 week')"
+  echo "  -t  --timezone      time zone (e.g. 'America/Toronto')"
+  echo "  -g  --global        flag to write settings globally"
+  echo "  -h  --help          print (this) help message"
+}
+
+#
+# Main
+#
+
+OPTIONS=n:e:s:r:o:t:hg
+LONGOPTIONS=name:,email:,schedule:,range:,roffset:,timezone:,help,global
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+GLOBAL=false
+
+while [ ${#} -ge 1 ]; do
+  case ${1} in
+    -n|--name)
+      NAME="${2}"
+      shift 2
+      ;;
+    -e|--email)
+      EMAIL="${2}"
+      shift 2
+      ;;
+    -s|--schedule)
+      SCHEDULE="${2}"
+      shift 2
+      ;;
+    -r|--range)
+      START="$(echo "${2}" | cut -d"-" -f1)"
+      END="$(echo "${2}" | cut -d"-" -f2)"
+      shift 2
+      ;;
+    -o|--roffset)
+      RAND_RANGE="${2}"
+      shift 2
+      ;;
+    -t|--timezone)
+      TZ="${2}"
+      shift 2
+      ;;
+    -g|--global)
+      GLOBAL=true
+      exit
+      ;;
+    -h|--help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      print_usage
+      show_error "ERROR: invalid flag."
+      exit 3
+      ;;
+  esac
+done
+
+if ! [[ -v TZ ]]; then
+  TZ="$(timedatectl show -p Timezone --value)"
+fi
+
+if [[ "${GLOBAL}" = true ]]; then
+  if [[ -v NAME ]]; then
+    set_global_name
+  fi
+
+  if [[ -v EMAIL ]]; then
+    set_global_email
+  fi
+
+  if [[ -v SCHEDULE ]]; then
+    set_global_aliases
+  fi
+else
+  if git rev-parse 2>/dev/null; then
+    show_warning "WARNING: Git repo already exists."
+  else
+    show_info "Initializing Git repo."
+    git init
+  fi
+
+  if [[ -v NAME ]]; then
+    set_local_name
+  fi
+
+  if [[ -v EMAIL ]]; then
+    set_local_email
+  fi
+
+  if [[ -v SCHEDULE ]]; then
+    set_local_aliases
+  fi
+fi

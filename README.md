@@ -28,6 +28,7 @@
 | `get-song`         | download song (audio) from URL and set ID3v2 metadata                  |
 | `get-webseries`    | `youtube-dl` wrapper to download web series / playlists / etc.         |
 | `gifify`           | generate a GIF from part of a video                                    |
+| `git-init`         | wrapper script for initializing a Git repo and setting the metadata    |
 | `join-vids`        | concatenate videos                                                     |
 | `kvm-clear`        | clear out shared KVM directory                                         |
 | `kvm-cp`           | copy file to shared KVM directory                                      |
