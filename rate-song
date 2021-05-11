@@ -68,44 +68,38 @@ def get_current_song():
         )
         if len(item) == 1:
             return item[0]
-        else:
-            print("Second pass parsing failed. Trying again.")
-            item = lib.items(
-                '"title::^'
-                + re.escape(info["title"])
-                + '$"'
-                + ' "album::^'
-                + re.escape(info["album"])
-                + '$"'
-            )
-            if len(item) == 1:
-                return item[0]
-            else:
-                print("Parsing failed. See below:")
-                print(
-                    "Title:", info["title"], " -> ", re.escape(info["title"])
-                )
-                print(
-                    "Artist:",
-                    info["artist"],
-                    " -> ",
-                    re.escape(info["artist"]),
-                )
-                print(
-                    "Album:", info["album"], " -> ", re.escape(info["album"])
-                )
-                sys.exit()
+        print("Second pass parsing failed. Trying again.")
+        item = lib.items(
+            '"title::^'
+            + re.escape(info["title"])
+            + '$"'
+            + ' "album::^'
+            + re.escape(info["album"])
+            + '$"'
+        )
+        if len(item) == 1:
+            return item[0]
+        print("Parsing failed. See below:")
+        print("Title:", info["title"], " -> ", re.escape(info["title"]))
+        print(
+            "Artist:",
+            info["artist"],
+            " -> ",
+            re.escape(info["artist"]),
+        )
+        print("Album:", info["album"], " -> ", re.escape(info["album"]))
+        sys.exit()
     else:
         return item[0]
 
 
-def get_song_from_file(f):
+def get_song_from_file(file):
     """Get a song from the database based on its path in the filesystem."""
     # Load the Beets library
     libpath = os.path.expanduser("~/.config/beets/library.db")
     lib = beets.library.Library(libpath)
 
-    item = lib.items('"path:' + f + '"')
+    item = lib.items('"path:' + file + '"')
     if len(item) > 1:
         print("Multiple files found. Exiting.")
         sys.exit()
@@ -115,12 +109,11 @@ def get_song_from_file(f):
 
 def prompt_user_rating():
     """Prompt for user rating and make sure entry is valid."""
-    r = int(input("Rating (1-5): "))
-    if 1 <= int(r) <= 5:
-        return r
-    else:
-        print("Invalid rating. Exiting.")
-        sys.exit()
+    _rating = int(input("Rating (1-5): "))
+    if 1 <= int(_rating) <= 5:
+        return _rating
+    print("Invalid rating. Exiting.")
+    sys.exit()
 
 
 #
