@@ -18,7 +18,7 @@ function make_pathstring() {
   for item in "${@}"; do
     if [ -e "${item}" ]; then
       dir="$(pwd)"
-      if [ "${item:0:2}" = "~/" ]; then
+      if [ "${item:0:2}" = "\~/" ]; then
         item="${HOME}/${item:2}"
         dir="$(dirname "${item}")"
       fi
@@ -47,21 +47,21 @@ function make_archivename() {
 
   if [ $# -eq 1 ] && [ -d "${1}" ]; then
     dir=${1}
-    if [ "${dir:0:2}" = "~/" ]; then
+    if [ "${dir:0:2}" = "\~/" ]; then
       dir="${HOME}/${dir:2}"
     fi
     archive=$(basename "${dir}" | tr "[:upper:]" "[:lower:]" | \
               sed -e "s/^\.//g" | sed -e "s/\ /_/g")_$(date +%Y%m%d-%H%M%S)
   elif [ $# -eq 1 ] && [ -f "${1}" ]; then
     file=${1}
-    if [ "${file:0:2}" = "~/" ]; then
+    if [ "${file:0:2}" = "\~/" ]; then
       file="${HOME}/${file:2}"
     fi
     archive=$(echo "${file%.*}" | tr "[:upper:]" "[:lower:]" | \
               sed -e "s/^\.//g" | sed -e "s/\ /_/g")_$(date +%Y%m%d-%H%M%S)
   elif [ $# -gt 1 ]; then
     dir=$(pwd)
-    if [ "${dir:0:2}" = "~/" ]; then
+    if [ "${dir:0:2}" = "\~/" ]; then
       dir="${HOME}/${dir:2}"
     fi
     archive="$(basename "${dir}" | tr "[:upper:]" "[:lower:]" | \
