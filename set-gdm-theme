@@ -34,31 +34,28 @@ esac
 GNOMESHELLDIR="/usr/share/gnome-shell"
 GNOMESHELLBAK="/usr/share/gnome-shell-$(date +%Y%m%d-%I%M%S)"
 
-command -v pacman >/dev/null 2>&1 && {
-  if ! pacman -Qi gdm > /dev/null 2>&1; then
-    show_error "GDM is not installed. Exiting."
-    exit 3
+if [[ -d "/usr/share/themes/${GTKTHEME}" ]]; then
+  show_header "Setting GDM login theme to ${GTKTHEME}."
+
+  show_info "Backing up current GDM settings to ${GNOMESHELLBAK}."
+  sudo cp -r "${GNOMESHELLDIR}" "${GNOMESHELLBAK}"
+
+  if [[ "${GTKTHEME}" =~ Adapta ]] || [[ "${GTKTHEME}" =~ Plata ]]; then
+    show_info "Copying over ${GTKTHEME} GDM theme."
+    sudo cp -rf /usr/share/themes/"${GTKTHEME}"/gnome-shell/* "${GNOMESHELLDIR}"
+    sudo cp -f \
+      /usr/share/themes/"${GTKTHEME}"/gnome-shell/extensions/window-list/classic.css \
+      "${GNOMESHELLDIR}"/extensions/window-list@gnome-shell-extensions.gcampax.github.com/
+    sudo cp -f \
+      /usr/share/themes/"${GTKTHEME}"/gnome-shell/extensions/window-list/stylesheet.css \
+      "${GNOMESHELLDIR}"/extensions/window-list@gnome-shell-extensions.gcampax.github.com/
+  elif [[ "${GTKTHEME}" =~ Materia ]]; then
+    show_info "Building ${GTKTHEME} GDM theme from GResource file."
+    sudo glib-compile-resources \
+      --target="/usr/share/gnome-shell/gnome-shell-theme.gresource" \
+      --sourcedir="/usr/share/themes/${GTKTHEME}/gnome-shell" \
+      "/usr/share/themes/${GTKTHEME}/gnome-shell/gnome-shell-theme.gresource.xml"
   fi
-}
-
-command -v apt >/dev/null 2>&1 && {
-  if ! dpkg -s gdm3 > /dev/null 2>&1; then
-    show_error "GDM is not installed. Exiting."
-    exit 3
-  fi
-}
-
-show_info "Backing up current GDM settings to ${GNOMESHELLBAK}."
-sudo cp -rf "${GNOMESHELLDIR}" "${GNOMESHELLBAK}"
-
-show_info "Copying over ${GTKTHEME} GDM theme."
-sudo cp -rf /usr/share/themes/"${GTKTHEME}"/gnome-shell/* "${GNOMESHELLDIR}"
-
-if [[ "${GTKTHEME}" =~ Adapta ]]; then
-  sudo cp -f /usr/share/themes/Adapta/gnome-shell/extensions/window-list/* \
-    "${GNOMESHELLDIR}"/extensions/window-list@gnome-shell-extensions.gcampax.github.com/
-  sudo rm -rf "${GNOMESHELLDIR}/extensions/window-list"
-  sudo rm -rf "${GNOMESHELLDIR}/extensions/workspaces-to-dock"
 fi
 
 show_success "Done."
