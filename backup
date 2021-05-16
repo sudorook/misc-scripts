@@ -9,12 +9,15 @@ source globals
 
 # Check if path for backup1 exists.
 function backup_exists() {
+  if ! [[ -v backup1 ]]; then
+    show_error "backup1 variable is unset."
+    exit 1
+  fi
   if ! [ -d "${backup1}" ]; then
     show_error "Backup destination ${backup1} does not exist."
     exit 1
-  else
-    return 0
   fi
+  return 0
 }
 
 # Check if any encfs directories are mounted (/etc/mtab).
@@ -32,14 +35,27 @@ function encfs_unmounted() {
 function sync_home() {
   show_info "Syncing ${HOME} to ${backup1}."
   mkdir -p "${backup1}/${USER^}/"
-  sudo rsync -Pradog --delete-excluded \
-    "${HOME}/" "${backup1}/${USER^}/" \
-    --exclude "${vboxdir#$HOME}/*" \
-    --exclude "${kvmdir#$HOME}/*"
+  if [[ -v vboxdir ]] && [[ -v kvmdir ]]; then
+    sudo rsync -Pradog --delete-excluded \
+      "${HOME}/" "${backup1}/${USER^}/" \
+      --exclude "${vboxdir#$HOME}/*" \
+      --exclude "${kvmdir#$HOME}/*"
+  elif [[ -v kvmdir ]]; then
+    sudo rsync -Pradog --delete-excluded \
+      "${HOME}/" "${backup1}/${USER^}/" \
+      --exclude "${kvmdir#$HOME}/*"
+  elif [[ -v vboxdir ]]; then
+    sudo rsync -Pradog --delete-excluded \
+      "${HOME}/" "${backup1}/${USER^}/" \
+      --exclude "${vboxdir#$HOME}/*"
+  else
+    sudo rsync -Pradog --delete-excluded \
+      "${HOME}/" "${backup1}/${USER^}/"
+  fi
   sync
   show_success "Done." && echo
 
-  if [ -d "${backup2}" ]; then
+  if [[ -v backup2 ]] && [ -d "${backup2}" ]; then
     show_info "Syncing ${backup1} to ${backup2}."
     sudo rsync -Pradog --delete-excluded \
       "${backup1}/" "${backup2}/" \
