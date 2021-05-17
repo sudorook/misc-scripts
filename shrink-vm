@@ -2,31 +2,47 @@
 set -eu
 source globals
 
-function cleanup() {
+#
+# Check inputs and requirements.
+#
+
+if ! [ -f "${1}" ]; then
+  show_error "ERROR: ${1} doesn't exist. Exiting."
+  exit 1
+fi
+
+if test -r "${1}"; then
+  if ! [[ "$(file -b "${1}")" =~ QCOW2 ]]; then
+    show_error "${1} is not a QCOW2 file."
+    exit 1
+  fi
+else
+  show_warning "Cannot read ${1}."
+  if ! [ "${1##*.}" = qcow2 ] && ! [ "${1##*.}" = QCOw2 ]; then
+    show_error "${1} is not a QCOW2 file."
+    exit 1
+  fi
+fi
+
+#
+# Main
+#
+
+function abort() {
   if [ -f "${1}.bak" ]; then
     mv -f "${1}.bak" "${1}"
   fi
 }
 
-trap 'cleanup ${1}' INT TERM EXIT
+trap 'abort ${1}' INT TERM ERR
 
-if ! [ -f "${1}" ]; then
-  show_error "File doesn't exist."
-  exit 1
-fi
-
-if [ "${1##*.}" = "qcow2" ]; then
-  OLD_SIZE=$(du -h "${1}" | cut -f1)
-  sudo bash -c "{
-    mv -f \"${1}\" \"${1}\".bak
-    qemu-img convert -O qcow2 \"${1}\".bak  \"${1}\"
-    chmod --reference=\"${1}\".bak \"${1}\"
-    rm -f \"${1}\".bak
-  }"
-  NEW_SIZE=$(du -h "${1}" | cut -f1)
-  show_success "Compressed from ${OLD_SIZE} to ${NEW_SIZE}."
-  sync
-else
-  show_error "${1} is not a qcow2 file."
-  exit 1
-fi
+OLD_SIZE=$(du -h "${1}" | cut -f1)
+sudo bash -c "{
+  mv -f \"${1}\" \"${1}\".bak
+  qemu-img convert -O qcow2 \"${1}\".bak  \"${1}\"
+  chmod --reference=\"${1}\".bak \"${1}\"
+  rm -f \"${1}\".bak
+}"
+NEW_SIZE=$(du -h "${1}" | cut -f1)
+show_success "Compressed from ${OLD_SIZE} to ${NEW_SIZE}."
+sync
