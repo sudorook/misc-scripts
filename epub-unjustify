@@ -21,17 +21,6 @@ pushd "${BUILDDIR}" >/dev/null
 
 unzip "${FILE}"
 
-# Remove hard-coded colors
-find . -type f -name "*.css" \
-  -exec sed -i "s,background-color\ *:\ *#\([0-9a-f]\+\);,/*background-color: \1;*/,g" {} \; \
-  -exec sed -i "s,background-color\ *:\ *#\([0-9a-f]\+\)$,/*background-color: \1*/,g" {} \; \
-  -exec sed -i "s,background-color\ *:\ *#\([0-9a-f]\+\)},/*background-color: \1*/},g" {} \;
-
-find . -type f -name "*.css" \
-  -exec sed -i "s,\(;*\ *\)color\ *:\ *#\([0-9a-f]\+\);,\1/*color: \2;*/,g" {} \; \
-  -exec sed -i "s,\(;*\ *\)color\ *:\ *#\([0-9a-f]\+\)$,\1/*color: \2*/,g" {} \; \
-  -exec sed -i "s,\(;*\ *\)color\ *:\ *#\([0-9a-f]\+\)},\1/*color: \2*/},g" {} \;
-
 # Removed justified text
 find . -type f -name "*.css" \
   -exec sed -i "s,text-align\s*:\s*justify;,/*text-align: justify;*/,g" {} \; \
