@@ -8,12 +8,12 @@ get_count() {
   local cmd
 
   dir=${1%/*}
-  if [ -d "${dir}/.git" ]; then
+  if git -C "${dir}" rev-parse 2>/dev/null; then
     if git -C "${dir}" log --oneline >/dev/null 2>&1; then
       #                                         ^^^^
       # Pipe stderr to stdout (and then to /dev/null) to suppress error
       # messages git prints when a repository is empty, etc.
-      local cmd="git -C \"${dir}\" log --format='%at %aN'"
+      cmd="git -C \"${dir}\" log --format='%at %aN'"
       if [ -n "${TIMECOUNT}" ] && [ -n "${TIMEUNIT}" ]; then
         cmd+=" | awk -F ' ' -v cutoff=$(date -d -"${TIMECOUNT}${TIMEUNIT}" +%s) '{if (cutoff<=\$1) {print \$0}}'"
       fi

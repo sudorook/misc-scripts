@@ -50,9 +50,10 @@ GITIGNOREFILES=
 
 # Parse the .gitignore file if the input directory is a Git repository.
 function find_gitignorefiles {
+  ! check_command git && return
   local gitignorefiles
   if [ ${#} = 0 ]; then
-    if [ -d ".git" ]; then
+    if git rev-parse 2>/dev/null; then
       gitignorefiles="$(find . -type f \
                          -exec git check-ignore -q {} \; \
                          -printf ' -o -path %p')"
@@ -60,7 +61,7 @@ function find_gitignorefiles {
         gitignorefiles="-not \\( ${gitignorefiles:4} \\)"
       fi
     fi
-  elif [ -d "${1}/.git" ]; then
+  elif git -C "${1}" rev-parse 2>/dev/null; then
     gitignorefiles="$(find "${1}" -type f \
                         -exec git -C "${1}" check-ignore -q {} \; \
                         -printf ' -o -path %p')"
