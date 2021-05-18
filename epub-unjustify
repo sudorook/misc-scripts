@@ -34,9 +34,9 @@ find . -type f -name "*.css" \
 
 # Removed justified text
 find . -type f -name "*.css" \
-  -exec sed -i "s,text-align\ *:\ *justify;,/*text-align: justify;*/,g" {} \; \
-  -exec sed -i "s,text-align\ *:\ *justify$,/*text-align: justify*/,g" {} \; \
-  -exec sed -i "s,text-align\ *:\ *justify},/*text-align: justify*/},g" {} \;
+  -exec sed -i "s,text-align\s*:\s*justify;,/*text-align: justify;*/,g" {} \; \
+  -exec sed -i "s,text-align\s*:\s*justify[\n\r]*$,/*text-align: justify*/,g" {} \; \
+  -exec sed -i "s,text-align\s*:\s*justify},/*text-align: justify*/},g" {} \;
 
 zip -u "${FILE}"
 
