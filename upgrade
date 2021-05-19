@@ -52,7 +52,7 @@ function upgrade_themes() {
   show_header "Upgrading GTK and icon themes."
   if [[ -v gtkdir ]] && [ -d "${gtkdir}" ]; then
     for dir in "${gtkdir}"/*; do
-      if [ -d "${dir}" ] && [ -d "${dir}/.git" ]; then
+      if git -C "${dir}" rev-parse 2>/dev/null; then
         show_info "$(basename "${dir}")"
         git -C "${dir}" checkout master \
           && git -C "${dir}" pull --ff-only origin master
@@ -64,7 +64,7 @@ function upgrade_themes() {
 
   if [[ -v icondir ]] && [ -d "${icondir}" ]; then
     for dir in "${icondir}"/*; do
-      if [ -d "${dir}/.git" ]; then
+      if git -C "${dir}" rev-parse 2>/dev/null; then
         show_info "$(basename "${dir}")"
         git -C "${dir}" checkout master \
           && git -C "${dir}" pull --ff-only origin master
@@ -93,7 +93,7 @@ function upgrade_vim_packages() {
   else
     if [[ -v vimpack ]] && [ -d "${vimpack}" ]; then
       for dir in "${vimpack}"/*; do
-        if [ -d "${dir}/.git" ]; then
+        if git -C "${dir}" rev-parse 2>/dev/null; then
           show_info "$(basename "${dir}")"
           git -C "${dir}" pull --ff-only origin master
           sleep 2
@@ -121,7 +121,7 @@ function upgrade_zsh() {
     else
       if [[ -v zshdir ]] && [ -d "${zshdir}" ]; then
         for dir in "${zshdir}"/*; do
-          if [ -d "${dir}/.git" ]; then
+          if git -C "${dir}" rev-parse 2>/dev/null; then
             show_info "$(basename "${dir}")"
             git -C "${dir}" pull --ff-only origin master
             sleep 2
@@ -152,7 +152,7 @@ function upgrade_pkgbuild() {
     show_header "Upgrading AUR pkgbuilds."
     if [[ -v pkgbuilddir ]] && [[ -d "${pkgbuilddir}" ]]; then
       for dir in "${pkgbuilddir}"/*; do
-        if [ -d "${dir}/.git" ]; then
+        if git -C "${dir}" rev-parse 2>/dev/null; then
           show_info "$(basename "${dir}")"
           if git_update "${dir}"; then
             pushd "${dir}" >/dev/null
@@ -172,7 +172,7 @@ weechatdir=${HOME}/.weechat/plugins
 function upgrade_weechat_plugins {
   show_header "Upgrading weechat plugins."
   for dir in "${weechatdir}"/*; do
-    if [ -d "${dir}/.git" ]; then
+    if git -C "${dir}" rev-parse 2>/dev/null; then
       show_info "$(basename "${dir}")"
       git -C "${dir}" pull --ff-only origin master
       sleep 2
