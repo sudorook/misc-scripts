@@ -8,7 +8,8 @@ source globals
 #
 
 function git_update() {
-  git -C "${1}" fetch
+  git -C "${1}" checkout master
+  git -C "${1}" fetch --tags
   h=$(git -C "${1}" rev-parse HEAD)
   u=$(git -C "${1}" rev-parse @{u})
   if [ "$h" = "$u" ]; then
@@ -50,14 +51,21 @@ function upgrade_system() {
 
 function upgrade_themes() {
   show_header "Upgrading GTK and icon themes."
+  local repo_name
+
   if [[ -v gtkdir ]] && [ -d "${gtkdir}" ]; then
     for dir in "${gtkdir}"/*; do
       if git -C "${dir}" rev-parse 2>/dev/null; then
         show_info "$(basename "${dir}")"
-        git -C "${dir}" checkout master \
-          && git -C "${dir}" pull --ff-only origin master
-        echo
+        if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
+          pushd "${dir}" >/dev/null
+          git checkout tweak
+          git rebase master
+          git checkout master
+          popd >/dev/null
+        fi
         sleep 2
+        echo
       fi
     done
   fi
@@ -65,9 +73,37 @@ function upgrade_themes() {
   if [[ -v icondir ]] && [ -d "${icondir}" ]; then
     for dir in "${icondir}"/*; do
       if git -C "${dir}" rev-parse 2>/dev/null; then
-        show_info "$(basename "${dir}")"
-        git -C "${dir}" checkout master \
-          && git -C "${dir}" pull --ff-only origin master
+        repo_name="$(basename "${dir}")"
+        show_info "${repo_name}"
+        if git_update "${dir}"; then
+          case "${repo_name}" in
+            papirus-icon-theme)
+              pushd "${dir}" >/dev/null
+              git checkout tweak
+              git reset HEAD~1
+              git reset --hard
+              git clean -xdf
+              git rebase master
+              tools/_restore_adapta_icons.sh
+              sync
+              git add .
+              git commit -m "Mirror updates to Adapta icon set."
+              git checkout master
+              popd >/dev/null
+              break
+              ;;
+            *)
+              if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
+                pushd "${dir}" >/dev/null
+                git checkout tweak
+                git rebase master
+                git checkout master
+                popd >/dev/null
+              fi
+              break
+              ;;
+          esac
+        fi
         sleep 2
         echo
       fi
@@ -75,12 +111,10 @@ function upgrade_themes() {
   fi
 
   if [[ -v thunderbirddir ]] && [[ -d "${thunderbirddir}" ]]; then
-    if [ -d "${thunderbirddir}" ]; then
-      show_info "$(basename "${thunderbirddir}") (thunderbird)"
-      git -C "${thunderbirddir}/chrome" pull --ff-only origin master
-      sleep 2
-      echo
-    fi
+    show_info "$(basename "${thunderbirddir}") (thunderbird)"
+    git -C "${thunderbirddir}/chrome" pull --ff-only origin master
+    sleep 2
+    echo
   fi
 }
 
