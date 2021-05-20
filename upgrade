@@ -192,6 +192,7 @@ function upgrade_pkgbuild() {
             pushd "${dir}" >/dev/null
             makepkg -si --noconfirm
             git clean -xdf
+            git reset --hard
             popd >/dev/null
           fi
           sleep 2
