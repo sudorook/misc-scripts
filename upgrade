@@ -78,19 +78,21 @@ function upgrade_themes() {
         if git_update "${dir}"; then
           case "${repo_name}" in
             papirus-icon-theme)
-              pushd "${dir}" >/dev/null
-              git checkout tweak
-              git reset HEAD~1
-              git reset --hard
-              git clean -xdf
-              git rebase master
-              tools/_restore_adapta_icons.sh
-              sync
-              git add .
-              git commit -m "Mirror updates to Adapta icon set."
-              git checkout master
-              popd >/dev/null
-              break
+              if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
+                pushd "${dir}" >/dev/null
+                git checkout tweak
+                git reset HEAD~1
+                git reset --hard
+                git clean -xdf
+                git rebase master
+                tools/_restore_adapta_icons.sh
+                sync
+                git add .
+                git commit -m "Mirror updates to Adapta icon set."
+                git checkout master
+                popd >/dev/null
+                break
+              fi
               ;;
             *)
               if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
