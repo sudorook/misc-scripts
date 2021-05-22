@@ -19,7 +19,7 @@ done
 
 TMP_DIR="$(mktemp -d)"
 mkdir -p "${TMP_DIR}"
-trap 'rm -rf "${TMP_DIR}"; exit' INT TERM EXIT
+trap 'rm -rf "${TMP_DIR}"; exit' INT TERM ERR EXIT
 
 CURRENT="$(nmcli connection show || true)"
 
