@@ -1,5 +1,5 @@
 #! /bin/bash
-set -eu
+set -euo pipefail
 source globals
 
 if ! [ -f "$1" ]; then

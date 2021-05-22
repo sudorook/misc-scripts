@@ -1,5 +1,5 @@
 #! /bin/bash
-set -eu
+set -euo pipefail
 source globals
 
 # Generate an ffmpeg format string to add all the fonts in a directory to a

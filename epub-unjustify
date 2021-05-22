@@ -1,5 +1,5 @@
 #! /bin/bash
-set -eu
+set -euo pipefail
 source globals
 
 ! check_command zip unzip && exit 3

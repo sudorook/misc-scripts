@@ -1,5 +1,5 @@
 #! /bin/bash
-set -eu
+set -Eeuo pipefail
 source globals
 
 # Script requries nm-cli, so check that the Network Manager service is running.
