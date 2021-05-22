@@ -31,7 +31,7 @@ if ! [ -e "${1}" ]; then
 fi
 
 TMP="$(mktemp)"
-trap 'rm -f "${TMP}"; exit' INT TERM EXIT
+trap 'rm -f "${TMP}"; exit' INT TERM ERR EXIT
 
 sort -u "${1}" > "${TMP}"
 if "${ISBACKUP}"; then
