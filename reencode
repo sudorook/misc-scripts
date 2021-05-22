@@ -2,6 +2,9 @@
 set -eu
 source globals
 
+! check_command ffmpeg && exit 3
+
+
 #
 # Globals
 #

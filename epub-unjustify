@@ -2,6 +2,8 @@
 set -eu
 source globals
 
+! check_command zip unzip && exit 3
+
 FILE="${1}"
 NAME="${1%.*}"
 EXTENSION="${1##*.}"

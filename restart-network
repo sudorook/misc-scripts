@@ -14,13 +14,14 @@ source globals
 #  - Parse the results of `ip link show` to figure out the interface names for
 #    the 'all' option.
 #  - Use getopt to parse command line options.
-#  - Make sure macchanger is installed before trying to use it (as root).
 #  - Print a message upon use describing the NetworkManager MAC address option.
 #  - Actually check that the MAC address of the interface(s) are actually
 #    changed.
 #
 #   --A
 #
+
+! check_command macchanger && exit 3
 
 function print_interfaces {
   ip link show | grep "^[0-9]" | grep -v "virbr\|tun\|lo" | \

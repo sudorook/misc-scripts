@@ -2,6 +2,8 @@
 set -eu
 source globals
 
+! check_command pdfinfo pdfseparate pdfunite && exit 3
+
 OPTIONS=hji:f:l:
 LONGOPTIONS=help,join,input:,FIRST:,LAST:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")

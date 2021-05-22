@@ -2,6 +2,8 @@
 set -eu
 source globals
 
+! check_command ffmpeg && exit 3
+
 function print_usage() {
   echo "Usage: add-cover -a|--audio <audio file> -c|--cover <cover image>"
 }
