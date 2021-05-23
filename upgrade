@@ -91,8 +91,8 @@ function upgrade_themes() {
                 git commit -m "Mirror updates to Adapta icon set."
                 git checkout master
                 popd >/dev/null
-                break
               fi
+              break
               ;;
             *)
               if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
