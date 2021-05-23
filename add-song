@@ -2,27 +2,32 @@
 set -eu
 source globals
 
-item=""
-flag=0
+SONG=
+ARTIST=
+FLAG=0
 
 addSong () {
-  item=$(ask_question "What's the song's name?")
-  if [ -z "${item}" ]; then exit; fi
-  check=$(ask_question "So the name is \"${item}\"? [Y/n]")
-  if [[ $check =~ ^([nN][oO]|[nN])$ ]]; then
+  local check
+  SONG=$(ask_question "What's the song's name?")
+  if [ -z "${SONG}" ]; then exit; fi
+
+  check=$(ask_question "So the name is \"${SONG}\"? [Y/n]")
+  while [[ $check =~ ^([nN][oO]|[nN])$ ]]; do
     echo "No problem. Let's try again."
-    addSong
-  fi
+    check=$(ask_question "So the name is \"${SONG}\"? [Y/n]")
+  done
 }
 
 addArtist () {
-  item=$(ask_question "Who made it?")
-  if [ -z "${item}" ]; then exit; fi
-  check=$(ask_question "So it's by \"${item}\"? [Y/n]")
-  if [[ $check =~ ^([nN][oO]|[nN])$ ]]; then
+  local check
+  ARTIST=$(ask_question "Who made it?")
+  if [ -z "${ARTIST}" ]; then exit; fi
+
+  check=$(ask_question "So it's by \"${ARTIST}\"? [Y/n]")
+  while [[ $check =~ ^([nN][oO]|[nN])$ ]]; do
     echo "No problem. Let's try again."
-    addArtist
-  fi
+    check=$(ask_question "So it's by \"${ARTIST}\"? [Y/n]")
+  done
 }
 
 if [ -f "$HOME/.files/music2add" ]; then
@@ -34,24 +39,22 @@ else
 fi
 
 addSong
-song=${item}
 addArtist
-artist=${item}
 
 IFS_BACKUP=$IFS
 IFS=$'\t'
-while read -r tune maker
+while read -r TUNE MAKER
 do
-  [ "$tune" == "Song" ] && [ "$maker" == "Artist" ] && continue
-  if [ "$song" == "$tune" ] && [ "$maker" == "$artist" ]; then
-    flag=1
+  [ "$TUNE" == "Song" ] && [ "$MAKER" == "Artist" ] && continue
+  if [ "$SONG" == "$TUNE" ] && [ "$MAKER" == "$ARTIST" ]; then
+    FLAG=1
     break
   fi
 done < "$HOME/.files/music2add"
 IFS=$IFS_BACKUP
 
-if [ ${flag} -eq 0 ]; then
-  printf "%s\t%s" "$song" "$artist" >> "$HOME/.files/music2add"
+if [ ${FLAG} -eq 0 ]; then
+  printf "%s\t%s" "$SONG" "$ARTIST" >> "$HOME/.files/music2add"
   show_success "Done!"
   exit
 else
