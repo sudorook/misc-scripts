@@ -36,7 +36,7 @@
 | `kvm-mv`           | move file to shared KVM directory                                      |
 | `list-fonts`       | list all the fonts referenced in a subtitle file or directory          |
 | `pdf-fixup`        | fix up the metadata in PDF files (newlines in tags, covers, etc.)      |
-| `pdfsplit`         | extract range of pages from a PDF                                      |
+| `pdf-split`        | extract range of pages from a PDF                                      |
 | `print-colors`     | print terminal colors                                                  |
 | `print-fontstring` | generate the FFmpeg format string to embed fonts in a container        |
 | `rate-song`        | write song rating metadata to beets database                           |
