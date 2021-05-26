@@ -54,6 +54,41 @@ switch_thunderbird_theme() {
   fi
 }
 
+switch_gtk_settings() {
+  local gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
+  if [[ -f ${gtksettings} ]]; then
+    if [ "$1" = "Dark" ]; then
+      sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" "${gtksettings}"
+      sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" "${gtksettings}"
+    elif [ "${1}" = "Light" ]; then
+      sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" "${gtksettings}"
+      sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" "${gtksettings}"
+    fi
+  fi
+}
+
+switch_gitk_theme() {
+  local gitkdir="${HOME}/.config/git"
+  [[ -f "${gitkdir}/gitk-$1" ]] && cp "${gitkdir}/gitk-${1}" "${gitkdir}/gitk"
+}
+
+switch_ebook_viewer_theme() {
+  local calibresettings="${HOME}/.config/calibre/viewer-webengine.json"
+  if [[ -f ${calibresettings} ]]; then
+    if [ "$1" = "Dark" ]; then
+      sed -i 's/\("current_color_scheme"\): "sepia-light"/\1: "sepia-dark"/g' \
+        "${calibresettings}"
+      sed -i 's/\("current_color_scheme"\): "white"/\1: "black"/g' \
+        "${calibresettings}"
+    elif [ "${1}" = "Light" ]; then
+      sed -i 's/\("current_color_scheme"\): "sepia-dark"/\1: "sepia-light"/g' \
+        "${calibresettings}"
+      sed -i 's/\("current_color_scheme"\): "black"/\1: "white"/g' \
+        "${calibresettings}"
+    fi
+  fi
+}
+
 set_gtk_theme() {
   case $XDG_CURRENT_DESKTOP in
     X-Cinnamon)
@@ -82,40 +117,38 @@ set_gtk_theme() {
       ;;
   esac
 
-  local gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
-  local gitkdir="${HOME}/.config/git"
   if [[ "$1" =~ [Nn]okto ]] || [[ "$1" =~ ^[Aa]rc-[Dd]ark ]]; then
-    sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" "${gtksettings}"
-    sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" "${gtksettings}"
+    switch_gtk_settings "Dark"
     switch_terminal_profile "Dark"
     switch_vim_background "dark"
     switch_tmux_theme "dark"
     switch_thunderbird_theme "Dark"
-    [[ -f ${gitkdir}/gitk-dark ]] && cp "${gitkdir}/gitk-dark" "${gitkdir}/gitk"
+    switch_gitk_theme "dark"
+    switch_ebook_viewer_theme "Dark"
   elif [[ "$1" =~ [Nn]oir ]] || [[ "$1" =~ [Dd]ark ]]; then
-    sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" "${gtksettings}"
-    sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" "${gtksettings}"
+    switch_gtk_settings "Dark"
     switch_terminal_profile "Dark"
     switch_vim_background "dark2"
     switch_tmux_theme "dark2"
     switch_thunderbird_theme "Dark"
-    [[ -f ${gitkdir}/gitk-dark2 ]] && cp "${gitkdir}/gitk-dark2" "${gitkdir}/gitk"
-  elif [[ "$1" =~ [Aa]dapta ]]; then
-    sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" "${gtksettings}"
-    sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" "${gtksettings}"
+    switch_gitk_theme "dark2"
+    switch_ebook_viewer_theme "Dark"
+  elif [[ "$1" =~ ^[Aa]dapta ]]; then
+    switch_gtk_settings "Light"
     switch_terminal_profile "Light"
     switch_vim_background "light"
     switch_tmux_theme "light"
     switch_thunderbird_theme "Light"
-    [[ -f ${gitkdir}/gitk-light ]] && cp "${gitkdir}/gitk-light" "${gitkdir}/gitk"
+    switch_gitk_theme "light"
+    switch_ebook_viewer_theme "Light"
   else
-    sed -i "s/^gtk-application-prefer-dark-theme=true$/gtk-application-prefer-dark-theme=false/g" "${gtksettings}"
-    sed -i "s/^gtk-application-prefer-dark-theme=1$/gtk-application-prefer-dark-theme=0/g" "${gtksettings}"
+    switch_gtk_settings "Light"
     switch_terminal_profile "Light"
     switch_vim_background "light2"
     switch_tmux_theme "light2"
     switch_thunderbird_theme "Light"
-    [[ -f ${gitkdir}/gitk-light2 ]] && cp "${gitkdir}/gitk-light2" "${gitkdir}/gitk"
+    switch_gitk_theme "light2"
+    switch_ebook_viewer_theme "Light"
   fi
 }
 
