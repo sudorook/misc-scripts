@@ -83,6 +83,7 @@ pdftk "$INPUT" cat "${START}"-"${END}" output ${TMP}
 pdftk "$INPUT" dump_data output ${DATA}
 sed -i "s///g" "${DATA}"
 sed -i "/^BookmarkTitle/N;s/\n\([^BookmarkLevel]\)/\1/g" "${DATA}"
+sed -i "/^$/d" "${DATA}"
 
 if [[ "${START}" -ne 1 ]]; then
   show_info "Edit the metadata to fix bookmark and media page #s. Then, run:"
