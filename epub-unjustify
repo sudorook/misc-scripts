@@ -4,6 +4,14 @@ source globals
 
 ! check_command zip unzip && exit 3
 
+# Removed justified text
+function unjustify {
+  find . -type f -name "*.css" \
+    -exec sed -i "s,text-align\s*:\s*justify;,/*text-align: justify;*/,g" {} \; \
+    -exec sed -i "s,text-align\s*:\s*justify[\n\r]*$,/*text-align: justify*/,g" {} \; \
+    -exec sed -i "s,text-align\s*:\s*justify},/*text-align: justify*/},g" {} \;
+}
+
 FILE="${1}"
 NAME="${1%.*}"
 EXTENSION="${1##*.}"
@@ -23,11 +31,7 @@ pushd "${BUILDDIR}" >/dev/null
 
 unzip "${FILE}"
 
-# Removed justified text
-find . -type f -name "*.css" \
-  -exec sed -i "s,text-align\s*:\s*justify;,/*text-align: justify;*/,g" {} \; \
-  -exec sed -i "s,text-align\s*:\s*justify[\n\r]*$,/*text-align: justify*/,g" {} \; \
-  -exec sed -i "s,text-align\s*:\s*justify},/*text-align: justify*/},g" {} \;
+unjustify
 
 zip -u "${FILE}"
 
