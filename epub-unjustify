@@ -12,7 +12,7 @@ function unjustify {
     -exec sed -i "s,text-align\s*:\s*justify},/*text-align: justify*/},g" {} \;
 }
 
-FILE="${1}"
+FILE="$(basename "${1}")"
 NAME="${1%.*}"
 EXTENSION="${1##*.}"
 
@@ -26,7 +26,7 @@ fi
 BUILDDIR="$(mktemp -d)"
 trap 'rm -rf "${BUILDDIR}"; exit' INT TERM ERR EXIT
 
-cp "${FILE}" "${BUILDDIR}"
+cp "${1}" "${BUILDDIR}"
 pushd "${BUILDDIR}" >/dev/null
 
 unzip "${FILE}"
