@@ -31,10 +31,17 @@ switch_vim_background() {
 
 switch_tmux_theme() {
   if [ -f "${HOME}/.tmux.conf" ]; then
-    local themefile
-    themefile=$(sed -n "s/^\ *\"source-file\ \(.*\)\"$/\1/p" "${HOME}/.tmux.conf")
-    eval themefile="${themefile}"
-    sed -i "s,^theme=\"[a-z0-9]\+\",theme=\"${1}\",g" "${themefile}"
+    local themestring
+    themestring=$(sed -n "s/^\ *\"source-file\ \(.*\)\"$/\1/p" "${HOME}/.tmux.conf")
+    if [[ "$(basename "${themestring}")" = "colorific.tmuxtheme" ]]; then
+      local themefile
+      eval themefile="${themestring}"
+      sed -i "s,^theme=\"[a-z0-9]\+\",theme=\"${1}\",g" "${themefile}"
+    else
+      local themedir
+      themedir="$(dirname "${themestring}")"
+      sed -i "s,${themestring},${themedir}/${1}.tmuxtheme,g" "${HOME}/.tmux.conf"
+    fi
   fi
 }
 
