@@ -31,10 +31,10 @@ while [ $# -ge 1 ]; do
       ;;
     -h|--help)
       echo "pdfsplit options:"
-      echo "  -i|--input  <pdf input>"
+      echo "  -i|--input  <PDF input>"
       echo "  -f|--first  <# of first page to split>"
       echo "  -l|--last   <# of last page to split>"
-      echo "  -j|--join   <flag to join split pdf pages together (def: false)"
+      echo "  -j|--join   <flag to join split PDF pages together (def: false)"
       exit 0
       ;;
     --)
@@ -42,7 +42,7 @@ while [ $# -ge 1 ]; do
       break
       ;;
     *)
-      show_error "Error"
+      show_error "ERROR: invalid option."
       exit 3
       ;;
   esac
@@ -76,9 +76,9 @@ if (( FIRST > LAST )); then
   exit 3
 fi
 
-# Split the pdf out into the individual files. The if statements are needed so
+# Split the PDF out into the individual files. The if statements are needed so
 # that the filenames will get sorted in numerical order. Otherwise, the glob
-# used to join the pages at the end won't work. For examples, 02 is sorted
+# used to join the pages at the end won't work. For example, 02 is sorted
 # before 10, but 2 is placed after.
 if (( FIRST >= 10 )); then
   pdfseparate -f $FIRST -l "$LAST" "$IN" "$OUT-%d.pdf"
