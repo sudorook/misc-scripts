@@ -198,6 +198,7 @@ LANG=(
   ["grb"]="Grebo"
   # ["grc"]="Greek, Ancient (to 1453)"
   # ["gre"]="Greek, Modern (1453-)"
+  ["gre"]="Greek"
   ["kal"]="Greenlandic"
   ["grn"]="Guarani"
   ["guj"]="Gujarati"
