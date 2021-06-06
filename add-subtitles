@@ -619,7 +619,7 @@ function convert_charset {
 }
 
 function get_language {
-  local res
+  local res=
   for lang in "${!LANG[@]}"; do
     if [[ "${1,,}" =~ ${LANG[${lang}],,} ]]; then
       res="${lang}"
