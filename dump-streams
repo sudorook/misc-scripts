@@ -13,15 +13,34 @@ function get_stream_count {
     sed -n "s/nb_streams=\([0-9]\+\)/\1/p" 2>/dev/null
 }
 
+function pick_container {
+  local format
+  local format_name
+  local container_type
+
+  format="$(ffprobe -v error -show_format "$1")"
+  format_name="$(echo "$format" | sed -n "s/^format_name=\(.*\)/\1/p")"
+
+  if [[ "${format_name}" =~ matroska ]]; then
+    container_type=mkv
+  elif [[ "${format_name}" =~ mp4 ]]; then
+    container_type=mp4
+  else
+    container_type=avi
+  fi
+
+  echo "${container_type}"
+}
+
 function dump_stream {
   local info
   local codec_name
   local codec_type
+  local container
   local font_file
   local in
   in="$(basename "${1}")"
   local name=${in%.*}
-  local filetype=${in##*.}
   local idx="${2}"
 
   info="$(ffprobe -v error -show_entries stream -select_streams "$idx" "$1")"
@@ -29,22 +48,23 @@ function dump_stream {
   codec_type="$(echo "$info" | sed -n "s/^codec_type=\(.*\)/\1/p")"
 
   case "${codec_type}" in
-    "video")
-      cmd="ffmpeg -i \"${1}\" -map 0:${idx} -c copy \"${name}_${idx}.${filetype}\""
-      eval "${cmd}" 2>/dev/null || true
+    video)
+      container="$(pick_container "${1}")"
+      cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c copy \"${name}_${idx}.${container}\" -y"
+      eval "${cmd}"
       return
       ;;
-    "audio"|"subtitle")
-      cmd="ffmpeg -i \"${1}\" -map 0:${idx} -c copy \"${name}_${idx}.${codec_name}\""
-      eval "${cmd}" 2>/dev/null || true
+    audio|subtitle)
+      cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c copy \"${name}_${idx}.${codec_name}\" -y"
+      eval "${cmd}"
       return
       ;;
-    "attachment")
+    attachment)
       if [[ "${codec_name}" =~ ^[o|t]tf ]]; then
         mkdir -p "${name}_fonts"
         font_file="$(echo "$info" | sed -n "s/^TAG:filename=\(.*\)/\1/p")"
-        cmd="ffmpeg -dump_attachment:$idx \"\" -i \"${1}\" -y"
-        eval "${cmd}" 2>/dev/null || true
+        cmd="ffmpeg -v warning -dump_attachment:$idx \"\" -i \"${1}\" -y"
+        eval "${cmd}"
         mv "${font_file}" "${name}_fonts"
       fi
       return
