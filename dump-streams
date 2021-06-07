@@ -2,6 +2,8 @@
 set -euo pipefail
 source globals
 
+! check_command ffmpeg ffprobe && exit 3
+
 if ! [ -f "$1" ]; then
   show_error "ERROR: invalid input $1. Exiting."
 fi
