@@ -78,8 +78,6 @@ if ! [[ -v VIDEODIR ]]; then
       fi
     fi
   fi
-else
-  VIDEODIR="$(pwd)"
 fi
 
 mkdir -p "${VIDEODIR}/${NAME}"
