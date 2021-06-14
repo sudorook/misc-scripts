@@ -626,6 +626,16 @@ function get_language {
       break
     fi
   done
+
+  # If language not found, try to parse three-character strings as a fallback.
+  if [ -z "${res}" ]; then
+    for lang in "${!LANG[@]}"; do
+      if [[ "${1,,}" =~ ${lang,,} ]]; then
+        res="${lang}"
+        break
+      fi
+    done
+  fi
   echo "${res}"
 }
 
