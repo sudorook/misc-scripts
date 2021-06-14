@@ -25,6 +25,14 @@ function cleanup_filename() {
   return 0
 }
 
+function cleanup_metadata() {
+  if [[ "$(file -bi "${1}")" =~ matroska ]]; then
+    if command -v mkvpropedit >/dev/null; then
+      mkvpropedit "${1}" -e info -s title=""
+    fi
+  fi
+}
+
 for VID in *; do
   if [ -f "$VID" ]; then
     NEWVID=$(cleanup_filename "$VID")
@@ -40,6 +48,7 @@ if [[ "$REPLY" =~ ^y ]] || [[ "$REPLY" =~ ^Y ]]; then
       NEWVID=$(cleanup_filename "$VID")
       if [ "$VID" != "$NEWVID" ]; then
         mv -v "$VID" "$NEWVID"
+        cleanup_metadata "${NEWVID}"
       else
         echo "$VID unchanged"
       fi
