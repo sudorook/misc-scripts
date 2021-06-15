@@ -8,13 +8,66 @@ source globals
 function print_usage() {
   echo "Usage:"
   echo "  -i  --input                 input video (e.g. input.mp4)"
-  echo "  -o  --output                output gif (e.g. output.gif)"
+  echo "  -o  --output                output video (e.g. output.mp4)"
   echo "  -s  --start                 starting timestamp (e.g. 01:20.5)"
   echo "  -l  --length                length in seconds (e.g. 3.5)"
+  echo "  -e  --end                   ending timestamp (e.g. 01:20.5)"
 }
 
-OPTIONS=i:o:s:l:t:
-LONGOPTIONS=input:,output:,start:,length:,subtitle:
+function scan_input {
+  local vstring
+  local sstring
+
+  fstring="$(ffprobe -v error -show_format "${IN}")"
+  vstring="$(ffprobe -v error \
+               -select_streams v:0 -show_streams "${IN}")"
+  sstring="$(ffprobe -v error \
+               -select_streams s:0 -show_streams "${IN}")"
+
+  if ! [[ -v VCODEC ]]; then
+    VCODEC="$(echo "${vstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v WIDTH ]]; then
+    WIDTH="$(echo "${vstring}" | sed -n "s/^width=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v HEIGHT ]]; then
+    HEIGHT="$(echo "${vstring}" | sed -n "s/^height=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v RESOLUTIONS ]]; then
+    RESOLUTIONS=("native")
+  fi
+  if ! [[ -v DURATION ]]; then
+    DURATION="$(echo "${fstring}" | sed -n "s/^duration=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v DIMENSIONS ]]; then
+    DIMENSIONS=("${WIDTH}x${HEIGHT}")
+  fi
+  if ! [[ -v ASPECTRATIO ]]; then
+    ASPECTRATIO="$(echo "${vstring}" | sed -n "s/^display_aspect_ratio=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v FPS ]]; then
+    FPS="$(echo "${vstring}" | sed -n "s/^r_frame_rate=\(.*\)$/\1/p" | bc -l)"
+  fi
+  if ! [[ -v SCODEC ]]; then
+    SCODEC="$(echo "${sstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
+  fi
+}
+
+function make_clip {
+  cmd="ffmpeg -v warning -y -i ${IN@Q} -ss ${START}"
+  if [[ -v LENGTH ]]; then
+    cmd="${cmd} -t ${LENGTH}"
+  elif [[ -v END ]]; then
+    cmd="${cmd} -to ${END}"
+  fi
+  cmd="${cmd} ${OUT@Q}"
+  eval "${cmd}"
+}
+
+START=0.0
+
+OPTIONS=i:o:s:e:l:t:
+LONGOPTIONS=input:,output:,start:,end:,length:,subtitle:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -22,6 +75,7 @@ while [ $# -ge 1 ]; do
   case "$1" in
     -i|--input)
       IN="$2"
+      scan_input
       shift 2
       ;;
     -o|--output)
@@ -30,6 +84,10 @@ while [ $# -ge 1 ]; do
       ;;
     -s|--start)
       START="$2"
+      shift 2
+      ;;
+    -e|--end)
+      END="$2"
       shift 2
       ;;
     -l|--length)
@@ -49,10 +107,14 @@ while [ $# -ge 1 ]; do
 done
 
 # Check if variables are set before running ffmpeg.
-if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
-  ffmpeg -i "$IN" -ss "$START" -t "$LENGTH" "$OUT"
-else
-  show_error "ERROR: missing input flags. Exiting."
+if ! [[ -v IN ]] || ! [[ -v OUT ]]; then
+  show_error "ERROR: missing input/output files."
   print_usage
   exit 3
 fi
+
+if ! [[ -v LENGTH ]] && ! [[ -v END ]]; then
+  LENGTH="$(echo "${DURATION} - ${START}" | bc -l)"
+fi
+
+make_clip
