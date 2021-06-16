@@ -1,27 +1,223 @@
 #! /bin/bash
-set -eu
+set -Eeuo pipefail
 source globals
 
-# Global functions.
+! check_command ffmpeg ffprobe && exit 3
+
+#
+# Define functions
+#
+
 function print_usage() {
   echo "Usage:"
-  echo "  -i  --input                 input video (e.g. input.mp4)"
-  echo "  -o  --output                output gif (e.g. output.gif)"
-  echo "  -s  --start                 starting timestamp (e.g. 01:20.5)"
-  echo "  -l  --length                length in seconds (e.g. 3.5)"
-  echo "  -d  --dimensions            dimensions of gif (e.g. 1280x720)"
-  echo "  -r  --resolution            gif resolution (e.g. 720p)"
-  echo "  -t  --subtitle              subtitle type (text, image, or none)"
-  echo "Enter the dimensions manually or specify the desired resolution."
+  echo "  -i  --input          input video (e.g. input.mp4)"
+  echo "  -o  --output         output GIF (e.g. output.gif)"
+  echo "  -s  --start          starting timestamp (e.g. 01:20.5)"
+  echo "  -l  --length         length in seconds (e.g. 3.5)"
+  echo "  -d  --dimensions     output dimensions, comma-delimited (e.g. 1280x720)"
+  echo "  -p  --fps            GIF output FPS (e.g. 30)"
+  echo "  -t  --subtitle       embed subtitles? (yes, no, both)"
 }
 
-# Set default values globally.
-ASPECTRATIO="16:9"
-RESOLUTION="480"
-DIMENSIONS="unset"
+function scan_input {
+  local vstring
+  local sstring
 
-OPTIONS=i:o:s:l:r:d:t:
-LONGOPTIONS=input:,output:,start:,length:,resolution:,dimensions:,subtitle:
+  fstring="$(ffprobe -v error -show_format "${IN}")"
+  vstring="$(ffprobe -v error \
+               -select_streams v:0 -show_streams "${IN}")"
+  sstring="$(ffprobe -v error \
+               -select_streams s:0 -show_streams "${IN}")"
+
+  if ! [[ -v VCODEC ]]; then
+    VCODEC="$(echo "${vstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v SCODEC ]]; then
+    SCODEC="$(echo "${sstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v WIDTH ]]; then
+    WIDTH="$(echo "${vstring}" | sed -n "s/^width=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v HEIGHT ]]; then
+    HEIGHT="$(echo "${vstring}" | sed -n "s/^height=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v RESOLUTIONS ]]; then
+    RESOLUTIONS=("native")
+  fi
+  if ! [[ -v DIMENSIONS ]]; then
+    DIMENSIONS=("${WIDTH}x${HEIGHT}")
+  fi
+  if ! [[ -v ASPECTRATIO ]]; then
+    ASPECTRATIO="$(echo "${vstring}" | sed -n "s/^display_aspect_ratio=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v DURATION ]]; then
+    DURATION="$(echo "${fstring}" | sed -n "s/^duration=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v FPS ]]; then
+    FPS="$(echo "${vstring}" | sed -n "s/^r_frame_rate=\(.*\)$/\1/p" | bc -l)"
+  fi
+}
+
+function make_image_subs {
+  local in="${IN}"
+  local dim="${3}"
+  local width
+  local height
+  local out
+  local cmd
+  local width
+
+  # compute the width and height for the image
+  if [[ "${dim}" = native ]]; then
+    width="${WIDTH}"
+    height="${HEIGHT}"
+    scale=
+  else
+    width="$(echo "${dim}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\1,p")"
+    height="$(echo "${dim}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\2,p")"
+    if [ -z "${width}" ] && [ -n "${height}" ]; then
+      scale=",scale=-1:${height}:flags=lanczos"
+      width="$(printf %.0f "$(echo "${height} * ${ASPECTRATIO}" | sed 's,:,/,g' | bc -l)")"
+    elif [ -n "${width}" ] && [ -z "${height}" ]; then
+      scale=",scale=${width}:-1:flags=lanczos"
+      height="$(printf %.0f "$(echo "${width} / (${ASPECTRATIO})" | sed 's,:,/,g' | bc -l)")"
+    elif [ -n "${width}" ] && [ -n "${height}" ]; then
+      scale=",scale=${width}:${height}:flags=lanczos"
+    else
+      width="${WIDTH}"
+      height="${HEIGHT}"
+      scale=
+    fi
+  fi
+
+  # add dimensions to the output file name
+  out="${OUT%%.*}-${width}x${height}-sub.${FORMAT}"
+
+  # burn the subtitles into a short video
+  case "${SCODEC}" in
+    mov_text|subrip)
+      cmd="ffmpeg -v warning -y -ss ${START}"
+      # -t and -to are mutually exclusive, so set duration over end stamp
+      # (mirrors ffmpeg default behavior)
+      if [[ -v LENGTH ]]; then
+        cmd="${cmd} -t ${LENGTH}"
+      elif [[ -v END ]]; then
+        cmd="${cmd} -to ${END}"
+      fi
+      cmd="${cmd} -i ${in@Q} -map 0:v -c:v ${VCODEC} -an -sn -vf \"subtitles=${in@Q}:force_style='FontName=${FONT}':si=0\" -f ${VCODEC} ${TMP}"
+      echo "${cmd}"
+      eval "${cmd}"
+      ;;
+    dvd_subtitle)
+      cmd="ffmpeg -v warning -y -ss ${START}"
+      # -t and -to are mutually exclusive, so set duration over end stamp
+      # (mirrors ffmpeg default behavior)
+      if [[ -v LENGTH ]]; then
+        cmd="${cmd} -t ${LENGTH}"
+      elif [[ -v END ]]; then
+        cmd="${cmd} -to ${END}"
+      fi
+      cmd="${cmd} -i ${in@Q} -an -filter_complex '[0:v][0:s:0] overlay [v]' -map '[v]' -f ${VCODEC} ${TMP}"
+      echo "${cmd}"
+      eval "${cmd}"
+      ;;
+    *)
+      show_warning "WARNING: No subtitle streams found in ${IN}. Skipping."
+      return
+      ;;
+  esac
+
+  # convert the short video into an image
+  case "${FORMAT}" in
+    gif)
+      cmd="ffmpeg -v warning -y -i ${TMP} -filter_complex '[0:v] fps=${FPS}${scale},split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif ${out@Q}"
+      echo "${cmd}"
+      eval "${cmd}"
+      ;;
+    webp)
+      cmd="ffmpeg -v warning -y -i ${TMP} -vf 'fps=${FPS}${scale}' -vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -vsync 0 -f webp ${out@Q}"
+      echo "${cmd}"
+      eval "${cmd}"
+      ;;
+  esac
+}
+
+function make_image {
+  local in="${IN}"
+  local dim="${3}"
+  local width
+  local height
+  local out
+  local cmd
+
+  # compute the width and height for the image
+  if [[ "${dim}" = native ]]; then
+    width="${WIDTH}"
+    height="${HEIGHT}"
+    scale=
+  else
+    width="$(echo "${dim}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\1,p")"
+    height="$(echo "${dim}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\2,p")"
+    if [ -z "${width}" ] && [ -n "${height}" ]; then
+      scale=",scale=-1:${height}"
+      width="$(printf %.0f "$(echo "${height} * ${ASPECTRATIO}" | sed 's,:,/,g' | bc -l)")"
+    elif [ -n "${width}" ] && [ -z "${height}" ]; then
+      scale=",scale=${width}:-1"
+      height="$(printf %.0f "$(echo "${width} / (${ASPECTRATIO})" | sed 's,:,/,g' | bc -l)")"
+    elif [ -n "${width}" ] && [ -n "${height}" ]; then
+      scale=",scale=${width}:${height}"
+    else
+      width="${WIDTH}"
+      height="${HEIGHT}"
+      scale=
+    fi
+  fi
+
+  # add dimensions to the output file name
+  out="${OUT%%.*}-${width}x${height}.${FORMAT}"
+
+  # generate the command
+  cmd="ffmpeg -v warning -y -ss ${START}"
+
+  # -t and -to are mutually exclusive, so set duration over end stamp (mirrors
+  # ffmpeg default behavior)
+  if [[ -v LENGTH ]]; then
+    cmd="${cmd} -t ${LENGTH}"
+  elif [[ -v END ]]; then
+    cmd="${cmd} -to ${END}"
+  fi
+  cmd="${cmd} -i ${in@Q} -an -sn"
+
+  # generate separate filter strings for GIF and WebP formats
+  case "${FORMAT}" in
+    gif)
+      cmd="${cmd} -filter_complex '[0:v] fps=${FPS}${scale},split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif ${out@Q}"
+      ;;
+    webp)
+      cmd="${cmd} -vf 'fps=${FPS}${scale}' -vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -vsync 0 -f webp ${out@Q}"
+      ;;
+  esac
+  echo "${cmd}"
+  eval "${cmd}"
+}
+
+#
+# Set globals
+#
+
+EMBED_SUBS=false
+FONT=ubuntu
+START=0.0
+
+TMP=$(mktemp)
+trap 'rm -f ${TMP}; exit' INT TERM ERR EXIT
+
+#
+# Parse input
+#
+
+OPTIONS=i:o:s:e:l:d:t:p:
+LONGOPTIONS=input:,output:,start:,end:,length:,resolution:,subtitle:,fps:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -29,18 +225,30 @@ while [ $# -ge 1 ]; do
   case "$1" in
     -i|--input)
       IN="$2"
-      WIDTH=$(ffprobe -v error -select_streams v:0 \
-                -show_entries stream=width -of default=nw=1:nk=1 "${IN}")
-      HEIGHT=$(ffprobe -v error -select_streams v:0 \
-                 -show_entries stream=height -of default=nw=1:nk=1 "${IN}")
+      scan_input
       shift 2
       ;;
     -o|--output)
       OUT="$2"
+      case "${2##*.}" in
+        GIF|gif|Gif)
+          FORMAT=gif
+          ;;
+        WEBP|webp|WebP)
+          FORMAT=webp
+          ;;
+        *)
+          show_error "ERROR: '$2' unsupported output format."
+          exit 3
+      esac
       shift 2
       ;;
     -s|--start)
       START="$2"
+      shift 2
+      ;;
+    -e|--end)
+      END="$2"
       shift 2
       ;;
     -l|--length)
@@ -48,52 +256,15 @@ while [ $# -ge 1 ]; do
       shift 2
       ;;
     -t|--subtitle)
-      SUBMODE="$2"
+      EMBED_SUBS="${2}"
       shift 2
       ;;
     -d|--dimensions)
-      case "$2" in
-        854x480)
-          RESOLUTION=480
-          DIMENSIONS=854x480
-          ;;
-        1280x720)
-          RESOLUTION=720
-          DIMENSIONS=1280x720
-          ;;
-        1920x1080)
-          RESOLUTION=1080
-          DIMENSIONS=1920x1080
-          ;;
-        *)
-          DIMENSIONS="$2"
-          show_warning "Manually setting dimensions to $2."
-          ;;
-      esac
+      IFS=',' read -r -a DIMENSIONS <<< "${2}"
       shift 2
       ;;
-    -r|--resolution)
-      case "$2" in
-        240p|240)
-          RESOLUTION=240
-          ;;
-        360p|360)
-          RESOLUTION=360
-          ;;
-        480p|480|480i)
-          RESOLUTION=480
-          ;;
-        720p|720|720i)
-          RESOLUTION=720
-          ;;
-        1080p|1080|1080i)
-          RESOLUTION=1080
-          ;;
-        *)
-          show_error "Resolution $2 not supported."
-          exit 3
-          ;;
-      esac
+    -p|--fps)
+      FPS="${2}"
       shift 2
       ;;
     --)
@@ -107,56 +278,39 @@ while [ $# -ge 1 ]; do
   esac
 done
 
-# Calculate dimensions (if not manually specified) from the resolution.
-if ! [[ -v DIMENSIONS ]] || [ "$DIMENSIONS" = "unset" ]; then
-  if ! [[ -v RESOLUTION ]] || [ $RESOLUTION = "unset" ]; then
-    show_error "Specify a resolution or manually specify the dimensions."
-    exit 3
-  else
-    if [[ $(( ((WIDTH+(2*HEIGHT+8)/9)+HEIGHT-1)/HEIGHT )) -gt 2 ]]; then
-      NEW_WIDTH=$(( (RESOLUTION*16+8)/9 ))
-      NEW_HEIGHT=$(( (NEW_WIDTH*HEIGHT+WIDTH-1)/WIDTH ))
-      DIMENSIONS="$(( NEW_WIDTH ))x$(( NEW_HEIGHT ))"
-    else
-      DIMENSIONS="$(( (RESOLUTION*WIDTH+HEIGHT-1) / HEIGHT ))x$RESOLUTION"
-    fi
-  fi
-fi
+#
+# Main
+#
 
 # Check if variables are set before running ffmpeg.
-if [[ -v LENGTH ]] && [[ -v START ]] && [[ -v IN ]] && [[ -v OUT ]]; then
-  if [[ -v SUBMODE ]]; then
-    case "$SUBMODE" in
-      "text")
-        ffmpeg -y -i "$IN" -an -vf subtitles="$IN" \
-               -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
-        ;;
-      "image")
-        ffmpeg -y -i "$IN" -an -filter_complex "[0:v][0:s]overlay[v]" -map "[v]" \
-               -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
-        ;;
-      "none")
-        ffmpeg -y -i "$IN" -an -sn \
-               -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
-        ;;
-      *)
-        show_error "Subtitle $SUBMODE unsupported. Specify \"text\" or \"image\"."
-        ;;
-    esac
-  else
-    ffmpeg -y -i "$IN" -an -sn \
-           -ss "$START" -t "$LENGTH" -s "$DIMENSIONS" -f gif "$OUT"
-  fi
-
-  if command -v gifsicle >/dev/null; then
-    gifsicle -O3 "$OUT" -o "$OUT"
-  fi
-
-  if command -v eog >/dev/null; then
-    eog "$OUT"
-  fi
-else
+if ! [[ -v IN ]] || ! [[ -v OUT ]]; then
   show_error "Try again. Usage:"
   print_usage
   exit 3
 fi
+
+# If duration is unset, go to the end of the video...
+if ! [[ -v LENGTH ]] && ! [[ -v END ]]; then
+  LENGTH="$(echo "${DURATION} - ${START}" | bc -l)"
+fi
+
+# Create a GIF/WebP for all dimensions listed in the input.
+for dim in "${DIMENSIONS[@]}"; do
+  case "${EMBED_SUBS}" in
+    yes|true|y)
+      make_image_subs "${IN}" "${OUT}" "${dim}"
+      ;;
+    no|false|n)
+      make_image "${IN}" "${OUT}" "${dim}"
+      ;;
+    both)
+      make_image "${IN}" "${OUT}" "${dim}"
+      make_image_subs "${IN}" "${OUT}" "${dim}"
+      ;;
+    *)
+      show_error "Try again. Usage:"
+      print_usage
+      exit 3
+      ;;
+  esac
+done
