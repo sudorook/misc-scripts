@@ -1,8 +1,8 @@
 #! /bin/bash
-set -eu
+set -Eeuo pipefail
 source globals
 
-! check_command ffmpeg && exit 3
+! check_command ffmpeg ffprobe && exit 3
 
 
 #
@@ -10,31 +10,139 @@ source globals
 #
 
 function convert_codec() {
-  local codec="${3}"
   local in="${1}"
   local out="${2}"
-  local crf="${4}"
+  local cmd
 
-  case "${codec}" in
+  cmd="ffmpeg -v warning -i ${in@Q} -map_chapters 0 -map_metadata 0"
+
+  # set video codec
+  case "${OUT_VCODEC}" in
     h264)
-      ffmpeg -i "${in}" \
-        -c:v libx264 -c:a copy -map 0:s:? -x264-params crf="${crf}" "${out}"
+      cmd="${cmd} -map 0:v -c:v libx264 -x264-params crf=${CRF}"
       ;;
     h265)
-      ffmpeg -i "${in}" \
-        -c:v libx265 -c:a copy -map 0:s:? -x265-params crf="${crf}" "${out}"
+      cmd="${cmd} -map 0:v -c:v libx265 -x265-params crf=${CRF}"
       ;;
     *)
-      show_error "Codec ${3} not supported."
+      show_error "ERROR: Video codec ${OUT_VCODEC} not supported."
       exit 3
       ;;
   esac
+
+  # set audio codec
+  case "${OUT_ACODEC}" in
+    libfdk_aac|aac)
+      cmd="${cmd} -map 0:a -c:a libfdk_aac -b:a 128k"
+      ;;
+    libmp3lame|mp3lame|mp3)
+      cmd="${cmd} -map 0:a -c:a libmp3lame -b:a 320k"
+      ;;
+    libopus|opus)
+      cmd="${cmd} -map 0:a -c:a libopus -b:a 64k"
+      ;;
+    copy|*)
+      cmd="${cmd} -map 0:a:? -c:a copy"
+      ;;
+  esac
+
+  # specify frame size if different from the input
+  if ! [[ "${IN_DIMENSIONS}" = "${OUT_DIMENSIONS}" ]]; then
+    # only add the size parameter if the output width/height are not larger
+    # that the corresponding input values
+    if [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f1)" -lt \
+          "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f1)" ]] || \
+       [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f2)" -lt \
+          "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f2)" ]]; then
+      show_warning \
+        "WARNING: Dimensions ${OUT_DIMENSIONS} exceed input ${IN_DIMENSIONS}."
+    else
+      cmd="${cmd} -s ${OUT_DIMENSIONS}"
+    fi
+  fi
+
+  # convert subtitle format to mov_text for mp4s, otherwise copy
+  case "${CONTAINER}" in
+    mp4)
+      cmd="${cmd} -map 0:s:? -c:s mov_text"
+      ;;
+    *)
+      cmd="${cmd} -map 0:s:? -c:s copy"
+      ;;
+  esac
+
+  # manually specify the container format (ffmpeg may not infer from file name)
+  case "${CONTAINER}" in
+    mkv|matroska)
+      cmd="${cmd} -f matroska"
+      ;;
+    mp4)
+      cmd="${cmd} -f mp4"
+      ;;
+    *)
+      show_error "ERROR: Container ${CONTAINER} not supported. Exiting."
+      exit 3
+      ;;
+  esac
+
+  # add output
+  cmd="${cmd} ${out@Q}"
+
+  echo "${cmd}"
+  eval "${cmd}"
+}
+
+function scan_input {
+  local fstring
+  local vstring
+  local format_name
+  local width
+  local height
+
+  fstring="$(ffprobe -v error -show_format "${IN}")"
+  vstring="$(ffprobe -v error \
+               -select_streams v:0 -show_streams "${IN}")"
+
+  if ! [[ -v CONTAINER ]]; then
+    format_name="$(echo "${fstring}" | sed -n "s/^format_name=\(.*\)/\1/p")"
+    if [[ "${format_name}" =~ matroska ]]; then
+      CONTAINER=matroska
+    elif [[ "${format_name}" =~ mp4 ]]; then
+      CONTAINER=mp4
+    else
+      CONTAINER=avi
+    fi
+  fi
+
+  if ! [[ -v OUT_VCODEC ]]; then
+    OUT_VCODEC=h265
+  fi
+  if ! [[ -v OUT_ACODEC ]]; then
+    OUT_ACODEC=copy
+  fi
+  if ! [[ -v OUT_SCODEC ]]; then
+    OUT_SCODEC=copy
+  fi
+
+  width="$(echo "${vstring}" | sed -n "s/^width=\(.*\)$/\1/p")"
+  height="$(echo "${vstring}" | sed -n "s/^height=\(.*\)$/\1/p")"
+  IN_DIMENSIONS="${width}x${height}"
+  if ! [[ -v OUT_DIMENSIONS ]]; then
+    OUT_DIMENSIONS="${IN_DIMENSIONS}"
+  fi
+
+  if ! [[ -v FPS ]]; then
+    FPS="$(echo "${vstring}" | sed -n "s/^r_frame_rate=\(.*\)$/\1/p" | bc -l)"
+  fi
 }
 
 function print_usage() {
   echo "Usage: reencode -i|--input <input> \\"
-  echo "                -c|--codec <codec> \\"
-  echo "                -f|--crf   <compression factor>"
+  echo "                -a|--acodec <audio codec> \\"
+  echo "                -v|--vcodec <video codec> \\"
+  echo "                -r|--crf <compression factor> \\"
+  echo "                -d|--dimensions <output dimensions> \\"
+  echo "                -c|--container <container format> \\"
 }
 
 
@@ -42,38 +150,55 @@ function print_usage() {
 # Parse command line options
 #
 
-OPTIONS=i:c:f:h
-LONGOPTIONS=input:,codec:crf:help
+OPTIONS=i:a:v:r:c:d:h
+LONGOPTIONS=input:,acodec:,vcodec:,crf:,dimensions:,container:,help
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 while [ $# -ge 1 ]; do
   case "$1" in
     -i|--input)
       IN="$2"
+      scan_input
       NAME=${IN%.*}
-      FILETYPE=${IN##*.}
-      BACKUP="${NAME}-$(date +%Y%m%d-%H%M%S).${FILETYPE}.bak"
+      BACKUP="${IN}_$(date +%Y%m%d-%H%M%S).bak"
       shift 2
       ;;
-    -c|--codec)
+    -a|--acodec)
       case "$2" in
-        # Use x265 to encode h.265 videos.
-        h265|x265|libx265)
-          CODEC=h265
-          ;;
-        # Use x264 to encode h.264 videos.
-        h264|x264|libx264)
-          CODEC=h264
-          ;;
         *)
-          show_error "Codec ${2} is not supported. Exiting."
+          show_error "ERROR: Codec ${2} not supported. Exiting."
           exit 3
           ;;
       esac
       shift 2
       ;;
-    -f|--crf)
+    -v|--vcodec)
+      case "$2" in
+        # Use x265 to encode h.265 videos.
+        h265|x265|libx265)
+          OUT_VCODEC=h265
+          ;;
+        # Use x264 to encode h.264 videos.
+        h264|x264|libx264)
+          OUT_VCODEC=h264
+          ;;
+        *)
+          show_error "ERROR: Codec ${2} is not supported. Exiting."
+          exit 3
+          ;;
+      esac
+      shift 2
+      ;;
+    -r|--crf)
       CRF="${2}"
+      shift 2
+      ;;
+    -d|--dimensions)
+      OUT_DIMENSIONS="${2}"
+      shift 2
+      ;;
+    -c|--container)
+      CONTAINER="${2}"
       shift 2
       ;;
     -h|--help)
@@ -85,7 +210,7 @@ while [ $# -ge 1 ]; do
       break
       ;;
     *)
-      show_error "ERROR: unknown command line option."
+      show_error "ERROR: Unknown command line option."
       print_usage
       exit 3
       ;;
@@ -98,45 +223,46 @@ done
 #
 
 if ! [[ -v IN ]]; then
-  show_error "ERROR: input file not given."
+  show_error "ERROR: Input file not given."
   exit 3
 fi
 
 if ! [[ -f "${IN}" ]]; then
-  show_error "ERROR: input file not found."
+  show_error "ERROR: Input file not found."
   exit 3
 fi
 
-if ! [[ -v CODEC ]]; then
-  CODEC=h265
-fi
-
 if ! [[ -v CRF ]]; then
-  case "${CODEC}" in
+  case "${OUT_VCODEC}" in
     h264)
-      CRF=18
+      CRF=18 # default 23
       ;;
     h265)
-      CRF=23
+      CRF=23 # default 28
       ;;
   esac
 fi
 
-case ${FILETYPE} in
+case "${CONTAINER}" in
   avi|mpg)
     mv "${IN}" "${BACKUP}"
-    convert_codec "${BACKUP}" "${NAME}.mp4" "${CODEC}" "${CRF}"
+    CONTAINER=mp4
+    trap 'mv -f "${BACKUP}" "${IN}"; rm -f "${NAME}.mp4"; exit' INT TERM ERR
+    convert_codec "${BACKUP}" "${NAME}.${CONTAINER}"
     ;;
-  mkv)
+  mkv|matroska)
     mv "${IN}" "${BACKUP}"
-    convert_codec "${BACKUP}" "${NAME}.${FILETYPE}" "${CODEC}" "${CRF}"
+    CONTAINER=mkv
+    trap 'mv -f "${BACKUP}" "${IN}"; exit' INT TERM ERR
+    convert_codec "${BACKUP}" "${NAME}.${CONTAINER}"
     ;;
   mp4)
     mv "${IN}" "${BACKUP}"
-    convert_codec "${BACKUP}" "${NAME}.${FILETYPE}" "${CODEC}" "${CRF}"
+    trap 'mv -f "${BACKUP}" "${IN}"; exit' INT TERM ERR
+    convert_codec "${BACKUP}" "${NAME}.${CONTAINER}"
     ;;
   *)
-    show_error "Filetype ${FILETYPE} not supported."
+    show_error "ERROR: Format ${CONTAINER} files not supported."
     exit 3
     ;;
 esac
