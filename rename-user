@@ -14,7 +14,7 @@ function migrate_symlink() {
   symlink="${1}"
   sympath="$(file "${symlink}" | sed -n "s,.*symbolic link to \(.*\)$,\1,p")"
   if [[ "${sympath}" =~ ^/home/${OLDNAME} ]]; then
-    newsympath=$(echo "${sympath}" | sed -e "s/${OLDNAME}/${NEWNAME}/g")
+    newsympath=${sympath/${OLDNAME}/${NEWNAME}/}
     rm "${symlink}"
     ln -s "${newsympath}" "${symlink}"
   fi
