@@ -1,18 +1,32 @@
 #! /bin/bash
-set -eu
+set -euo pipefail
 source globals
 
-NAME=${1%.*}
-EXTENSION=${1##*.}
-case ${EXTENSION} in
-  webm)
-    ffmpeg -i "${1}" -y "${NAME}.mp3"
-    ;;
-  mp4|mkv)
-    ffmpeg -i "${1}" -c:a libmp3lame -y "${NAME}.mp3"
-    ;;
-  *)
-    show_error "ERROR: '${1}' is not compatible"
-    exit 1
-    ;;
-esac
+function extract_audio {
+  local nstreams=0
+  local stype
+  local astring
+  local acodec
+  local i
+  local cmd
+  local out
+  local in=${1}
+  local name=${in%.*}
+
+  nstreams="$(ffprobe -v error -show_format "${in}" | sed -n "s/nb_streams=\([0-9]\+\)$/\1/p")"
+  for i in $(seq 0 "$(( nstreams - 1))"); do
+    astring="$(ffprobe -v error -select_streams "${i}" -show_streams "${in}")"
+    acodec="$(echo "${astring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
+    stype="$(echo "${astring}" | sed -n "s/^codec_type=\(.*\)$/\1/p")"
+    if [[ "${stype}" = audio ]]; then
+      out="${name}_${i}.$acodec"
+      cmd="ffmpeg -i ${in@Q} -c:a copy -y ${out@Q}"
+      show_listitem "${cmd}"
+      eval "${cmd}"
+    fi
+  done
+}
+
+
+show_header "Extracting audio streams from ${1}:"
+extract_audio "${1}"
