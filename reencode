@@ -96,8 +96,10 @@ function scan_input {
   local fstring
   local vstring
   local format_name
-  local width
-  local height
+  local in_width
+  local in_height
+  local out_width
+  local out_height
 
   fstring="$(ffprobe -v error -show_format "${IN}")"
   vstring="$(ffprobe -v error \
@@ -124,11 +126,23 @@ function scan_input {
     OUT_SCODEC=copy
   fi
 
-  width="$(echo "${vstring}" | sed -n "s/^width=\(.*\)$/\1/p")"
-  height="$(echo "${vstring}" | sed -n "s/^height=\(.*\)$/\1/p")"
-  IN_DIMENSIONS="${width}x${height}"
+  ASPECTRATIO="$(echo "${vstring}" | sed -n "s/^display_aspect_ratio=\(.*\)$/\1/p")"
+
+  in_width="$(echo "${vstring}" | sed -n "s/^width=\(.*\)$/\1/p")"
+  in_height="$(echo "${vstring}" | sed -n "s/^height=\(.*\)$/\1/p")"
+  IN_DIMENSIONS="${in_width}x${in_height}"
+
   if ! [[ -v OUT_DIMENSIONS ]]; then
     OUT_DIMENSIONS="${IN_DIMENSIONS}"
+  else
+    out_width="$(echo "${OUT_DIMENSIONS}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\1,p")"
+    out_height="$(echo "${OUT_DIMENSIONS}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\2,p")"
+    if [ -z "${out_width}" ] && [ -n "${out_height}" ]; then
+      out_width="$(printf %.0f "$(echo "${out_height} * ${ASPECTRATIO}" | sed 's,:,/,g' | bc -l)")"
+    elif [ -n "${out_width}" ] && [ -z "${out_height}" ]; then
+      out_height="$(printf %.0f "$(echo "${out_width} / (${ASPECTRATIO})" | sed 's,:,/,g' | bc -l)")"
+    fi
+    OUT_DIMENSIONS="${out_width}x${out_height}"
   fi
 
   if ! [[ -v FPS ]]; then
