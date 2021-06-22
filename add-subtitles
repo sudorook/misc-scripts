@@ -810,11 +810,13 @@ function backup_files {
     subdir="$(dirname "${sub}")"
     subext=${sub##*.}
     if ! [[ "${subdir}" = "." ]]; then
-      mkdir -p "$(dirname "${sub}")"
+      mkdir -p "${backupdir}/${subdir}"
     fi
-    mv "${sub}" "${subdir}/${backupdir}"
-    if [[ "${subext}" = "sub" ]]; then
-      mv "${sub%%.*}.idx" "${subdir}/${backupdir}"
+    mv "${sub}" "${backupdir}/${subdir}/"
+    if [[ "${subext}" = sub ]]; then
+      if [ -f "${sub%%.*}.idx" ]; then
+        mv "${sub%%.*}.idx" "${subdir}/${backupdir}"
+      fi
     fi
   done
 }
