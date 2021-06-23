@@ -91,7 +91,7 @@ function make_image_subs {
   fi
 
   # add dimensions to the output file name
-  out="${OUT%%.*}-${width}x${height}-sub.${FORMAT}"
+  out="${OUT%.*}-${width}x${height}-sub.${FORMAT}"
 
   # burn the subtitles into a short video
   case "${SCODEC}" in
@@ -174,7 +174,7 @@ function make_image {
   fi
 
   # add dimensions to the output file name
-  out="${OUT%%.*}-${width}x${height}.${FORMAT}"
+  out="${OUT%.*}-${width}x${height}.${FORMAT}"
 
   # generate the command
   cmd="ffmpeg -v warning -y -ss ${START}"

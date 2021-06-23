@@ -670,7 +670,7 @@ function detect_subs {
         SUBLIST+=("${file}")
         ;;
       sub)
-        if [ -f "${file%%.*}.idx" ]; then
+        if [ -f "${file%.*}.idx" ]; then
           show_info "INFO: Image subtitles detected. Output Matroska."
           EXTENSION=mkv
         fi
@@ -696,7 +696,7 @@ function detect_subs {
           SUBLIST+=("${file}")
           ;;
         sub)
-          if [ -f "${file%%.*}.idx" ]; then
+          if [ -f "${file%.*}.idx" ]; then
             show_info "INFO: Image subtitles detected. Output Matroska."
             EXTENSION=mkv
           fi
@@ -736,7 +736,7 @@ function make_cmd {
     sub="${SUBLIST[0]}"
     subext="${sub##*.}"
     if [[ "${subext}" = "sub" ]]; then
-      subidx="${sub%%.*}.idx"
+      subidx="${sub%.*}.idx"
       inputs="${inputs} -i ${subidx@Q} -i ${sub@Q}"
     else
       inputs="${inputs} -i ${sub@Q}"
@@ -747,7 +747,7 @@ function make_cmd {
   elif [[ "${#SUBLIST[@]}" -gt 1 ]]; then
     for sub in "${SUBLIST[@]}"; do
       subext="${sub##*.}"
-      subidx="${sub%%.*}.idx"
+      subidx="${sub%.*}.idx"
       if [[ "${subext}" = "sub" ]] && [ -f "${subidx}" ]; then
         inputs="${inputs} -i ${subidx@Q} -i ${sub@Q}"
         mapping="${mapping} -map ${count}:s -map $((count + 1)):s"
@@ -814,8 +814,8 @@ function backup_files {
     fi
     mv "${sub}" "${backupdir}/${subdir}/"
     if [[ "${subext}" = sub ]]; then
-      if [ -f "${sub%%.*}.idx" ]; then
-        mv "${sub%%.*}.idx" "${subdir}/${backupdir}"
+      if [ -f "${sub%.*}.idx" ]; then
+        mv "${sub%.*}.idx" "${subdir}/${backupdir}"
       fi
     fi
   done
