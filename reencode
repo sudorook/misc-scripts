@@ -88,7 +88,8 @@ function convert_codec() {
   # add output
   cmd="${cmd} ${out@Q}"
 
-  echo "${cmd}"
+  show_header "Re-encoding ${in}:"
+  show_listitem "${cmd}"
   eval "${cmd}"
 }
 
