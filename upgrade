@@ -95,7 +95,6 @@ function upgrade_themes() {
                 git checkout master
                 popd >/dev/null
               fi
-              break
               ;;
             *)
               if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
@@ -105,7 +104,6 @@ function upgrade_themes() {
                 git checkout master
                 popd >/dev/null
               fi
-              break
               ;;
           esac
         fi
