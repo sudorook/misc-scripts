@@ -56,13 +56,16 @@ function upgrade_themes() {
   if [[ -v gtkdir ]] && [ -d "${gtkdir}" ]; then
     for dir in "${gtkdir}"/*; do
       if git -C "${dir}" rev-parse 2>/dev/null; then
-        show_info "$(basename "${dir}")"
-        if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
-          pushd "${dir}" >/dev/null
-          git checkout tweak
-          git rebase master
-          git checkout master
-          popd >/dev/null
+        repo_name="$(basename "${dir}")"
+        show_info "${repo_name}"
+        if git_update "${dir}"; then
+          if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
+            pushd "${dir}" >/dev/null
+            git checkout tweak
+            git rebase master
+            git checkout master
+            popd >/dev/null
+          fi
         fi
         sleep 2
         echo
