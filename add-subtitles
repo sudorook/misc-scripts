@@ -630,7 +630,7 @@ function get_language {
   # If language not found, try to parse three-character strings as a fallback.
   if [ -z "${res}" ]; then
     local end
-    end="$(echo "${1}" | rev | cut -d " " -f 1 | rev)"
+    end="$(echo "${1}" | grep -o '[^\ ]*$')"
     for lang in "${!LANG[@]}"; do
       if [[ "${end,,}" =~ ${lang,,} ]]; then
         res="${lang}"
