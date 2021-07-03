@@ -690,7 +690,7 @@ function detect_subs {
       avi|m4v|mp4|mkv|webm|idx)
         ;;
       *)
-        show_warning "${file} not supported. Skipping"
+        show_warning "${file} not supported. Skipping..."
         ;;
     esac
   done
@@ -716,7 +716,7 @@ function detect_subs {
         avi|m4v|mp4|mkv|webm|idx)
           ;;
         *)
-          show_warning "${file} not supported. Skipping"
+          show_warning "${file} not supported. Skipping..."
           ;;
       esac
     done
