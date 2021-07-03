@@ -791,8 +791,8 @@ function make_cmd {
     avi)
       # AVI does not support embedding text-based subtitles, so convert to MP4
       # and embed as mov_text.
-      EXTENSION="mp4"
-      cmd="${inputs} ${mapping} -c:v copy -c:a copy -c:s mov_text -f mp4 ${metadata} -disposition:s:${eng_idx} default \"${TMPVID}\" -y"
+      EXTENSION="mkv"
+      cmd="${inputs} ${mapping} -c:v copy -c:a copy -c:s copy -f matroska ${metadata} -disposition:s:${eng_idx} default \"${TMPVID}\" -y"
       ;;
     mp4|m4v)
       cmd="${inputs} ${mapping} -c:v copy -c:a copy -c:s mov_text -f mp4 ${metadata} -disposition:s:${eng_idx} default \"${TMPVID}\" -y"
