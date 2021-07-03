@@ -427,6 +427,7 @@ LANG=(
   ["pon"]="Pohnpeian"
   ["pol"]="Polish"
   ["por"]="Portuguese"
+  ["ptb"]="Portuguese"
   ["pra"]="Prakrit languages"
   # ["pro"]="Provençal, Old (to 1500)"
   ["pan"]="Punjabi"
