@@ -605,18 +605,19 @@ function cleanup_filename() {
   extension="${1##*.}"
   lang="$(echo "${name}" | sed -e "s/_\|\./\ /g" | grep -o '[^\ ]*$')"
   lang="$(get_language "${lang}")"
-  newname=$(echo "$name" | \
+  newname=$(echo "${name}" | \
     sed -e "s/_\|\./\ /g" | \
-    sed -e "s/\[[^][]*\]\ //g" | \
-    sed -e "s/([^][]*)\ //g" | \
-    sed -e "s/\ \+([^][]*)//g" | \
-    sed -e "s/\ \+\[[^][]*\]//g" | \
-    sed -e "s/\[[^][]*\]//g" | \
-    sed -e "s/\ \(720\|1080\|480\)p.*//g" | \
-    sed -e "s/\ \(19\|20\)\([0-9]\{2\}\)$//g" | \
-    sed -e "s/([^][]*)//g" | \
+    sed -e "s/\[[^\[\]]*\]//g" | \
+    sed -e "s/([^()]*)//g" | \
+    sed -e "s/\(DVD\|DVD\|BluRay\|\|WEB-DL\)//g" | \
+    sed -e "s/\(DVDRip\|HDTVRip\|HDRip\)//g" | \
+    sed -e "s/\(x264\|x265\)//g" | \
+    sed -e "s/\(720\|1080\|480\|576\)p.*//g" | \
+    sed -e "s/\ *\(19\|20\)\([0-9]\{2\}\)\ *$//g" | \
     sed -e "s/\b\(s[0-9][0-9]e[0-9][0-9]\)/\U\1/g" | \
-    sed -e "s/ *$//g")
+    sed -e "s/\ \ \+/\ /g" | \
+    sed -e "s/\ *$//g" | \
+    sed -e "s/^\ *//g")
 
   if [ -z "${lang}" ]; then
     echo "${newname}.${extension}"
