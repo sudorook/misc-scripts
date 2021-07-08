@@ -54,7 +54,19 @@ function dump_stream {
       eval "${cmd}"
       return
       ;;
-    audio|subtitle)
+    subtitle)
+      case "${codec_name}" in
+        ass)
+          cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c srt \"${name}_${idx}.${codec_name}\" -y"
+          ;;
+        srt|*)
+          cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c srt \"${name}_${idx}.srt\" -y"
+          ;;
+      esac
+      eval "${cmd}"
+      return
+      ;;
+    audio)
       cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c copy \"${name}_${idx}.${codec_name}\" -y"
       eval "${cmd}"
       return
