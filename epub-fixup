@@ -4,6 +4,12 @@ source globals
 
 ! check_command zip unzip && exit 3
 
+# Add read and write permissions to CSS files
+function set_rw {
+  find . -type f -name "*.css" \
+    -exec chmod u+w,+r {} \;
+}
+
 # Removed justified text
 function unjustify {
   find . -type f -name "*.css" \
@@ -45,6 +51,7 @@ pushd "${BUILDDIR}" >/dev/null
 
 unzip "${FILE}"
 
+set_rw
 unjustify
 # unset_colors
 
