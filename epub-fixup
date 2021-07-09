@@ -10,26 +10,27 @@ function set_rw {
     -exec chmod u+w,+r {} \;
 }
 
-# Removed justified text
+# Remove justified text
 function unjustify {
-  find . -type f -name "*.css" \
-    -exec sed -i "s,text-align\s*:\s*justify;,/*text-align: justify;*/,g" {} \; \
-    -exec sed -i "s,text-align\s*:\s*justify[\n\r]*$,/*text-align: justify*/,g" {} \; \
-    -exec sed -i "s,text-align\s*:\s*justify},/*text-align: justify*/},g" {} \;
+  find . -type f -name "*.css" -exec sed -i \
+    -e "s,text-align\s*:\s*justify;,/*text-align: justify;*/,g" \
+    -e "s,text-align\s*:\s*justify !important;,/*text-align: justify !important;*/,g" \
+    -e "s,text-align\s*:\s*justify[\n\r]*$,/*text-align: justify*/,g" \
+    -e "s,text-align\s*:\s*justify},/*text-align: justify*/},g" {} \;
 }
 
 # Remove hard-coded colors
 function unset_colors {
-  find . -type f -name "*.css" \
-    -exec sed -i "s,background-color\ *:\ *#\([0-9a-f]\+\);,/*background-color: \1;*/,g" {} \; \
-    -exec sed -i "s,background-color\ *:\ *#\([0-9a-f]\+\)$,/*background-color: \1*/,g" {} \; \
-    -exec sed -i "s,background-color\ *:\ *#\([0-9a-f]\+\)},/*background-color: \1*/},g" {} \; \
-    -exec sed -i "s,background-color\ *:\ *\(rgba([0-9\,\ ]\+)\);,/*background-color: \1;*/,g" {} \; \
-    -exec sed -i "s,background-color\ *:\ *\(rgba([0-9\,\ ]\+)\)$,/*background-color: \1*/,g" {} \; \
-    -exec sed -i "s,background-color\ *:\ *\(rgba([0-9\,\ ]\+)\)},/*background-color: \1*/},g" {} \; \
-    -exec sed -i "s,\(;*\ *\)color\ *:\ *#\([0-9a-f]\+\);,\1/*color: \2;*/,g" {} \; \
-    -exec sed -i "s,\(;*\ *\)color\ *:\ *#\([0-9a-f]\+\)$,\1/*color: \2*/,g" {} \; \
-    -exec sed -i "s,\(;*\ *\)color\ *:\ *#\([0-9a-f]\+\)},\1/*color: \2*/},g" {} \;
+  find . -type f -name "*.css" -exec sed -i \
+    -e "s,background-color\ *:\ *#\([0-9a-f]\+\);,/*background-color: \1;*/,g" \
+    -e "s,background-color\ *:\ *#\([0-9a-f]\+\)$,/*background-color: \1*/,g" \
+    -e "s,background-color\ *:\ *#\([0-9a-f]\+\)},/*background-color: \1*/},g" \
+    -e "s,background-color\ *:\ *\(rgba([0-9\,\ ]\+)\);,/*background-color: \1;*/,g" \
+    -e "s,background-color\ *:\ *\(rgba([0-9\,\ ]\+)\)$,/*background-color: \1*/,g" \
+    -e "s,background-color\ *:\ *\(rgba([0-9\,\ ]\+)\)},/*background-color: \1*/},g" \
+    -e "s,\(;*\ *\)color\ *:\ *#\([0-9a-f]\+\);,\1/*color: \2;*/,g" \
+    -e "s,\(;*\ *\)color\ *:\ *#\([0-9a-f]\+\)$,\1/*color: \2*/,g" \
+    -e "s,\(;*\ *\)color\ *:\ *#\([0-9a-f]\+\)},\1/*color: \2*/},g" {} \;
 }
 
 FILE="$(basename "${1}")"
