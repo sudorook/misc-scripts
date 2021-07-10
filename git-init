@@ -2,7 +2,7 @@
 set -eu
 source globals
 
-! check_command git timedatectl date && exit 3
+! check_command git timedatectl && exit 3
 
 #
 # Global functions.
