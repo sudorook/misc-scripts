@@ -2,6 +2,8 @@
 set -euo pipefail
 source globals
 
+! check_command ffmpeg ffprobe && exit 3
+
 NAME=${1%.*}
 EXTENSION=${1##*.}
 STREAMS=()
