@@ -55,6 +55,7 @@ check_command() {
   done
   "${state}" && return 0 || return 1
 }
+export -f check_command
 
 
 #
