@@ -60,7 +60,10 @@ function dump_stream {
         ass)
           cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c srt \"${name}_${idx}.${codec_name}\" -y"
           ;;
-        srt|*)
+        hdmv_pgs_subtitle)
+          cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c srt \"${name}_${idx}.sup\" -y"
+          ;;
+        mov_text|subrip|srt|*)
           cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c srt \"${name}_${idx}.srt\" -y"
           ;;
       esac
