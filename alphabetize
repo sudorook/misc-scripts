@@ -33,7 +33,7 @@ fi
 TMP="$(mktemp)"
 trap 'rm -f "${TMP}"; exit' INT TERM ERR EXIT
 
-sort -u "${1}" > "${TMP}"
+sort -d -f -u "${1}" > "${TMP}"
 if "${ISBACKUP}"; then
   mv "${1}" "${1}.bak"
 fi
