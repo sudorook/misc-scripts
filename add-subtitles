@@ -259,6 +259,10 @@ function backup_files {
       fi
     fi
   done
+
+  if [ -d Subs/ ]; then
+    rmdir Subs/
+  fi
 }
 
 #
