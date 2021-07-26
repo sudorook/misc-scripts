@@ -11,20 +11,19 @@ TITLES=()
 FORMATS=()
 
 function parse_streams {
-  local fields
   local stream
   local title
   local format
   while IFS=$'\n' read -r line; do
-    fields="$(echo "${line}" | \
-              sed -n "s/^ \+Stream #\([0-9]\+:[0-9]\+\)(\([a-z]\+\)): Subtitle: \([a-z\_]\+\)\(, [0-9]\+x[0-9]\+\)\?\( (default)\)\?\( (forced)\)\?/\1\t\2\t\3/p")"
-
-    stream="$(echo "${fields}" | cut -d"	" -f 1)"
-    title="$(echo "${fields}" | cut -d"	" -f 2)"
-    format="$(echo "${fields}" | cut -d"	" -f 3)"
+    stream="$(echo "${line}" | sed -n "s/^ \+Stream #\([0-9]\+:[0-9]\+\)(\?\([a-z]\+\)\?)\?: Subtitle: \([a-z\_]\+\)\(, [0-9]\+x[0-9]\+\)\?\( (default)\)\?\( (forced)\)\?/\1/p")"
+    title="$(echo "${line}" | sed -n "s/^ \+Stream #\([0-9]\+:[0-9]\+\)(\?\([a-z]\+\)\?)\?: Subtitle: \([a-z\_]\+\)\(, [0-9]\+x[0-9]\+\)\?\( (default)\)\?\( (forced)\)\?/\2/p")"
+    format="$(echo "${line}" | sed -n "s/^ \+Stream #\([0-9]\+:[0-9]\+\)(\?\([a-z]\+\)\?)\?: Subtitle: \([a-z\_]\+\)\(, [0-9]\+x[0-9]\+\)\?\( (default)\)\?\( (forced)\)\?/\3/p")"
 
     if ! [[ "${stream}" = "" ]]; then
       STREAMS+=("${stream}")
+      if [ -z "${title}" ]; then
+        title=eng
+      fi
       TITLES+=("${title}")
       FORMATS+=("${format}")
     fi
