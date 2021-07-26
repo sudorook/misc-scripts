@@ -38,6 +38,13 @@ function extract_streams {
       ass)
         cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.ass'"
         ;;
+      dvd_subtitle)
+        if [[ "${EXTENSION}" = mp4 ]]; then
+          cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.mp4'"
+        else
+          cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.mkv'"
+        fi
+        ;;
       mov_text|srt|subrip)
         cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.srt'"
         ;;
