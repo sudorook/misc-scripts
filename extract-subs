@@ -56,6 +56,8 @@ function extract_streams {
         continue
         ;;
     esac
+    cmd="${cmd} -y"
+    show_listitem "${cmd}"
     eval "${cmd}"
   done
 }
