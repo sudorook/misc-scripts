@@ -89,7 +89,7 @@ function join_mixed() {
   filter="${filter}concat=n=${#}:v=1:a=1 [v] [a]"
 
   rm -f "${OUTFILE}"
-  cmd=$(echo ffmpeg "${input}" -filter_complex \"${filter}\" \
+  cmd=$(echo ffmpeg "${input}" -filter_complex \""${filter}"\" \
              -map \"[v]\" -map \"[a]\" "${OPTIONS}" "${OUTFILE}")
   eval "${cmd}"
 }
