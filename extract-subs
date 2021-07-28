@@ -4,8 +4,9 @@ source globals
 
 ! check_command ffmpeg ffprobe && exit 3
 
-NAME=${1%.*}
-EXTENSION=${1##*.}
+IN="${1}"
+NAME="${IN%.*}"
+EXTENSION="${IN##*.}"
 STREAMS=()
 TITLES=()
 FORMATS=()
@@ -27,36 +28,37 @@ function parse_streams {
       TITLES+=("${title}")
       FORMATS+=("${format}")
     fi
-  done <<< "$(ffprobe "${NAME}.${EXTENSION}" 2>&1 | grep "^ \+Stream.*: Subtitle")"
+  done <<< "$(ffprobe "${IN}" 2>&1 | grep "^ \+Stream.*: Subtitle")"
 }
 
 function extract_streams {
   local cmd
+  local out
   for i in $(seq 0 $(( ${#TITLES[@]} - 1))); do
-    cmd="ffmpeg -i '${NAME}.${EXTENSION}' -map ${STREAMS[${i}]} -c copy"
+    cmd="ffmpeg -i ${IN@Q} -map ${STREAMS[${i}]} -c copy"
     case "${FORMATS[${i}]}" in
       ass)
-        cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.ass'"
+        out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.ass"
         ;;
       dvd_subtitle)
         if [[ "${EXTENSION}" = mp4 ]]; then
-          cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.mp4'"
+          out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.mp4"
         else
-          cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.mkv'"
+          out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.mkv"
         fi
         ;;
       mov_text|srt|subrip)
-        cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.srt'"
+        out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.srt"
         ;;
       hdmv_pgs_subtitle)
-        cmd+=" '${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.sup'"
+        out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.sup"
         ;;
       *)
         show_warning "Format ${FORMATS[${i}]} not supported. Skipping."
         continue
         ;;
     esac
-    cmd="${cmd} -y"
+    cmd="${cmd} ${out@Q} -y"
     show_listitem "${cmd}"
     eval "${cmd}"
   done
