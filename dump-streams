@@ -42,6 +42,7 @@ function dump_stream {
   in="$(basename "${1}")"
   local name=${in%.*}
   local idx="${2}"
+  local out
 
   info="$(ffprobe -v error -show_entries stream -select_streams "$idx" "$1")"
   codec_name="$(echo "$info" | sed -n "s/^codec_name=\(.*\)/\1/p")"
@@ -50,29 +51,49 @@ function dump_stream {
   case "${codec_type}" in
     video)
       container="$(pick_container "${1}")"
-      cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c copy \"${name}_${idx}.${container}\" -y"
+      out="${name}_${idx}.${container}"
+      cmd="ffmpeg -v warning -i ${1@Q} -map 0:${idx} -c copy ${out@Q} -y"
       show_listitem "${cmd}"
       eval "${cmd}"
       return
       ;;
     subtitle)
+      cmd="ffmpeg -v warning -i ${1@Q} -map 0:${idx}"
       case "${codec_name}" in
         ass)
-          cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c srt \"${name}_${idx}.${codec_name}\" -y"
+          out="${name}_${idx}.ass"
+          cmd="${cmd} -c copy ${out@Q} -y"
+          ;;
+        dvd_subtitle)
+          container="$(pick_container "${1}")"
+          if [[ "${container}" = mp4 ]]; then
+            out="${name}_${idx}.mp4"
+          else
+            out="${name}_${idx}.mkv"
+          fi
+          cmd="${cmd} -c copy ${out@Q} -y"
+          ;;
+        mov_text|srt|subrip)
+          out="${name}_${idx}.srt"
+          cmd="${cmd} -c subrip ${out@Q} -y"
           ;;
         hdmv_pgs_subtitle)
-          cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c srt \"${name}_${idx}.sup\" -y"
+          out="${name}_${idx}.sup"
+          cmd="${cmd} -c copy ${out@Q} -y"
           ;;
-        mov_text|subrip|srt|*)
-          cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c srt \"${name}_${idx}.srt\" -y"
+        *)
+          show_warning "Format ${codec_name} not supported. Skipping."
+          return
           ;;
       esac
+      # cmd="ffmpeg -v warning -i ${1@Q} -map 0:${idx} -c copy ${out@Q} -y"
       show_listitem "${cmd}"
       eval "${cmd}"
       return
       ;;
     audio)
-      cmd="ffmpeg -v warning -i \"${1}\" -map 0:${idx} -c copy \"${name}_${idx}.${codec_name}\" -y"
+      out="${name}_${idx}.${codec_name}"
+      cmd="ffmpeg -v warning -i ${1@Q} -map 0:${idx} -c copy ${out@Q} -y"
       show_listitem "${cmd}"
       eval "${cmd}"
       return
@@ -81,7 +102,7 @@ function dump_stream {
       if [[ "${codec_name}" =~ ^[o|t]tf ]]; then
         mkdir -p "${name}_fonts"
         font_file="$(echo "$info" | sed -n "s/^TAG:filename=\(.*\)/\1/p")"
-        cmd="ffmpeg -v warning -dump_attachment:$idx \"\" -i \"${1}\" -y"
+        cmd="ffmpeg -v warning -dump_attachment:$idx \"\" -i ${1@Q} -y"
         show_listitem "${cmd}"
         eval "${cmd}"
         mv "${font_file}" "${name}_fonts"
