@@ -231,7 +231,7 @@ function parse_container {
     mkv|matroska|MKV|Matroska)
       OUT_CONTAINER=mkv
       ;;
-    mp4|mpeg4|MP4|MPEG4|MPEG-4)
+    mp4|mpeg4|MP4|MPEG4|MPEG-4|m4v)
       OUT_CONTAINER=mp4
       ;;
     *)
