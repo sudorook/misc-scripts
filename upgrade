@@ -121,6 +121,10 @@ function upgrade_themes() {
   fi
 }
 
+function upgrade_extra() {
+  show_header "Running extra upgrade script(s)."
+}
+
 vimpack=${HOME}/.vim/pack/dist/start
 function upgrade_vim_packages() {
   show_header "Upgrading Vim plugins."
@@ -223,8 +227,8 @@ function upgrade_weechat_plugins {
 # Main
 #
 
-OPTIONS=ahjpstvwz
-LONGOPTIONS=all,help,julia,pkgbuild,system,theme,vim,weechat,zsh
+OPTIONS=ahjpstvwxz
+LONGOPTIONS=all,help,julia,pkgbuild,system,theme,vim,weechat,extra,zsh
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -238,6 +242,7 @@ while [ ${#} -ge 1 ]; do
       upgrade_vim_packages
       upgrade_weechat_plugins
       upgrade_zsh
+      upgrade_extra
       shift
       break
       ;;
@@ -271,6 +276,10 @@ while [ ${#} -ge 1 ]; do
       ;;
     -z|--zsh)
       upgrade_zsh
+      shift
+      ;;
+    -x|--extra)
+      upgrade_extra
       shift
       ;;
     --)
