@@ -54,29 +54,43 @@ function convert_charset {
         ;;
     esac
   fi
+  sync
 }
 
 function get_language {
-  local res=
+  local in
+  local name
+  local ext="${EXTENSION}"
+  in="$(basename "${1}")"
+  name="${in%.*}"
+
+  # Single subtitles are usually English, so just return 'eng' if the video and
+  # subtitle file names are the same.
+  if [[ "${NAME}" = "${name}" ]]; then
+    echo eng
+    return
+  fi
+
+  show_info "${name}" >&2
+
+  # Detect language from the file name. Will fail if a language is in the
+  # title...
   for lang in "${!LANG[@]}"; do
-    if [[ "${1,,}" =~ ${LANG[${lang}],,} ]]; then
-      res="${lang}"
-      break
+    if [[ "${name,,}" =~ ${LANG[${lang}],,} ]]; then
+      echo "${lang}"
+      return
     fi
   done
 
   # If language not found, try to parse three-character strings as a fallback.
-  if [ -z "${res}" ]; then
-    local end
-    end="$(echo "${1}" | grep -o '[^\ ]*$')"
-    for lang in "${!LANG[@]}"; do
-      if [[ "${end,,}" =~ ${lang,,} ]]; then
-        res="${lang}"
-        break
-      fi
-    done
-  fi
-  echo "${res}"
+  local end
+  end="$(echo "${name,,}" | sed -e "s/\ *sdh//g" | grep -o '[^\ ]*$')"
+  for lang in "${!LANG[@]}"; do
+    if [[ "${end,,}" =~ ${lang,,}$ ]]; then
+      echo "${lang}"
+      return
+    fi
+  done
 }
 
 function hardcode_cleanup {
@@ -84,15 +98,24 @@ function hardcode_cleanup {
   sed -i "s/\(\x94\|\x93\)/\"/g" "${1}"
 }
 
-IN=${1}
-NAME=${1%.*}
-EXTENSION=${1##*.}
-TMPVID="$(mktemp)"
-SUBLIST=()
+function count_subs {
+  local sub_count=0
+  local stream_count
+  local codec_type
 
-trap 'rm "${TMPVID}"; exit' INT TERM ERR
+  stream_count="$(ffprobe -v error -show_format "${IN}" | sed -n "s/nb_streams=\([0-9]\+\)/\1/p" 2>/dev/null)"
+  stream_count="$((stream_count - 1))"
+  for idx in $(seq 0 "${stream_count}"); do
+    codec_type="$(ffprobe -v error -show_entries stream -select_streams "${idx}" "${IN}" | sed -n "s/^codec_type=\(.*\)/\1/p")"
+    if [[ "${codec_type}" = subtitle ]]; then
+      sub_count="$((sub_count + 1))"
+    fi
+  done
 
-function detect_subs {
+  echo "${sub_count}"
+}
+
+function find_subs {
   local subext
   local encoding
   local sub
@@ -101,10 +124,10 @@ function detect_subs {
   for file in "${1}"*; do
     subext=${file##*.}
     case "${subext}" in
-      ass|srt)
+      ass|srt|sup)
         encoding="$(file -b --mime-encoding "$file")"
         if ! [[ "${encoding}" = "utf-8" ]]; then
-          show_info "Converting ${file} encoding from ${encoding} to utf-8."
+          show_info "INFO: Converting ${file} encoding from ${encoding} to UTF-8."
           convert_charset "${file}"
         fi
         SUBLIST+=("${file}")
@@ -119,7 +142,7 @@ function detect_subs {
       avi|m4v|mp4|mkv|webm|idx)
         ;;
       *)
-        show_warning "${file} not supported. Skipping..."
+        show_warning "WARNING: ${file} not supported. Skipping..."
         ;;
     esac
   done
@@ -127,10 +150,10 @@ function detect_subs {
     for file in "Subs/"*; do
       subext=${file##*.}
       case "${subext}" in
-        ass|srt)
+        ass|srt|sup)
           encoding="$(file -b --mime-encoding "$file")"
           if ! [[ "${encoding}" = "utf-8" ]]; then
-            show_info "Converting ${file} encoding from ${encoding} to utf-8."
+            show_info "INFO: Converting ${file} encoding from ${encoding} to utf-8."
             convert_charset "${file}"
           fi
           SUBLIST+=("${file}")
@@ -145,7 +168,7 @@ function detect_subs {
         avi|m4v|mp4|mkv|webm|idx)
           ;;
         *)
-          show_warning "${file} not supported. Skipping..."
+          show_warning "WARNING: ${file} not supported. Skipping..."
           ;;
       esac
     done
@@ -163,15 +186,24 @@ function make_cmd {
   local inputs
   local mapping
   local metadata
-  local count
+  local disposition
+  local file_count
+  local stream_count
   local lang
-  local eng_idx=0
+  local default_idx=-1 # idx of stream to set as the default
   local cmd
-
+  
   inputs="ffmpeg -i ${1@Q}"
-  mapping="-map 0"
+  file_count=1
+  if [[ "${FORCE}" = false ]]; then
+    mapping="-map 0"
+    stream_count="$(count_subs)"
+  else
+    mapping="-map 0:v -map 0:a"
+    stream_count=0
+  fi
   metadata="-sub_charenc UTF-8"
-  count=1
+
   if [[ "${#SUBLIST[@]}" = 1 ]]; then
     sub="${SUBLIST[0]}"
     subext="${sub##*.}"
@@ -181,56 +213,88 @@ function make_cmd {
     else
       inputs="${inputs} -i ${sub@Q}"
     fi
-    mapping="${mapping} -map 1:s"
-    metadata="${metadata} -metadata:s:s:0 language=eng"
-    metadata="${metadata} -metadata:s:s:0 handler=\"English\""
+    mapping="${mapping} -map ${file_count}:s"
+    metadata="${metadata} -metadata:s:s:${stream_count} language=${LANG_DEFAULT}"
+    metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[${LANG_DEFAULT}]}\""
   elif [[ "${#SUBLIST[@]}" -gt 1 ]]; then
     for sub in "${SUBLIST[@]}"; do
       subext="${sub##*.}"
       subidx="${sub%.*}.idx"
       if [[ "${subext}" = "sub" ]] && [ -f "${subidx}" ]; then
         inputs="${inputs} -i ${subidx@Q} -i ${sub@Q}"
-        mapping="${mapping} -map ${count}:s -map $((count + 1)):s"
-        if [[ "${sub,,}" =~ english ]] && [[ "${eng_idx}" == 0 ]]; then
-          eng_idx="$((count - 1))"
+        mapping="${mapping} -map ${file_count}:s -map $((file_count + 1)):s"
+        if [[ "${sub,,}" =~ ${LANG[${LANG_DEFAULT}],,} ]] && \
+           [[ "${default_idx}" == -1 ]]; then
+          default_idx="${stream_count}"
         fi
         lang="$(get_language "${sub}")"
         if [ -n "${lang}" ]; then
-          metadata="${metadata} -metadata:s:s:$((count - 1)) language=\"${lang}\""
-          metadata="${metadata} -metadata:s:s:$((count - 1)) handler=\"${LANG[$lang]}\""
+          # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
+          if [[ "${sub,,}" =~ sdh ]]; then
+            metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
+            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[$lang]} (\"SDH\")\""
+          else
+            # set default_idx to avoid ambient sounds in the default subtitles
+            if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
+               [[ "${default_idx}" == -1 ]]; then
+              default_idx="${stream_count}"
+            fi
+            metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
+            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[$lang]}\""
+          fi
         fi
-        count=$((count + 2))
+        file_count=$((file_count + 2))
+        stream_count=$((stream_count + 1))
       else
         inputs="${inputs} -i ${sub@Q}"
-        mapping="${mapping} -map ${count}:s"
+        mapping="${mapping} -map ${file_count}:s"
         lang="$(get_language "${sub}")"
         if [ -n "${lang}" ]; then
-          if [[ "${lang}" = "eng" ]] && [[ "${eng_idx}" = 0 ]]; then
-            eng_idx="$((count - 1))"
+          # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
+          if [[ "${sub,,}" =~ sdh ]]; then
+            metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
+            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[$lang]} (\"SDH\")\""
+          else
+            # set default_idx to avoid ambient sounds in the default subtitles
+            if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
+               [[ "${default_idx}" == -1 ]]; then
+              default_idx="${stream_count}"
+            fi
+            metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
+            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[$lang]}\""
           fi
-          metadata="${metadata} -metadata:s:s:$((count - 1)) language=\"${lang}\""
-          metadata="${metadata} -metadata:s:s:$((count - 1)) handler=\"${LANG[$lang]}\""
         fi
-        count=$((count + 1))
+        file_count=$((file_count + 1))
+        stream_count=$((stream_count + 1))
       fi
     done
+  fi
+  
+  if [[ "${NOSUB}" = false ]]; then
+    if ! [[ "${default_idx}" == -1 ]]; then
+      disposition="-disposition:s:${default_idx} default"
+    else
+      disposition=""
+    fi
+  else
+    disposition="-default_mode infer_no_subs -disposition:s -default"
   fi
 
   case ${ext} in
     avi)
-      # AVI does not support embedding text-based subtitles, so convert to MP4
-      # and embed as mov_text.
+      # AVI does not support embedding text-based subtitles, so convert to
+      # Matroska.
       EXTENSION="mkv"
-      cmd="${inputs} ${mapping} -c:v copy -c:a copy -c:s copy -f matroska ${metadata} -disposition:s:${eng_idx} default \"${TMPVID}\" -y"
+      cmd="${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s copy -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
     mp4|m4v)
-      cmd="${inputs} ${mapping} -c:v copy -c:a copy -c:s mov_text -f mp4 ${metadata} -disposition:s:${eng_idx} default \"${TMPVID}\" -y"
+      cmd="${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s mov_text -f mp4 ${metadata} ${TMPVID@Q} -y"
       ;;
     mkv)
-      cmd="${inputs} ${mapping} -c copy -f matroska ${metadata} -disposition:s:${eng_idx} default \"${TMPVID}\" -y"
+      cmd="${inputs} ${mapping} ${disposition} -c copy -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
     *)
-      show_error "${ext} files are not supported."
+      show_error "ERROR: ${ext} files are not supported."
       exit 3
   esac
   echo "${cmd}"
@@ -238,30 +302,38 @@ function make_cmd {
 
 function backup_files {
   local backupdir
+  local infile
+  local indir
+  local subfile
   local subdir
   local subext
   local sub
 
-  backupdir="backup_$(date +%Y%m%d-%H%M%S)"
+  infile="$(basename "${IN}")"
+  indir="$(dirname "${IN}")"
+  backupdir="${indir}/backup_$(date +%Y%m%d-%H%M%S)"
   mkdir -p "${backupdir}"
 
-  mv "${IN}" "${backupdir}/${IN}"
+  mv "${IN}" "${backupdir}/${infile}"
   for sub in "${SUBLIST[@]}"; do
     subdir="$(dirname "${sub}")"
+    subfile="$(basename "${sub}")"
     subext=${sub##*.}
-    if ! [[ "${subdir}" = "." ]]; then
+    if ! [[ "${subdir}" = "${indir}" ]]; then
       mkdir -p "${backupdir}/${subdir}"
+    else
+      subdir="."
     fi
-    mv "${sub}" "${backupdir}/${subdir}/"
+    mv "${sub}" "${backupdir}/${subdir}/${subfile}"
     if [[ "${subext}" = sub ]]; then
       if [ -f "${sub%.*}.idx" ]; then
-        mv "${sub%.*}.idx" "${subdir}/${backupdir}"
+        mv "${sub%.*}.idx" "${backupdir}/${subdir}/${subfile%.*}.idx"
       fi
     fi
   done
 
-  if [ -d Subs/ ]; then
-    rmdir Subs/
+  if [ -d "${indir}/Subs" ]; then
+    rmdir "${indir}/Subs"
   fi
 }
 
@@ -269,9 +341,56 @@ function backup_files {
 # Main
 #
 
-detect_subs "${NAME}"
-make_cmd "${IN}"
-eval "$(make_cmd "${IN}")"
+OPTIONS=fl:n
+LONGOPTIONS=force,language:,nodefault
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+FORCE=false
+NOSUB=false
+LANG_DEFAULT=eng # needs to be 3-letter code (lower case)
+while [ ${#} -ge 1 ]; do
+  case ${1} in
+    -f|--force)
+      FORCE=true
+      shift 1
+      ;;
+    -n|--nodefault)
+      NOSUB=true
+      shift 1
+      ;;
+    -l|--language)
+      LANG_DEFAULT="${2}"
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR: invalid flag."
+      exit 3
+      ;;
+  esac
+done
+
+if [[ ${#} -ne 1 ]]; then
+  show_error "ERROR: please specify 1 input file."
+  exit 3
+fi
+
+IN="${1}"
+NAME="${1%.*}"
+EXTENSION="${1##*.}"
+TMPVID="$(mktemp)"
+SUBLIST=()
+
+trap 'rm "${TMPVID}"; exit' INT TERM ERR
+
+find_subs "${NAME}"
+CMD="$(make_cmd "${IN}")"
+show_listitem "${CMD}"
+eval "${CMD}"
 backup_files
 mv "${TMPVID}" "${NAME}.${EXTENSION}"
 sync
