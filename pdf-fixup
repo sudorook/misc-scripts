@@ -89,9 +89,8 @@ if [[ "${START}" -ne 1 ]]; then
   exit
 fi
 
-pdftk ${TMP} update_info ${DATA} output "${OUTPUT}"
-
 if ! $KEEP; then
+  pdftk ${TMP} update_info ${DATA} output "${OUTPUT}"
   rm -f "${TMP}" "${DATA}"
 else
   show_info "To re-assemble, run:"
