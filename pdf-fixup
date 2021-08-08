@@ -85,7 +85,7 @@ sed -i "/^$/d" "${DATA}"
 
 if [[ "${START}" -ne 1 ]]; then
   show_info "Edit the metadata to fix bookmark and media page #s. Then, run:"
-  show_listitem "pdftk '${TMP}' update_info '${DATA}' output '${OUTPUT}'"
+  show_listitem "pdftk ${TMP@Q} update_info ${DATA@Q} output ${OUTPUT@Q} && rm ${TMP@Q} ${DATA@Q}"
   exit
 fi
 
@@ -94,5 +94,5 @@ if ! $KEEP; then
   rm -f "${TMP}" "${DATA}"
 else
   show_info "To re-assemble, run:"
-  show_listitem "pdftk '${TMP}' update_info '${DATA}' output '${OUTPUT}'"
+  show_listitem "pdftk ${TMP@Q} update_info ${DATA@Q} output ${OUTPUT@Q} && rm ${TMP@Q} ${DATA@Q}"
 fi
