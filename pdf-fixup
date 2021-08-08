@@ -57,11 +57,6 @@ else
   EXTENSION=${1##*.}
 fi
 
-if ! [[ -v INPUT ]]; then
-  show_error "ERROR: input not provided. Exiting."
-  exit 3
-fi
-
 if ! [[ -v OUTPUT ]]; then
   OUTPUT="${NAME} (new).${EXTENSION}"
 fi
