@@ -100,6 +100,9 @@ function compress_archive() {
       if command -v pzstd >/dev/null 2>&1; then
         run="tar cf - --exclude='*.sw[a-p]' ${2}"
         eval "${run}" | pzstd > "${archivedir}/${1}.tar.zst"
+      else
+        show_error "ERROR: zstd is not installed. Exiting."
+        exit 3
       fi
       ;;
     *)
