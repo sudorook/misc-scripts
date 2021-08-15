@@ -82,7 +82,7 @@ function get_language {
 
   # If language not found, try to parse three-character strings as a fallback.
   local end
-  end="$(echo "${name,,}" | sed -e "s/\ *sdh//g" | grep -o '[^\ ]*$')"
+  end="$(echo "${name,,}" | sed -E -e "s/\ hi$|\ sdh$//g" | grep -o '[^\ ]*$')"
   for lang in "${!LANG[@]}"; do
     if [[ "${end,,}" =~ ${lang,,}$ ]]; then
       echo "${lang}"
@@ -186,6 +186,7 @@ function make_cmd {
   local ext=${EXTENSION}
   local sub
   local subidx
+  local subname
   local subext
   local inputs
   local mapping
@@ -222,6 +223,7 @@ function make_cmd {
     metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[${LANG_DEFAULT}]}\""
   elif [[ "${#SUBLIST[@]}" -gt 1 ]]; then
     for sub in "${SUBLIST[@]}"; do
+      subname="${sub%.*}"
       subext="${sub##*.}"
       subidx="${sub%.*}.idx"
       if [[ "${subext}" = "sub" ]] && [ -f "${subidx}" ]; then
@@ -234,9 +236,9 @@ function make_cmd {
         lang="$(get_language "${sub}")"
         if [ -n "${lang}" ]; then
           # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
-          if [[ "${sub,,}" =~ sdh ]]; then
+          if [[ "${subname,,}" =~ sdh$ ]] || [[ "${subname,,}" =~ hi$ ]]; then
             metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[$lang]} (\"SDH\")\""
+            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[$lang]} (SDH)\""
           else
             # set default_idx to avoid ambient sounds in the default subtitles
             if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
@@ -255,9 +257,9 @@ function make_cmd {
         lang="$(get_language "${sub}")"
         if [ -n "${lang}" ]; then
           # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
-          if [[ "${sub,,}" =~ sdh ]]; then
+          if [[ "${subname,,}" =~ sdh$ ]] || [[ "${subname,,}" =~ hi$ ]]; then
             metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[$lang]} (\"SDH\")\""
+            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[$lang]} (SDH)\""
           else
             # set default_idx to avoid ambient sounds in the default subtitles
             if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
