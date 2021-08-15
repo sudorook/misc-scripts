@@ -71,8 +71,6 @@ function get_language {
     return
   fi
 
-  show_info "${name}" >&2
-
   # Detect language from the file name. Will fail if a language is in the
   # title...
   for lang in "${!LANG[@]}"; do
@@ -128,7 +126,7 @@ function find_subs {
         ass|srt|sup)
           encoding="$(file -b --mime-encoding "$file")"
           if ! [[ "${encoding}" = "utf-8" ]]; then
-            show_info "INFO: Converting ${file} encoding from ${encoding} to utf-8."
+            show_info "INFO: Converting ${file} encoding from ${encoding} to UTF-8."
             convert_charset "${file}"
           fi
           SUBLIST+=("${file}")
@@ -180,7 +178,7 @@ function find_subs {
   fi
 
   for sub in "${SUBLIST[@]}"; do
-    echo "${sub}" >&2
+    show_listitem "${sub}"
   done
 }
 
@@ -395,7 +393,7 @@ trap 'rm "${TMPVID}"; exit' INT TERM ERR
 
 find_subs "${NAME}"
 CMD="$(make_cmd "${IN}")"
-show_listitem "${CMD}"
+show_header "${CMD}"
 eval "${CMD}"
 backup_files
 mv "${TMPVID}" "${NAME}.${EXTENSION}"
