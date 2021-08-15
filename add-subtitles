@@ -121,33 +121,8 @@ function find_subs {
   local sub
   local file
 
-  for file in "${1}"*; do
-    subext=${file##*.}
-    case "${subext}" in
-      ass|srt|sup)
-        encoding="$(file -b --mime-encoding "$file")"
-        if ! [[ "${encoding}" = "utf-8" ]]; then
-          show_info "INFO: Converting ${file} encoding from ${encoding} to UTF-8."
-          convert_charset "${file}"
-        fi
-        SUBLIST+=("${file}")
-        ;;
-      sub)
-        if [ -f "${file%.*}.idx" ]; then
-          show_info "INFO: Image subtitles detected. Output Matroska."
-          EXTENSION=mkv
-        fi
-        SUBLIST+=("${file}")
-        ;;
-      avi|m4v|mp4|mkv|webm|idx)
-        ;;
-      *)
-        show_warning "WARNING: ${file} not supported. Skipping..."
-        ;;
-    esac
-  done
-  if [ -d "Subs" ]; then
-    for file in "Subs/"*; do
+  while read -r file; do
+    if [ -f "${file}" ]; then
       subext=${file##*.}
       case "${subext}" in
         ass|srt|sup)
@@ -171,8 +146,39 @@ function find_subs {
           show_warning "WARNING: ${file} not supported. Skipping..."
           ;;
       esac
-    done
+    fi
+  done <<< "$(ls -v "${1}"*)"
+
+  if [ -d "Subs" ]; then
+    while read -r file; do
+      if [ -f "${file}" ]; then
+        subext=${file##*.}
+        case "${subext}" in
+          ass|srt|sup)
+            encoding="$(file -b --mime-encoding "$file")"
+            if ! [[ "${encoding}" = "utf-8" ]]; then
+              show_info "INFO: Converting ${file} encoding from ${encoding} to utf-8."
+              convert_charset "${file}"
+            fi
+            SUBLIST+=("${file}")
+            ;;
+          sub)
+            if [ -f "${file%.*}.idx" ]; then
+              show_info "INFO: Image subtitles detected. Output Matroska."
+              EXTENSION=mkv
+            fi
+            SUBLIST+=("${file}")
+            ;;
+          avi|m4v|mp4|mkv|webm|idx)
+            ;;
+          *)
+            show_warning "WARNING: ${file} not supported. Skipping..."
+            ;;
+        esac
+      fi
+    done <<< "$(ls -v "Subs/")"
   fi
+
   for sub in "${SUBLIST[@]}"; do
     echo "${sub}" >&2
   done
