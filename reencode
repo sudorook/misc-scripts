@@ -124,7 +124,7 @@ function convert_codec {
   cmd="${cmd} ${out@Q}"
 
   show_header "Re-encoding ${in}:"
-  show_listitem "${cmd}"
+  show_info "${cmd}"
   eval "${cmd}"
 }
 
