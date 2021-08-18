@@ -14,7 +14,10 @@ function convert_codec {
   local out
   local cmd
 
-  cmd="ffmpeg -v warning -i ${in@Q} -map_chapters 0 -map_metadata 0"
+  cmd="ffmpeg -v info -i ${in@Q} -map_chapters 0 -map_metadata 0"
+  if [[ "${NOSUB}" = true ]]; then
+    cmd="${cmd} -default_mode infer_no_subs -disposition:s -default"
+  fi
 
   # set video codec
   case "${OUT_VCODEC}" in
@@ -300,8 +303,10 @@ function fill_dimensions {
 # Parse command line options
 #
 
-OPTIONS=i:a:v:r:c:d:h
-LONGOPTIONS=input:,acodec:,vcodec:,crf:,dimensions:,container:,help
+NOSUB=false
+
+OPTIONS=i:a:v:r:c:d:hn
+LONGOPTIONS=input:,acodec:,vcodec:,crf:,dimensions:,container:,help,nodefault
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 while [ $# -ge 1 ]; do
@@ -320,6 +325,10 @@ while [ $# -ge 1 ]; do
     -v|--vcodec)
       parse_vcodec "${2}"
       shift 2
+      ;;
+    -n|--nodefault)
+      NOSUB=true
+      shift 1
       ;;
     -r|--crf)
       CRF="${2}"
