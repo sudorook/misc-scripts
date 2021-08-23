@@ -6,23 +6,23 @@ source globals
 
 OPTIONS=hji:f:l:
 LONGOPTIONS=help,join,input:,first:,last:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "$@")
+eval set -- "${PARSED}"
 
 while [ $# -ge 1 ]; do
-  case "$1" in
+  case "${1}" in
     -i|--input)
-      IN="$2"
+      IN="${2}"
       OUT="${2%.*}"
-      PAGES=$(pdfinfo "$2" | grep "^Pages:" | sed -n "s/^Pages:\s*\([0-9]\+\)/\1/p")
+      PAGES=$(pdfinfo "${2}" | grep "^Pages:" | sed -n "s/^Pages:\s*\([0-9]\+\)/\1/p")
       shift 2
       ;;
     -f|--FIRST)
-      FIRST="$2"
+      FIRST="${2}"
       shift 2
       ;;
     -l|--LAST)
-      LAST="$2"
+      LAST="${2}"
       shift 2
       ;;
     -j|--join)
@@ -59,15 +59,15 @@ if ! [[ -v FIRST ]]; then
 fi
 
 if ! [[ -v LAST ]]; then
-  LAST=$PAGES
+  LAST=${PAGES}
 fi
 
 if (( LAST > PAGES )); then
-  LAST=$PAGES
+  LAST=${PAGES}
 fi
 
 if (( FIRST > PAGES )); then
-  show_error "Starting page doesn't exist. The file only has $PAGES pages."
+  show_error "Starting page doesn't exist. The file only has ${PAGES} pages."
   exit 3
 fi
 
@@ -81,25 +81,25 @@ fi
 # used to join the pages at the end won't work. For example, 02 is sorted
 # before 10, but 2 is placed after.
 if (( FIRST >= 10 )); then
-  pdfseparate -f $FIRST -l "$LAST" "$IN" "$OUT-%d.pdf"
+  pdfseparate -f "${FIRST}" -l "${LAST}" "${IN}" "${OUT}-%d.pdf"
 elif (( LAST >= 10 )); then
   if (( LAST < 10 )); then
-    pdfseparate -f $FIRST -l "$LAST" "$IN" "$OUT-0%d.pdf"
+    pdfseparate -f "${FIRST}" -l "${LAST}" "${IN}" "${OUT}-0%d.pdf"
   fi
   if (( LAST >= 10 )); then
-    pdfseparate -f $FIRST -l 9 "$IN" "$OUT-0%d.pdf"
-    pdfseparate -f 10 -l "$LAST" "$IN" "$OUT-%d.pdf"
+    pdfseparate -f "${FIRST}" -l 9 "${IN}" "${OUT}-0%d.pdf"
+    pdfseparate -f 10 -l "${LAST}" "${IN}" "${OUT}-%d.pdf"
   fi
 else
-  pdfseparate -f $FIRST "$IN" "$OUT-0%d.pdf"
+  pdfseparate -f ${FIRST} "${IN}" "${OUT}-0%d.pdf"
 fi
 
 # Join
 if [[ -v JOINPDFS ]]; then
-  if [[ $JOINPDFS = true ]]; then
+  if [[ "${JOINPDFS}" = true ]]; then
     NEW="${IN%.*}-new.pdf"
-    rm -f "$NEW"
-    pdfunite "${OUT}"-*.pdf "$NEW"
+    rm -f "${NEW}"
+    pdfunite "${OUT}"-*.pdf "${NEW}"
     rm "${OUT}"-[0-9]*.pdf
   fi
 fi
