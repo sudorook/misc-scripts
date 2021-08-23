@@ -35,12 +35,14 @@ function extract_streams {
   local cmd
   local out
   for i in $(seq 0 $(( ${#TITLES[@]} - 1))); do
-    cmd="ffmpeg -i ${IN@Q} -map ${STREAMS[${i}]} -c copy"
+    cmd="ffmpeg -i ${IN@Q} -map ${STREAMS[${i}]}"
     case "${FORMATS[${i}]}" in
       ass)
+        cmd="${cmd} -c copy"
         out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.ass"
         ;;
       dvd_subtitle)
+        cmd="${cmd} -c copy"
         if [[ "${EXTENSION}" = mp4 ]]; then
           out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.mp4"
         else
@@ -48,9 +50,11 @@ function extract_streams {
         fi
         ;;
       mov_text|srt|subrip)
+        cmd="${cmd} -c copy"
         out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.srt"
         ;;
       hdmv_pgs_subtitle)
+        cmd="${cmd} -c copy"
         out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.sup"
         ;;
       *)
