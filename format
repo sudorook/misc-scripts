@@ -122,11 +122,11 @@ while [ $# -ge 1 ]; do
 done
 
 if [[ ${#} -ne 1 ]]; then
-  show_error "ERROR: please specify 1 input file or directory."
+  show_error "ERROR: please specify 1 input file or directory." >&2
   exit 3
 else
   if ! [ -f "${1}" ] && ! [ -d "${1}" ]; then
-    show_error "ERROR: input '${1}' not found. Exiting."
+    show_error "ERROR: input '${1}' not found. Exiting." >&2
     exit 3
   fi
   INPUT="${1}"
