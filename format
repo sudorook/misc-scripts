@@ -3,45 +3,100 @@ set -eu
 source globals
 
 function format_c() {
+  local mime
   if command -v clang-format >/dev/null; then
-    if [[ "$(file -bi "${1}")" =~ "x-c++;"|"x-c;" ]]; then
+    mime="$(file -b --mime-type "${1}")" 
+    if [[ "${mime}" =~ x-c\+\+$|x-c$ ]]; then
       local tmp
       tmp="$(mktemp)"
       clang-format -style=mozilla "${1}" > "${tmp}"
       mv "${tmp}" "${1}"
     else
-      show_warning "WARNING: ${1} incompatible MIME type. Skipping."
+      show_warning "WARNING: ${1@Q} incompatible MIME type ${mime@Q}. Skipping." >&2
     fi
   else
-    show_error "ERROR: clang-format missing. Exiting."
+    show_error "ERROR: 'clang-format' missing. Exiting." >&2
     exit 3
   fi
 }
 export -f format_c
 
 function format_python() {
+  local mime
   if command -v black >/dev/null; then
-    if [[ "$(file -bi "${1}")" =~ x-script.python ]]; then
+    mime="$(file -b --mime-type "${1}")" 
+    if [[ "${mime}" =~ x-script.python$ ]]; then
       black -q -l 79 "${1}"
     else
-      show_warning "WARNING: ${1} incompatible MIME type. Skipping."
+      show_warning "WARNING: ${1@Q} incompatible MIME type ${mime@Q}. Skipping." >&2
     fi
   else
-    show_error "ERROR: black missing. Exiting."
+    show_error "ERROR: 'black' missing. Exiting." >&2
     exit 3
   fi
 }
 export -f format_python
 
+function detect_mimetype() {
+  local mime
+  mime="$(file -b --mime-type "${1}")"
+  case "${mime}" in
+    text/x-c|text/x-c++)
+      echo c
+      ;;
+    text/x-script.python)
+      echo python
+      ;;
+    *)
+      show_warning "WARNING: ${mime@Q} unsupported in ${1@Q}. Skipping." >&2
+      ;;
+  esac
+}
+export -f detect_mimetype
+
+function format_wrapper() {
+  local lang
+  if ! [[ -v LANGUAGE ]]; then
+    lang="$(detect_mimetype "${1}")"
+    if [[ -z "${lang}" ]]; then
+      return
+    fi
+  else
+    lang="${LANGUAGE}"
+  fi
+
+  case "${lang}" in
+    c|C|c++|C++|cpp|CPP)
+      format_c "${1}"
+      ;;
+    python|Python)
+      format_python "${1}"
+      ;;
+    *)
+      show_error "ERROR" >&2
+      exit 3
+      ;;
+  esac
+
+  show_success "${1@Q} done!"
+}
+export -f format_wrapper
+
 function print_usage() {
-  show_header "Usage:"
-  show_listitem "  -l|--language    programming language (e.g. c++, python)"
-  show_listitem "  -i|--input       input file or directory"
+  show_header   "Usage: format <file or directory>"
+  echo
+  show_info     "Flags:"
+  show_listitem "  -l|--language    (optional) programming language (e.g. c++, python)"
   show_listitem "  -h|--help        print (this) message"
+  echo
+  show_info \
+    "Specify a file to format a single file. Specify a directory to\n" \
+    "recursively format _all_ files in it. (Any files without MIME types\n" \
+    "hard-coded in the script will be ignored."
 }
 
-OPTIONS=hi:l:
-LONGOPTIONS=help,input:language:
+OPTIONS=hl:
+LONGOPTIONS=help,language:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -49,10 +104,6 @@ while [ $# -ge 1 ]; do
   case "$1" in
     -l|--language)
       LANGUAGE="${2}"
-      shift 2
-      ;;
-    -i|--input)
-      INPUT="${2}"
       shift 2
       ;;
     -h|--help)
@@ -64,65 +115,33 @@ while [ $# -ge 1 ]; do
       break
       ;;
     *)
-      show_error "Error"
+      show_error "ERROR"
       exit 3
       ;;
   esac
 done
 
-
-if ! [[ -v LANGUAGE ]]; then
-  show_error "ERROR: language ('-l' flag) unset. Exiting."
+if [[ ${#} -ne 1 ]]; then
+  show_error "ERROR: please specify 1 input file or directory."
   exit 3
-fi
-
-if ! [[ -v INPUT ]]; then
-  show_error "ERROR: input ('-i' flag) unspecified. Exiting."
-  exit 3
+else
+  if ! [ -f "${1}" ] && ! [ -d "${1}" ]; then
+    show_error "ERROR: input '${1}' not found. Exiting."
+    exit 3
+  fi
+  INPUT="${1}"
 fi
 
 if [[ -f "${INPUT}" ]]; then
-  case "$LANGUAGE" in
-    c|C|c++|C++|cpp|CPP)
-      format_c "$INPUT"
-      ;;
-    python|Python)
-      format_python "$INPUT"
-      ;;
-    *)
-      show_error "error"
-      exit 3
-      ;;
-  esac
+  format_wrapper "${INPUT}"
 elif [[ -d "${INPUT}" ]]; then
-  case "$LANGUAGE" in
-    c|C|c++|C++|cpp|CPP)
-      find "${INPUT}" -type f \
-        -not \( -path "./.git*" \
-                -o -path "./docs/*" \
-                -o -path "*README*" \
-                -o -path "*readme*" \
-                -o -path "*LICENSE*" \
-                -o -path "*license*" \
-                -o -path "*.Rhistory" \) \
-        -exec bash -c 'format_c "${1}"' bash {} \;
-      ;;
-    python|Python)
-      find "${INPUT}" -type f \
-        -not \( -path "./.git*" \
-                -o -path "./docs/*" \
-                -o -path "*README*" \
-                -o -path "*readme*" \
-                -o -path "*LICENSE*" \
-                -o -path "*license*" \
-                -o -path "*.Rhistory" \) \
-        -exec bash -c 'format_python "${1}"' bash {} \;
-      ;;
-    *)
-      show_error "error"
-      exit 3
-      ;;
-  esac
+  find "${INPUT}" -type f \
+    -not \( -path "./.git*" -o \
+            -path "./docs/*" -o \
+            -path "*README*" -o \
+            -path "*readme*" -o \
+            -path "*LICENSE*" -o \
+            -path "*license*" -o \
+            -path "*.Rhistory" \) \
+    -exec bash -c 'format_wrapper "${1}"' bash {} \;
 fi
-
-show_success "Done!"
