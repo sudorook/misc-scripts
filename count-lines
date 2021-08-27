@@ -77,16 +77,16 @@ function find_gitignorefiles {
 if [ ${#} = 0 ]; then
   GITIGNOREFILES="$(find_gitignorefiles .)"
   eval "find . -type f \
-    -not \( ""${IGNOREFILES}"" \) \
-    -not \( ""${IGNOREDIRS}"" \) \
+    -not \( ${IGNOREFILES} \) \
+    -not \( ${IGNOREDIRS} \) \
     ${GITIGNOREFILES} \
     -exec wc -l -- '{}' +"
 else
   if [ -d "${1}" ]; then
     GITIGNOREFILES="$(find_gitignorefiles "${1}")"
-    eval "find \"${1}\" -type f \
-      -not \( ""${IGNOREFILES}"" \) \
-      -not \( ""${IGNOREDIRS}"" \) \
+    eval "find ${1@Q} -type f \
+      -not \( ${IGNOREFILES} \) \
+      -not \( ${IGNOREDIRS} \) \
       ${GITIGNOREFILES} \
       -exec wc -l -- '{}' +"
   elif [ -f "${1}" ]; then
