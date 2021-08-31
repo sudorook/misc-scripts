@@ -1,5 +1,6 @@
 #! /bin/bash
 set -eu
+source globals
 
 if [ -e /proc/sys/vm/drop_caches ]; then
   sudo bash -c "echo 3 > /proc/sys/vm/drop_caches"
