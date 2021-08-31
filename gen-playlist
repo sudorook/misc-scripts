@@ -10,7 +10,7 @@ import beets.library
 
 # Load the YAML config file.
 configpath = os.path.expanduser("~/.config/beets/config.yaml")
-with open(configpath) as f:
+with open(configpath, encoding="UTF-8") as f:
     data = yaml.safe_load(f)
 
 # Load the Beets library.
@@ -37,5 +37,5 @@ for artist in artists:
 
 # Write playlists to the beets YAML config file.
 data["smartplaylist"]["playlists"] = playlists
-with open(configpath, "w") as f:
+with open(configpath, "w", encoding="UTF-8") as f:
     yaml.dump(data, f, default_flow_style=False)
