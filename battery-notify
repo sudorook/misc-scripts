@@ -29,7 +29,7 @@ if [ -e "${LOCKFILE}" ] && kill -0 "$(cat "${LOCKFILE}")"; then
 fi
 
 if ! command -v notify-send >/dev/null; then
-  exit
+  exit 3
 fi
 
 trap 'rm -f ${LOCKFILE}; exit' INT TERM ERR EXIT
