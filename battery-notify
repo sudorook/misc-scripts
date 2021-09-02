@@ -24,6 +24,7 @@ BATTERY_PATH=/sys/class/power_supply/BAT0
 DISPLAY=:0
 LOCKFILE=/tmp/battery-notify.lock
 
+# Exit if lockfile already set by running battery-notify instance.
 if [ -e "${LOCKFILE}" ] && kill -0 "$(cat "${LOCKFILE}")"; then
   exit
 fi
