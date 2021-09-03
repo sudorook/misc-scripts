@@ -8,25 +8,78 @@ source globals
 
 ! check_command bs1770gain && exit 3
 
+function check_inputs {
+  local input
+
+  if ! [ "${#}" -ge 0 ]; then
+    show_error "ERROR: no inputs given. Exiting."
+  fi
+
+  for input in "${@}"; do
+    if ! [ -e "${input}" ]; then
+      show_error "ERROR: ${input@Q} not found. Exiting."
+      exit 3
+    fi
+  done
+}
+
+
 #
 # Main
 #
 
+KEEP=false
+
+OPTIONS=k
+LONGOPTIONS=keep
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ "${#}" -ge 1 ]; do
+  case "${1}" in
+    -k|--keep)
+      KEEP=true
+      shift 1
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR: invalid flag."
+      exit 3
+      ;;
+  esac
+done
+
 TMPDIR="$(mktemp -d)"
 trap 'rm -rf "${TMPDIR}"; exit' INT TERM ERR
 
-if [ $# = 2 ]; then
-  if [[ "$*" =~ ^-k ]]; then
-    bs1770gain "${2}" -o "${TMPDIR}"
-    mv "${2}" "${2}.bak"
-    mv "${TMPDIR}" "${2}"
-  elif [[ "$*" =~ \ -k$ ]]; then
-    bs1770gain "${1}" -o "${TMPDIR}"
-    mv "${1}" "${1}.bak"
-    mv "${TMPDIR}" "${1}"
+# Check that input files/directories exist before computing replay gain.
+check_inputs  "${@}"
+
+bs1770gain "${@}" -o "${TMPDIR}"
+
+if [[ "${KEEP}" = true ]]; then
+  BACKUPDIR="backup_$(date +%Y%m%d-%H%M%S)"
+  mkdir -p "${BACKUPDIR}"
+fi
+
+if [ "${#}" -eq 1 ]; then
+  if [[ "${KEEP}" = true ]]; then
+    mv "${1}" "${BACKUPDIR}/"
+  else
+    rm -r "${1}"
   fi
-elif [ $# = 1 ]; then
-  bs1770gain "${1}" -o "${TMPDIR}"
-  rm -r "${1}"
   mv "${TMPDIR}" "${1}"
+else
+  for ITEM in "${@}"; do
+    if [[ "${KEEP}" = true ]]; then
+      mv "${ITEM}" "${BACKUPDIR}/"
+    else
+      rm -r "${ITEM}"
+    fi
+    mv "${TMPDIR}/$(basename "${ITEM}")" "${ITEM}"
+  done
+  rmdir "${TMPDIR}"
 fi
