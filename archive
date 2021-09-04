@@ -10,11 +10,10 @@ source globals
 # command line. Paths prefixed with '~/' are converted to '${HOME}'. Symlinks
 # are expanded and included as if they were in the current working directory.
 function make_pathstring() {
-  local pathstring
+  local pathstring=""
   local dir
   local link
 
-  pathstring=""
   for item in "${@}"; do
     if [ -e "${item}" ]; then
       dir="$(pwd)"
