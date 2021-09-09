@@ -67,6 +67,7 @@ function cleanup_metadata() {
   if [[ "$(file -bi "${1}")" =~ matroska ]]; then
     if command -v mkvpropedit >/dev/null; then
       mkvpropedit "${1}" -e info -s title=""
+      mkvpropedit "${1}" --tags all:
     fi
   fi
 }
