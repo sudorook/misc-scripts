@@ -15,37 +15,67 @@ if ! [[ -v pkgbuilddir ]]; then
 fi
 
 function sloppy_seek {
-  find "${HOME}/" \
-    ! -path "${HOME}/Desktop*" \
-    ! -path "${HOME}/Documents*" \
-    ! -path "${HOME}/Downloads*" \
-    ! -path "${HOME}/Music*" \
-    ! -path "${HOME}/Pictures*" \
-    ! -path "${projectdir}*" \
-    ! -path "${HOME}/Public*" \
-    ! -path "${HOME}/Sync*" \
-    ! -path "${HOME}/Templates*" \
-    ! -path "${HOME}/Videos*" \
-    ! -path "${pkgbuilddir}*" \
-    -iname "*${1}*" -o -iname ".*${1}*" 2>/dev/null || true
+  local inputstring=
+  local item
+  local cmd
+
+  for item in "${@}"; do
+    if [ -z "${inputstring}" ]; then
+      inputstring="-iname \"*${item}*\" -o -iname \".*${item}*\""
+    else
+      inputstring="${inputstring} \
+                   -o -iname \"*${item}*\" -o -iname \".*${item}*\""
+    fi
+  done
+
+  cmd="find ${HOME}/ \
+       ! -path \"${HOME}/Desktop*\" \
+       ! -path \"${HOME}/Documents*\" \
+       ! -path \"${HOME}/Downloads*\" \
+       ! -path \"${HOME}/Music*\" \
+       ! -path \"${HOME}/Pictures*\" \
+       ! -path \"${projectdir}*\" \
+       ! -path \"${HOME}/Public*\" \
+       ! -path \"${HOME}/Sync*\" \
+       ! -path \"${HOME}/Templates*\" \
+       ! -path \"${HOME}/Videos*\" \
+       ! -path \"${pkgbuilddir}*\" \
+       ${inputstring}"
+  eval "${cmd}" 2>/dev/null || true
 }
 
 function precise_seek {
-  find "${HOME}/" \
-    ! -path "${HOME}/Desktop*" \
-    ! -path "${HOME}/Documents*" \
-    ! -path "${HOME}/Downloads*" \
-    ! -path "${HOME}/Music*" \
-    ! -path "${HOME}/Pictures*" \
-    ! -path "${projectdir}*" \
-    ! -path "${HOME}/Public*" \
-    ! -path "${HOME}/Sync*" \
-    ! -path "${HOME}/Templates*" \
-    ! -path "${HOME}/Videos*" \
-    ! -path "${pkgbuilddir}*" \
-    -name "${1}" -o -name ".${1}" \
-    -o -name ".${1,,}" -o -name ".${1,,}" \
-    -o -name ".${1^,}" -o -name ".${1^}" 2>/dev/null || true
+  local inputstring=
+  local item
+  local cmd
+
+  for item in "${@}"; do
+    if [ -z "${inputstring}" ]; then
+      inputstring="-name \"${item}\" -o -name \".${item}\" \
+                   -o -name \".${item,,}\" -o -name \".${item,,}\" \
+                   -o -name \".${item^,}\" -o -name \".${item^}\""
+    else
+      inputstring="${inputstring} \
+                   -o -name \"${item}\" -o -name \".${item}\" \
+                   -o -name \".${item,,}\" -o -name \".${item,,}\" \
+                   -o -name \".${item^,}\" -o -name \".${item^}\""
+    fi
+  done
+
+  cmd="find ${HOME}/ \
+       ! -path \"${HOME}/Desktop*\" \
+       ! -path \"${HOME}/Documents*\" \
+       ! -path \"${HOME}/Downloads*\" \
+       ! -path \"${HOME}/Music*\" \
+       ! -path \"${HOME}/Pictures*\" \
+       ! -path \"${projectdir}*\" \
+       ! -path \"${HOME}/Public*\" \
+       ! -path \"${HOME}/Sync*\" \
+       ! -path \"${HOME}/Templates*\" \
+       ! -path \"${HOME}/Videos*\" \
+       ! -path \"${pkgbuilddir}*\" \
+       ${inputstring}"
+  eval "${cmd}" 2>/dev/null || true
 }
 
 function destroy {
@@ -90,21 +120,21 @@ done
 # Run seeker and destroyer
 #
 
-if [ ${#} != 1 ]; then
-  show_error "Error: incorrect # of arguments."
-  show_error "Pass the name of a file or directory to seek and destroy."
+if [ ${#} = 0 ]; then
+  show_error "ERROR: no input(s) given. Exiting."
   exit 3
 fi
 
 case ${MODE} in
   precise)
     show_header "--- Running precise seeker ---"
-    if test "$(precise_seek "${1}")"; then
-      precise_seek "${1}"
+    RES="$(precise_seek "${@}")"
+    if [[ -n "${RES}" ]]; then
+      echo "${RES}"
       check=$(ask_question 'Permission to destroy? (y/N)')
       if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
         echo "Yessir!"
-        precise_seek "${1}" | destroy
+        echo "${RES}" | destroy
       else
         echo "As you wish..."
       fi
@@ -114,12 +144,13 @@ case ${MODE} in
     ;;
   sloppy)
     show_header "--- Running sloppy seeker ---"
-    if test "$(sloppy_seek "${1}")"; then
-      sloppy_seek "${1}"
+    RES="$(sloppy_seek "${@}")"
+    if [[ -n "${RES}" ]]; then
+      echo "${RES}"
       check=$(ask_question 'Permission to destroy? (y/N)')
       if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
         echo "Yessir!"
-        sloppy_seek "${1}" | destroy
+        echo "${RES}" | destroy
       else
         echo "As you wish..."
       fi
