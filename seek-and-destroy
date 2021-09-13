@@ -125,41 +125,31 @@ if [ ${#} = 0 ]; then
   exit 3
 fi
 
+RES=
 case ${MODE} in
   precise)
     show_header "--- Running precise seeker ---"
     RES="$(precise_seek "${@}")"
-    if [[ -n "${RES}" ]]; then
-      echo "${RES}"
-      check=$(ask_question 'Permission to destroy? (y/N)')
-      if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        echo "Yessir!"
-        echo "${RES}" | destroy
-      else
-        echo "As you wish..."
-      fi
-    else
-      echo "Target(s) not found. Standing down."
-    fi
     ;;
   sloppy)
     show_header "--- Running sloppy seeker ---"
     RES="$(sloppy_seek "${@}")"
-    if [[ -n "${RES}" ]]; then
-      echo "${RES}"
-      check=$(ask_question 'Permission to destroy? (y/N)')
-      if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        echo "Yessir!"
-        echo "${RES}" | destroy
-      else
-        echo "As you wish..."
-      fi
-    else
-      echo "Target(s) not found. Standing down."
-    fi
     ;;
   *)
     show_error "Error: seeker mode ${MODE} is incorrect."
     exit 3
     ;;
 esac
+
+if [[ -n "${RES}" ]]; then
+  echo "${RES}"
+  check=$(ask_question 'Permission to destroy? (y/N)')
+  if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    echo "Yessir!"
+    echo "${RES}" | destroy
+  else
+    echo "As you wish..."
+  fi
+else
+  echo "Target(s) not found. Standing down."
+fi
