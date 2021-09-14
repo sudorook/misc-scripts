@@ -117,6 +117,7 @@ function find_subs {
   local subext
   local encoding
   local sub
+  local subdir="Subs"
   local file
 
   while read -r file; do
@@ -147,25 +148,25 @@ function find_subs {
     fi
   done <<< "$(ls -v "${1}"*)"
 
-  if [ -d "Subs" ]; then
+  if [ -d "${subdir}" ]; then
     while read -r file; do
-      if [ -f "${file}" ]; then
+      if [ -f "${subdir}/${file}" ]; then
         subext=${file##*.}
         case "${subext}" in
           ass|srt|sup)
-            encoding="$(file -b --mime-encoding "$file")"
+            encoding="$(file -b --mime-encoding "${subdir}/$file")"
             if ! [[ "${encoding}" = "utf-8" ]]; then
               show_info "INFO: Converting ${file} encoding from ${encoding} to utf-8."
-              convert_charset "${file}"
+              convert_charset "${subdir}/${file}"
             fi
-            SUBLIST+=("${file}")
+            SUBLIST+=("${subdir}/${file}")
             ;;
           sub)
             if [ -f "${file%.*}.idx" ]; then
               show_info "INFO: Image subtitles detected. Output Matroska."
               EXTENSION=mkv
             fi
-            SUBLIST+=("${file}")
+            SUBLIST+=("${subdir}/${file}")
             ;;
           avi|m4v|mp4|mkv|webm|idx)
             ;;
