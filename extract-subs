@@ -49,6 +49,10 @@ function extract_streams {
           out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.mkv"
         fi
         ;;
+      "mov_text (tx3g / 0x67337874)")
+        cmd="${cmd} -c ass -tag:s:s:0 tx3g"
+        out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.ass"
+        ;;
       mov_text|srt|subrip)
         cmd="${cmd} -c copy"
         out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.srt"
