@@ -184,7 +184,7 @@ function find_subs {
 }
 
 function make_cmd {
-  local ext=${EXTENSION}
+  local ext
   local sub
   local subidx
   local subname
@@ -287,6 +287,12 @@ function make_cmd {
     disposition="-default_mode infer_no_subs -disposition:s -default"
   fi
 
+  if [ -n "${CONTAINER}" ]; then
+    ext="${CONTAINER}"
+  else
+    ext=${EXTENSION}
+  fi
+
   case ${ext} in
     avi)
       # AVI does not support embedding text-based subtitles, so convert to
@@ -348,16 +354,21 @@ function backup_files {
 # Main
 #
 
-OPTIONS=fl:n
-LONGOPTIONS=force,language:,nodefault
+OPTIONS=c:fl:n
+LONGOPTIONS=container:,force,language:,nodefault
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 FORCE=false
 NOSUB=false
+CONTAINER=
 LANG_DEFAULT=eng # needs to be 3-letter code (lower case)
 while [ ${#} -ge 1 ]; do
   case ${1} in
+    -c|--container)
+      CONTAINER="${2}"
+      shift 2
+      ;;
     -f|--force)
       FORCE=true
       shift 1
@@ -404,5 +415,9 @@ CMD="$(make_cmd "${IN}")"
 show_header "${CMD}"
 eval "${CMD}"
 backup_files
-mv "${TMPVID}" "${NAME}.${EXTENSION}"
+if [ -n "${CONTAINER}" ]; then
+  mv "${TMPVID}" "${NAME}.${CONTAINER}"
+else
+  mv "${TMPVID}" "${NAME}.${EXTENSION}"
+fi
 sync
