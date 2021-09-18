@@ -74,7 +74,7 @@ function get_language {
   # Detect language from the file name. Will fail if a language is in the
   # title...
   for lang in "${!LANG[@]}"; do
-    if [[ "${name,,}" =~ ${LANG[${lang}],,} ]]; then
+    if [[ "${name,,}" =~ ${LANG[${lang}],,}$ ]]; then
       echo "${lang}"
       return
     fi
