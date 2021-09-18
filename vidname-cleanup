@@ -74,7 +74,7 @@ function cleanup_metadata() {
 
 for VID in *; do
   if [ -f "${VID}" ]; then
-    ! [[ "$(file -b --mime-type "${VID}")" =~ video ]] && continue
+    ! [[ "$(file -b --mime-type "${VID}")" =~ video|text ]] && continue
     NEWVID=$(cleanup_filename "${VID}")
     echo "${NEWVID}"
   fi
@@ -85,7 +85,7 @@ REPLY=$(ask_question "Is this good? (y/N)")
 if [[ "${REPLY}" =~ ^y ]] || [[ "${REPLY}" =~ ^Y ]]; then
   for VID in *; do
     if [ -f "${VID}" ]; then
-      ! [[ "$(file -b --mime-type "${VID}")" =~ video ]] && continue
+      ! [[ "$(file -b --mime-type "${VID}")" =~ video|text ]] && continue
       NEWVID=$(cleanup_filename "${VID}")
       if [ "${VID}" != "${NEWVID}" ]; then
         mv -v "${VID}" "${NEWVID}"
