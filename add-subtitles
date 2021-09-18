@@ -386,6 +386,11 @@ if [[ ${#} -ne 1 ]]; then
   exit 3
 fi
 
+if ! [[ -f "${1}" ]]; then
+  show_error "ERROR: input ${1} not a file."
+  exit 3
+fi
+
 IN="${1}"
 NAME="${1%.*}"
 EXTENSION="${1##*.}"
