@@ -28,17 +28,17 @@ function parse_streams {
       video)
         STREAMS+=("video")
         COUNTERS+=("${v_counter}")
-        v_counter+=1
+        v_counter=$((v_counter + 1))
         ;;
       audio)
         STREAMS+=("audio")
         COUNTERS+=("${a_counter}")
-        a_counter+=1
+        a_counter=$((a_counter + 1))
         ;;
       subtitle)
         STREAMS+=("subtitle")
         COUNTERS+=("${s_counter}")
-        s_counter+=1
+        s_counter=$((s_counter + 1))
         ;;
       *)
         ;;
