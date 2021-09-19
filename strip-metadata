@@ -1,0 +1,213 @@
+#! /bin/bash
+set -eu
+source globals
+
+! check_command ffmpeg ffprobe && exit 3
+
+function strip_titles {
+  echo "${1}"
+}
+
+function parse_streams {
+  local stream_count
+  local codec_type
+  local idx
+  local title
+  local lang
+  local v_counter=0
+  local a_counter=0
+  local s_counter=0
+
+  stream_count="$(ffprobe -v error -show_format "${IN}" | \
+                  sed -n "s/nb_streams=\([0-9]\+\)/\1/p" 2>/dev/null)"
+  stream_count="$((stream_count - 1))"
+
+  for idx in $(seq 0 "${stream_count}"); do
+    codec_type="$(ffprobe -v error -show_entries stream -select_streams "${idx}" "${IN}" | sed -n "s/^codec_type=\(.*\)/\1/p")"
+    case "${codec_type}" in
+      video)
+        STREAMS+=("video")
+        COUNTERS+=("${v_counter}")
+        v_counter+=1
+        ;;
+      audio)
+        STREAMS+=("audio")
+        COUNTERS+=("${a_counter}")
+        a_counter+=1
+        ;;
+      subtitle)
+        STREAMS+=("subtitle")
+        COUNTERS+=("${s_counter}")
+        s_counter+=1
+        ;;
+      *)
+        ;;
+    esac
+
+    title="$(ffprobe -v error -show_entries stream -select_streams "${idx}" "${IN}" | \
+             sed -n "s/TAG:title=\(.*\)/\1/p")"
+    if [ -n "${title}" ]; then
+      TITLES+=("$(strip_titles "${title}")")
+    else
+      TITLES+=("")
+    fi
+
+    lang="$(ffprobe -v error -show_entries stream -select_streams "${idx}" "${IN}" | \
+            sed -n "s/TAG:language=\(.*\)/\1/p")"
+    if [ -n "${lang}" ]; then
+      LANGUAGES+=("$(strip_titles "${lang}")")
+    else
+      LANGUAGES+=("")
+    fi
+  done
+}
+
+function strip_mp4 {
+  local codec_type
+  local idx
+  local title
+  local lang
+  local counter
+  local cmd
+
+  cmd="ffmpeg -v info -i ${IN@Q} -map_metadata -1 -map_chapters 0 -c copy"
+
+  for ((idx=0; idx < "${#STREAMS[@]}"; ++idx)); do
+    codec_type="${STREAMS[${idx}]}"
+    title="${TITLES[${idx}]}"
+    counter="${COUNTERS[${idx}]}"
+    lang="${LANGUAGES[${idx}]}"
+    case "${codec_type}" in
+      video)
+        ;;
+      audio)
+        if [[ -n "${lang}" ]]; then
+          cmd="${cmd} -metadata:s:a:${counter} language=${lang}"
+        fi
+        if [[ -n "${title}" ]]; then
+          cmd="${cmd} -metadata:s:a:${counter} handler=${title}"
+        fi
+        ;;
+      subtitle)
+        if [[ -n "${lang}" ]]; then
+          cmd="${cmd} -metadata:s:s:${counter} language=${lang}"
+        fi
+        if [[ -n "${title}" ]]; then
+          cmd="${cmd} -metadata:s:s:${counter} handler=${title}"
+        fi
+        ;;
+      *)
+        ;;
+    esac
+  done
+  cmd="${cmd} -f mp4 -y ${TMP}"
+
+  eval "${cmd}"
+  if ${KEEP}; then
+    mv "${IN}" "${BACKUP}"
+    mv "${TMP}" "${IN}"
+  else
+    mv "${IN}" "${BACKUP}"
+    mv "${TMP}" "${IN}"
+    rm "${BACKUP}"
+  fi
+}
+
+function strip_matroska {
+  local codec_type
+  local idx
+  local title
+  local lang
+  local counter
+
+  if ! command -v mkvpropedit >/dev/null; then
+    show_warning "Install mkvtoolnix-cli to edit Matroska metadata. Skipping."
+    exit
+  fi
+
+  if ${KEEP}; then
+    cp "${IN}" "${BACKUP}"
+  fi
+  
+  mkvpropedit --tags all: "${IN}"
+  mkvpropedit -e info -d title "${IN}"
+
+  for ((idx=0; idx < "${#STREAMS[@]}"; ++idx)); do
+    codec_type="${STREAMS[${idx}]}"
+    title="${TITLES[${idx}]}"
+    lang="${LANGUAGES[${idx}]}"
+    counter="${COUNTERS[${idx}]}"
+    case "${codec_type}" in
+      video)
+        if [[ -n "${title}" ]]; then
+          mkvpropedit -e track:v$((counter+1)) --set name="${title}" "${IN}"
+        else
+          mkvpropedit -e track:v$((counter+1)) --delete name "${IN}"
+        fi
+        ;;
+      audio)
+        if [[ -n "${title}" ]]; then
+          mkvpropedit -e track:a$((counter+1)) --set name="${title}" "${IN}"
+        else
+          mkvpropedit -e track:a$((counter+1)) --delete name "${IN}"
+        fi
+        ;;
+      subtitle)
+        if [[ -n "${title}" ]]; then
+          mkvpropedit -e track:s$((counter+1)) --set name="${title}" "${IN}"
+        else
+          mkvpropedit -e track:s$((counter+1)) --delete name "${IN}"
+        fi
+        ;;
+      *)
+        ;;
+    esac
+  done
+}
+
+IN="${1}"
+BACKUP="${IN}_$(date +%Y%m%d-%H%M%S).bak"
+TMP="$(mktemp)"
+
+trap 'rm -f "${TMP}" && exit' INT TERM ERR EXIT
+
+STREAMS=()
+COUNTERS=()
+TITLES=()
+LANGUAGES=()
+KEEP=false
+
+OPTIONS=k
+LONGOPTIONS=keep
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ "${#}" -ge 1 ]; do
+  case "${1}" in
+    -k|--keep)
+      KEEP=true
+      shift 1
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR: invalid flag."
+      exit 3
+      ;;
+  esac
+done
+
+if ! [ "${#}" -eq 1 ]; then
+  show_error "ERROR: invalid # of inputs. Exitng."
+  exit 3
+fi
+
+parse_streams
+
+if [[ "$(file -bi "${IN}")" =~ matroska ]]; then
+  strip_matroska
+elif [[ "$(file -bi "${IN}")" =~ mp4 ]]; then
+  strip_mp4
+fi
