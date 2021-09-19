@@ -131,6 +131,7 @@ function strip_matroska {
   
   mkvpropedit --tags all: "${IN}"
   mkvpropedit -e info -d title "${IN}"
+  mkvpropedit -e info -d date "${IN}"
 
   for ((idx=0; idx < "${#STREAMS[@]}"; ++idx)); do
     codec_type="${STREAMS[${idx}]}"
