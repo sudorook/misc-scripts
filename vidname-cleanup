@@ -36,9 +36,9 @@ function cleanup_filename() {
   lang="$(get_language "${lang}")"
   newname=$(echo "${name}" | \
     sed -e "s/_\|\./\ /g" | \
-    sed -e "s/\[[^()]*\]\ //g" | \
+    sed -e "s/\[[^()]*\]\ \?//g" | \
     sed -e "s/\ \[[^()]*\]//g" | \
-    sed -e "s/([^()]*)\ //g" | \
+    sed -e "s/([^()]*)\ \?//g" | \
     sed -e "s/\ ([^()]*)//g" | \
     sed -e "s/\(DVD\|HDTV\|BluRay\|WEB-DL\|BRRip\|DVDRip\|HDRip\).*//g" | \
     sed -e "s/\(x264\|x265\).*//g" | \
