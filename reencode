@@ -204,7 +204,7 @@ function check_compat {
     avi|AVI)
       case "${OUT_VCODEC}" in
         h264|x264|libx264|h.264|x.264|h265|x265|libx265|h.265|x.265)
-          show_error "ERROR: Incompatible container '${OUT_CONTAINER}' and video codec '${OUT_VCODEC}'"
+          show_error "ERROR: ${OUT_CONTAINER} and ${OUT_VCODEC} incompatible."
           exit 3
           ;;
         *)
