@@ -19,16 +19,22 @@ function convert_codec {
     cmd="${cmd} -default_mode infer_no_subs -disposition:s -default"
   fi
 
+  if [ -n "${VSTREAM_ID}" ]; then
+    cmd="${cmd} -map 0:v:${VSTREAM_ID}"
+  else
+    cmd="${cmd} -map 0:v:?"
+  fi
+
   # set video codec
   case "${OUT_VCODEC}" in
     h264|x264|libx264|h.264|x.264)
-      cmd="${cmd} -map 0:v -c:v libx264 -x264-params crf=${CRF}"
+      cmd="${cmd} -c:v libx264 -x264-params crf=${CRF}"
       ;;
     h265|x265|libx265|h.265|x.265)
-      cmd="${cmd} -map 0:v -c:v libx265 -x265-params crf=${CRF}"
+      cmd="${cmd} -c:v libx265 -x265-params crf=${CRF}"
       ;;
     copy)
-      cmd="${cmd} -map 0:v:? -c:v copy"
+      cmd="${cmd} -c:v copy"
       ;;
     *)
       show_error "ERROR: video codec ${OUT_VCODEC} is not supported. Exiting."
@@ -36,20 +42,26 @@ function convert_codec {
       ;;
   esac
 
+  if [ -n "${ASTREAM_ID}" ]; then
+    cmd="${cmd} -map 0:a:${ASTREAM_ID}"
+  else
+    cmd="${cmd} -map 0:a:?"
+  fi
+
   # set audio codec
   case "${OUT_ACODEC}" in
     libfdk_aac|aac)
       # this only works for ffmpeg manually compiled with libfdk_aac
-      cmd="${cmd} -map 0:a -c:a libfdk_aac -b:a 128k"
+      cmd="${cmd} -c:a libfdk_aac -b:a 128k"
       ;;
     libmp3lame|mp3lame|mp3)
-      cmd="${cmd} -map 0:a -c:a libmp3lame -b:a 320k"
+      cmd="${cmd} -c:a libmp3lame -b:a 320k"
       ;;
     libopus|opus)
-      cmd="${cmd} -map 0:a -c:a libopus -b:a 128k"
+      cmd="${cmd} -c:a libopus -b:a 128k"
       ;;
     copy)
-      cmd="${cmd} -map 0:a:? -c:a copy"
+      cmd="${cmd} -c:a copy"
       ;;
     *)
       show_error "ERROR: audio codec ${OUT_ACODEC} not supported. Exiting."
@@ -307,9 +319,11 @@ function fill_dimensions {
 #
 
 NOSUB=false
+ASTREAM_ID=
+VSTREAM_ID=
 
-OPTIONS=i:a:v:r:c:d:hn
-LONGOPTIONS=input:,acodec:,vcodec:,crf:,dimensions:,container:,help,nodefault
+OPTIONS=i:a:A:v:V:r:c:d:hn
+LONGOPTIONS=input:,acodec:,asteam_id:,vcodec:,vstream_id:,crf:,dimensions:,container:,help,nodefault
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 while [ $# -ge 1 ]; do
@@ -325,8 +339,16 @@ while [ $# -ge 1 ]; do
       parse_acodec "${2}"
       shift 2
       ;;
+    -A|--astream_id)
+      ASTREAM_ID="${2}"
+      shift 2
+      ;;
     -v|--vcodec)
       parse_vcodec "${2}"
+      shift 2
+      ;;
+    -V|--vstream_id)
+      VSTREAM_ID="${2}"
       shift 2
       ;;
     -n|--nodefault)
