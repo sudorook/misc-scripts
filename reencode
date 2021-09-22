@@ -27,6 +27,9 @@ function convert_codec {
     h265|x265|libx265|h.265|x.265)
       cmd="${cmd} -map 0:v -c:v libx265 -x265-params crf=${CRF}"
       ;;
+    copy)
+      cmd="${cmd} -map 0:v:? -c:v copy"
+      ;;
     *)
       show_error "ERROR: video codec ${OUT_VCODEC} is not supported. Exiting."
       exit 3
@@ -165,7 +168,7 @@ function scan_input {
   IN_SCODEC="$(echo "${sstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
 
   if ! [[ -v OUT_VCODEC ]]; then
-    OUT_VCODEC=h265
+    OUT_VCODEC=copy
   fi
   if ! [[ -v OUT_ACODEC ]]; then
     # OUT_ACODEC="${IN_ACODEC}"
