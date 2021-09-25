@@ -36,7 +36,7 @@ function cleanup_filename() {
   lang="$(get_language "${lang}")"
   newname=$(echo "${name}" | \
     sed -e "s/_\|\./\ /g" | \
-    sed -e "s/\[[^()]*\]\ \?//g" | \
+    sed -e "s/\[[^]]*\]\ \?//g" | \
     sed -e "s/\ \[[^()]*\]//g" | \
     sed -e "s/([^()]*)\ \?//g" | \
     sed -e "s/\ ([^()]*)//g" | \
