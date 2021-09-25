@@ -4,6 +4,73 @@ source globals
 
 ! check_command pdftk && exit 3
 
+function adjust_page_numbers {
+  local offset
+  local length
+  offset=$(( START - 1 ))
+
+  awk -i inplace -v s="${START}" -v e="${END}" \
+    '{
+       if ($1 ~ "PageMediaBegin") {
+         a=$0; getline; getline b; getline c; getline d;
+         if (e == "end") {
+           if ($2 > s) {
+             print a; print; print b; print c; print d;
+           }
+         }
+         else {
+           if (($2 > s) && ($2 < e)) {
+             print a; print; print b; print c; print d;
+           }
+         }
+       }
+       else if ($1 ~ "BookmarkBegin") {
+         a=$0; getline b; getline c; getline;
+         if (e == "end") {
+           if ($2 >= s) {
+             print a; print b; print c; print;
+           }
+         }
+         else {
+           if (($2 > s) && ($2 < e)) {
+             print a; print b; print c; print;
+           }
+         }
+       }
+       else print;
+     }' "${DATA}"
+
+  # Offset the page number metadata
+  awk -i inplace -v d="${offset}" '/BookmarkPageNumber:/{$2-=d}1' "${DATA}"
+  awk -i inplace -v d="${offset}" '/PageMediaNumber:/{$2-=d}1' "${DATA}"
+
+  if [[ "${END}" = end ]]; then
+    length="$(sed -n "s/^NumberOfPages: \([0-9]\+\)$/\1/p" "${DATA}")"
+    length="$((length - offset))"
+    sed -i "s/^NumberOfPages: \([0-9]\+\)$/NumberOfPages: ${length}/g" "${DATA}"
+  else
+    length="$((END - offset))"
+    sed -i "s/^NumberOfPages: \([0-9]\+\)$/NumberOfPages: ${length}/g" "${DATA}"
+  fi
+}
+
+function clean_meta_tags {
+  sed -i \
+    -e "/InfoBegin/,+2d" \
+    -e "/PdfID0/d" \
+    -e "/PdfID1/d" "${DATA}"
+
+  sed -i \
+    -e "s///g" \
+    -e "/^BookmarkTitle/N;s/\n\([^BookmarkLevel]\)/\1/g" \
+    -e "/^$/d" "${DATA}"
+}
+
+
+START=1
+END=end
+KEEP=false
+
 OPTIONS=e:ko:s:
 LONGOPTIONS=end:,keep,output:,start:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
@@ -56,36 +123,18 @@ else
 fi
 
 if ! [[ -v OUTPUT ]]; then
-  OUTPUT="${NAME} (new).${EXTENSION}"
-fi
-
-if ! [[ -v START ]]; then
-  START=1
-fi
-
-if ! [[ -v END ]]; then
-  END=end
-fi
-
-if ! [[ -v KEEP ]]; then
-  KEEP=false
+  OUTPUT="${NAME} new.${EXTENSION}"
 fi
 
 TMP="tmp-$$.pdf"
 DATA="data-$$.txt"
 trap 'rm -f "${TMP}" "${DATA}"; exit' INT TERM ERR
 
-pdftk "$INPUT" cat "${START}"-"${END}" output ${TMP}
-pdftk "$INPUT" dump_data output ${DATA}
-sed -i "s///g" "${DATA}"
-sed -i "/^BookmarkTitle/N;s/\n\([^BookmarkLevel]\)/\1/g" "${DATA}"
-sed -i "/^$/d" "${DATA}"
+pdftk "${INPUT}" cat "${START}"-"${END}" output ${TMP}
+pdftk "${INPUT}" dump_data output ${DATA}
 
-if [[ "${START}" -ne 1 ]]; then
-  show_info "Edit the metadata to fix bookmark and media page #s. Then, run:"
-  show_listitem "pdftk ${TMP@Q} update_info ${DATA@Q} output ${OUTPUT@Q} && rm ${TMP@Q} ${DATA@Q}"
-  exit
-fi
+clean_meta_tags
+adjust_page_numbers
 
 if ! $KEEP; then
   pdftk ${TMP} update_info ${DATA} output "${OUTPUT}"
