@@ -20,9 +20,7 @@ while [ ${#} -ge 1 ]; do
       shift 1
       ;;
     -o|--output)
-      if backup_exists && encfs_unmounted; then
-        sync_vms
-      fi
+      OUTPUT="${2}"
       shift
       ;;
     -s|--start)
