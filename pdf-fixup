@@ -126,20 +126,23 @@ if ! [[ -v OUTPUT ]]; then
   OUTPUT="${NAME} new.${EXTENSION}"
 fi
 
-TMP="tmp-$$.pdf"
-DATA="data-$$.txt"
-trap 'rm -f "${TMP}" "${DATA}"; exit' INT TERM ERR
+BUILD="$(mktemp -d)"
+TMP="${BUILD}/tmp-$$.pdf"
+DATA="${BUILD}/data-$$.txt"
+trap 'rm -rf "${BUILD}"; exit' INT TERM ERR EXIT
 
-pdftk "${INPUT}" cat "${START}"-"${END}" output ${TMP}
-pdftk "${INPUT}" dump_data output ${DATA}
+pdftk "${INPUT}" cat "${START}"-"${END}" output "${TMP}"
+pdftk "${INPUT}" dump_data output "${DATA}"
 
 clean_meta_tags
 adjust_page_numbers
 
 if ! $KEEP; then
-  pdftk ${TMP} update_info ${DATA} output "${OUTPUT}"
+  pdftk "${TMP}" update_info "${DATA}" output "${OUTPUT}"
   rm -f "${TMP}" "${DATA}"
 else
+  mv "${TMP}" "$(basename "${TMP}")"
+  mv "${DATA}" "$(basename "${DATA}")"
   show_info "To re-assemble, run:"
   show_listitem "pdftk ${TMP@Q} update_info ${DATA@Q} output ${OUTPUT@Q} && rm ${TMP@Q} ${DATA@Q}"
 fi
