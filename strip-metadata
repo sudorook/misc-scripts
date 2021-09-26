@@ -70,7 +70,7 @@ function strip_mp4 {
   local counter
   local cmd
 
-  cmd="ffmpeg -v info -i ${IN@Q} -map_metadata -1 -map_chapters 0 -c copy"
+  cmd="ffmpeg -v info -i ${IN@Q} -map_metadata -1 -map_chapters 0 -map 0 -c copy"
 
   for ((idx=0; idx < "${#STREAMS[@]}"; ++idx)); do
     codec_type="${STREAMS[${idx}]}"
