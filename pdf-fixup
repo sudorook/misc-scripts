@@ -208,7 +208,7 @@ DATA="${BUILD}/data-$$.txt"
 trap 'rm -rf "${BUILD}"; exit' INT TERM ERR EXIT
 
 pdftk "${INPUT}" cat "${START}"-"${END}" output "${TMP}"
-pdftk "${INPUT}" dump_data output "${DATA}"
+pdftk "${INPUT}" dump_data_utf8 output "${DATA}"
 
 clean_meta_tags
 adjust_page_numbers
