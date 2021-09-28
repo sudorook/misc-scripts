@@ -11,38 +11,114 @@ function adjust_page_numbers {
 
   awk -i inplace -v s="${START}" -v e="${END}" \
     '{
-       if ($1 ~ "PageMediaBegin") {
-         a=$0; getline; getline b; getline c; getline d;
-         if (e == "end") {
-           if ($2 > s) {
-             print a; print; print b; print c; print d;
-           }
-         }
-         else {
-           if (($2 > s) && ($2 < e)) {
-             print a; print; print b; print c; print d;
-           }
-         }
-       }
-       else if ($1 ~ "BookmarkBegin") {
-         a=$0; getline b; getline c; getline;
-         if (e == "end") {
-           if ($2 >= s) {
-             print a; print b; print c; print;
-           }
-         }
-         else {
-           if (($2 > s) && ($2 < e)) {
-             print a; print b; print c; print;
-           }
-         }
-       }
-       else print;
-     }' "${DATA}"
+      if (a ~ "PageMediaBegin") {
+        if (e == "end") {
+          if ($2 > s) {
+            print a
+            print
+            getline c
+            while (c !~ "Begin") {
+              print c
+              getline c
+            }
+            a=c
+          } else {
+            getline c
+            while (c !~ "Begin") {
+              getline c
+            }
+            a=c
+          }
+        }
+        else {
+          if (($2 > s) && ($2 < e)) {
+            print a
+            print
+            getline c
+            while (! (c ~ "Begin")) {
+              print c
+              getline c
+            }
+            a=c
+          } else {
+            getline c
+            while (! (c ~ "Begin")) {
+              getline c
+            }
+            a=c
+          }
+        }
+      }
+      else if (a ~ "PageLabelBegin") {
+        b=$0
+        if (e == "end") {
+          if ($2 > s) {
+            print a
+            print b
+            getline c
+            while (! (c ~ "NumStyle")) {
+              print c
+              getline c
+            }
+            print c
+            getline a
+          } else {
+            getline c
+            while (! (c ~ "NumStyle")) {
+              getline c
+            }
+            getline a
+          }
+        }
+        else {
+          if (($2 > s) && ($2 < e)) {
+            print a
+            print b
+            getline c
+            while (! (c ~ "NumStyle")) {
+              print c
+              getline c
+            }
+            print c
+            getline a
+          } else {
+            getline c
+            while (! (c ~ "NumStyle")) {
+              getline c
+            }
+            getline a
+          }
+        }
+      }
+      else if (a ~ "BookmarkBegin") {
+        b=$0
+        getline c
+        getline
+        if (e == "end") {
+          if ($2 >= s) {
+            print a; print b; print c; print;
+          }
+        }
+        else {
+          if (($2 > s) && ($2 < e)) {
+            print a; print b; print c; print;
+          }
+        }
+        a=$0
+        # getline a
+      }
+      else {
+        if ($1 !~ "Begin$") {
+          print
+        }
+        a=$0
+      }
+    }' "${DATA}"
 
   # Offset the page number metadata
   awk -i inplace -v d="${offset}" '/BookmarkPageNumber:/{$2-=d}1' "${DATA}"
   awk -i inplace -v d="${offset}" '/PageMediaNumber:/{$2-=d}1' "${DATA}"
+  awk -i inplace -v d="${offset}" '/PageLabelNewIndex:/{$2-=d}1' "${DATA}"
 
   if [[ "${END}" = end ]]; then
     length="$(sed -n "s/^NumberOfPages: \([0-9]\+\)$/\1/p" "${DATA}")"
