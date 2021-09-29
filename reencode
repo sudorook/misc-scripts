@@ -444,7 +444,11 @@ mv "${IN}" "${BACKUP}"
 if [[ "${IN_CONTAINER}" = "${OUT_CONTAINER}" ]]; then
   trap 'mv -f "${BACKUP}" "${IN}"; exit' INT TERM ERR
 else
-  trap 'mv -f "${BACKUP}" "${IN}"; rm -f "${NAME}.${OUT_CONTAINER}"; exit' INT TERM ERR
+  if [[ "${OUT_CONTAINER}" = "matroska" ]]; then
+    trap 'mv -f "${BACKUP}" "${IN}"; rm -f "${NAME}.mkv"; exit' INT TERM ERR
+  else
+    trap 'mv -f "${BACKUP}" "${IN}"; rm -f "${NAME}.${OUT_CONTAINER}"; exit' INT TERM ERR
+  fi
 fi
 
 convert_codec
