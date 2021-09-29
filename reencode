@@ -9,6 +9,13 @@ source globals
 # Globals
 #
 
+function set_audio_bitrate {
+  local in="${BACKUP}"
+  local base=64
+  local n_streams="${IN_ACHANNELS}"
+  echo "$((base * n_streams))k"
+}
+
 function convert_codec {
   local in="${BACKUP}"
   local out
@@ -52,13 +59,25 @@ function convert_codec {
   case "${OUT_ACODEC}" in
     libfdk_aac|aac)
       # this only works for ffmpeg manually compiled with libfdk_aac
-      cmd="${cmd} -c:a libfdk_aac -b:a 128k"
+      if [[ -v OUT_ABITRATE ]]; then
+        cmd="${cmd} -c:a libfdk_aac -b:a ${OUT_ABITRATE}"
+      else
+        cmd="${cmd} -c:a libfdk_aac -b:a $(set_audio_bitrate)"
+      fi
       ;;
     libmp3lame|mp3lame|mp3)
-      cmd="${cmd} -c:a libmp3lame -b:a 320k"
+      if [[ -v OUT_ABITRATE ]]; then
+        cmd="${cmd} -c:a libmp3lame -b:a ${OUT_ABITRATE}"
+      else
+        cmd="${cmd} -c:a libmp3lame -b:a 320k"
+      fi
       ;;
     libopus|opus)
-      cmd="${cmd} -c:a libopus -b:a 128k"
+      if [[ -v OUT_ABITRATE ]]; then
+        cmd="${cmd} -c:a libopus -b:a ${OUT_ABITRATE}"
+      else
+        cmd="${cmd} -c:a libopus -b:a $(set_audio_bitrate)"
+      fi
       ;;
     copy)
       cmd="${cmd} -c:a copy"
@@ -157,8 +176,8 @@ function scan_input {
   fstring="$(ffprobe -v error -show_format "${IN}")"
   vstring="$(ffprobe -v error \
                -select_streams v:0 -show_streams "${IN}")"
-  # astring="$(ffprobe -v error \
-  #              -select_streams a:0 -show_streams "${IN}")"
+  astring="$(ffprobe -v error \
+               -select_streams a:0 -show_streams "${IN}")"
   sstring="$(ffprobe -v error \
                -select_streams s:0 -show_streams "${IN}")"
 
@@ -178,6 +197,9 @@ function scan_input {
   # IN_VCODEC="$(echo "${vstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
   # IN_ACODEC="$(echo "${astring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
   IN_SCODEC="$(echo "${sstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
+
+  IN_ACHANNELS="$(echo "${astring}" | sed -n "s/^channels=\(.*\)/\1/p")"
+  # IN_ABITRATE="$(echo "${astring}" | sed -n "s/^bit_rate=\(.*\)/\1/p")"
 
   if ! [[ -v OUT_VCODEC ]]; then
     OUT_VCODEC=copy
@@ -322,8 +344,8 @@ NOSUB=false
 ASTREAM_ID=
 VSTREAM_ID=
 
-OPTIONS=i:a:A:v:V:r:c:d:hn
-LONGOPTIONS=input:,acodec:,asteam_id:,vcodec:,vstream_id:,crf:,dimensions:,container:,help,nodefault
+OPTIONS=i:a:A:b:v:V:r:c:d:hn
+LONGOPTIONS=input:,acodec:,asteam_id:,bitrate:,vcodec:,vstream_id:,crf:,dimensions:,container:,help,nodefault
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 while [ $# -ge 1 ]; do
@@ -341,6 +363,10 @@ while [ $# -ge 1 ]; do
       ;;
     -A|--astream_id)
       ASTREAM_ID="${2}"
+      shift 2
+      ;;
+    -b|--bitrate_audio)
+      OUT_ABITRATE="${2}"
       shift 2
       ;;
     -v|--vcodec)
