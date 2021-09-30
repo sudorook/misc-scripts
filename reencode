@@ -21,7 +21,7 @@ function convert_codec {
   local out
   local cmd
 
-  cmd="ffmpeg -v info -i ${in@Q} -map_chapters 0 -map_metadata 0"
+  cmd="ffmpeg -v info -i file:${in@Q} -map_chapters 0 -map_metadata 0"
   if [[ "${NOSUB}" = true ]]; then
     cmd="${cmd} -default_mode infer_no_subs -disposition:s -default"
   fi
@@ -155,7 +155,7 @@ function convert_codec {
   esac
 
   # add output
-  cmd="${cmd} ${out@Q}"
+  cmd="${cmd} file:${out@Q}"
 
   show_header "Re-encoding ${in}:"
   show_info "${cmd}"
@@ -173,13 +173,13 @@ function scan_input {
   # local out_width
   # local out_height
 
-  fstring="$(ffprobe -v error -show_format "${IN}")"
+  fstring="$(ffprobe -v error -show_format file:"${IN}")"
   vstring="$(ffprobe -v error \
-               -select_streams v:0 -show_streams "${IN}")"
+               -select_streams v:0 -show_streams file:"${IN}")"
   astring="$(ffprobe -v error \
-               -select_streams a:0 -show_streams "${IN}")"
+               -select_streams a:0 -show_streams file:"${IN}")"
   sstring="$(ffprobe -v error \
-               -select_streams s:0 -show_streams "${IN}")"
+               -select_streams s:0 -show_streams file:"${IN}")"
 
   format_name="$(echo "${fstring}" | sed -n "s/^format_name=\(.*\)/\1/p")"
   if [[ "${format_name}" =~ matroska ]]; then

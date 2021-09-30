@@ -28,14 +28,14 @@ function parse_streams {
       TITLES+=("${title}")
       FORMATS+=("${format}")
     fi
-  done <<< "$(ffprobe "${IN}" 2>&1 | grep "^ \+Stream.*: Subtitle")"
+  done <<< "$(ffprobe file:"${IN}" 2>&1 | grep "^ \+Stream.*: Subtitle")"
 }
 
 function extract_streams {
   local cmd
   local out
   for i in $(seq 0 $(( ${#TITLES[@]} - 1))); do
-    cmd="ffmpeg -i ${IN@Q} -map ${STREAMS[${i}]}"
+    cmd="ffmpeg -i file:${IN@Q} -map ${STREAMS[${i}]}"
     case "${FORMATS[${i}]}" in
       ass)
         cmd="${cmd} -c copy"
@@ -66,7 +66,7 @@ function extract_streams {
         continue
         ;;
     esac
-    cmd="${cmd} ${out@Q} -y"
+    cmd="${cmd} file:${out@Q} -y"
     show_listitem "${cmd}"
     eval "${cmd}"
   done

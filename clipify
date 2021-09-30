@@ -18,11 +18,11 @@ function scan_input {
   local vstring
   local sstring
 
-  fstring="$(ffprobe -v error -show_format "${IN}")"
+  fstring="$(ffprobe -v error -show_format file:"${IN}")"
   vstring="$(ffprobe -v error \
-               -select_streams v:0 -show_streams "${IN}")"
+               -select_streams v:0 -show_streams file:"${IN}")"
   sstring="$(ffprobe -v error \
-               -select_streams s:0 -show_streams "${IN}")"
+               -select_streams s:0 -show_streams file:"${IN}")"
 
   if ! [[ -v VCODEC ]]; then
     VCODEC="$(echo "${vstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
@@ -54,13 +54,13 @@ function scan_input {
 }
 
 function make_clip {
-  cmd="ffmpeg -v warning -y -i ${IN@Q} -ss ${START}"
+  cmd="ffmpeg -v info -y -i file:${IN@Q} -ss ${START}"
   if [[ -v LENGTH ]]; then
     cmd="${cmd} -t ${LENGTH}"
   elif [[ -v END ]]; then
     cmd="${cmd} -to ${END}"
   fi
-  cmd="${cmd} ${OUT@Q}"
+  cmd="${cmd} -y file:${OUT@Q}"
   eval "${cmd}"
 }
 

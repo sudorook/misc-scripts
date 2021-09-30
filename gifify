@@ -23,11 +23,11 @@ function scan_input {
   local vstring
   local sstring
 
-  fstring="$(ffprobe -v error -show_format "${IN}")"
+  fstring="$(ffprobe -v error -show_format file:"${IN}")"
   vstring="$(ffprobe -v error \
-               -select_streams v:0 -show_streams "${IN}")"
+               -select_streams v:0 -show_streams file:"${IN}")"
   sstring="$(ffprobe -v error \
-               -select_streams s:0 -show_streams "${IN}")"
+               -select_streams s:0 -show_streams file:"${IN}")"
 
   if ! [[ -v VCODEC ]]; then
     VCODEC="$(echo "${vstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
@@ -104,7 +104,7 @@ function make_image_subs {
       elif [[ -v END ]]; then
         cmd="${cmd} -to ${END}"
       fi
-      cmd="${cmd} -i ${in@Q} -map 0:v -c:v ${VCODEC} -an -sn -vf \"subtitles=${in@Q}:force_style='FontName=${FONT}':si=0\" -f ${VCODEC} ${TMP}"
+      cmd="${cmd} -i file:${in@Q} -map 0:v -c:v ${VCODEC} -an -sn -vf \"subtitles=${in@Q}:force_style='FontName=${FONT}':si=0\" -f ${VCODEC} ${TMP}"
       echo "${cmd}"
       eval "${cmd}"
       ;;
@@ -117,7 +117,7 @@ function make_image_subs {
       elif [[ -v END ]]; then
         cmd="${cmd} -to ${END}"
       fi
-      cmd="${cmd} -i ${in@Q} -an -filter_complex '[0:v][0:s:0] overlay [v]' -map '[v]' -f ${VCODEC} ${TMP}"
+      cmd="${cmd} -i file:${in@Q} -an -filter_complex '[0:v][0:s:0] overlay [v]' -map '[v]' -f ${VCODEC} ${TMP}"
       echo "${cmd}"
       eval "${cmd}"
       ;;
@@ -130,12 +130,12 @@ function make_image_subs {
   # convert the short video into an image
   case "${FORMAT}" in
     gif)
-      cmd="ffmpeg -v warning -y -i ${TMP} -filter_complex '[0:v] fps=${FPS}${scale},split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif ${out@Q}"
+      cmd="ffmpeg -v warning -y -i file:${TMP} -filter_complex '[0:v] fps=${FPS}${scale},split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif file:${out@Q}"
       echo "${cmd}"
       eval "${cmd}"
       ;;
     webp)
-      cmd="ffmpeg -v warning -y -i ${TMP} -vf 'fps=${FPS}${scale}' -vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -vsync 0 -f webp ${out@Q}"
+      cmd="ffmpeg -v warning -y -i file:${TMP} -vf 'fps=${FPS}${scale}' -vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -vsync 0 -f webp file:${out@Q}"
       echo "${cmd}"
       eval "${cmd}"
       ;;
@@ -186,15 +186,15 @@ function make_image {
   elif [[ -v END ]]; then
     cmd="${cmd} -to ${END}"
   fi
-  cmd="${cmd} -i ${in@Q} -an -sn"
+  cmd="${cmd} -i file:${in@Q} -an -sn"
 
   # generate separate filter strings for GIF and WebP formats
   case "${FORMAT}" in
     gif)
-      cmd="${cmd} -filter_complex '[0:v] fps=${FPS}${scale},split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif ${out@Q}"
+      cmd="${cmd} -filter_complex '[0:v] fps=${FPS}${scale},split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif file:${out@Q}"
       ;;
     webp)
-      cmd="${cmd} -vf 'fps=${FPS}${scale}' -vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -vsync 0 -f webp ${out@Q}"
+      cmd="${cmd} -vf 'fps=${FPS}${scale}' -vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -vsync 0 -f webp file:${out@Q}"
       ;;
   esac
   echo "${cmd}"

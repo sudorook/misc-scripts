@@ -55,7 +55,7 @@ function make_string_v3 {
   local fontfile
   local count=0
 
-  data="$(ffprobe "${1}" 2>&1)"
+  data="$(ffprobe file:"${1}" 2>&1)"
   for fontpath in "${2}"/*; do
     fontfile="$(basename "${fontpath}")"
     fontname="${fontfile%.*}"
@@ -85,7 +85,7 @@ function make_string_v4 {
   local fontpath
   local fontfile
 
-  data="$(ffprobe "${1}" 2>&1)"
+  data="$(ffprobe file:"${1}" 2>&1)"
   for fontpath in "${2}"/*; do
     fontfile="$(basename "${fontpath}")"
     fontname="${fontfile%.*}"

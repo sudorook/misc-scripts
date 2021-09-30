@@ -18,12 +18,12 @@ function parse_streams {
   local a_counter=0
   local s_counter=0
 
-  stream_count="$(ffprobe -v error -show_format "${IN}" | \
+  stream_count="$(ffprobe -v error -show_format file:"${IN}" | \
                   sed -n "s/nb_streams=\([0-9]\+\)/\1/p" 2>/dev/null)"
   stream_count="$((stream_count - 1))"
 
   for idx in $(seq 0 "${stream_count}"); do
-    codec_type="$(ffprobe -v error -show_entries stream -select_streams "${idx}" "${IN}" | sed -n "s/^codec_type=\(.*\)/\1/p")"
+    codec_type="$(ffprobe -v error -show_entries stream -select_streams "${idx}" file:"${IN}" | sed -n "s/^codec_type=\(.*\)/\1/p")"
     case "${codec_type}" in
       video)
         STREAMS+=("video")
@@ -44,7 +44,7 @@ function parse_streams {
         ;;
     esac
 
-    title="$(ffprobe -v error -show_entries stream -select_streams "${idx}" "${IN}" | \
+    title="$(ffprobe -v error -show_entries stream -select_streams "${idx}" file:"${IN}" | \
              sed -n "s/TAG:title=\(.*\)/\1/p")"
     if [ -n "${title}" ]; then
       TITLES+=("$(strip_titles "${title}")")
@@ -70,7 +70,7 @@ function strip_mp4 {
   local counter
   local cmd
 
-  cmd="ffmpeg -v info -i ${IN@Q} -map_metadata -1 -map_chapters 0 -map 0 -c copy"
+  cmd="ffmpeg -v info -i file:${IN@Q} -map_metadata -1 -map_chapters 0 -map 0 -c copy"
 
   for ((idx=0; idx < "${#STREAMS[@]}"; ++idx)); do
     codec_type="${STREAMS[${idx}]}"
