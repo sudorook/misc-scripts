@@ -11,9 +11,16 @@ source globals
 
 function set_audio_bitrate {
   local in="${BACKUP}"
-  local base=64
+  local rate_per_stream=64
   local n_streams="${IN_ACHANNELS}"
-  echo "$((base * n_streams))k"
+
+  k_bitrate="$((rate_per_stream * n_streams))"
+
+  if [[ "${k_bitrate}" -gt "${IN_ABITRATE}" ]]; then
+    echo "${IN_ABITRATE}k"
+  else
+    echo "${k_bitrate}k"
+  fi
 }
 
 function convert_codec {
@@ -199,7 +206,7 @@ function scan_input {
   IN_SCODEC="$(echo "${sstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
 
   IN_ACHANNELS="$(echo "${astring}" | sed -n "s/^channels=\(.*\)/\1/p")"
-  # IN_ABITRATE="$(echo "${astring}" | sed -n "s/^bit_rate=\(.*\)/\1/p")"
+  IN_ABITRATE="$(echo "${astring}" | sed -n "s/^bit_rate=\(.*\)/scale=0;\1\/1000/p" | bc -l)"
 
   if ! [[ -v OUT_VCODEC ]]; then
     OUT_VCODEC=copy
