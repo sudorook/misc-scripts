@@ -16,9 +16,13 @@ function parse_streams {
   local title
   local format
   while IFS=$'\n' read -r line; do
-    stream="$(echo "${line}" | sed -n "s/^ \+Stream #\([0-9]\+:[0-9]\+\)(\?\([a-z]\+\)\?)\?: Subtitle: \([a-z\_]\+\)\(, [0-9]\+x[0-9]\+\)\?\( (default)\)\?\( (forced)\)\?/\1/p")"
-    title="$(echo "${line}" | sed -n "s/^ \+Stream #\([0-9]\+:[0-9]\+\)(\?\([a-z]\+\)\?)\?: Subtitle: \([a-z\_]\+\)\(, [0-9]\+x[0-9]\+\)\?\( (default)\)\?\( (forced)\)\?/\2/p")"
-    format="$(echo "${line}" | sed -n "s/^ \+Stream #\([0-9]\+:[0-9]\+\)(\?\([a-z]\+\)\?)\?: Subtitle: \([a-z\_]\+\)\(, [0-9]\+ kb\/s\)\?\(, [0-9]\+x[0-9]\+\)\?\( (default)\)\?\( (forced)\)\?/\3/p")"
+    stream="$(echo "${line}" | \
+              sed -n "s/^ \+Stream #\([0-9]\+:[0-9]\+\)(\?\([a-z]\+\)\?)\?: Subtitle: \([0-9a-z_\ ()\/]\+\)\(, .*\)\?\( (default)\)\?\( (forced)\)\?/\1/p")"
+    title="$(echo "${line}" | \
+             sed -n "s/^ \+Stream #\([0-9]\+:[0-9]\+\)(\?\([a-z]\+\)\?)\?: Subtitle: \([0-9a-z_\ ()\/]\+\)\(, .*\)\?\( (default)\)\?\( (forced)\)\?/\2/p")"
+    format="$(echo "${line}" | \
+              sed -n "s/^ \+Stream #\([0-9]\+:[0-9]\+\)(\?\([a-z]\+\)\?)\?: Subtitle: \([0-9a-z_\ ()\/]\+\)\(, .*\)\?/\3/p" | \
+              sed -e "s/\ (default)//g" -e "s/\ (forced)//g")"
 
     if ! [[ "${stream}" = "" ]]; then
       STREAMS+=("${stream}")
