@@ -4,6 +4,11 @@ source globals
 
 ! check_command ffmpeg ffprobe && exit 3
 
+if ! [ -f "${1}" ]; then
+  show_error "ERROR: ${1} does not exist. Exiting."
+  exit 3
+fi
+
 IN="${1}"
 NAME="${IN%.*}"
 EXTENSION="${IN##*.}"
