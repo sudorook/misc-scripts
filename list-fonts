@@ -2,7 +2,7 @@
 set -euo pipefail
 source globals
 
-print_fonts() {
+print_ass_fonts() {
   local line="${1}"
   local font
   local is_bold
@@ -23,19 +23,32 @@ print_fonts() {
   echo "${res}"
 }
 
+parse_lines() {
+  local file="${1}"
+  local extension="${file##*.}"
+  local line
+  case "${extension}" in
+    ass|ssa)
+      while read -r line; do
+        print_ass_fonts "${line}"
+      done <<< "$(sed -n "s/^Style: \(.*\)/\1/p" "${file}")"
+      ;;
+  esac
+}
+
 iterate_files() {
+  local file
+  local extension
+  local line
+
   if [ -d "${1}" ]; then
-    for FILE in "${1}"/*; do
-      if ! [[ "$(file -ib "${FILE}")" =~ text/plain ]]; then continue; fi
-      while read -r LINE; do
-        print_fonts "${LINE}"
-      done <<< "$(sed -n "s/^Style: \(.*\)/\1/p" "${FILE}")"
+    for file in "${1}"/*; do
+      ! [[ "$(file -ib "${file}")" =~ text/plain ]] && continue
+      parse_lines "${file}"
     done
   elif [ -f "${1}" ]; then
     if [[ "$(file -ib "${1}")" =~ text/plain ]]; then
-      while read -r LINE; do
-        print_fonts "${LINE}"
-      done <<< "$(sed -n "s/^Style: \(.*\)/\1/p" "${1}")"
+      parse_lines "${1}"
     fi
   fi
 }
