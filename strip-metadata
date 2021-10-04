@@ -112,6 +112,7 @@ function strip_mp4 {
   done
   cmd="${cmd} -f mp4 -y ${TMP}"
 
+  show_info "${cmd}" >&2
   eval "${cmd}"
   if ${KEEP}; then
     mv "${IN}" "${BACKUP}"
