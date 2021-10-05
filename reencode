@@ -70,7 +70,7 @@ function convert_codec {
       if [[ -v OUT_ABITRATE ]]; then
         cmd="${cmd} -c:a libfdk_aac -b:a ${OUT_ABITRATE}"
       else
-        cmd="${cmd} -c:a libfdk_aac -b:a $(set_audio_bitrate)"
+        cmd="${cmd} -c:a libfdk_aac -vbr 5"
       fi
       ;;
     libmp3lame|mp3lame|mp3)
