@@ -83,8 +83,8 @@ function extract_streams {
 
 parse_streams
 if [ ${#STREAMS[@]} = 0 ]; then
-  show_error "ERROR: No subtitle streams found in ${1}. Exiting."
-  exit 3
+  show_warning "No subtitle streams found in ${1}. Skipping..."
+  exit
 fi
 
 extract_streams
