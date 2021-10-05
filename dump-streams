@@ -5,11 +5,11 @@ source globals
 ! check_command ffmpeg ffprobe && exit 3
 
 if ! [ -f "$1" ]; then
-  show_error "ERROR: invalid input $1. Exiting."
+  show_error "ERROR: invalid input ${1}. Exiting."
 fi
 
 function get_stream_count {
-  ffprobe -v error -show_format "${1}" | \
+  ffprobe -v error -show_format file:"${1}" | \
     sed -n "s/nb_streams=\([0-9]\+\)/\1/p" 2>/dev/null
 }
 
@@ -18,8 +18,8 @@ function pick_container {
   local format_name
   local container_type
 
-  format="$(ffprobe -v error -show_format "$1")"
-  format_name="$(echo "$format" | sed -n "s/^format_name=\(.*\)/\1/p")"
+  format="$(ffprobe -v error -show_format file:"${1}")"
+  format_name="$(echo "${format}" | sed -n "s/^format_name=\(.*\)/\1/p")"
 
   if [[ "${format_name}" =~ matroska ]]; then
     container_type=mkv
@@ -86,7 +86,6 @@ function dump_stream {
           return
           ;;
       esac
-      # cmd="ffmpeg -v warning -i file:${1@Q} -map 0:${idx} -c copy file:${out@Q} -y"
       show_listitem "${cmd}"
       eval "${cmd}"
       return
