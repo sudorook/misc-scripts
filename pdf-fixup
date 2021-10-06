@@ -1,5 +1,5 @@
 #! /bin/bash
-set -eu
+set -euo pipefail
 source globals
 
 ! check_command pdftk && exit 3
@@ -206,6 +206,13 @@ BUILD="$(mktemp -d)"
 TMP="${BUILD}/tmp-$$.pdf"
 DATA="${BUILD}/data-$$.txt"
 trap 'rm -rf "${BUILD}"; exit' INT TERM ERR EXIT
+
+LANG="$(locale -a | grep "utf-\?8" | head -n 1)"
+if [ -n "${LANG}" ]; then
+  export LC_ALL="${LANG}"
+else
+  show_warning "Failed to force UTF-8 locale."
+fi
 
 pdftk "${INPUT}" cat "${START}"-"${END}" output "${TMP}"
 pdftk "${INPUT}" dump_data_utf8 output "${DATA}"
