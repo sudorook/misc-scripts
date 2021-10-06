@@ -221,7 +221,7 @@ clean_meta_tags
 adjust_page_numbers
 
 if ! $KEEP; then
-  pdftk "${TMP}" update_info "${DATA}" output "${OUTPUT}"
+  pdftk "${TMP}" update_info_utf8 "${DATA}" output "${OUTPUT}"
   rm -f "${TMP}" "${DATA}"
 else
   mv "${TMP}" "$(basename "${TMP}")"
