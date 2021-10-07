@@ -127,7 +127,7 @@ function find_subs {
     if [ -f "${file}" ]; then
       subext=${file##*.}
       case "${subext}" in
-        ass|srt|sup)
+        ssa|ass|srt|sup)
           encoding="$(file -b --mime-encoding "$file")"
           if ! [[ "${encoding}" = "utf-8" ]]; then
             show_info "INFO: Converting ${file} encoding from ${encoding} to UTF-8."
