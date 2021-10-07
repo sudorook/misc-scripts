@@ -82,7 +82,8 @@ function get_language {
 
   # If language not found, try to parse three-character strings as a fallback.
   local end
-  end="$(echo "${name,,}" | sed -E -e "s/\ hi$|\ sdh$//g" | grep -o '[^\ ]*$')"
+  end="$(echo "${name,,}" | \
+         sed -E -e "s/[\ -_\]sdh$|[\ -_\]hi$//g" | grep -o '[^\ ]*$')"
   for lang in "${!LANG[@]}"; do
     if [[ "${end,,}" =~ ${lang,,}$ ]]; then
       echo "${lang}"
