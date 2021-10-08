@@ -202,7 +202,7 @@ function make_cmd {
   local default_idx=-1 # idx of stream to set as the default
   local cmd
   
-  inputs="ffmpeg -i file:${1@Q}"
+  inputs="-i file:${1@Q}"
   file_count=1
   if [[ "${FORCE}" = false ]]; then
     mapping="-map 0"
@@ -300,14 +300,15 @@ function make_cmd {
     avi)
       # AVI does not support embedding text-based subtitles, so convert to
       # Matroska.
-      EXTENSION="mkv"
-      cmd="${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s copy -f matroska ${metadata} ${TMPVID@Q} -y"
+      CONTAINER="mkv"
+      show_warning "Re-muxing output to Matroska container." >&2
+      cmd="ffmpeg -fflags +genpts ${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s copy -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
     mp4|m4v)
-      cmd="${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s mov_text -f mp4 ${metadata} ${TMPVID@Q} -y"
+      cmd="ffmpeg ${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s mov_text -f mp4 ${metadata} ${TMPVID@Q} -y"
       ;;
     mkv)
-      cmd="${inputs} ${mapping} ${disposition} -c copy -f matroska ${metadata} ${TMPVID@Q} -y"
+      cmd="ffmpeg ${inputs} ${mapping} ${disposition} -c copy -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
     *)
       show_error "ERROR: ${ext} files are not supported."
