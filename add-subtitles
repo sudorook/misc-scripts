@@ -200,7 +200,6 @@ function make_cmd {
   local stream_count
   local lang
   local default_idx=-1 # idx of stream to set as the default
-  local cmd
   
   inputs="-i file:${1@Q}"
   file_count=1
@@ -302,19 +301,18 @@ function make_cmd {
       # Matroska.
       CONTAINER="mkv"
       show_warning "Re-muxing output to Matroska container." >&2
-      cmd="ffmpeg -fflags +genpts ${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s copy -f matroska ${metadata} ${TMPVID@Q} -y"
+      CMD="ffmpeg -fflags +genpts ${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s copy -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
     mp4|m4v)
-      cmd="ffmpeg ${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s mov_text -f mp4 ${metadata} ${TMPVID@Q} -y"
+      CMD="ffmpeg ${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s mov_text -f mp4 ${metadata} ${TMPVID@Q} -y"
       ;;
     mkv)
-      cmd="ffmpeg ${inputs} ${mapping} ${disposition} -c copy -f matroska ${metadata} ${TMPVID@Q} -y"
+      CMD="ffmpeg ${inputs} ${mapping} ${disposition} -c copy -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
     *)
       show_error "ERROR: ${ext} files are not supported."
       exit 3
   esac
-  echo "${cmd}"
 }
 
 function backup_files {
@@ -366,6 +364,7 @@ eval set -- "${PARSED}"
 FORCE=false
 NOSUB=false
 CONTAINER=
+CMD=
 LANG_DEFAULT=eng # needs to be 3-letter code (lower case)
 while [ ${#} -ge 1 ]; do
   case ${1} in
@@ -415,7 +414,7 @@ SUBLIST=()
 trap 'rm "${TMPVID}"; exit' INT TERM ERR
 
 find_subs "${NAME}"
-CMD="$(make_cmd "${IN}")"
+make_cmd "${IN}"
 show_header "${CMD}"
 eval "${CMD}"
 backup_files
