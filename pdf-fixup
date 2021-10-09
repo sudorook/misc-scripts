@@ -11,7 +11,14 @@ function adjust_page_numbers {
 
   awk -i inplace -v s="${START}" -v e="${END}" \
     '{
-      if (a ~ "PageMediaBegin") {
+      if (a ~ "InfoBegin") {
+        getline c
+        while (c !~ "InfoValue") {
+          if (getline c == 0) break
+        }
+        a=c
+      }
+      else if (a ~ "PageMediaBegin") {
         if (e == "end") {
           if ($2 > s) {
             print a
