@@ -20,7 +20,7 @@ function adjust_page_numbers {
       }
       else if (a ~ "PageMediaBegin") {
         if (e == "end") {
-          if ($2 > s) {
+          if ($2 >= s) {
             print a
             print
             getline c
@@ -38,7 +38,7 @@ function adjust_page_numbers {
           }
         }
         else {
-          if (($2 > s) && ($2 < e)) {
+          if (($2 >= s) && ($2 <= e)) {
             print a
             print
             getline c
@@ -59,7 +59,7 @@ function adjust_page_numbers {
       else if (a ~ "PageLabelBegin") {
         b=$0
         if (e == "end") {
-          if ($2 > s) {
+          if ($2 >= s) {
             print a
             print b
             getline c
@@ -78,7 +78,7 @@ function adjust_page_numbers {
           }
         }
         else {
-          if (($2 > s) && ($2 < e)) {
+          if (($2 >= s) && ($2 <= e)) {
             print a
             print b
             getline c
@@ -107,7 +107,7 @@ function adjust_page_numbers {
           }
         }
         else {
-          if (($2 > s) && ($2 < e)) {
+          if (($2 >= s) && ($2 <= e)) {
             print a; print b; print c; print;
           }
         }
