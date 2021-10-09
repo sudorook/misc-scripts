@@ -26,13 +26,13 @@ function adjust_page_numbers {
             getline c
             while (c !~ "Begin") {
               print c
-              getline c
+              if (getline c == 0) break
             }
             a=c
           } else {
             getline c
             while (c !~ "Begin") {
-              getline c
+              if (getline c == 0) break
             }
             a=c
           }
@@ -42,15 +42,15 @@ function adjust_page_numbers {
             print a
             print
             getline c
-            while (! (c ~ "Begin")) {
+            while (c !~ "Begin") {
               print c
-              getline c
+              if (getline c == 0) break
             }
             a=c
           } else {
             getline c
-            while (! (c ~ "Begin")) {
-              getline c
+            while (c !~ "Begin") {
+              if (getline c == 0) break
             }
             a=c
           }
@@ -63,16 +63,16 @@ function adjust_page_numbers {
             print a
             print b
             getline c
-            while (! (c ~ "NumStyle")) {
+            while (c !~ "NumStyle") {
               print c
-              getline c
+              if (getline c == 0) break
             }
             print c
             getline a
           } else {
             getline c
-            while (! (c ~ "NumStyle")) {
-              getline c
+            while (c !~ "NumStyle") {
+              if (getline c == 0) break
             }
             getline a
           }
@@ -82,16 +82,16 @@ function adjust_page_numbers {
             print a
             print b
             getline c
-            while (! (c ~ "NumStyle")) {
+            while (c !~ "NumStyle") {
               print c
-              getline c
+              if (getline c == 0) break
             }
             print c
             getline a
           } else {
             getline c
-            while (! (c ~ "NumStyle")) {
-              getline c
+            while (c !~ "NumStyle") {
+              if (getline c == 0) break
             }
             getline a
           }
