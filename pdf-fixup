@@ -122,6 +122,10 @@ function adjust_page_numbers {
       }
     }' "${DATA}"
 
+  sed -i \
+    -e '/^PageMedia\(Rect\|Dimensions\):/s/,//g' \
+    -e 's/-0.[0-9]\+/0/g' "${DATA}"
+
   # Offset the page number metadata
   awk -i inplace -v d="${offset}" '/BookmarkPageNumber:/{$2-=d}1' "${DATA}"
   awk -i inplace -v d="${offset}" '/PageMediaNumber:/{$2-=d}1' "${DATA}"
