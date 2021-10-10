@@ -42,6 +42,7 @@ function parse_streams {
 
 function extract_streams {
   local cmd
+  local tmp
   local out
   for i in $(seq 0 $(( ${#TITLES[@]} - 1))); do
     cmd="ffmpeg -i file:${IN@Q} -map ${STREAMS[${i}]}"
@@ -78,6 +79,22 @@ function extract_streams {
     cmd="${cmd} file:${out@Q} -y"
     show_listitem "${cmd}"
     eval "${cmd}"
+
+    # If the Aegisub Project Garbage is included in the header, the MIME type
+    # is incorrectly set as 'application/x-wine-extension-ini' for some reason.
+    # It's correctly interpreted as 'text/plain' once deleted.
+    case "${FORMATS[${i}]}" in
+      ass|ssa)
+        # dos-format files require the '\r', otherwise everything below the
+        # header is deleted.
+        sed -i '/\[Aegisub Project Garbage\]/,/^\r*$/d' "${out}"
+        ;;
+    esac
+
+    # Delete binary 0x00. It shows up sometimes and causes the file to be
+    # interpreted as containing binary data.
+    tmp="$(mktemp)"
+    tr -d '\000' < "${out}" > "${tmp}" && mv "${tmp}" "${out}"
   done
 }
 
