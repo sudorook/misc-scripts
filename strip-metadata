@@ -72,7 +72,8 @@ function parse_streams {
   done <<< "${data}"
 }
 
-function strip_mp4 {
+function strip_generic {
+  local container="${1}"
   local codec_type
   local idx
   local title
@@ -110,7 +111,22 @@ function strip_mp4 {
         ;;
     esac
   done
-  cmd="${cmd} -f mp4 -y ${TMP}"
+
+  case "${container}" in
+    mkv|MKV|matroska|Matroska)
+      cmd="${cmd} -f matroska -y ${TMP}"
+      ;;
+    mp4|MP4)
+      cmd="${cmd} -f mp4 -y ${TMP}"
+      ;;
+    avi|AVI)
+      cmd="${cmd} -f avi -y ${TMP}"
+      ;;
+    *)
+      show_error "ERROR: ${container} not supported. Exiting."
+      exit 3
+      ;;
+  esac
 
   show_info "${cmd}" >&2
   eval "${cmd}"
@@ -131,15 +147,10 @@ function strip_matroska {
   local lang
   local counter
 
-  if ! command -v mkvpropedit >/dev/null; then
-    show_warning "Install mkvtoolnix-cli to edit Matroska metadata. Skipping."
-    exit
-  fi
-
   if ${KEEP}; then
     cp "${IN}" "${BACKUP}"
   fi
-  
+
   mkvpropedit --tags all: "${IN}"
   mkvpropedit -e info -d title "${IN}"
   mkvpropedit -e info -d date "${IN}"
@@ -219,7 +230,14 @@ fi
 parse_streams
 
 if [[ "$(file -bi "${IN}")" =~ matroska ]]; then
-  strip_matroska
+  if command -v mkvpropedit >/dev/null; then
+    strip_matroska
+  else
+    show_warning "Use mkvtoolnix-cli for better results. Defauling to ffmpeg."
+    strip_generic "mkv"
+  fi
 elif [[ "$(file -bi "${IN}")" =~ mp4 ]]; then
-  strip_mp4
+  strip_generic "mp4"
+elif [[ "$(file -bi "${IN}")" =~ x-msvideo ]]; then
+  strip_generic "avi"
 fi
