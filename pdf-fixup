@@ -147,6 +147,8 @@ function clean_meta_tags {
     -e "/PdfID0/d" \
     -e "/PdfID1/d" "${DATA}"
 
+  sed -i -e '/^$/d' "${DATA}"
+
   sed -i \
     -e "s///g" \
     -e "/^BookmarkTitle/N;s/\n\([^BookmarkLevel]\)/\1/g" \
