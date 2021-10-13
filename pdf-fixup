@@ -152,6 +152,7 @@ function clean_meta_tags {
   sed -i \
     -e "s///g" \
     -e "/^BookmarkTitle/N;s/\n\([^BookmarkLevel]\)/\1/g" \
+    -e "/^BookmarkTitle: /s/\t\+/\ /g" \
     -e "/^$/d" "${DATA}"
 }
 
