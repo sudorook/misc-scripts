@@ -240,4 +240,7 @@ elif [[ "$(file -bi "${IN}")" =~ mp4 ]]; then
   strip_generic "mp4"
 elif [[ "$(file -bi "${IN}")" =~ x-msvideo ]]; then
   strip_generic "avi"
+else
+  show_error "ERROR: file type $(file -bi "${IN}") unsupported. Exiting."
+  exit 3
 fi
