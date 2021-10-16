@@ -137,8 +137,7 @@ function find_subs {
           ;;
         sub)
           if [ -f "${file%.*}.idx" ]; then
-            show_info "INFO: Image subtitles detected. Output Matroska."
-            EXTENSION=mkv
+            IS_IMGSUB=true
           fi
           SUBLIST+=("${file}")
           ;;
@@ -162,12 +161,12 @@ function find_subs {
               show_info "INFO: Converting ${file} encoding from ${encoding} to utf-8."
               convert_charset "${subdir}/${file}"
             fi
+            remove_ads "${subdir}/${file}"
             SUBLIST+=("${subdir}/${file}")
             ;;
           sub)
             if [ -f "${file%.*}.idx" ]; then
-              show_info "INFO: Image subtitles detected. Output Matroska."
-              EXTENSION=mkv
+              IS_IMGSUB=true
             fi
             SUBLIST+=("${subdir}/${file}")
             ;;
@@ -297,14 +296,22 @@ function make_cmd {
 
   case ${ext} in
     avi)
-      # AVI does not support embedding text-based subtitles, so convert to
-      # Matroska.
+      # AVI only supports embedding XSub files, so just use a Matroska
+      # container instead.
       CONTAINER="mkv"
-      show_warning "Re-muxing output to Matroska container." >&2
-      CMD="ffmpeg -fflags +genpts ${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s copy -f matroska ${metadata} ${TMPVID@Q} -y"
+      show_warning "Re-muxing AVI to Matroska container." >&2
+      CMD="ffmpeg -fflags +genpts ${inputs} ${mapping} ${disposition} -c copy -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
     mp4|m4v)
-      CMD="ffmpeg ${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s mov_text -f mp4 ${metadata} ${TMPVID@Q} -y"
+      # MP4 can have issues embedding image-based subtitles, so convert to
+      # Matroska.
+      if "${IS_IMGSUB}"; then
+        CONTAINER="mkv"
+        show_warning "Image subtitles detected. Re-muxing to Matroska container." >&2
+        CMD="ffmpeg -fflags +genpts ${inputs} ${mapping} ${disposition} -c copy -f matroska ${metadata} ${TMPVID@Q} -y"
+      else
+        CMD="ffmpeg ${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s mov_text -f mp4 ${metadata} ${TMPVID@Q} -y"
+      fi
       ;;
     mkv)
       CMD="ffmpeg ${inputs} ${mapping} ${disposition} -c copy -f matroska ${metadata} ${TMPVID@Q} -y"
@@ -365,6 +372,7 @@ FORCE=false
 NOSUB=false
 CONTAINER=
 CMD=
+IS_IMGSUB=false
 LANG_DEFAULT=eng # needs to be 3-letter code (lower case)
 while [ ${#} -ge 1 ]; do
   case ${1} in
