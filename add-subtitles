@@ -291,7 +291,7 @@ function make_cmd {
   if [ -n "${CONTAINER}" ]; then
     ext="${CONTAINER}"
   else
-    ext=${EXTENSION}
+    ext="${EXTENSION}"
   fi
 
   case ${ext} in
