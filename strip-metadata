@@ -227,6 +227,14 @@ if ! [ "${#}" -eq 1 ]; then
   exit 3
 fi
 
+# Force UTF-8 locale, if possible.
+LANG="$(locale -a | grep "utf-\?8" | head -n 1)"
+if [ -n "${LANG}" ]; then
+  export LC_ALL="${LANG}"
+else
+  show_warning "Failed to force UTF-8 locale."
+fi
+
 parse_streams
 
 if [[ "$(file -bi "${IN}")" =~ matroska ]]; then
