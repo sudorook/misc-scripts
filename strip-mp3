@@ -23,7 +23,7 @@ EXTENSION=${1##*.}
 
 trap 'rm -f ${TMP}; exit' INT TERM ERR
 
-ffmpeg -i "${1}" -c:a copy -f "${EXTENSION}" "${TMP}" -y
+ffmpeg -i "${1}" -map_metadata -1 -map 0:a -c:a copy -f "${EXTENSION}" "${TMP}" -y
 mid3v2 -D "${TMP}"
 mv "${TMP}" "${1}"
 sync
