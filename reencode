@@ -17,7 +17,9 @@ function set_audio_bitrate {
 
   abitrate="$((rate_per_stream * n_streams))"
 
-  if [[ "${abitrate}" -gt "${IN_ABITRATE}" ]]; then
+  if [[ "${IN_ABITRATE}" = 0 ]]; then
+    echo "${abitrate}k"
+  elif [[ "${abitrate}" -gt "${IN_ABITRATE}" ]]; then
     echo "${IN_ABITRATE}k"
   else
     echo "${abitrate}k"
