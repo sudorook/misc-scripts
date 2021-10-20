@@ -42,6 +42,10 @@ function convert_codec {
     cmd="${cmd} -map 0:v:?"
   fi
 
+  if "${CROP}"; then
+    cmd="${cmd} -vf '$(compute_crop_filter "${BACKUP}")'"
+  fi
+
   # set video codec
   case "${OUT_VCODEC}" in
     h264|x264|libx264|h.264|x.264)
@@ -346,17 +350,25 @@ function fill_dimensions {
   fi
 }
 
+function compute_crop_filter {
+  local cropfilter
+  cropfilter="$(ffmpeg -i "${1}" -vf 'cropdetect=24:2:0' -f null - 2>&1 | \
+                awk '/crop=/{ print $NF}' | tail -1)"
+  echo "${cropfilter}"
+}
+
 
 #
 # Parse command line options
 #
 
 NOSUB=false
+CROP=false
 ASTREAM_ID=
 VSTREAM_ID=
 
-OPTIONS=i:a:A:b:v:V:r:c:d:hn
-LONGOPTIONS=input:,acodec:,asteam_id:,bitrate:,vcodec:,vstream_id:,crf:,dimensions:,container:,help,nodefault
+OPTIONS=i:a:A:b:v:V:r:c:d:hnp
+LONGOPTIONS=input:,acodec:,asteam_id:,bitrate:,vcodec:,vstream_id:,crf:,dimensions:,container:,help,nodefault,crop
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 while [ $# -ge 1 ]; do
@@ -403,6 +415,10 @@ while [ $# -ge 1 ]; do
     -c|--container)
       parse_container "${2}"
       shift 2
+      ;;
+    -p|--crop)
+      CROP=true
+      shift 1
       ;;
     -h|--help)
       print_usage
