@@ -165,7 +165,7 @@ function find_subs {
             SUBLIST+=("${subdir}/${file}")
             ;;
           sub)
-            if [ -f "${file%.*}.idx" ]; then
+            if [ -f "${subdir}/${file%.*}.idx" ]; then
               IS_IMGSUB=true
             fi
             SUBLIST+=("${subdir}/${file}")
