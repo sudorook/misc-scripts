@@ -49,10 +49,10 @@ function convert_codec {
   # set video codec
   case "${OUT_VCODEC}" in
     h264|x264|libx264|h.264|x.264)
-      cmd="${cmd} -c:v libx264 -x264-params crf=${CRF}"
+      cmd="${cmd} -c:v libx264 -x264-params crf=${CRF} -preset slow"
       ;;
     h265|x265|libx265|h.265|x.265)
-      cmd="${cmd} -c:v libx265 -x265-params crf=${CRF}"
+      cmd="${cmd} -c:v libx265 -x265-params crf=${CRF} -preset slow"
       ;;
     copy)
       cmd="${cmd} -c:v copy"
