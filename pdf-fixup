@@ -242,6 +242,6 @@ else
   mv "${DATA}" "$(basename "${DATA}")"
   TMP="$(basename "${TMP}")"
   DATA="$(basename "${DATA}")"
-  show_info "To re-assemble, run:"
-  show_listitem "pdftk ${TMP@Q} update_info_utf8 ${DATA@Q} output ${OUTPUT@Q} && rm ${TMP@Q} ${DATA@Q}"
+  show_info "To re-assemble, run:" >&2
+  show_listitem "pdftk ${TMP@Q} update_info_utf8 ${DATA@Q} output ${OUTPUT@Q} && rm ${TMP@Q} ${DATA@Q}" >&2
 fi
