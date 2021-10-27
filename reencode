@@ -453,10 +453,10 @@ fi
 
 if ! [[ -v CRF ]]; then
   case "${OUT_VCODEC}" in
-    h264)
+    libx264)
       CRF=18 # default 23
       ;;
-    h265)
+    libx265)
       CRF=23 # default 28
       ;;
   esac
