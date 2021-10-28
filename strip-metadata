@@ -252,3 +252,5 @@ else
   show_error "ERROR: file type $(file -bi "${IN}") unsupported. Exiting."
   exit 3
 fi
+
+sync

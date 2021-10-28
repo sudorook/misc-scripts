@@ -479,3 +479,4 @@ else
 fi
 
 convert_codec
+sync
