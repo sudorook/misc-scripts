@@ -1,6 +1,7 @@
 #! /bin/bash
 set -Eeuo pipefail
 source globals
+source langs
 
 ! check_command ffmpeg iconv enconv && exit 3
 
@@ -73,8 +74,8 @@ function get_language {
 
   # Detect language from the file name. Will fail if a language is in the
   # title...
-  for lang in "${!LANG[@]}"; do
-    if [[ "${name,,}" =~ ${LANG[${lang}],,}$ ]]; then
+  for lang in "${!ISO_639_2[@]}"; do
+    if [[ "${name,,}" =~ ${ISO_639_2[${lang}],,}$ ]]; then
       echo "${lang}"
       return
     fi
@@ -84,10 +85,32 @@ function get_language {
   local end
   end="$(echo "${name,,}" | \
          sed -E -e "s/[\ -_\]sdh$|[\ -_\]hi$//g" | grep -o '[^\ ]*$')"
-  for lang in "${!LANG[@]}"; do
-    if [[ "${end,,}" =~ ${lang,,}$ ]] || [[ "${end,,}" =~ ${LANG[${lang}],,}$ ]]; then
+  for lang in "${!ISO_639_2[@]}"; do
+    if [[ "${end,,}" =~ ${lang,,}$ ]] || [[ "${end,,}" =~ ${ISO_639_2[${lang}],,}$ ]]; then
       echo "${lang}"
       return
+    fi
+  done
+
+  # Now, try parsing two-character strings.
+  for lang in "${!ISO_639_1[@]}"; do
+    if [[ "${name,,}" =~ ${lang,,}$ ]]; then
+      if [[ "${lang}" = br ]]; then
+        lang="pt-br"
+      fi
+      # MP4 containers don't support ISO-639-1 codes, so map the 2-letter code
+      # to the 3-letter ISO-639-2 one.
+      if [[ "${EXTENSION}" = mp4 ]]; then
+        for lang2 in "${!ISO_639_2[@]}"; do
+          if [[ "${ISO_639_1[${lang}]}" = "${ISO_639_2[${lang2}]}" ]]; then
+            echo "${lang2}"
+            return
+          fi
+        done
+      else
+        echo "${lang}"
+        return
+      fi
     fi
   done
 }
@@ -222,7 +245,7 @@ function make_cmd {
     fi
     mapping="${mapping} -map ${file_count}:s"
     metadata="${metadata} -metadata:s:s:${stream_count} language=${LANG_DEFAULT}"
-    metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[${LANG_DEFAULT}]}\""
+    metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[${LANG_DEFAULT}]}\""
   elif [[ "${#SUBLIST[@]}" -gt 1 ]]; then
     for sub in "${SUBLIST[@]}"; do
       subname="${sub%.*}"
@@ -231,7 +254,7 @@ function make_cmd {
       if [[ "${subext}" = "sub" ]] && [ -f "${subidx}" ]; then
         inputs="${inputs} -i file:${subidx@Q} -i file:${sub@Q}"
         mapping="${mapping} -map ${file_count}:s -map $((file_count + 1)):s"
-        if [[ "${sub,,}" =~ ${LANG[${LANG_DEFAULT}],,} ]] && \
+        if [[ "${sub,,}" =~ ${ISO_639_2[${LANG_DEFAULT}],,} ]] && \
            [[ "${default_idx}" == -1 ]]; then
           default_idx="${stream_count}"
         fi
@@ -239,8 +262,13 @@ function make_cmd {
         if [ -n "${lang}" ]; then
           # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
           if [[ "${subname,,}" =~ sdh$ ]] || [[ "${subname,,}" =~ hi$ ]]; then
-            metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[$lang]} (SDH)\""
+            # metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
+            metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
+            if [ "${#lang}" = 3 ]; then
+              metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\" -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
+            elif [ "${#lang}" = 2 ]; then
+              metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\" -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
+            fi
           else
             # set default_idx to avoid ambient sounds in the default subtitles
             if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
@@ -248,7 +276,11 @@ function make_cmd {
               default_idx="${stream_count}"
             fi
             metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[$lang]}\""
+            if [ "${#lang}" = 3 ]; then
+              metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
+            elif [ "${#lang}" = 2 ]; then
+              metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
+            fi
           fi
         fi
         file_count=$((file_count + 2))
@@ -260,8 +292,13 @@ function make_cmd {
         if [ -n "${lang}" ]; then
           # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
           if [[ "${subname,,}" =~ sdh$ ]] || [[ "${subname,,}" =~ hi$ ]]; then
-            metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[$lang]} (SDH)\""
+            # metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
+            metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
+            if [ "${#lang}" = 3 ]; then
+              metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]} SDH\" -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
+            elif [ "${#lang}" = 2 ]; then
+              metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]} SDH\" -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
+            fi
           else
             # set default_idx to avoid ambient sounds in the default subtitles
             if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
@@ -269,7 +306,11 @@ function make_cmd {
               default_idx="${stream_count}"
             fi
             metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${LANG[$lang]}\""
+            if [ "${#lang}" = 3 ]; then
+              metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
+            elif [ "${#lang}" = 2 ]; then
+              metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
+            fi
           fi
         fi
         file_count=$((file_count + 1))

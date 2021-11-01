@@ -1,11 +1,12 @@
 #! /bin/bash
 set -euo pipefail
 source globals
+source langs
 
 function get_language() {
   local res=
-  for lang in "${!LANG[@]}"; do
-    if [[ "${1,,}" = "${LANG[${lang}],,}" ]]; then
+  for lang in "${!ISO_639_2[@]}"; do
+    if [[ "${1,,}" = "${ISO_639_2[${lang}],,}" ]]; then
       res="${1}"
       break
     fi
@@ -13,7 +14,7 @@ function get_language() {
 
   # If language not found, try to parse three-character strings as a fallback.
   if [ -z "${res}" ]; then
-    for lang in "${!LANG[@]}"; do
+    for lang in "${!ISO_639_2[@]}"; do
       if [[ "${1,,}" = "${lang,,}" ]]; then
         res="${1^^}"
         break
