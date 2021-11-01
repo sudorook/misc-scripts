@@ -221,6 +221,7 @@ TMP="${BUILD}/tmp-$$.pdf"
 DATA="${BUILD}/data-$$.txt"
 trap 'rm -rf "${BUILD}"; exit' INT TERM ERR EXIT
 
+# Force UTF-8 locale, if possible.
 LANG="$(locale -a | grep "utf-\?8" | head -n 1)"
 if [ -n "${LANG}" ]; then
   export LC_ALL="${LANG}"
