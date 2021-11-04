@@ -2,6 +2,10 @@
 set -eu
 source globals
 
+YTDL=yt-dlp
+
+! check_command "${YTDL}" && exit 3
+
 OPTIONS=d:n:r:s:u:
 LONGOPTIONS=destination:,name:,resolution:,start:,url:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
@@ -84,7 +88,7 @@ mkdir -p "${VIDEODIR}/${NAME}"
 cd "${VIDEODIR}/${NAME}"
 
 if [[ -v START ]]; then
-  youtube-dl "${URL}" \
+  "${YTDL}" "${URL}" \
     --write-sub \
     --embed-subs \
     --add-metadata \
@@ -94,7 +98,7 @@ if [[ -v START ]]; then
     -f "bestvideo[ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
     --ignore-errors
 else
-  youtube-dl "${URL}" \
+  "${YTDL}" "${URL}" \
     --write-sub \
     --embed-subs \
     --add-metadata \
