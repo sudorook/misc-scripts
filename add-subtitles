@@ -95,7 +95,7 @@ function get_language {
 
   # Now, try parsing two-character strings.
   for lang in "${!ISO_639_1[@]}"; do
-    if [[ "${name,,}" =~ ${lang,,}$ ]]; then
+    if [[ "${end,,}" =~ \ ${lang,,}$ ]]; then
       if [[ "${lang}" = br ]]; then
         lang="pt-br"
       fi
