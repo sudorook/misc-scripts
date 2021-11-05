@@ -226,7 +226,7 @@ function make_cmd {
   local stream_count
   local lang
   local default_idx=-1 # idx of stream to set as the default
-  
+
   inputs="-i file:${1@Q}"
   file_count=1
   if [[ "${FORCE}" = false ]]; then
@@ -318,7 +318,7 @@ function make_cmd {
       fi
     done
   fi
-  
+
   if [[ "${NOSUB}" = false ]]; then
     if ! [[ "${default_idx}" == -1 ]]; then
       disposition="-disposition:s:${default_idx} default"
