@@ -69,6 +69,7 @@ function get_language {
   # subtitle file names are the same.
   if [[ "${NAME}" = "${name}" ]]; then
     echo "${LANG_DEFAULT}"
+    show_warning "assuming ${in@Q} language is ${LANG_DEFAULT@Q}" >&2
     return
   fi
 
