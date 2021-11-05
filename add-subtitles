@@ -238,86 +238,72 @@ function make_cmd {
   fi
   metadata="-sub_charenc UTF-8"
 
-  if [[ "${#SUBLIST[@]}" = 1 ]]; then
-    sub="${SUBLIST[0]}"
+  for sub in "${SUBLIST[@]}"; do
+    subname="${sub%.*}"
     subext="${sub##*.}"
-    if [[ "${subext}" = "sub" ]]; then
-      subidx="${sub%.*}.idx"
+    subidx="${sub%.*}.idx"
+    if [[ "${subext}" = "sub" ]] && [ -f "${subidx}" ]; then
       inputs="${inputs} -i file:${subidx@Q} -i file:${sub@Q}"
-    else
-      inputs="${inputs} -i file:${sub@Q}"
-    fi
-    mapping="${mapping} -map ${file_count}:s"
-    metadata="${metadata} -metadata:s:s:${stream_count} language=${LANG_DEFAULT}"
-    metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[${LANG_DEFAULT}]}\""
-  elif [[ "${#SUBLIST[@]}" -gt 1 ]]; then
-    for sub in "${SUBLIST[@]}"; do
-      subname="${sub%.*}"
-      subext="${sub##*.}"
-      subidx="${sub%.*}.idx"
-      if [[ "${subext}" = "sub" ]] && [ -f "${subidx}" ]; then
-        inputs="${inputs} -i file:${subidx@Q} -i file:${sub@Q}"
-        mapping="${mapping} -map ${file_count}:s -map $((file_count + 1)):s"
-        if [[ "${sub,,}" =~ ${ISO_639_2[${LANG_DEFAULT}],,} ]] && \
+      mapping="${mapping} -map ${file_count}:s -map $((file_count + 1)):s"
+      if [[ "${sub,,}" =~ ${ISO_639_2[${LANG_DEFAULT}],,} ]] && \
+         [[ "${default_idx}" == -1 ]]; then
+        default_idx="${stream_count}"
+      fi
+      lang="$(get_language "${sub}")"
+      # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
+      if [[ "${subname,,}" =~ sdh$ ]] || [[ "${subname,,}" =~ hi$ ]]; then
+        # metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
+        metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
+        if [ "${#lang}" = 3 ]; then
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\" -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
+        elif [ "${#lang}" = 2 ]; then
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\" -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
+        fi
+      else
+        # set default_idx to avoid ambient sounds in the default subtitles
+        if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
            [[ "${default_idx}" == -1 ]]; then
           default_idx="${stream_count}"
         fi
-        lang="$(get_language "${sub}")"
-        # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
-        if [[ "${subname,,}" =~ sdh$ ]] || [[ "${subname,,}" =~ hi$ ]]; then
-          # metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
-          metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
-          if [ "${#lang}" = 3 ]; then
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\" -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
-          elif [ "${#lang}" = 2 ]; then
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\" -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
-          fi
-        else
-          # set default_idx to avoid ambient sounds in the default subtitles
-          if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
-             [[ "${default_idx}" == -1 ]]; then
-            default_idx="${stream_count}"
-          fi
-          metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
-          if [ "${#lang}" = 3 ]; then
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
-          elif [ "${#lang}" = 2 ]; then
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
-          fi
+        metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
+        if [ "${#lang}" = 3 ]; then
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
+        elif [ "${#lang}" = 2 ]; then
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
         fi
-        file_count=$((file_count + 2))
-        stream_count=$((stream_count + 1))
-      else
-        inputs="${inputs} -i file:${sub@Q}"
-        mapping="${mapping} -map ${file_count}:s"
-        lang="$(get_language "${sub}")"
-        # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
-        if [[ "${subname,,}" =~ sdh$ ]] || [[ "${subname,,}" =~ hi$ ]]; then
-          # metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
-          metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
-          if [ "${#lang}" = 3 ]; then
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]} SDH\" -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
-          elif [ "${#lang}" = 2 ]; then
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]} SDH\" -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
-          fi
-        else
-          # set default_idx to avoid ambient sounds in the default subtitles
-          if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
-             [[ "${default_idx}" == -1 ]]; then
-            default_idx="${stream_count}"
-          fi
-          metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
-          if [ "${#lang}" = 3 ]; then
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
-          elif [ "${#lang}" = 2 ]; then
-            metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
-          fi
-        fi
-        file_count=$((file_count + 1))
-        stream_count=$((stream_count + 1))
       fi
-    done
-  fi
+      file_count=$((file_count + 2))
+      stream_count=$((stream_count + 1))
+    else
+      inputs="${inputs} -i file:${sub@Q}"
+      mapping="${mapping} -map ${file_count}:s"
+      lang="$(get_language "${sub}")"
+      # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
+      if [[ "${subname,,}" =~ sdh$ ]] || [[ "${subname,,}" =~ hi$ ]]; then
+        # metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
+        metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
+        if [ "${#lang}" = 3 ]; then
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]} SDH\" -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
+        elif [ "${#lang}" = 2 ]; then
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]} SDH\" -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
+        fi
+      else
+        # set default_idx to avoid ambient sounds in the default subtitles
+        if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
+           [[ "${default_idx}" == -1 ]]; then
+          default_idx="${stream_count}"
+        fi
+        metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
+        if [ "${#lang}" = 3 ]; then
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
+        elif [ "${#lang}" = 2 ]; then
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
+        fi
+      fi
+      file_count=$((file_count + 1))
+      stream_count=$((stream_count + 1))
+    fi
+  done
 
   if [[ "${NOSUB}" = false ]]; then
     if ! [[ "${default_idx}" == -1 ]]; then
