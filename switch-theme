@@ -100,12 +100,11 @@ set_gtk_theme() {
   case $XDG_CURRENT_DESKTOP in
     X-Cinnamon)
       gsettings set org.cinnamon.desktop.interface gtk-theme "'$1'"
+      gsettings set org.cinnamon.desktop.wm.preferences theme "'$1'"
       if [[ "$1" =~ "-Eta" ]]; then
         gsettings set org.cinnamon.theme name "'${1%-*}'"
-        gsettings set org.cinnamon.desktop.wm.preferences theme "'$1'"
       elif [[ "$1" =~ "-Compact" ]]; then
         gsettings set org.cinnamon.theme name "'${1%-*}'"
-        gsettings set org.cinnamon.desktop.wm.preferences theme "'$1'"
       elif [[ "$1" =~ "-Darker" ]]; then
         gsettings set org.cinnamon.theme name "'${1%er}'"
       else
