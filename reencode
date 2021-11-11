@@ -163,7 +163,7 @@ function convert_codec {
       out="${NAME}.mp4"
       ;;
     *)
-      show_error "ERROR: Container ${CONTAINER} not supported. Exiting."
+      show_error "ERROR: Container ${OUT_CONTAINER} not supported. Exiting."
       exit 3
       ;;
   esac
