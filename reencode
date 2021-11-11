@@ -162,6 +162,14 @@ function convert_codec {
       cmd="${cmd} -f mp4"
       out="${NAME}.mp4"
       ;;
+    mp3)
+      cmd="${cmd} -f mp3"
+      out="${NAME}.mp3"
+      ;;
+    flac)
+      cmd="${cmd} -f flac"
+      out="${NAME}.flac"
+      ;;
     *)
       show_error "ERROR: Container ${OUT_CONTAINER} not supported. Exiting."
       exit 3
@@ -196,13 +204,27 @@ function scan_input {
                -select_streams s:0 -show_streams file:"${IN}")"
 
   format_name="$(echo "${fstring}" | sed -n "s/^format_name=\(.*\)/\1/p")"
-  if [[ "${format_name}" =~ matroska ]]; then
-    IN_CONTAINER=matroska
-  elif [[ "${format_name}" =~ mp4 ]]; then
-    IN_CONTAINER=mp4
-  else
-    IN_CONTAINER=avi
-  fi
+  case "${format_name}" in
+    matroska|mkv)
+      IN_CONTAINER=matroska
+      ;;
+    mp4)
+      IN_CONTAINER=mp4
+      ;;
+    mp3)
+      IN_CONTAINER=mp3
+      ;;
+    avi)
+      IN_CONTAINER=avi
+      ;;
+    flac)
+      IN_CONTAINER=flac
+      ;;
+    *)
+      show_error "ERROR: ${format_name} unsupported. Exiting."
+      exit 3
+      ;;
+  esac
 
   if ! [[ -v OUT_CONTAINER ]]; then
     OUT_CONTAINER="${IN_CONTAINER}"
@@ -293,6 +315,12 @@ function parse_container {
       ;;
     mp4|mpeg4|MP4|MPEG4|MPEG-4|m4v)
       OUT_CONTAINER=mp4
+      ;;
+    mp3|MP3)
+      OUT_CONTAINER=mp3
+      ;;
+    flac|FLAC)
+      OUT_CONTAINER=flac
       ;;
     *)
       show_error "ERROR: Output ${IN_CONTAINER} containers not supported. Exiting."
