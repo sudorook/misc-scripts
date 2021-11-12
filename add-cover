@@ -47,6 +47,7 @@ if [[ -v COVER ]] || [[ -v AUDIO ]]; then
     -map_metadata 0 -map_chapters 0 -map 0 -map 1:0 \
     -c copy -f "${AUDIO_FORMAT}" -y "${TMP}"
   mv "${TMP}" "${AUDIO}"
+  sync
 else
   show_error "ERROR: missing parameters"
   print_usage
