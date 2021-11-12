@@ -16,11 +16,11 @@ eval set -- "$PARSED"
 while [ $# -ge 1 ]; do
   case "$1" in
     -a|--audio)
-      export AUDIO="${2}"
+      AUDIO="${2}"
       shift 2
       ;;
     -c|--cover)
-      export COVER="${2}"
+      COVER="${2}"
       shift 2
       ;;
     -h|--help)
