@@ -58,16 +58,26 @@ trap 'rm -rf "${TMPDIR}"; exit' INT TERM ERR
 # Check that input files/directories exist before computing replay gain.
 check_inputs  "${@}"
 
-bs1770gain "${@}" -o "${TMPDIR}"
-
+# Generate name for backup directory.
 if [[ "${KEEP}" = true ]]; then
-  BACKUPDIR="backup_$(date +%Y%m%d-%H%M%S)"
-  mkdir -p "${BACKUPDIR}"
+  if [ "${#}" -eq 1 ]; then
+    if [ -d "${1}" ]; then
+      BACKUPDIR="${1}_$(date +%Y%m%d-%H%M%S)"
+    else
+      show_warning "Why compute replain gain for one file? Stopping..."
+      exit
+    fi
+  else
+    BACKUPDIR="backup_$(date +%Y%m%d-%H%M%S)"
+  fi
 fi
 
+bs1770gain "${@}" -o "${TMPDIR}"
+
+# Move files into place.
 if [ "${#}" -eq 1 ]; then
   if [[ "${KEEP}" = true ]]; then
-    mv "${1}" "${BACKUPDIR}/"
+    mv "${1}" "${BACKUPDIR}"
   else
     rm -r "${1}"
   fi
@@ -75,6 +85,7 @@ if [ "${#}" -eq 1 ]; then
 else
   for ITEM in "${@}"; do
     if [[ "${KEEP}" = true ]]; then
+      mkdir -p "${BACKUPDIR}"
       mv "${ITEM}" "${BACKUPDIR}/"
     else
       rm -r "${ITEM}"
