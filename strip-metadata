@@ -244,7 +244,7 @@ if [[ "$(file -bi "${IN}")" =~ matroska ]]; then
     show_warning "Use mkvtoolnix-cli for better results. Defauling to ffmpeg."
     strip_generic "mkv"
   fi
-elif [[ "$(file -bi "${IN}")" =~ mp4 ]]; then
+elif [[ "$(file -bi "${IN}")" =~ mp4|m4a ]]; then
   strip_generic "mp4"
 elif [[ "$(file -bi "${IN}")" =~ x-msvideo ]]; then
   strip_generic "avi"
