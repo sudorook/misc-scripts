@@ -145,15 +145,12 @@ function clean_meta_tags {
   sed -i \
     -e "/InfoBegin/,+2d" \
     -e "/PdfID0/d" \
-    -e "/PdfID1/d" "${DATA}"
-
-  sed -i -e '/^$/d' "${DATA}"
-
-  sed -i \
+    -e "/PdfID1/d" \
     -e "s///g" \
-    -e "/^BookmarkTitle/N;s/\n\([^BookmarkLevel]\)/\1/g" \
-    -e "/^BookmarkTitle: /s/\t\+/\ /g" \
-    -e "/^$/d" "${DATA}"
+    -e "/^$/d" \
+    -e "/^BookmarkTitle:/N;s/\n\?\(\nBookmarkLevel.*\)\?/\1/g" \
+    -e "/^BookmarkTitle:/s/\t\+/\ /g" \
+    "${DATA}"
 }
 
 
