@@ -205,10 +205,10 @@ function scan_input {
 
   format_name="$(echo "${fstring}" | sed -n "s/^format_name=\(.*\)/\1/p")"
   case "${format_name}" in
-    matroska|mkv)
+    matroska|mkv|matroska,webm|webm)
       IN_CONTAINER=matroska
       ;;
-    mp4)
+    mp4|mov,mp4,m4a,3gp,3g2,mj2|m4a|mov)
       IN_CONTAINER=mp4
       ;;
     mp3)
