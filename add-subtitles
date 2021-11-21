@@ -3,7 +3,7 @@ set -Eeuo pipefail
 source globals
 source langs
 
-! check_command ffmpeg iconv enconv chardetect bc && exit 3
+! check_command ffmpeg iconv chardetect bc && exit 3
 
 #
 # Globals
