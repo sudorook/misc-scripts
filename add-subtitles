@@ -208,31 +208,52 @@ function find_subs {
   done
 }
 
+function get_codec {
+  local fstring
+  fstring="$(ffprobe -v error \
+               -show_entries stream=codec_name -of compact=p=0:nk=1 file:"${1}")"
+  echo "${fstring}"
+}
+
 function make_cmd {
   local ext
   local sub
   local subidx
   local subname
   local subext
+  local codec
   local inputs
   local mapping
   local metadata
+  local copy
   local disposition
   local file_count
   local stream_count
   local lang
   local default_idx=-1 # idx of stream to set as the default
 
+  if [ -n "${CONTAINER}" ]; then
+    ext="${CONTAINER}"
+  else
+    ext="${EXTENSION}"
+  fi
+
   inputs="-i file:${1@Q}"
   file_count=1
+  mapping="-map_chapters 0 -map_metadata 0"
   if [[ "${FORCE}" = false ]]; then
-    mapping="-map 0"
+    mapping="${mapping} -map 0"
     stream_count="$(count_subs)"
   else
-    mapping="-map 0:v -map 0:a"
+    mapping="${mapping} -map 0:v -map 0:a"
     stream_count=0
   fi
   metadata="-sub_charenc UTF-8"
+
+  copy="-c:v copy -c:a copy"
+  if [ "${stream_count}" -gt 0 ]; then
+    copy="${copy} $(printf ' -c:s:%s copy' $(seq 0 $((stream_count-1))))"
+  fi
 
   for sub in "${SUBLIST[@]}"; do
     subname="${sub%.*}"
@@ -246,6 +267,8 @@ function make_cmd {
         default_idx="${stream_count}"
       fi
       lang="$(get_language "${sub}")"
+      codec="$(get_codec "${sub}")"
+
       # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
       if [[ "${subname,,}" =~ sdh$ ]] || [[ "${subname,,}" =~ hi$ ]]; then
         # metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
@@ -268,12 +291,35 @@ function make_cmd {
           metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
         fi
       fi
+
+      # set output subtitle codec
+      if [[ "${codec}" = sami ]]; then
+        case "${ext}" in
+          mp4)
+            copy="${copy} -c:s:${stream_count} mov_text"
+            ;;
+          mkv)
+            copy="${copy} -c:s:${stream_count} subrip"
+            ;;
+          *)
+            copy="${copy} -c:s:${stream_count} copy"
+            ;;
+          esac
+      elif [[ "${codec}" = subrip ]] && [[ "${ext}" = mp4 ]]; then
+        copy="${copy} -c:s:${stream_count} mov_text"
+      else
+        copy="${copy} -c:s:${stream_count} copy"
+      fi
+
+      # increment counters
       file_count=$((file_count + 2))
       stream_count=$((stream_count + 1))
     else
       inputs="${inputs} -i file:${sub@Q}"
       mapping="${mapping} -map ${file_count}:s"
       lang="$(get_language "${sub}")"
+      codec="$(get_codec "${sub}")"
+
       # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
       if [[ "${subname,,}" =~ sdh$ ]] || [[ "${subname,,}" =~ hi$ ]]; then
         # metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
@@ -296,6 +342,27 @@ function make_cmd {
           metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
         fi
       fi
+
+      # set output subtitle codec
+      if [[ "${codec}" = sami ]]; then
+        case "${ext}" in
+          mp4)
+            copy="${copy} -c:s:${stream_count} mov_text"
+            ;;
+          mkv)
+            copy="${copy} -c:s:${stream_count} subrip"
+            ;;
+          *)
+            copy="${copy} -c:s:${stream_count} copy"
+            ;;
+          esac
+      elif [[ "${codec}" = subrip ]] && [[ "${ext}" = mp4 ]]; then
+        copy="${copy} -c:s:${stream_count} mov_text"
+      else
+        copy="${copy} -c:s:${stream_count} copy"
+      fi
+
+      # increment counters
       file_count=$((file_count + 1))
       stream_count=$((stream_count + 1))
     fi
@@ -311,19 +378,13 @@ function make_cmd {
     disposition="-default_mode infer_no_subs -disposition:s -default"
   fi
 
-  if [ -n "${CONTAINER}" ]; then
-    ext="${CONTAINER}"
-  else
-    ext="${EXTENSION}"
-  fi
-
   case ${ext} in
     avi)
       # AVI only supports embedding XSub files, so just use a Matroska
       # container instead.
       CONTAINER="mkv"
       show_warning "Re-muxing AVI to Matroska container." >&2
-      CMD="ffmpeg -fflags +genpts ${inputs} ${mapping} ${disposition} -c copy -f matroska ${metadata} ${TMPVID@Q} -y"
+      CMD="ffmpeg -fflags +genpts ${inputs} ${mapping} ${disposition} ${copy} -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
     mp4|m4v)
       # MP4 can have issues embedding image-based subtitles, so convert to
@@ -331,13 +392,13 @@ function make_cmd {
       if "${IS_IMGSUB}"; then
         CONTAINER="mkv"
         show_warning "Image subtitles detected. Re-muxing to Matroska container." >&2
-        CMD="ffmpeg -fflags +genpts ${inputs} ${mapping} ${disposition} -c copy -f matroska ${metadata} ${TMPVID@Q} -y"
+        CMD="ffmpeg -fflags +genpts ${inputs} ${mapping} ${disposition} ${copy} -f matroska ${metadata} ${TMPVID@Q} -y"
       else
-        CMD="ffmpeg ${inputs} ${mapping} ${disposition} -c:v copy -c:a copy -c:s mov_text -f mp4 ${metadata} ${TMPVID@Q} -y"
+        CMD="ffmpeg ${inputs} ${mapping} ${disposition} ${copy} -f mp4 ${metadata} ${TMPVID@Q} -y"
       fi
       ;;
     mkv)
-      CMD="ffmpeg ${inputs} ${mapping} ${disposition} -c copy -f matroska ${metadata} ${TMPVID@Q} -y"
+      CMD="ffmpeg ${inputs} ${mapping} ${disposition} ${copy} -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
     *)
       show_error "ERROR: ${ext} files are not supported."
