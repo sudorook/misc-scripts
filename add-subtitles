@@ -270,13 +270,18 @@ function make_cmd {
       codec="$(get_codec "${sub}")"
 
       # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
-      if [[ "${subname,,}" =~ sdh$ ]] || [[ "${subname,,}" =~ hi$ ]]; then
-        # metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
+      if [[ "${subname,,}" =~ ( |-|_|\.)sdh$ ]] || \
+         [[ "${subname,,}" =~ ( |-|_|\.)hi$ ]]; then
         metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
         if [ "${#lang}" = 3 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\" -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
+          metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
         elif [ "${#lang}" = 2 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\" -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
+          metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
+        elif [ "${#lang}" = 5 ]; then
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1_ISO_3166_1[${lang}]}\""
+          metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_1_ISO_3166_1[${lang}]} SDH\""
         fi
       else
         # set default_idx to avoid ambient sounds in the default subtitles
@@ -289,6 +294,8 @@ function make_cmd {
           metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
         elif [ "${#lang}" = 2 ]; then
           metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
+        elif [ "${#lang}" = 5 ]; then
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1_ISO_3166_1[${lang}]}\""
         fi
       fi
 
@@ -321,13 +328,18 @@ function make_cmd {
       codec="$(get_codec "${sub}")"
 
       # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
-      if [[ "${subname,,}" =~ sdh$ ]] || [[ "${subname,,}" =~ hi$ ]]; then
-        # metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}(sdh)\""
+      if [[ "${subname,,}" =~ ( |-|_|\.)sdh$ ]] || \
+         [[ "${subname,,}" =~ ( |-|_|\.)hi$ ]]; then
         metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
         if [ "${#lang}" = 3 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]} SDH\" -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
+          metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
         elif [ "${#lang}" = 2 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]} SDH\" -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
+          metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
+        elif [ "${#lang}" = 5 ]; then
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1_ISO_3166_1[${lang}]}\""
+          metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_1_ISO_3166_1[${lang}]} SDH\""
         fi
       else
         # set default_idx to avoid ambient sounds in the default subtitles
@@ -340,6 +352,8 @@ function make_cmd {
           metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
         elif [ "${#lang}" = 2 ]; then
           metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
+        elif [ "${#lang}" = 5 ]; then
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1_ISO_3166_1[${lang}]}\""
         fi
       fi
 
