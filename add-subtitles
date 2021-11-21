@@ -159,7 +159,7 @@ function find_subs {
     if [ -f "${file}" ]; then
       subext=${file##*.}
       case "${subext}" in
-        ssa|ass|srt|sup)
+        ssa|ass|srt|sup|smi)
           convert_charset "${file}"
           SUBLIST+=("${file}")
           ;;
@@ -183,7 +183,7 @@ function find_subs {
       if [ -f "${subdir}/${file}" ]; then
         subext=${file##*.}
         case "${subext}" in
-          ssa|ass|srt|sup)
+          ssa|ass|srt|sup|smi)
             convert_charset "${subdir}/${file}"
             SUBLIST+=("${subdir}/${file}")
             ;;
