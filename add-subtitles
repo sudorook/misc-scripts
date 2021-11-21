@@ -3,7 +3,7 @@ set -Eeuo pipefail
 source globals
 source langs
 
-! check_command ffmpeg iconv enconv && exit 3
+! check_command ffmpeg iconv enconv chardetect bc && exit 3
 
 #
 # Globals
@@ -11,107 +11,112 @@ source langs
 
 function convert_charset {
   local tmp
+  local res
   local encoding
+  local confidence
 
-  if [[ "${1,,}" =~ belarusian ]]; then
-    enconv -L belarusian "${1}" -x utf-8
-  elif [[ "${1,,}" =~ bulgarian ]]; then
-    enconv -L bulgarian "${1}" -x utf-8
-  elif [[ "${1,,}" =~ czech ]]; then
-    enconv -L czech "${1}" -x utf-8
-  elif [[ "${1,,}" =~ estonian ]]; then
-    enconv -L estonian "${1}" -x utf-8
-  elif [[ "${1,,}" =~ croatian ]]; then
-    enconv -L croatian "${1}" -x utf-8
-  elif [[ "${1,,}" =~ hungarian ]]; then
-    enconv -L hungarian "${1}" -x utf-8
-  elif [[ "${1,,}" =~ lithuanian ]]; then
-    enconv -L lithuanian "${1}" -x utf-8
-  elif [[ "${1,,}" =~ latvian ]]; then
-    enconv -L latvian "${1}" -x utf-8
-  elif [[ "${1,,}" =~ polish ]]; then
-    enconv -L polish "${1}" -x utf-8
-  elif [[ "${1,,}" =~ russian ]]; then
-    enconv -L russian "${1}" -x utf-8
-  elif [[ "${1,,}" =~ slovak ]]; then
-    enconv -L slovak "${1}" -x utf-8
-  elif [[ "${1,,}" =~ slovene ]] || [[ "${1,,}" =~ slovenian ]]; then
-    enconv -L slovene "${1}" -x utf-8
-  elif [[ "${1,,}" =~ ukranian ]]; then
-    enconv -L ukranian "${1}" -x utf-8
-  elif [[ "${1,,}" =~ chinese ]]; then
-    enconv -L chinese "${1}" -x utf-8
+  tmp="$(mktemp)"
+  res="$(chardetect "${1}")"
+  confidence="$(echo "${res}" | sed -n "s/^${1}:\ .*with confidence \(.*\)$/\1/p")"
+
+  # If chardetect confidence is too low, use file --mime-encoding to guess
+  # character map instead.
+  if [ "$(echo "${confidence} > .9" | bc -l)" -eq 1 ]; then
+    encoding="$(echo "${res}" | sed -n "s/^${1}:\ \([A-Za-z0-9\-]\+\) with .*/\1/p")"
   else
-    tmp="$(mktemp)"
-    encoding="$(file -b --mime-encoding "$1")"
-    case "${encoding}" in
-      unknown-8bit)
-        iconv -f cp1252 -t "utf-8" "${1}" > "${tmp}" && \
-          mv "${tmp}" "${1}"
-        ;;
-      *)
-        iconv -f "${encoding}" -t "utf-8" "${1}" > "${tmp}" && \
-          mv "${tmp}" "${1}"
-        ;;
-    esac
+    show_warning "WARNING: Using fallback to get character encoding for ${1}."
+    encoding="$(file -b --mime-encoding "${1}")"
   fi
+
+  # Convert charset to UTF-8, if needed.
+  case "${encoding}" in
+    utf-8|UTF-8|ascii|us-ascii)
+      # No need to do anything.
+      ;;
+    utf-8-sig|UTF-8-SIG)
+      # Use sed to delete the byte-order mark (BOM)
+      sed -i 's/\xef\xbb\xbf//' "${1}"
+      ;;
+    unknown-8bit)
+      show_warning "WARNING: Unknown character encoding for ${1}. Skipping..."
+      ;;
+    *)
+      show_info "INFO: Converting ${file} from ${encoding} to UTF-8." >&2
+      iconv -f "${encoding}" -t utf-8 "${1}" > "${tmp}"
+      mv "${tmp}" "${1}"
+      ;;
+  esac
+
   sync
 }
 
 function get_language {
   local in
   local name
-  local ext="${EXTENSION}"
+  local end
+  local iso_639_1_code
+  local iso_639_1_name
+  local iso_639_2_code
+  local iso_639_2_name
+  local iso_639_1_iso_3166_1_code
+  local iso_639_1_iso_3166_1_code_strip
+  local iso_639_1_iso_3166_1_name
+
   in="$(basename "${1}")"
   name="${in%.*}"
 
   # Single subtitles are usually English, so just return 'eng' if the video and
   # subtitle file names are the same.
   if [[ "${NAME}" = "${name}" ]]; then
-    echo "${LANG_DEFAULT}"
     show_warning "assuming ${in@Q} language is ${LANG_DEFAULT@Q}" >&2
+    echo "${LANG_DEFAULT}"
     return
   fi
 
-  # Detect language from the file name. Will fail if a language is in the
-  # title...
-  for lang in "${!ISO_639_2[@]}"; do
-    if [[ "${name,,}" =~ ${ISO_639_2[${lang}],,}$ ]]; then
-      echo "${lang}"
-      return
-    fi
-  done
-
-  # If language not found, try to parse three-character strings as a fallback.
-  local end
+  # Parse the end of the file name for three-character strings.
   end="$(echo "${name,,}" | \
-         sed -E -e "s/[\ -_\]sdh$|[\ -_\]hi$//g" | grep -o '[^\ ]*$')"
-  for lang in "${!ISO_639_2[@]}"; do
-    if [[ "${end,,}" =~ ${lang,,}$ ]] || [[ "${end,,}" =~ ${ISO_639_2[${lang}],,}$ ]]; then
-      echo "${lang}"
+         sed -E -e "s/[\ -_]sdh$|[\ -_]hi$//g" | \
+         grep -o '[^\ ]*$')"
+  for iso_639_2_code in "${!ISO_639_2[@]}"; do
+    iso_639_2_name="${ISO_639_2[${iso_639_2_code}]}"
+    if [[ "${end,,}" = "${iso_639_2_code,,}" ]] || \
+       [[ "${end,,}" = "${iso_639_2_name,,}" ]]; then
+      echo "${iso_639_2_code}"
       return
     fi
   done
 
   # Now, try parsing two-character strings.
-  for lang in "${!ISO_639_1[@]}"; do
-    if [[ "${end,,}" =~ \ ${lang,,}$ ]]; then
-      if [[ "${lang}" = br ]]; then
-        lang="pt-br"
-      fi
+  for iso_639_1_code in "${!ISO_639_1[@]}"; do
+    if [[ "${end,,}" = "${iso_639_1_code,,}" ]]; then
+      iso_639_1_name="${ISO_639_1[${iso_639_1_code}]}"
+
       # MP4 containers don't support ISO-639-1 codes, so map the 2-letter code
       # to the 3-letter ISO-639-2 one.
       if [[ "${EXTENSION}" = mp4 ]]; then
-        for lang2 in "${!ISO_639_2[@]}"; do
-          if [[ "${ISO_639_1[${lang}]}" = "${ISO_639_2[${lang2}]}" ]]; then
-            echo "${lang2}"
+        for iso_639_2_code in "${!ISO_639_2[@]}"; do
+          iso_639_2_name="${ISO_639_2[${iso_639_2_code}]}"
+          if [[ "${iso_639_1_name}" = "${iso_639_2_name}" ]]; then
+            echo "${iso_639_2_code}"
             return
           fi
         done
       else
-        echo "${lang}"
+        echo "${iso_639_1_code}"
         return
       fi
+    fi
+  done
+
+  # Lastly, try parsing two-character strings + two-character country codes.
+  for iso_639_1_iso_3166_1_code in "${!ISO_639_1_ISO_3166_1[@]}"; do
+    iso_639_1_iso_3166_1_code_strip="${iso_639_1_iso_3166_1_code/[-_]/}"
+    iso_639_1_iso_3166_1_name="${ISO_639_1_ISO_3166_1[${iso_639_1_iso_3166_1_code}]}"
+    if [[ "${end,,}" = "${iso_639_1_iso_3166_1_code,,}" ]] || \
+       [[ "${end,,}" = "${iso_639_1_iso_3166_1_code_strip,,}" ]] || \
+       [[ "${end,,}" = "${iso_639_1_iso_3166_1_name,,}" ]]; then
+      echo "${iso_639_1_iso_3166_1_code}"
+      return
     fi
   done
 
@@ -155,11 +160,7 @@ function find_subs {
       subext=${file##*.}
       case "${subext}" in
         ssa|ass|srt|sup)
-          encoding="$(file -b --mime-encoding "$file")"
-          if ! [[ "${encoding}" = "utf-8" ]]; then
-            show_info "INFO: Converting ${file} encoding from ${encoding} to UTF-8."
-            convert_charset "${file}"
-          fi
+          convert_charset "${file}"
           SUBLIST+=("${file}")
           ;;
         sub)
@@ -182,13 +183,8 @@ function find_subs {
       if [ -f "${subdir}/${file}" ]; then
         subext=${file##*.}
         case "${subext}" in
-          ass|srt|sup)
-            encoding="$(file -b --mime-encoding "${subdir}/$file")"
-            if ! [[ "${encoding}" = "utf-8" ]]; then
-              show_info "INFO: Converting ${file} encoding from ${encoding} to utf-8."
-              convert_charset "${subdir}/${file}"
-            fi
-            remove_ads "${subdir}/${file}"
+          ssa|ass|srt|sup)
+            convert_charset "${subdir}/${file}"
             SUBLIST+=("${subdir}/${file}")
             ;;
           sub)
