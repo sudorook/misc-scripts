@@ -259,64 +259,64 @@ function make_cmd {
     subname="${sub%.*}"
     subext="${sub##*.}"
     subidx="${sub%.*}.idx"
-    if [[ "${subext}" = "sub" ]] && [ -f "${subidx}" ]; then
-      inputs="${inputs} -i file:${subidx@Q} -i file:${sub@Q}"
-      mapping="${mapping} -map ${file_count}:s -map $((file_count + 1)):s"
-      if [[ "${sub,,}" =~ ${ISO_639_2[${LANG_DEFAULT}],,} ]] && \
+    lang="$(get_language "${sub}")"
+    codec="$(get_codec "${sub}")"
+
+    # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
+    if [[ "${subname,,}" =~ ( |-|_|\.)sdh$ ]] || \
+       [[ "${subname,,}" =~ ( |-|_|\.)hi$ ]]; then
+      metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
+      if [ "${#lang}" = 3 ]; then
+        metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
+        metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
+      elif [ "${#lang}" = 2 ]; then
+        metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
+        metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
+      elif [ "${#lang}" = 5 ]; then
+        metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1_ISO_3166_1[${lang}]}\""
+        metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_1_ISO_3166_1[${lang}]} SDH\""
+      fi
+    else
+      # only set default_idx if not sdh/hi to avoid ambient sounds in the
+      # default subtitles
+      if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
          [[ "${default_idx}" == -1 ]]; then
         default_idx="${stream_count}"
       fi
-      lang="$(get_language "${sub}")"
-      codec="$(get_codec "${sub}")"
-
-      # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
-      if [[ "${subname,,}" =~ ( |-|_|\.)sdh$ ]] || \
-         [[ "${subname,,}" =~ ( |-|_|\.)hi$ ]]; then
-        metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
-        if [ "${#lang}" = 3 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
-          metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
-        elif [ "${#lang}" = 2 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
-          metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
-        elif [ "${#lang}" = 5 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1_ISO_3166_1[${lang}]}\""
-          metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_1_ISO_3166_1[${lang}]} SDH\""
-        fi
-      else
-        # set default_idx to avoid ambient sounds in the default subtitles
-        if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
-           [[ "${default_idx}" == -1 ]]; then
-          default_idx="${stream_count}"
-        fi
-        metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
-        if [ "${#lang}" = 3 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
-        elif [ "${#lang}" = 2 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
-        elif [ "${#lang}" = 5 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1_ISO_3166_1[${lang}]}\""
-        fi
+      metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
+      if [ "${#lang}" = 3 ]; then
+        metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
+      elif [ "${#lang}" = 2 ]; then
+        metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
+      elif [ "${#lang}" = 5 ]; then
+        metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1_ISO_3166_1[${lang}]}\""
       fi
+    fi
 
-      # set output subtitle codec
-      if [[ "${codec}" = sami ]]; then
-        case "${ext}" in
-          mp4)
-            copy="${copy} -c:s:${stream_count} mov_text"
-            ;;
-          mkv)
-            copy="${copy} -c:s:${stream_count} subrip"
-            ;;
-          *)
-            copy="${copy} -c:s:${stream_count} copy"
-            ;;
-          esac
-      elif [[ "${codec}" = subrip ]] && [[ "${ext}" = mp4 ]]; then
-        copy="${copy} -c:s:${stream_count} mov_text"
-      else
-        copy="${copy} -c:s:${stream_count} copy"
-      fi
+    # set output subtitle codec
+    if [[ "${codec}" = sami ]]; then
+      case "${ext}" in
+        mp4)
+          copy="${copy} -c:s:${stream_count} mov_text"
+          ;;
+        mkv)
+          copy="${copy} -c:s:${stream_count} subrip"
+          ;;
+        *)
+          copy="${copy} -c:s:${stream_count} copy"
+          ;;
+        esac
+    elif [[ "${codec}" = subrip ]] && [[ "${ext}" = mp4 ]]; then
+      copy="${copy} -c:s:${stream_count} mov_text"
+    else
+      copy="${copy} -c:s:${stream_count} copy"
+    fi
+
+    # set mappings and inputs based on the number of files being handed, and
+    # then increment the stream and file counters
+    if [[ "${subext}" = "sub" ]] && [ -f "${subidx}" ]; then
+      inputs="${inputs} -i file:${subidx@Q} -i file:${sub@Q}"
+      mapping="${mapping} -map ${file_count}:s -map $((file_count + 1)):s"
 
       # increment counters
       file_count=$((file_count + 2))
@@ -324,57 +324,6 @@ function make_cmd {
     else
       inputs="${inputs} -i file:${sub@Q}"
       mapping="${mapping} -map ${file_count}:s"
-      lang="$(get_language "${sub}")"
-      codec="$(get_codec "${sub}")"
-
-      # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
-      if [[ "${subname,,}" =~ ( |-|_|\.)sdh$ ]] || \
-         [[ "${subname,,}" =~ ( |-|_|\.)hi$ ]]; then
-        metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
-        if [ "${#lang}" = 3 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
-          metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_2[$lang]} SDH\""
-        elif [ "${#lang}" = 2 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
-          metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_1[$lang]} SDH\""
-        elif [ "${#lang}" = 5 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1_ISO_3166_1[${lang}]}\""
-          metadata="${metadata} -metadata:s:s:${stream_count} title=\"${ISO_639_1_ISO_3166_1[${lang}]} SDH\""
-        fi
-      else
-        # set default_idx to avoid ambient sounds in the default subtitles
-        if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
-           [[ "${default_idx}" == -1 ]]; then
-          default_idx="${stream_count}"
-        fi
-        metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
-        if [ "${#lang}" = 3 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_2[$lang]}\""
-        elif [ "${#lang}" = 2 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1[$lang]}\""
-        elif [ "${#lang}" = 5 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=\"${ISO_639_1_ISO_3166_1[${lang}]}\""
-        fi
-      fi
-
-      # set output subtitle codec
-      if [[ "${codec}" = sami ]]; then
-        case "${ext}" in
-          mp4)
-            copy="${copy} -c:s:${stream_count} mov_text"
-            ;;
-          mkv)
-            copy="${copy} -c:s:${stream_count} subrip"
-            ;;
-          *)
-            copy="${copy} -c:s:${stream_count} copy"
-            ;;
-          esac
-      elif [[ "${codec}" = subrip ]] && [[ "${ext}" = mp4 ]]; then
-        copy="${copy} -c:s:${stream_count} mov_text"
-      else
-        copy="${copy} -c:s:${stream_count} copy"
-      fi
 
       # increment counters
       file_count=$((file_count + 1))
