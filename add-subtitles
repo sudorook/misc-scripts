@@ -215,6 +215,57 @@ function get_codec {
   echo "${fstring}"
 }
 
+function check_lang_match {
+  local lang="${1}"
+  local lang_len="${#1}"
+  local lang_crop
+  local default="${LANG_DEFAULT}"
+  local default_len="${#default}"
+  local default_crop
+
+  if [ "${lang_len}" -eq "${default_len}" ]; then
+    if [[ "${lang}" = "${default}" ]]; then
+      return 0
+    fi
+  else
+    case "${default_len}" in
+      2)
+        default_crop="${ISO_639_1[$default]}"
+        ;;
+      3)
+        default_crop="${ISO_639_2[$default]}"
+        ;;
+      5)
+        default_crop="$(echo "${ISO_639_1_ISO_3166_1[${default}]}" | cut -d" " -f1)"  # this could backfire...
+        ;;
+      *)
+        show_error "ERROR: Something is wrong with default language ${default}. Exiting..."
+        exit 3
+        ;;
+    esac
+    case "${lang_len}" in
+      2)
+        lang_crop="${ISO_639_1[$lang]}"
+        ;;
+      3)
+        lang_crop="${ISO_639_2[$lang]}"
+        ;;
+      5)
+        lang_crop="$(echo "${ISO_639_1_ISO_3166_1[${lang}]}" | cut -d" " -f1)"  # this could backfire...
+        ;;
+      *)
+        show_error "ERROR: Something is wrong with subtitle language ${lang}. Exiting..."
+        exit 3
+        ;;
+    esac
+    if [[ "${lang_crop}" = "${default_crop}" ]]; then
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
 function make_cmd {
   local ext
   local sub
@@ -279,8 +330,7 @@ function make_cmd {
     else
       # only set default_idx if not sdh/hi to avoid ambient sounds in the
       # default subtitles
-      if [[ "${lang}" = "${LANG_DEFAULT}" ]] && \
-         [[ "${default_idx}" == -1 ]]; then
+      if check_lang_match "${lang}"; then
         default_idx="${stream_count}"
       fi
       metadata="${metadata} -metadata:s:s:${stream_count} language=\"${lang}\""
