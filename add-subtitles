@@ -17,12 +17,12 @@ function convert_charset {
 
   tmp="$(mktemp)"
   res="$(chardetect "${1}")"
-  confidence="$(echo "${res}" | sed -n "s/^${1}:\ .*with confidence \(.*\)$/\1/p")"
+  confidence="$(echo "${res}" | sed -n "s|^${1}:\ .*with confidence \(.*\)$|\1|p")"
 
   # If chardetect confidence is too low, use file --mime-encoding to guess
   # character map instead.
   if [ "$(echo "${confidence} > .9" | bc -l)" -eq 1 ]; then
-    encoding="$(echo "${res}" | sed -n "s/^${1}:\ \([A-Za-z0-9\-]\+\) with .*/\1/p")"
+    encoding="$(echo "${res}" | sed -n "s|^${1}:\ \([A-Za-z0-9\-]\+\) with .*|\1|p")"
   else
     show_warning "WARNING: Using fallback to get character encoding for ${1}."
     encoding="$(file -b --mime-encoding "${1}")"
