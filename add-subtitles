@@ -152,7 +152,8 @@ function find_subs {
   local subext
   local encoding
   local sub
-  local subdir="Subs"
+  local subdir
+  local subdirs=("Subs" "subs" "Subtitles" "subtitles")
   local file
 
   while read -r file; do
@@ -178,30 +179,32 @@ function find_subs {
     fi
   done <<< "$(ls -v "${1}"*)"
 
-  if [ -d "${subdir}" ]; then
-    while read -r file; do
-      if [ -f "${subdir}/${file}" ]; then
-        subext=${file##*.}
-        case "${subext}" in
-          ssa|ass|srt|sup|smi)
-            convert_charset "${subdir}/${file}"
-            SUBLIST+=("${subdir}/${file}")
-            ;;
-          sub)
-            if [ -f "${subdir}/${file%.*}.idx" ]; then
-              IS_IMGSUB=true
-            fi
-            SUBLIST+=("${subdir}/${file}")
-            ;;
-          avi|m4v|mp4|mkv|webm|idx)
-            ;;
-          *)
-            show_warning "WARNING: ${file} not supported. Skipping..."
-            ;;
-        esac
-      fi
-    done <<< "$(ls -v "${subdir}/")"
-  fi
+  for subdir in "${subdirs[@]}"; do
+    if [ -d "${subdir}" ]; then
+      while read -r file; do
+        if [ -f "${subdir}/${file}" ]; then
+          subext=${file##*.}
+          case "${subext}" in
+            ssa|ass|srt|sup|smi)
+              convert_charset "${subdir}/${file}"
+              SUBLIST+=("${subdir}/${file}")
+              ;;
+            sub)
+              if [ -f "${subdir}/${file%.*}.idx" ]; then
+                IS_IMGSUB=true
+              fi
+              SUBLIST+=("${subdir}/${file}")
+              ;;
+            avi|m4v|mp4|mkv|webm|idx)
+              ;;
+            *)
+              show_warning "WARNING: ${file} not supported. Skipping..."
+              ;;
+          esac
+        fi
+      done <<< "$(ls -v "${subdir}/")"
+    fi
+  done
 
   for sub in "${SUBLIST[@]}"; do
     show_listitem "${sub}"
