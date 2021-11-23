@@ -200,7 +200,7 @@ function find_subs {
             ;;
         esac
       fi
-    done <<< "$(ls -v "Subs/")"
+    done <<< "$(ls -v "${subdir}/")"
   fi
 
   for sub in "${SUBLIST[@]}"; do
