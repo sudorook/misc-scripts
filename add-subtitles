@@ -361,6 +361,8 @@ function make_cmd {
         esac
     elif [[ "${codec}" = subrip ]] && [[ "${ext}" = mp4 ]]; then
       copy="${copy} -c:s:${stream_count} mov_text"
+    elif [[ "${codec}" = microdvd ]] && [[ "${ext}" = mp4 ]]; then
+      copy="${copy} -c:s:${stream_count} mov_text"
     else
       copy="${copy} -c:s:${stream_count} copy"
     fi
