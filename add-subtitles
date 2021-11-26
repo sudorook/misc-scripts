@@ -9,13 +9,11 @@ source langs
 # Globals
 #
 
-function convert_charset {
-  local tmp
+function detect_encoding {
   local res
   local encoding
   local confidence
 
-  tmp="$(mktemp)"
   res="$(chardetect "${1}")"
   confidence="$(echo "${res}" | sed -n "s|^${1}:\ .*with confidence \(.*\)$|\1|p")"
 
@@ -24,8 +22,25 @@ function convert_charset {
   if [ "$(echo "${confidence} > .9" | bc -l)" -eq 1 ]; then
     encoding="$(echo "${res}" | sed -n "s|^${1}:\ \([A-Za-z0-9\-]\+\) with .*|\1|p")"
   else
-    show_warning "WARNING: Using fallback to get character encoding for ${1}."
+    show_warning "WARNING: Using fallback to get character encoding for ${1}." >&2
     encoding="$(file -b --mime-encoding "${1}")"
+  fi
+
+  echo "${encoding}"
+}
+
+function convert_charset {
+  local tmp
+  local encoding
+
+  tmp="$(mktemp)"
+  encoding="$(detect_encoding "${1}")"
+
+  # Use sed to delete the byte-order mark (BOM)
+  if [[ "${encoding}" = UTF-8-SIG ]]; then
+    # sed -e 's/\xef\xbb\xbf//' "${1}" > "${tmp}"
+    sed -i 's/\xef\xbb\xbf//' "${1}"
+    encoding="$(detect_encoding "${1}")"
   fi
 
   # Convert charset to UTF-8, if needed.
@@ -34,8 +49,7 @@ function convert_charset {
       # No need to do anything.
       ;;
     utf-8-sig|UTF-8-SIG)
-      # Use sed to delete the byte-order mark (BOM)
-      sed -i 's/\xef\xbb\xbf//' "${1}"
+      show_error "WARNING: Failed to remove byte-order mark in ${1}. Skipping..."
       ;;
     unknown-8bit)
       show_warning "WARNING: Unknown character encoding for ${1}. Skipping..."
@@ -133,12 +147,14 @@ function count_subs {
   local sub_count=0
   local stream_count
   local codec_type
+  local idx
+  local in="${1}"
 
-  stream_count="$(ffprobe -v error -show_format file:"${IN}" | \
+  stream_count="$(ffprobe -v error -show_format file:"${in}" | \
                   sed -n "s/nb_streams=\([0-9]\+\)/\1/p" 2>/dev/null)"
   stream_count="$((stream_count - 1))"
   for idx in $(seq 0 "${stream_count}"); do
-    codec_type="$(ffprobe -v error -show_entries stream -select_streams "${idx}" file:"${IN}" | \
+    codec_type="$(ffprobe -v error -show_entries stream -select_streams "${idx}" file:"${in}" | \
                   sed -n "s/^codec_type=\(.*\)/\1/p")"
     if [[ "${codec_type}" = subtitle ]]; then
       sub_count="$((sub_count + 1))"
@@ -297,7 +313,7 @@ function make_cmd {
   mapping="-map_chapters 0 -map_metadata 0"
   if [[ "${FORCE}" = false ]]; then
     mapping="${mapping} -map 0"
-    stream_count="$(count_subs)"
+    stream_count="$(count_subs "${1}")"
   else
     mapping="${mapping} -map 0:v -map 0:a"
     stream_count=0
@@ -306,7 +322,7 @@ function make_cmd {
 
   copy="-c:v copy -c:a copy"
   if [ "${stream_count}" -gt 0 ]; then
-    copy="${copy} $(printf ' -c:s:%s copy' $(seq 0 $((stream_count-1))))"
+    copy="${copy}$(printf ' -c:s:%s copy' $(seq 0 $((stream_count-1))))"
   fi
 
   for sub in "${SUBLIST[@]}"; do
@@ -346,39 +362,44 @@ function make_cmd {
       fi
     fi
 
-    # set output subtitle codec
-    if [[ "${codec}" = sami ]]; then
-      case "${ext}" in
-        mp4)
-          copy="${copy} -c:s:${stream_count} mov_text"
-          ;;
-        mkv)
-          copy="${copy} -c:s:${stream_count} subrip"
-          ;;
-        *)
-          copy="${copy} -c:s:${stream_count} copy"
-          ;;
-        esac
-    elif [[ "${codec}" = subrip ]] && [[ "${ext}" = mp4 ]]; then
-      copy="${copy} -c:s:${stream_count} mov_text"
-    elif [[ "${codec}" = microdvd ]] && [[ "${ext}" = mp4 ]]; then
-      copy="${copy} -c:s:${stream_count} mov_text"
-    else
-      copy="${copy} -c:s:${stream_count} copy"
-    fi
-
     # set mappings and inputs based on the number of files being handed, and
     # then increment the stream and file counters
     if [[ "${subext}" = "sub" ]] && [ -f "${subidx}" ]; then
+      local sub_stream_count
       inputs="${inputs} -i file:${subidx@Q} -i file:${sub@Q}"
-      mapping="${mapping} -map ${file_count}:s -map $((file_count + 1)):s"
+      sub_stream_count="$(count_subs "${subidx}")"
+      mapping="${mapping} -map ${file_count}:s"
+      if [ "${sub_stream_count}" -gt 0 ]; then
+        copy="${copy}$(printf ' -c:s:%s copy' $(seq "${stream_count}" $((stream_count + sub_stream_count - 1))))"
+      fi
 
       # increment counters
       file_count=$((file_count + 2))
-      stream_count=$((stream_count + 1))
+      stream_count=$((stream_count + sub_stream_count))
     else
       inputs="${inputs} -i file:${sub@Q}"
       mapping="${mapping} -map ${file_count}:s"
+
+      # set output subtitle codec
+      if [[ "${codec}" = sami ]]; then
+        case "${ext}" in
+          mp4)
+            copy="${copy} -c:s:${stream_count} mov_text"
+            ;;
+          mkv)
+            copy="${copy} -c:s:${stream_count} subrip"
+            ;;
+          *)
+            copy="${copy} -c:s:${stream_count} copy"
+            ;;
+          esac
+      elif [[ "${codec}" = subrip ]] && [[ "${ext}" = mp4 ]]; then
+        copy="${copy} -c:s:${stream_count} mov_text"
+      elif [[ "${codec}" = microdvd ]] && [[ "${ext}" = mp4 ]]; then
+        copy="${copy} -c:s:${stream_count} mov_text"
+      else
+        copy="${copy} -c:s:${stream_count} copy"
+      fi
 
       # increment counters
       file_count=$((file_count + 1))
