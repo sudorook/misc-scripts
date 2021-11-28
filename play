@@ -1,0 +1,16 @@
+#! /bin/bash
+set -eu
+source globals
+
+! check_command ffprobe bc parallel && exit 3
+
+DIR="${1}"
+CUTOFF=60
+export CUTOFF
+
+print_list() {
+  find "${DIR}" -type f -name "*.mp3" -print0 | \
+    parallel -0 '[ $(echo "$(ffprobe -v error -show_entries stream=duration -of compact=p=0:nk=1 {}) > ${CUTOFF}" | bc -l) -eq 1 ] && echo {}'
+}
+
+print_list | mpv --shuffle --no-video --replaygain=album --playlist=-
