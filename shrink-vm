@@ -2,6 +2,8 @@
 set -euo pipefail
 source globals
 
+! check_command qemu-img && exit 3
+
 #
 # Check inputs and requirements.
 #
@@ -38,11 +40,11 @@ trap 'abort ${1}' INT TERM ERR
 
 OLD_SIZE=$(du -h "${1}" | cut -f1)
 sudo bash -c "{
-  mv -f \"${1}\" \"${1}\".bak
-  qemu-img convert -O qcow2 \"${1}\".bak  \"${1}\"
-  chmod --reference=\"${1}\".bak \"${1}\"
-  rm -f \"${1}\".bak
+  mv -f '${1}' '${1}.bak'
+  qemu-img convert -O qcow2 '${1}.bak' '${1}'
+  chmod --reference='${1}.bak' '${1}'
+  rm -f '${1}.bak'
 }"
 NEW_SIZE=$(du -h "${1}" | cut -f1)
-show_success "Compressed from ${OLD_SIZE} to ${NEW_SIZE}."
+show_success "Compressed ${1@Q} from ${OLD_SIZE} to ${NEW_SIZE}."
 sync
