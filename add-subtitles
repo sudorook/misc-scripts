@@ -383,7 +383,7 @@ function make_cmd {
       # set output subtitle codec
       if [[ "${codec}" = sami ]]; then
         case "${ext}" in
-          mp4)
+          mp4|m4v)
             copy="${copy} -c:s:${stream_count} mov_text"
             ;;
           mkv)
@@ -393,9 +393,9 @@ function make_cmd {
             copy="${copy} -c:s:${stream_count} copy"
             ;;
           esac
-      elif [[ "${codec}" = subrip ]] && [[ "${ext}" = mp4 ]]; then
+      elif [[ "${codec}" = subrip ]] && [[ "${ext}" = mp4 || "${ext}" = m4v ]]; then
         copy="${copy} -c:s:${stream_count} mov_text"
-      elif [[ "${codec}" = microdvd ]] && [[ "${ext}" = mp4 ]]; then
+      elif [[ "${codec}" = microdvd ]] && [[ "${ext}" = mp4 || "${ext}" = m4v ]]; then
         copy="${copy} -c:s:${stream_count} mov_text"
       else
         copy="${copy} -c:s:${stream_count} copy"
