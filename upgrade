@@ -8,6 +8,10 @@ source globals
 #
 
 function git_update() {
+  if [ -z "$(git -C "${1}" remote)" ]; then
+    show_warning "No remote is configured. Skipping..."
+    return 1
+  fi
   git -C "${1}" checkout master
   git -C "${1}" fetch --tags
   h=$(git -C "${1}" rev-parse HEAD)
