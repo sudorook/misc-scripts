@@ -140,7 +140,7 @@ function upgrade_vim_packages() {
       for dir in "${vimpack}"/*; do
         if git -C "${dir}" rev-parse 2>/dev/null; then
           show_info "$(basename "${dir}")"
-          git -C "${dir}" pull --ff-only origin master
+          git_update "${dir}" || true
           sleep 2
           echo
         fi
