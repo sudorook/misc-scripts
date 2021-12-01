@@ -168,7 +168,7 @@ function upgrade_zsh() {
         for dir in "${zshdir}"/*; do
           if git -C "${dir}" rev-parse 2>/dev/null; then
             show_info "$(basename "${dir}")"
-            git -C "${dir}" pull --ff-only origin master
+            git -C "${dir}" pull --ff-only origin master --tags
             sleep 2
             echo
           fi
@@ -220,7 +220,7 @@ function upgrade_weechat_plugins {
   for dir in "${weechatdir}"/*; do
     if git -C "${dir}" rev-parse 2>/dev/null; then
       show_info "$(basename "${dir}")"
-      git -C "${dir}" pull --ff-only origin master
+      git -C "${dir}" pull --ff-only origin master --tags
       sleep 2
       echo
     fi
