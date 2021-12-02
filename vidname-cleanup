@@ -3,8 +3,13 @@ set -euo pipefail
 source globals
 source langs
 
+#
+# Functions
+#
+
 function get_language() {
   local res=
+
   for lang in "${!ISO_639_2[@]}"; do
     if [[ "${1,,}" = "${ISO_639_2[${lang}],,}" ]]; then
       res="${1}"
@@ -61,32 +66,65 @@ function cleanup_filename() {
       echo "${newname} ${lang}.${extension}"
     fi
   fi
-  return 0
 }
 
-for VID in *; do
-  if [ -f "${VID}" ]; then
-    ! [[ "$(file -b --mime-type "${VID}")" =~ video|text ]] && continue
-    NEWVID=$(cleanup_filename "${VID}")
-    echo "${NEWVID}"
-  fi
-done
+function scan_files() {
+  local infile
+  local outfile
 
-REPLY=$(ask_question "Is this good? (y/N)")
-
-if [[ "${REPLY}" =~ ^y ]] || [[ "${REPLY}" =~ ^Y ]]; then
-  for VID in *; do
-    if [ -f "${VID}" ]; then
-      ! [[ "$(file -b --mime-type "${VID}")" =~ video|text ]] && continue
-      NEWVID=$(cleanup_filename "${VID}")
-      if [ "${VID}" != "${NEWVID}" ]; then
-        mv -v "${VID}" "${NEWVID}"
-      else
-        echo "${VID} unchanged"
+  for infile in *; do
+    if [ -f "${infile}" ]; then
+      if [[ "$(file -b --mime-type "${infile}")" =~ video|text ]]; then
+        outfile=$(cleanup_filename "${infile}")
+        echo "${outfile}" >&2
+        INFILES+=("${infile}")
+        OUTFILES+=("${outfile}")
       fi
     fi
   done
+}
+
+function print_files() {
+  local idx
+
+  for idx in "${!INFILES[@]}"; do
+    echo "${OUTFILES[$idx]}"
+  done
+}
+
+function rename_files() {
+  local idx
+
+  for idx in "${!INFILES[@]}"; do
+    if [ "${INFILES[$idx]}" != "${OUTFILES[$idx]}" ]; then
+      mv -v "${INFILES[$idx]}" "${OUTFILES[$idx]}"
+    else
+      echo "${INFILES[$idx]} unchanged"
+    fi
+  done
+}
+
+
+#
+# Main
+#
+
+INFILES=()
+OUTFILES=()
+
+scan_files
+if [ "${#INFILES[@]}" -eq 0 ]; then
+  show_error "No files found. Exiting..."
+  exit 3
+fi
+
+# print_files
+
+REPLY=$(ask_question "Is this good? (y/N)")
+
+if [[ "${REPLY}" =~ ^(y|Y) ]]; then
+  rename_files
+  show_success "Done!"
 else
   echo "Fine. Be that way."
-  exit 1
 fi
