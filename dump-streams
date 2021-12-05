@@ -43,7 +43,7 @@ function dump_stream {
   local name=${in%.*}
   local idx="${2}"
   local out
-  local cmd
+  local cmd="ffmpeg -v warning"
 
   info="$(ffprobe -v error -show_entries stream -select_streams "${idx}" file:"${1}")"
   codec_name="$(echo "${info}" | sed -n "s/^codec_name=\(.*\)/\1/p")"
@@ -53,13 +53,13 @@ function dump_stream {
     video)
       container="$(pick_container "${1}")"
       out="${name}_${idx}.${container}"
-      cmd="ffmpeg -v warning -i file:${1@Q} -map 0:${idx} -c copy file:${out@Q} -y"
+      cmd="${cmd} -i file:${1@Q} -map 0:${idx} -c copy file:${out@Q} -y"
       show_listitem "${cmd}"
       eval "${cmd}"
       return
       ;;
     subtitle)
-      cmd="ffmpeg -v warning -i file:${1@Q} -map 0:${idx}"
+      cmd="${cmd} -i file:${1@Q} -map 0:${idx}"
       case "${codec_name}" in
         ass)
           out="${name}_${idx}.ass"
@@ -93,7 +93,7 @@ function dump_stream {
       ;;
     audio)
       out="${name}_${idx}.${codec_name}"
-      cmd="ffmpeg -v warning -i file:${1@Q} -map 0:${idx} -c copy file:${out@Q} -y"
+      cmd="${cmd} -i file:${1@Q} -map 0:${idx} -c copy file:${out@Q} -y"
       show_listitem "${cmd}"
       eval "${cmd}"
       return
@@ -102,7 +102,7 @@ function dump_stream {
       if [[ "${codec_name}" =~ ^[o|t]tf ]]; then
         mkdir -p "${name}_fonts"
         font_file="$(echo "$info" | sed -n "s/^TAG:filename=\(.*\)/\1/p")"
-        cmd="ffmpeg -v warning -dump_attachment:$idx \"\" -i file:${1@Q} -y"
+        cmd="${cmd} -dump_attachment:$idx \"\" -i file:${1@Q} -y"
         show_listitem "${cmd}"
         eval "${cmd}"
         mv "${font_file}" "${name}_fonts"
