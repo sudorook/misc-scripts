@@ -43,6 +43,7 @@ function dump_stream {
   local name=${in%.*}
   local idx="${2}"
   local out
+  local cmd
 
   info="$(ffprobe -v error -show_entries stream -select_streams "${idx}" file:"${1}")"
   codec_name="$(echo "${info}" | sed -n "s/^codec_name=\(.*\)/\1/p")"
