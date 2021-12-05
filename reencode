@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 source globals
 
-! check_command ffmpeg ffprobe && exit 3
+! check_command ffmpeg ffprobe bc awk && exit 3
 
 
 #
