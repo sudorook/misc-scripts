@@ -43,11 +43,11 @@ function parse_streams {
 }
 
 function extract_streams {
-  local cmd
+  local cmd="ffmpeg -v warning"
   local tmp
   local out
   for i in $(seq 0 $(( ${#TITLES[@]} - 1))); do
-    cmd="ffmpeg -i file:${IN@Q} -map 0:${STREAMS[${i}]}"
+    cmd="${cmd} -i file:${IN@Q} -map 0:${STREAMS[${i}]}"
     case "${FORMATS[${i}]}" in
       ass)
         cmd="${cmd} -c copy"
