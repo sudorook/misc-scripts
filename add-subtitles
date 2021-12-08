@@ -93,7 +93,7 @@ function get_language {
   # Parse the end of the file name for three-character strings.
   end="$(echo "${name,,}" | \
          sed -E -e "s/[\ -_]sdh$|[\ -_]hi$//g" | \
-         grep -o '[^\ ]*$')"
+         grep -o '[^\ _]*$')"
   for iso_639_2_code in "${!ISO_639_2[@]}"; do
     iso_639_2_name="${ISO_639_2[${iso_639_2_code}]}"
     if [[ "${end,,}" = "${iso_639_2_code,,}" ]] || \
