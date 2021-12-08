@@ -3,7 +3,7 @@ set -Eeuo pipefail
 source globals
 source langs
 
-! check_command ffmpeg iconv chardetect bc && exit 3
+! check_command ffmpeg iconv chardetect uchardet bc && exit 3
 
 #
 # Globals
@@ -23,7 +23,10 @@ function detect_encoding {
     encoding="$(echo "${res}" | sed -n "s|^${1}:\ \([A-Za-z0-9\-]\+\) with .*|\1|p")"
   else
     show_warning "WARNING: Using fallback to get character encoding for ${1}." >&2
-    encoding="$(file -b --mime-encoding "${1}")"
+    encoding="$(uchardet "${1}")"
+    if [ -z "${encoding}" ]; then
+      encoding="$(file -b --mime-encoding "${1}")"
+    fi
   fi
 
   echo "${encoding}"
