@@ -19,7 +19,7 @@ function parse_streams {
              -of default=noprint_wrappers=1:nokey=1 "${1}")"
 
   for idx in $(seq 0 "$((count-1))"); do
-    res="$(ffprobe -v error -show_entries stream -select_streams "${idx}" "${1}")"
+    res="$(ffprobe -v error -show_entries stream -select_streams "${idx}" file:"${1}")"
     codec_type="$(echo "${res}" | sed -n "s/^codec_type=\(.*\)/\1/p")"
     codec_name="$(echo "${res}" | sed -n "s/^codec_name=\(.*\)/\1/p")"
     codec_tag="$(echo "${res}" | sed -n "s/^codec_tag=\(.*\)/\1/p")"
