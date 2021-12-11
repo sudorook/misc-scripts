@@ -19,7 +19,7 @@ if test -r "${1}"; then
     exit 1
   fi
 else
-  show_warning "Cannot read ${1}."
+  show_warning "Cannot read ${1@Q} as ${USER}. Trying as root..."
   if ! [ "${1##*.}" = qcow2 ] && ! [ "${1##*.}" = QCOw2 ]; then
     show_error "${1} is not a QCOW2 file."
     exit 1
