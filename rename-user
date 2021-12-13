@@ -2,6 +2,7 @@
 set -euo pipefail
 source globals
 
+! check_command awk ps && exit 3
 
 #
 # Functions
@@ -21,16 +22,81 @@ function migrate_symlink() {
 }
 export -f migrate_symlink
 
-function check_username() {
+function is_username_valid() {
   local re='^[a-z_][a-z0-9_-]*$'
+  [ -z "${1}" ] && return 1
   (( ${#1} > 16 )) && return 1
-  [[ $1 =~ $re ]]
+  [[ ${1} =~ ${re} ]]
+}
+
+function is_old_user_valid() {
+  local all_user
+  local all_sys
+  local uid_min
+  local uid_max
+  local user="${1}"
+
+  uid_min="$(sed -n "s/^UID_MIN\s\+\([0-9]\+\)$/\1/p" /etc/login.defs)"
+  uid_max="$(sed -n "s/^UID_MAX\s\+\([0-9]\+\)$/\1/p" /etc/login.defs)"
+
+  all_sys="$(getent passwd | \
+             awk -F ":" -v mn="${uid_min}" -v mx="${uid_max}" \
+               '{if (($3 < mn) && ($3 > mx)) print $1}')"
+  all_user="$(getent passwd | \
+              awk -F ":" -v mn="${uid_min}" -v mx="${uid_max}" \
+                '{if (($3 >= mn) && ($3 <= mx)) print $1}')"
+
+  if [[ "${all_sys}" =~ ${user} ]]; then
+    show_warning "${user} is a system user."
+    return 1
+  fi
+  if [[ "${all_user}" =~ ${user} ]]; then
+    # Check that old user has no currently running processes.
+    if ps -u "${user}" >/dev/null 2>&1; then
+      show_warning "User ${user} has running processes."
+      return 1
+    else
+      return 0
+    fi
+  fi
+  return 1
+}
+
+function is_new_user_valid() {
+  local all_user
+  local all_sys
+  local uid_min
+  local uid_max
+  local user="${1}"
+
+  uid_min="$(sed -n "s/^UID_MIN\s\+\([0-9]\+\)$/\1/p" /etc/login.defs)"
+  uid_max="$(sed -n "s/^UID_MAX\s\+\([0-9]\+\)$/\1/p" /etc/login.defs)"
+
+  all_sys="$(getent passwd | \
+             awk -F ":" -v mn="${uid_min}" -v mx="${uid_max}" \
+               '{if (($3 < mn) && ($3 > mx)) print $1}')"
+  all_user="$(getent passwd | \
+              awk -F ":" -v mn="${uid_min}" -v mx="${uid_max}" \
+                '{if (($3 >= mn) && ($3 <= mx)) print $1}')"
+
+  if [[ "${all_sys}" =~ ${user} ]]; then
+    show_warning "${user} is a system user."
+    return 1
+  fi
+  if [[ "${all_user}" =~ ${user} ]]; then
+    show_warning "${user} already exists."
+    return 1
+  fi
+  return 0
 }
 
 
 #
 # Parse command line parameters
 #
+
+OLDNAME=
+NEWNAME=
 
 OPTIONS=o:n:
 LONGOPTIONS=old:,new:
@@ -40,19 +106,11 @@ eval set -- "$PARSED"
 while [ $# -ge 1 ]; do
   case "$1" in
     -o|--old)
-      OLDNAME=${2}
-      if ! check_username "${OLDNAME}"; then
-        show_error "${OLDNAME} is not a valid name. Exiting."
-        exit
-      fi
+      OLDNAME="${2}"
       shift 2
       ;;
     -n|--new)
-      NEWNAME=${2}
-      if ! check_username "${NEWNAME}"; then \
-        show_error "${NEWNAME} is not a valid name. Exiting."
-        exit
-      fi
+      NEWNAME="${2}"
       shift 2
       ;;
     --)
@@ -60,7 +118,7 @@ while [ $# -ge 1 ]; do
       break
       ;;
     *)
-      show_error "Error"
+      show_error "ERROR: invalid input. Exiting."
       exit 3
       ;;
   esac
@@ -68,24 +126,33 @@ done
 
 # If the user didn't supply user names via that command line, ask for them in
 # the prompt.
-if ! [[ -v OLDNAME ]]; then
+if [ -z "${OLDNAME}" ]; then
   OLDNAME=$(ask_question "Change which user name?")
-  if ! check_username "${OLDNAME}"; then
-    show_error "${OLDNAME} is not a valid name. Exiting."
-    exit
-  fi
 fi
-if ! [[ -v NEWNAME ]]; then
+if [ -z "${NEWNAME}" ]; then
   NEWNAME=$(ask_question "What is the new user name?")
-  if ! check_username "${NEWNAME}"; then \
-    show_error "${NEWNAME} is not a valid name. Exiting."
-    exit
-  fi
 fi
 
 # Make sure that OLDNAME and NEWNAME entries are valid.
-if [[ -z "$OLDNAME" ]]; then echo "Error: empty old user name."; fi
-if [[ -z "$NEWNAME" ]]; then echo "Error: empty new user name."; fi
+if ! is_username_valid "${OLDNAME}"; then
+  show_error "ERROR: ${OLDNAME} is not a valid name. Exiting."
+  exit 3
+fi
+
+if ! is_username_valid "${NEWNAME}"; then \
+  show_error "ERROR: ${NEWNAME} is not a valid name. Exiting."
+  exit 3
+fi
+
+if ! is_old_user_valid "${OLDNAME}"; then
+  show_error "ERROR: ${OLDNAME} invalid. Exiting."
+  exit 3
+fi
+
+if ! is_new_user_valid "${NEWNAME}"; then
+  show_error "ERROR: ${NEWNAME} invalid. Exiting."
+  exit 3
+fi
 
 export OLDNAME
 export NEWNAME
@@ -94,31 +161,14 @@ export NEWNAME
 # Rename user and migrate files
 #
 
-# Check that old user exists.
-if ! getent group | grep "^${OLDNAME}" >/dev/null; then
-  show_error "User ${OLDNAME} does not exist. Exiting."
-  exit
-fi
-
-# Check that old user has no currently running processes.
-if ps -u "${OLDNAME}" >/dev/null 2>&1; then
-  show_error "User ${OLDNAME} has running processes. Exiting."
-  exit
-fi
-
-# Check that NEWNAME is not an existing group.
-if getent group | grep "${NEWNAME}" >/dev/null; then
-  show_error "${NEWNAME} already taken (see getent group output). Exiting."
-  exit
-fi
-
 # Migrate the user.
-show_info "Renaming '${OLDNAME}' to '${NEWNAME}' (provide sudo password)."
+show_info "Renaming user ${OLDNAME@Q} to ${NEWNAME@Q}..."
 sudo usermod -l "${NEWNAME}" -d "/home/${NEWNAME}" -m "${OLDNAME}"
 sudo groupmod -n "${NEWNAME}" "${OLDNAME}"
 
 show_info "Fixing symlinks in /home/${NEWNAME} (provide ${NEWNAME} pasword)."
-su "${NEWNAME}" -c "find /home/${NEWNAME} -type l -exec bash -c 'migrate_symlink "{}"' \;"
+su "${NEWNAME}" - -c \
+  "cd /home/${NEWNAME} && find . -type l -exec bash -c 'migrate_symlink \"{}\"' \;"
 
 # Prompt to change password.
 REPLY=$(ask_question "Change password for ${NEWNAME}? (y/N)")
