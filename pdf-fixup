@@ -150,6 +150,7 @@ function clean_meta_tags {
     -e "/^$/d" \
     -e "/^BookmarkTitle:/N;s/\n\?\(\nBookmarkLevel.*\)\?/\1/g" \
     -e "/^BookmarkTitle:/s/\t\+/\ /g" \
+    -e "s/\(\ \ \+\)/\ /g" \
     "${DATA}"
 }
 
