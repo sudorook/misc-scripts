@@ -2,7 +2,7 @@
 set -euo pipefail
 source globals
 
-! check_command pdftk && exit 3
+! check_command pdftk pdftoppm pdfinfo convert && exit 3
 
 function adjust_page_numbers {
   local offset
@@ -152,6 +152,61 @@ function clean_meta_tags {
     -e "/^BookmarkTitle:/s/\t\+/\ /g" \
     -e "s/\(\ \ \+\)/\ /g" \
     "${DATA}"
+}
+
+function compare_page_dimensions {
+  local in="${1}"
+  local p1="${2}"
+  local p2="${3}"
+  local p1_size
+  local p2_size
+  p1_size="$(pdfinfo -f "${p1}" -l "${p1}" "${1}" | \
+             sed -n "s/^Page.*size:\ \+\(.*\)/\1/p")"
+  p2_size="$(pdfinfo -f "${p2}" -l "${p2}" "${1}" | \
+             sed -n "s/^Page.*size:\ \+\(.*\)/\1/p")"
+
+  [[ "${p1_size}" = "${p2_size}" ]] && return 0 || return 1
+}
+
+function normalize_cover {
+  # Assumes the first page is the cover and the reference page is the 10th one.
+  local in
+  local dir="${BUILD}"
+  local p01="${START}"
+  local p01_file
+  # local p01_size
+  local p10="$((START+10))"
+  local p10_file
+  local p10_size
+  local pend="${END}"
+  local pend_file
+
+  if compare_page_dimensions "${TMP}" 1 10; then
+    show_info "No page normalization needed."
+  else
+    show_info "Different cover dimensions detected. Normalizing..."
+    pushd "${dir}" >/dev/null
+    in="$(basename "${TMP}")"
+    p01_file="${in%.*}-01"
+    p10_file="${in%.*}-10"
+    pend_file="${in%.*}-$((p01+1))_end"
+
+    pdftk "${TMP}" cat "${p01}" output "${p01_file}.pdf"
+    pdftk "${TMP}" cat "${p10}" output "${p10_file}.pdf"
+    pdftk "${TMP}" cat "$((p01+1))-${pend}" output "${pend_file}.pdf"
+
+    pdftoppm "${p01_file}.pdf" "${p01_file}" -png -singlefile
+    pdftoppm "${p10_file}.pdf" "${p10_file}" -png -singlefile
+
+    # p01_size="$(file -b "${p01_file}.png" | cut -d "," -f 2 | tr -d "[:space:]")"
+    p10_size="$(file -b "${p10_file}.png" | cut -d "," -f 2 | tr -d "[:space:]")"
+
+    convert "${p01_file}.png" -resize "${p10_size}!" "${p01_file}v2.png"
+    convert "${p01_file}v2.png" "${p01_file}v2.pdf"
+
+    pdftk "${p01_file}v2.pdf" "${pend_file}.pdf" cat output "${in}"
+    popd >/dev/null
+  fi
 }
 
 
