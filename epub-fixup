@@ -56,7 +56,7 @@ set_rw
 unjustify
 # unset_colors
 
-zip -u "${FILE}"
+zip -u "${FILE}" || true # override return false if no update performed
 
 popd >/dev/null
 mv "${BUILDDIR}/${FILE}" "${NAME} new.${EXTENSION}"
