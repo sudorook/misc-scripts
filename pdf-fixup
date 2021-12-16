@@ -213,9 +213,10 @@ function normalize_cover {
 START=1
 END=end
 KEEP=false
+NORMALIZE=false
 
-OPTIONS=e:ko:s:
-LONGOPTIONS=end:,keep,output:,start:
+OPTIONS=e:kno:s:
+LONGOPTIONS=end:,keep,normalize,output:,start:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -236,6 +237,10 @@ while [ ${#} -ge 1 ]; do
     -s|--start)
       START="${2}"
       shift 2
+      ;;
+    -n|--normalize)
+      NORMALIZE=true
+      shift 1
       ;;
     --)
       shift
@@ -287,6 +292,7 @@ pdftk "${INPUT}" dump_data_utf8 output "${DATA}"
 
 clean_meta_tags
 adjust_page_numbers
+"${NORMALIZE}" && normalize_cover
 
 if ! $KEEP; then
   pdftk "${TMP}" update_info_utf8 "${DATA}" output "${OUTPUT}"
