@@ -82,7 +82,7 @@ function compress_archive() {
         run="tar cf - --exclude='*.sw[a-p]' ${2}"
         eval "${run}" | pigz > "${archivedir}/${1}.tar.gz"
       else
-        run="tar czf ${archivedir}/${1}.tar.gz --exclude='*.sw[a-p]' ${2}"
+        run="tar czf ${archivedir}/${1}.tar.gz --exclude='*.sw[a-p]' --exclude='*~' ${2}"
         eval "${run}"
       fi
       ;;
@@ -91,13 +91,13 @@ function compress_archive() {
         run="tar cf - --exclude='*.sw[a-p]' ${2}"
         eval "${run}" | pixz > "${archivedir}/${1}.tar.xz"
       else
-        run="tar czf ${archivedir}/${1}.tar.xz --exclude='*.sw[a-p]' ${2}"
+        run="tar czf ${archivedir}/${1}.tar.xz --exclude='*.sw[a-p]' --exclude='*~' ${2}"
         eval "${run}"
       fi
       ;;
     zstd)
       if command -v pzstd >/dev/null 2>&1; then
-        run="tar cf - --exclude='*.sw[a-p]' ${2}"
+        run="tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}"
         eval "${run}" | pzstd > "${archivedir}/${1}.tar.zst"
       else
         show_error "ERROR: zstd is not installed. Exiting."
