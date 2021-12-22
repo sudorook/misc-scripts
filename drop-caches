@@ -5,6 +5,8 @@ source globals
 if [ -e /proc/sys/vm/drop_caches ]; then
   sudo bash -c "echo 3 > /proc/sys/vm/drop_caches"
   show_success "Done!"
+elif check_command purge && [[ "${OSTYPE}" == "darwin"* ]]; then
+  sudo purge
 else
   show_error "Not possible..."
   exit 3
