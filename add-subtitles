@@ -297,6 +297,7 @@ function make_cmd {
   local codec
   local inputs
   local mapping
+  local ptsflag
   local metadata
   local copy
   local disposition
@@ -422,27 +423,35 @@ function make_cmd {
     disposition="-default_mode infer_no_subs -disposition:s -default"
   fi
 
+  if [[ "${CONTAINER}" -ne "${EXTENSION}" ]]; then
+    ptsflag="-fflags +genpts"
+  else
+    ptsflag=""
+  fi
+
   case ${ext} in
     avi)
       # AVI only supports embedding XSub files, so just use a Matroska
       # container instead.
       CONTAINER="mkv"
       show_warning "Re-muxing AVI to Matroska container." >&2
-      CMD="ffmpeg -fflags +genpts ${inputs} ${mapping} ${disposition} ${copy} -f matroska ${metadata} ${TMPVID@Q} -y"
+      ptsflag="-fflags +genpts"
+      CMD="ffmpeg ${ptsflag} ${inputs} ${mapping} ${disposition} ${copy} -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
     mp4|m4v)
       # MP4 can have issues embedding image-based subtitles, so convert to
       # Matroska.
       if "${IS_IMGSUB}"; then
         CONTAINER="mkv"
+        ptsflag="-fflags +genpts"
         show_warning "Image subtitles detected. Re-muxing to Matroska container." >&2
-        CMD="ffmpeg -fflags +genpts ${inputs} ${mapping} ${disposition} ${copy} -f matroska ${metadata} ${TMPVID@Q} -y"
+        CMD="ffmpeg ${ptsflag} ${inputs} ${mapping} ${disposition} ${copy} -f matroska ${metadata} ${TMPVID@Q} -y"
       else
-        CMD="ffmpeg ${inputs} ${mapping} ${disposition} ${copy} -f mp4 ${metadata} ${TMPVID@Q} -y"
+        CMD="ffmpeg ${ptsflag} ${inputs} ${mapping} ${disposition} ${copy} -f mp4 ${metadata} ${TMPVID@Q} -y"
       fi
       ;;
     mkv)
-      CMD="ffmpeg ${inputs} ${mapping} ${disposition} ${copy} -f matroska ${metadata} ${TMPVID@Q} -y"
+      CMD="ffmpeg ${ptsflag} ${inputs} ${mapping} ${disposition} ${copy} -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
     *)
       show_error "ERROR: ${ext} files are not supported."
