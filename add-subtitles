@@ -423,7 +423,7 @@ function make_cmd {
     disposition="-default_mode infer_no_subs -disposition:s -default"
   fi
 
-  if [[ "${CONTAINER}" -ne "${EXTENSION}" ]]; then
+  if [[ "${CONTAINER}" != "${EXTENSION}" ]]; then
     ptsflag="-fflags +genpts"
   else
     ptsflag=""
