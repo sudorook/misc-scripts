@@ -28,7 +28,6 @@ VPN_USER=$(ask_question "Username:")
 VPN_PASS=$(ask_secret "Password:")
 echo
 
-pushd "${TMP_DIR}" >/dev/null
 for VPN_CONFIG in "$@"; do
   if [[ "${VPN_CONFIG}" =~ \.ovpn$ ]]; then
     VPN_NAME="${VPN_CONFIG%.*}"
@@ -48,13 +47,12 @@ for VPN_CONFIG in "$@"; do
   fi
 
   # Import the ovpn configs and set the username.
-  cp "../${VPN_CONFIG}" "${VPN_NAME}"
-  nmcli connection import type openvpn file "${VPN_NAME}"
+  cp "${VPN_CONFIG}" "${TMP_DIR}/${VPN_NAME}"
+  nmcli connection import type openvpn file "${TMP_DIR}/${VPN_NAME}"
   nmcli connection modify "${VPN_NAME}" +vpn.data "username = ${VPN_USER}"
   if [[ -n "${VPN_PASS}" ]]; then
     nmcli connection modify "${VPN_NAME}" +vpn.secrets "password = ${VPN_PASS}"
   fi
 done
-popd >/dev/null
 
 show_success "Done!"
