@@ -192,6 +192,7 @@ ISO_639_1=(
   ["za"]="Zhuang"
   ["zu"]="Zulu"
 )
+export ISO_639_1
 
 # 2-letter language codes + 2-letter country codes
 declare -A ISO_639_1_ISO_3166_1
@@ -322,7 +323,7 @@ ISO_639_1_ISO_3166_1=(
   # ["ji"]="Yiddish"
   # ["zu"]="Zulu"
 )
-export ISO_631_1_v2
+export ISO_639_1_ISO_3166_1
 
 # 3-letter language codes
 declare -A ISO_639_2
@@ -815,3 +816,4 @@ ISO_639_2=(
   ["zun"]="Zuni"
   ["zza"]="Zaza"
 )
+export ISO_639_2
