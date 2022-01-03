@@ -5,29 +5,7 @@ source globals
 ! check_command qemu-img && exit 3
 
 #
-# Check inputs and requirements.
-#
-
-if ! [ -f "${1}" ]; then
-  show_error "ERROR: ${1} doesn't exist. Exiting."
-  exit 1
-fi
-
-if test -r "${1}"; then
-  if ! [[ "$(file -b "${1}")" =~ QCOW2 ]]; then
-    show_error "${1} is not a QCOW2 file."
-    exit 1
-  fi
-else
-  show_warning "Cannot read ${1@Q} as ${USER}. Trying as root..."
-  if ! [ "${1##*.}" = qcow2 ] && ! [ "${1##*.}" = QCOw2 ]; then
-    show_error "${1} is not a QCOW2 file."
-    exit 1
-  fi
-fi
-
-#
-# Main
+# Functions
 #
 
 function abort() {
@@ -36,15 +14,72 @@ function abort() {
   fi
 }
 
-trap 'abort ${1}' INT TERM ERR
+function do_shrink() {
+  if test -r "${1}"; then
+    if ! [[ "$(file -b "${1}")" =~ QCOW2 ]]; then
+      echo -e $'\033[1;31m'"ERROR: ${1@Q} is not a QCOW2 file. Exiting."$'\033[0m' 1>&2
+      exit 3
+    fi
+  else
+    echo -e $'\033[1;31m'"ERROR: Cannot read ${1@Q}. Exiting."$'\033[0m' 1>&2
+  fi
 
-OLD_SIZE=$(du -h "${1}" | cut -f1)
-sudo bash -c "{
-  mv -f '${1}' '${1}.bak'
-  qemu-img convert -O qcow2 '${1}.bak' '${1}'
-  chmod --reference='${1}.bak' '${1}'
-  rm -f '${1}.bak'
-}"
-NEW_SIZE=$(du -h "${1}" | cut -f1)
-show_success "Compressed ${1@Q} from ${OLD_SIZE} to ${NEW_SIZE}."
+  echo -e $'\033[1;33m'"Shrinking..."$'\033[0m'
+  mv -f "${1}" "${1}.bak"
+  qemu-img convert -O qcow2 "${1}.bak" "${1}"
+  chmod --reference="${1}.bak" "${1}"
+  rm -f "${1}.bak"
+}
+FUNCTION=$(declare -f do_shrink)
+
+
+#
+# Globals
+#
+
+QCOW2="${1}"
+
+# Check inputs and requirements.
+if ! [ -f "${QCOW2}" ]; then
+  show_error "ERROR: ${QCOW2@Q} doesn't exist. Exiting."
+  exit 3
+fi
+
+OWNER="$(stat "${QCOW2}" -c "%U")"
+
+
+#
+# Main
+#
+
+trap 'abort ${QCOW2}' INT TERM ERR
+
+OLD_SIZE=$(du -h "${QCOW2}" | cut -f1)
+
+case "${OWNER}" in
+  "${USER}")
+    do_shrink "${QCOW2}"
+    ;;
+  root)
+    show_warning "${QCOW2@Q} owned by root. Trying sudo..."
+    sudo bash -c "${FUNCTION} && do_shrink ${QCOW2}"
+    ;;
+  nobody|kvm)
+    show_error "ERROR: Cannot edit running instance. Exiting."
+    exit 3
+    ;;
+  *)
+    if [[ "$(users)" =~ (^|[[:space:]])${OWNER}($|[[:space:]]) ]]; then
+      show_warning "${QCOW2@Q} owned by ${OWNER}. Trying su..."
+      su "${OWNER}" - -c "${FUNCTION} && do_shrink ${QCOW2}"
+    else
+      show_error "User ${OWNER@!} not recognized. Exiting."
+      exit 3
+    fi
+    ;;
+esac
+
+NEW_SIZE=$(du -h "${QCOW2}" | cut -f1)
+
+show_success "Compressed ${QCOW2@Q} from ${OLD_SIZE} to ${NEW_SIZE}."
 sync
