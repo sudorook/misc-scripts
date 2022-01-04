@@ -110,6 +110,11 @@ function compress_archive() {
   esac
 }
 
+# Check that the archive destination directory is valid. The order of
+# preference is:
+# - 1. the directory specified by the -d flag
+# - 2. the archivedir global variable
+# - 3. $HOME/Desktop
 function check_archive_dir() {
   if ! [[ -v ARCHIVEDIR ]]; then
     if [[ -v archivedir ]]; then
