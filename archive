@@ -110,6 +110,24 @@ function compress_archive() {
   esac
 }
 
+function check_archive_dir() {
+  if ! [[ -v ARCHIVEDIR ]]; then
+    if [[ -v archivedir ]]; then
+      if [ -n "${archivedir}" ]; then
+        ARCHIVEDIR="${archivedir}"
+      else
+        ARCHIVEDIR="${HOME}/Desktop"
+      fi
+    else
+      ARCHIVEDIR="${HOME}/Desktop"
+      show_warning "WARNING: Output defaulting to ${ARCHIVEDIR@Q} directory."
+    fi
+  else
+    if ! [[ -d "${ARCHIVEDIR}" ]]; then
+      show_error "ERROR: Output ${ARCHIVEDIR@Q} does not exist. Exiting."
+    fi
+  fi
+}
 
 #
 # Main
@@ -166,14 +184,7 @@ while [ ${#} -ge 1 ]; do
   esac
 done
 
-if ! [[ -v ARCHIVEDIR ]]; then
-  if [[ -v archivedir ]]; then
-    ARCHIVEDIR="${archivedir}"
-  else
-    ARCHIVEDIR="${HOME}/Desktop"
-    show_warning "WARNING: Output defaulting to ${ARCHIVEDIR@Q} directory."
-  fi
-fi
+check_archive_dir
 
 if [ "${1}" = "--" ]; then
   ITEMS=("${@:2}")
