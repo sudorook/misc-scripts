@@ -147,6 +147,10 @@ while [ ${#} -ge 1 ]; do
         xz|xigz)
           Z=xz
           ;;
+        *)
+          show_error "Compression ${2} not supported. Exiting."
+          exit 3
+          ;;
       esac
       shift 2
       break
