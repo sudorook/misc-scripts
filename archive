@@ -121,8 +121,10 @@ if [ $# == 0 ]; then
   exit 1
 fi
 
-OPTIONS=d:
-LONGOPTIONS=dir:
+Z=zstd
+
+OPTIONS=d:z:
+LONGOPTIONS=dir:compress:
 
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
@@ -131,6 +133,21 @@ while [ ${#} -ge 1 ]; do
   case "${1}" in
     -d|--dir)
       ARCHIVEDIR="${2}"
+      shift 2
+      break
+      ;;
+    -z|--compress)
+      case "${2}" in
+        zst|zstd|pzstd)
+          Z=zstd
+          ;;
+        gz|pigz)
+          Z=gz
+          ;;
+        xz|xigz)
+          Z=xz
+          ;;
+      esac
       shift 2
       break
       ;;
@@ -153,8 +170,6 @@ if ! [[ -v ARCHIVEDIR ]]; then
     show_warning "WARNING: Output defaulting to ${ARCHIVEDIR@Q} directory."
   fi
 fi
-
-Z=zstd
 
 if [ "${1}" = "--" ]; then
   ITEMS=("${@:2}")
