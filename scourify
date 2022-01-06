@@ -27,3 +27,4 @@ TMP="$(mktemp)"
 trap 'rm -f "${TMP}"; exit' INT TERM ERR
 scour -i "${1}" -o "${TMP}"
 mv "${TMP}" "${1}"
+sync
