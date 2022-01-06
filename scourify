@@ -13,7 +13,7 @@ if ! [ -f "${1}" ]; then
   exit 3
 fi
 
-if ! [[ "$(file "${1}")" =~ SVG ]]; then
+if ! [[ "$(file --mime-type -b "${1}")" =~ (svg|svg\+xml)$ ]]; then
   show_error "ERROR: ${1} not an SVG. Exiting."
   exit 3
 fi
