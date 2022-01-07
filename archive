@@ -209,3 +209,4 @@ elif [ -z "${ARCHIVE}" ]; then
 fi
 
 compress_archive "${ARCHIVE}" "${PATHSTRING}"
+sync
