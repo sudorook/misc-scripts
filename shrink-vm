@@ -61,7 +61,7 @@ case "${OWNER}" in
     do_shrink "${QCOW2}"
     ;;
   root)
-    show_warning "${QCOW2@Q} owned by root. Trying sudo..."
+    show_info "${QCOW2@Q} owned by root. Trying sudo..."
     sudo bash -c "${FUNCTION} && do_shrink ${QCOW2}"
     ;;
   nobody|kvm)
