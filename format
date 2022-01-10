@@ -42,7 +42,9 @@ function detect_mimetype() {
   mime="$(file -b --mime-type "${1}")"
   case "${mime}" in
     text/x-c|text/x-c++)
-      echo c
+      if [[ "${1##*.}" != y ]] && [[ "${1##*.}" != l ]]; then
+        echo c
+      fi
       ;;
     text/x-script.python)
       echo python
