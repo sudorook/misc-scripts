@@ -44,6 +44,8 @@ function detect_mimetype() {
     text/x-c|text/x-c++)
       if [[ "${1##*.}" != y ]] && [[ "${1##*.}" != l ]]; then
         echo c
+      else
+        show_warning "WARNING: ${1@Q} parsers/lexers unspported. Skipping." >&2
       fi
       ;;
     text/x-script.python)
