@@ -84,7 +84,8 @@ function get_language {
 
   # Single subtitles are usually English, so just return 'eng' if the video and
   # subtitle file names are the same.
-  if [[ "${NAME}" = "${name}" ]]; then
+  if [[ "${NAME}" = "${name}" ]] || \
+     [[ "${NAME}" =~ ${name}( |-|_|\.)(sdh|SDH|hiHI)$ ]]; then
     show_warning "assuming ${in@Q} language is ${LANG_DEFAULT@Q}" >&2
     echo "${LANG_DEFAULT}"
     return
