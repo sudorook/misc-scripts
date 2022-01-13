@@ -343,14 +343,14 @@ function make_cmd {
          [[ "${subname,,}" =~ ( |-|_|\.)hi$ ]]; then
         metadata="${metadata} -metadata:s:s:${stream_count} language=${lang@Q}"
         if [ "${#lang}" = 3 ]; then
-          metadata="${metadata} -metadata:s:s:${stream_count} handler=${ISO_639_2[$lang]Q!}"
-          metadata="${metadata} -metadata:s:s:${stream_count} title=${ISO_639_2[$lang]@Q} SDH"
+          metadata="${metadata} -metadata:s:s:${stream_count} handler=${ISO_639_2[$lang]@Q}"
+          metadata="${metadata} -metadata:s:s:${stream_count} title='${ISO_639_2[$lang]} SDH'"
         elif [ "${#lang}" = 2 ]; then
           metadata="${metadata} -metadata:s:s:${stream_count} handler=${ISO_639_1[$lang]@Q}"
-          metadata="${metadata} -metadata:s:s:${stream_count} title=${ISO_639_1[$lang]@Q} SDH"
+          metadata="${metadata} -metadata:s:s:${stream_count} title='${ISO_639_1[$lang]} SDH'"
         elif [ "${#lang}" = 5 ]; then
           metadata="${metadata} -metadata:s:s:${stream_count} handler=${ISO_639_1_ISO_3166_1[${lang}]@Q}"
-          metadata="${metadata} -metadata:s:s:${stream_count} title=${ISO_639_1_ISO_3166_1[${lang}]@Q} SDH"
+          metadata="${metadata} -metadata:s:s:${stream_count} title='${ISO_639_1_ISO_3166_1[${lang}]} SDH'"
         fi
       else
         # only set default_idx if not sdh/hi to avoid ambient sounds in the
