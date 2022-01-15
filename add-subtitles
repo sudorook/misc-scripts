@@ -414,6 +414,9 @@ function make_cmd {
     fi
   done
 
+  # copy any attachments
+  copy="${copy} -map 0:t:? -c:t copy"
+
   if [[ "${NOSUB}" = false ]]; then
     if ! [[ "${default_idx}" == -1 ]]; then
       disposition="-disposition:s:${default_idx} default"
