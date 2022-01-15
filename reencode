@@ -144,6 +144,9 @@ function convert_codec {
       ;;
   esac
 
+  # copy any attachments
+  cmd="${cmd} -map 0:t:? -c:t copy"
+
   # manually specify the container format (ffmpeg may not infer from file name)
   case "${OUT_CONTAINER}" in
     avi)
