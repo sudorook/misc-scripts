@@ -125,13 +125,21 @@ set_gtk_theme() {
       ;;
   esac
 
-  if [[ "$1" =~ [Nn]okto ]] || [[ "$1" =~ ^[Aa]rc-[Dd]ark ]]; then
+  if [[ "$1" =~ [Nn]okto ]]; then
     switch_gtk_settings "Dark"
     switch_terminal_profile "Dark"
     switch_vim_background "dark"
     switch_tmux_theme "dark"
     switch_thunderbird_theme "Dark"
     switch_gitk_theme "dark"
+    switch_ebook_viewer_theme "Dark"
+  elif [[ "$1" =~ ^[Aa]rc-[Dd]ark ]]; then
+    switch_gtk_settings "Dark"
+    switch_terminal_profile "Dark"
+    switch_vim_background "dark3"
+    switch_tmux_theme "dark3"
+    switch_thunderbird_theme "Dark"
+    switch_gitk_theme "dark3"
     switch_ebook_viewer_theme "Dark"
   elif [[ "$1" =~ [Nn]oir ]] || [[ "$1" =~ [Dd]ark ]]; then
     switch_gtk_settings "Dark"
@@ -149,7 +157,15 @@ set_gtk_theme() {
     switch_thunderbird_theme "Light"
     switch_gitk_theme "light"
     switch_ebook_viewer_theme "Light"
-  else
+  elif [[ "$1" =~ ^[Aa]rc-[Ll]ight ]] || [[ "$1" =~ ^[Aa]rc$ ]]; then
+    switch_gtk_settings "Light"
+    switch_terminal_profile "Light"
+    switch_vim_background "light3"
+    switch_tmux_theme "light3"
+    switch_thunderbird_theme "Light"
+    switch_gitk_theme "light3"
+    switch_ebook_viewer_theme "Light"
+  elif [[ "$1" =~ [Ll]ight ]] || [[ "$1" =~ [Ll]umine ]]; then
     switch_gtk_settings "Light"
     switch_terminal_profile "Light"
     switch_vim_background "light2"
@@ -157,6 +173,9 @@ set_gtk_theme() {
     switch_thunderbird_theme "Light"
     switch_gitk_theme "light2"
     switch_ebook_viewer_theme "Light"
+  else
+    show_error "ERROR: theme ${1@Q} not understood. Exiting."
+    exit 3
   fi
 }
 
