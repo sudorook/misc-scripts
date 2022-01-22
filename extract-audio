@@ -22,12 +22,12 @@ function extract_audio {
     if [[ "${stype}" = audio ]]; then
       out="${name}_${i}.$acodec"
       cmd="ffmpeg -i file:${in@Q} -c:a copy -y file:${out@Q}"
-      show_listitem "${cmd}"
+      show_listitem "${cmd}" >&2
       eval "${cmd}"
     fi
   done
 }
 
 
-show_header "Extracting audio streams from ${1}:"
+show_header "Extracting audio streams from ${1}:" >&2
 extract_audio "${1}"
