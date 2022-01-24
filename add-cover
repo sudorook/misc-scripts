@@ -8,8 +8,10 @@ function print_usage() {
   echo "Usage: add-cover -a|--audio <audio file> -c|--cover <cover image>"
 }
 
-OPTIONS=ha:c:
-LONGOPTIONS=help,audio:,cover:
+KEEP=false
+
+OPTIONS=ha:c:k
+LONGOPTIONS=help,audio:,cover:,keep
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -24,6 +26,10 @@ while [ $# -ge 1 ]; do
     -c|--cover)
       COVER="${2}"
       shift 2
+      ;;
+    -k|--keep)
+      KEEP=true
+      shift
       ;;
     -h|--help)
       print_usage
@@ -47,6 +53,9 @@ if [[ -v COVER ]] || [[ -v AUDIO ]]; then
   ffmpeg -i "${AUDIO}" -i "${COVER}" \
     -map_metadata 0 -map_chapters 0 -map 0 -map 1:0 \
     -c copy -f "${AUDIO_FORMAT}" -y "${TMP}"
+  if "${KEEP}"; then
+    mv "${AUDIO}" "${AUDIO}.bak"
+  fi
   mv "${TMP}" "${AUDIO}"
   sync
 else
