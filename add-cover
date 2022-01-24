@@ -41,6 +41,7 @@ while [ $# -ge 1 ]; do
 done
 
 TMP="$(mktemp)"
+trap 'rm -f "${TMP}"' INT TERM EXIT ERR
 
 if [[ -v COVER ]] || [[ -v AUDIO ]]; then
   ffmpeg -i "${AUDIO}" -i "${COVER}" \
