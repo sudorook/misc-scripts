@@ -4,13 +4,78 @@ source globals
 
 ! check_command ffprobe bc parallel && exit 3
 
-DIR="${1}"
-CUTOFF=60
-export CUTOFF
+
+#
+# Functions
+#
 
 print_list() {
-  find "${DIR}" -type f -name "*.mp3" -print0 | \
-    parallel -0 '[ $(echo "$(ffprobe -v error -show_entries stream=duration -of compact=p=0:nk=1 {}) > ${CUTOFF}" | bc -l) -eq 1 ] && echo {}'
+  if [[ "${CUTOFF}" = 0 ]]; then
+    find "${DIR}" -type f -name "*.${FORMAT}" -print
+  else
+    find "${DIR}" -type f -name "*.${FORMAT}" -print0 | \
+      parallel -0 '[ $(echo "$(ffprobe -v error -show_entries stream=duration -of compact=p=0:nk=1 {}) > ${CUTOFF}" | bc -l) -eq 1 ] && echo {}'
+  fi
 }
 
-print_list | mpv --shuffle --no-video --replaygain=album --playlist=-
+
+#
+# Globals
+#
+
+CUTOFF=0
+FORMAT=mp3
+SHUFFLE=false
+REPLAYGAIN=album
+
+
+#
+# Parse command line variables.
+#
+
+OPTIONS=sf:c:
+LONGOPTIONS=shuffle,format:,cutoff:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -c|--cutoff)
+      CUTOFF="${2}"
+      shift 2
+      ;;
+    -f|--format)
+      FORMAT="${2}"
+      shift 2
+      ;;
+    -s|--shuffle)
+      SHUFFLE=true
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR: Unknown argument ${1@Q}. Exiting."
+      exit 3
+      ;;
+  esac
+done
+
+
+#
+# Main
+#
+
+DIR="${1}"
+if ! [ -d "${DIR}" ]; then
+  show_error "ERROR: ${DIR@Q} not found. Exiting."
+fi
+export CUTOFF
+
+if "${SHUFFLE}"; then
+  print_list | mpv --shuffle --no-video --replaygain="${REPLAYGAIN}" --playlist=-
+else
+  print_list | sort -V | mpv --no-video --replaygain="${REPLAYGAIN}" --playlist=-
+fi
