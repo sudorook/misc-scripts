@@ -167,7 +167,6 @@ function precise_seek {
 
 function destroy {
   xargs -n 1 -exec rm -rf
-  show_success "Target(s) eliminated."
 }
 
 
@@ -234,6 +233,7 @@ if [[ -n "${RES}" ]]; then
   if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
     echo "Yessir!"
     echo "${RES}" | destroy
+    show_success "Target(s) eliminated."
   else
     echo "As you wish..."
   fi
