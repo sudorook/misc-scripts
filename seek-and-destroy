@@ -2,17 +2,54 @@
 set -euo pipefail
 source globals
 
-
 #
-# Global functions
+# Check global variables
 #
 
-if ! [[ -v projectdir ]]; then
-  projectdir=${HOME}/Desktop
+if ! [[ -v archivedir ]]; then
+  archivedir=${HOME}/Desktop
+fi
+if ! [[ -v kvmdir ]]; then
+  kvmdir=${HOME}/Desktop
+fi
+if ! [[ -v kvmshare ]]; then
+  kvmshare=${HOME}/Desktop
+fi
+if ! [[ -v encryptpath ]]; then
+  encryptpath=${HOME}/Desktop
+fi
+if ! [[ -v decryptpath ]]; then
+  decryptpath=${HOME}/Desktop
+fi
+if ! [[ -v gtkdir ]]; then
+  gtkdir=${HOME}/Desktop
+fi
+if ! [[ -v icondir ]]; then
+  icondir=${HOME}/Desktop
+fi
+if ! [[ -v zshdir ]]; then
+  zshdir=${HOME}/Desktop
+fi
+if ! [[ -v musicdir ]]; then
+  musicdir=${HOME}/Desktop
+fi
+if ! [[ -v videodir ]]; then
+  videodir=${HOME}/Desktop
 fi
 if ! [[ -v pkgbuilddir ]]; then
   pkgbuilddir=${HOME}/Desktop
 fi
+if ! [[ -v projectdir ]]; then
+  projectdir=${HOME}/Desktop
+fi
+if ! [[ -v entrydir ]]; then
+  entrydir=${HOME}/Desktop
+fi
+
+
+#
+# Global functions
+#
 
 function sloppy_seek {
   local inputstring=
@@ -39,6 +76,30 @@ function sloppy_seek {
             -o -path \"${HOME}/Sync\" \
             -o -path \"${HOME}/Templates\" \
             -o -path \"${HOME}/Videos\" \
+            -o -path \"${HOME}/.gem\" \
+            -o -path \"${HOME}/.go\" \
+            -o -path \"${HOME}/.cache\" \
+            -o -path \"${HOME}/.ipython\" \
+            -o -path \"${HOME}/.julia\" \
+            -o -path \"${HOME}/.lyrics\" \
+            -o -path \"${HOME}/.mozilla\" \
+            -o -path \"${HOME}/.npm\" \
+            -o -path \"${HOME}/.R\" \
+            -o -path \"${HOME}/.ssh\" \
+            -o -path \"${HOME}/.thunderbird\" \
+            -o -path \"${HOME}/.zotero\" \
+            -o -path \"${HOME}/.zotero-data\" \
+            -o -path \"${archivedir}\" \
+            -o -path \"${kvmdir}\" \
+            -o -path \"${kvmshare}\" \
+            -o -path \"${encryptpath}\" \
+            -o -path \"${decryptpath}\" \
+            -o -path \"${gtkdir}\" \
+            -o -path \"${icondir}\" \
+            -o -path \"${zshdir}\" \
+            -o -path \"${musicdir}\" \
+            -o -path \"${videodir}\" \
+            -o -path \"${entrydir}\" \
             -o -path \"${pkgbuilddir}\" \) -prune \
          -o \( ${inputstring} \) -print"
 
@@ -74,6 +135,30 @@ function precise_seek {
             -o -path \"${HOME}/Sync\" \
             -o -path \"${HOME}/Templates\" \
             -o -path \"${HOME}/Videos\" \
+            -o -path \"${HOME}/.gem\" \
+            -o -path \"${HOME}/.go\" \
+            -o -path \"${HOME}/.cache\" \
+            -o -path \"${HOME}/.ipython\" \
+            -o -path \"${HOME}/.julia\" \
+            -o -path \"${HOME}/.lyrics\" \
+            -o -path \"${HOME}/.mozilla\" \
+            -o -path \"${HOME}/.npm\" \
+            -o -path \"${HOME}/.R\" \
+            -o -path \"${HOME}/.ssh\" \
+            -o -path \"${HOME}/.thunderbird\" \
+            -o -path \"${HOME}/.zotero\" \
+            -o -path \"${HOME}/.zotero-data\" \
+            -o -path \"${archivedir}\" \
+            -o -path \"${kvmdir}\" \
+            -o -path \"${kvmshare}\" \
+            -o -path \"${encryptpath}\" \
+            -o -path \"${decryptpath}\" \
+            -o -path \"${gtkdir}\" \
+            -o -path \"${icondir}\" \
+            -o -path \"${zshdir}\" \
+            -o -path \"${musicdir}\" \
+            -o -path \"${videodir}\" \
+            -o -path \"${entrydir}\" \
             -o -path \"${pkgbuilddir}\" \) -prune \
          -o \( ${inputstring} \) -print"
 
