@@ -29,18 +29,19 @@ function sloppy_seek {
   done
 
   cmd="find ${HOME}/ \
-       ! -path \"${HOME}/Desktop*\" \
-       ! -path \"${HOME}/Documents*\" \
-       ! -path \"${HOME}/Downloads*\" \
-       ! -path \"${HOME}/Music*\" \
-       ! -path \"${HOME}/Pictures*\" \
-       ! -path \"${projectdir}*\" \
-       ! -path \"${HOME}/Public*\" \
-       ! -path \"${HOME}/Sync*\" \
-       ! -path \"${HOME}/Templates*\" \
-       ! -path \"${HOME}/Videos*\" \
-       ! -path \"${pkgbuilddir}*\" \
-       ${inputstring}"
+         \( -path \"${HOME}/Desktop\" \
+            -o -path \"${HOME}/Documents\" \
+            -o -path \"${HOME}/Downloads\" \
+            -o -path \"${HOME}/Music\" \
+            -o -path \"${HOME}/Pictures\" \
+            -o -path \"${projectdir}\" \
+            -o -path \"${HOME}/Public\" \
+            -o -path \"${HOME}/Sync\" \
+            -o -path \"${HOME}/Templates\" \
+            -o -path \"${HOME}/Videos\" \
+            -o -path \"${pkgbuilddir}\" \) -prune \
+         -o \( ${inputstring} \) -print"
+
   eval "${cmd}" 2>/dev/null || true
 }
 
@@ -63,18 +64,19 @@ function precise_seek {
   done
 
   cmd="find ${HOME}/ \
-       ! -path \"${HOME}/Desktop*\" \
-       ! -path \"${HOME}/Documents*\" \
-       ! -path \"${HOME}/Downloads*\" \
-       ! -path \"${HOME}/Music*\" \
-       ! -path \"${HOME}/Pictures*\" \
-       ! -path \"${projectdir}*\" \
-       ! -path \"${HOME}/Public*\" \
-       ! -path \"${HOME}/Sync*\" \
-       ! -path \"${HOME}/Templates*\" \
-       ! -path \"${HOME}/Videos*\" \
-       ! -path \"${pkgbuilddir}*\" \
-       ${inputstring}"
+         \( -path \"${HOME}/Desktop\" \
+            -o -path \"${HOME}/Documents\" \
+            -o -path \"${HOME}/Downloads\" \
+            -o -path \"${HOME}/Music\" \
+            -o -path \"${HOME}/Pictures\" \
+            -o -path \"${projectdir}\" \
+            -o -path \"${HOME}/Public\" \
+            -o -path \"${HOME}/Sync\" \
+            -o -path \"${HOME}/Templates\" \
+            -o -path \"${HOME}/Videos\" \
+            -o -path \"${pkgbuilddir}\" \) -prune \
+         -o \( ${inputstring} \) -print"
+
   eval "${cmd}" 2>/dev/null || true
 }
 
