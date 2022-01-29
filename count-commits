@@ -45,11 +45,11 @@ while [ $# -ge 1 ]; do
       shift 2
       ;;
     -h|--help)
-      echo "Usage: count-commits -a|--author <author> -d|--during <time period>"
-      echo ""
-      echo "author      =  the author of the commit"
-      echo "time period =  the period counting back from now that you want to"
-      echo "               search for commits, e.g. 1week, 2years, 3days, etc."
+      echo "Usage: count-commits -a|--author <author> -d|--during <period>"
+      echo
+      echo "  author = the author of the commit"
+      echo "  period = the period counting back from now that you want to"
+      echo "           search for commits, e.g. 1week, 2years, 3days, etc."
       exit
       ;;
     --)
@@ -57,7 +57,7 @@ while [ $# -ge 1 ]; do
       break
       ;;
     *)
-      show_error "Error"
+      show_error "ERROR: option ${1@Q} unrecognized. Exiting."
       exit 3
       ;;
   esac
