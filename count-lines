@@ -5,6 +5,7 @@ source globals
 IGNOREFILES="-name '*.pdf'\
              -o -name '*.db'\
              -o -name '*.bin'\
+             -o -name '*.dat'\
              -o -name '*.Rhistory'\
              -o -name '*.doc*'\
              -o -name '*.ppt*'\
