@@ -21,8 +21,8 @@ function display_connected {
 
 ID="HDMI-1"
 ROTATION=left
-LEFT_BG="/usr/share/backgrounds/timed/24-hours-timed.xml"
-NORMAL_BG="/usr/share/backgrounds/timed/island-timed.xml"
+VERTICAL_BG="/usr/share/backgrounds/timed/24-hours-timed.xml"
+HORIZONTAL_BG="/usr/share/backgrounds/timed/island-timed.xml"
 
 OPTIONS=i:r:h
 LONGOPTIONS=input:,rotation:,help
@@ -57,28 +57,29 @@ while [ $# -ge 1 ]; do
 done
 
 if ! display_connected; then
-  show_error "ERROR: display ${ID} not found."
+  show_error "ERROR: display ${ID} not found. Exiting."
+  exit 3
 fi
 
 case ${ROTATION} in
   right)
     xrandr --output "${ID}" --rotate right
-    dconf write /org/cinnamon/desktop/background/picture-uri "'file://${LEFT_BG}'"
+    dconf write /org/cinnamon/desktop/background/picture-uri "'file://${VERTICAL_BG}'"
     ;;
   left)
     xrandr --output "${ID}" --rotate left
-    dconf write /org/cinnamon/desktop/background/picture-uri "'file://${LEFT_BG}'"
+    dconf write /org/cinnamon/desktop/background/picture-uri "'file://${VERTICAL_BG}'"
     ;;
   normal)
     xrandr --output "${ID}" --rotate normal
-    dconf write /org/cinnamon/desktop/background/picture-uri "'file://${NORMAL_BG}'"
+    dconf write /org/cinnamon/desktop/background/picture-uri "'file://${HORIZONTAL_BG}'"
     ;;
   inverted)
     xrandr --output "${ID}" --rotate inverted
-    dconf write /org/cinnamon/desktop/background/picture-uri "'file://${NORMAL_BG}'"
+    dconf write /org/cinnamon/desktop/background/picture-uri "'file://${HORIZONTAL_BG}'"
     ;;
   *)
-    show_error "ERROR: invalid rotaiton."
+    show_error "ERROR: invalid rotation ${ROTATION@Q}. Exiting."
     print_usage
     exit 3
     ;;
