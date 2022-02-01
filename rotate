@@ -12,7 +12,7 @@ function print_usage {
 }
 
 function display_connected {
-  if xrandr | grep "${ID} connected" >/dev/null; then
+  if xrandr | grep "^${ID} connected" >/dev/null; then
     return 0
   else
     return 1
