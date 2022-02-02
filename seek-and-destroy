@@ -178,10 +178,16 @@ MODE=
 while [ ${#} -ge 1 ]; do
   case ${1} in
     -p|--precise)
+      if [[ -n ${MODE} ]]; then
+        show_warning "WARNING: overriding seek from ${MODE@Q} to 'precise'."
+      fi
       MODE=precise
       shift
       ;;
     -s|--sloppy)
+      if [[ -n ${MODE} ]]; then
+        show_warning "WARNING: overriding seek from ${MODE@Q} to 'sloppy'."
+      fi
       MODE=sloppy
       shift
       ;;
