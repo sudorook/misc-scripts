@@ -196,7 +196,7 @@ while [ ${#} -ge 1 ]; do
       break
       ;;
     *)
-      show_error "Error: invalid flag."
+      show_error "ERROR: invalid flag ${1@Q}. Exiting."
       exit 3
       ;;
   esac
@@ -223,7 +223,7 @@ case ${MODE} in
     RES="$(sloppy_seek "${@}")"
     ;;
   *)
-    show_error "Error: seeker mode ${MODE} is incorrect."
+    show_error "ERROR: seeker mode ${MODE@Q} is incorrect."
     exit 3
     ;;
 esac
