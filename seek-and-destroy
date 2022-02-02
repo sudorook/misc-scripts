@@ -113,14 +113,9 @@ function precise_seek {
 
   for item in "${@}"; do
     if [ -z "${inputstring}" ]; then
-      inputstring="-name \"${item}\" -o -name \".${item}\" \
-                   -o -name \".${item,,}\" -o -name \".${item,,}\" \
-                   -o -name \".${item^,}\" -o -name \".${item^}\""
+      inputstring="-iname \"${item}\" -o -iname \".${item}\""
     else
-      inputstring="${inputstring} \
-                   -o -name \"${item}\" -o -name \".${item}\" \
-                   -o -name \".${item,,}\" -o -name \".${item,,}\" \
-                   -o -name \".${item^,}\" -o -name \".${item^}\""
+      inputstring="${inputstring} -o -iname \"${item}\" -o -iname \".${item}\""
     fi
   done
 
