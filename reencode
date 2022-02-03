@@ -37,7 +37,9 @@ function convert_codec {
   fi
 
   if [ -n "${VSTREAM_ID}" ]; then
-    cmd="${cmd} -map 0:v:${VSTREAM_ID}"
+    if ! [ "${VSTREAM_ID}" = "-1" ]; then
+      cmd="${cmd} -map 0:v:${VSTREAM_ID}"
+    fi
   else
     cmd="${cmd} -map 0:v:?"
   fi
@@ -64,7 +66,9 @@ function convert_codec {
   esac
 
   if [ -n "${ASTREAM_ID}" ]; then
-    cmd="${cmd} -map 0:a:${ASTREAM_ID}"
+    if ! [ "${ASTREAM_ID}" = "-1" ]; then
+      cmd="${cmd} -map 0:a:${ASTREAM_ID}"
+    fi
   else
     cmd="${cmd} -map 0:a:?"
   fi
