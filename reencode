@@ -58,7 +58,7 @@ function convert_codec {
       cmd="${cmd} -c:v copy"
       ;;
     *)
-      show_error "ERROR: video codec ${OUT_VCODEC} is not supported. Exiting."
+      show_error "ERROR: video codec ${OUT_VCODEC@Q} is not supported. Exiting."
       exit 3
       ;;
   esac
@@ -97,7 +97,7 @@ function convert_codec {
       cmd="${cmd} -c:a copy"
       ;;
     *)
-      show_error "ERROR: audio codec ${OUT_ACODEC} not supported. Exiting."
+      show_error "ERROR: audio codec ${OUT_ACODEC@Q} not supported. Exiting."
       exit 3
       ;;
   esac
@@ -111,7 +111,7 @@ function convert_codec {
        [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f2)" -lt \
           "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f2)" ]]; then
       show_warning \
-        "WARNING: Dimensions ${OUT_DIMENSIONS} exceed input ${IN_DIMENSIONS}."
+        "WARNING: Dimensions ${OUT_DIMENSIONS@Q} exceed input ${IN_DIMENSIONS@Q}."
     else
       cmd="${cmd} -s ${OUT_DIMENSIONS}"
     fi
@@ -174,7 +174,7 @@ function convert_codec {
       out="${NAME}.flac"
       ;;
     *)
-      show_error "ERROR: Container ${OUT_CONTAINER} not supported. Exiting."
+      show_error "ERROR: Container ${OUT_CONTAINER@Q} not supported. Exiting."
       exit 3
       ;;
   esac
@@ -182,7 +182,7 @@ function convert_codec {
   # add output
   cmd="${cmd} file:${out@Q}"
 
-  show_header "Re-encoding ${in}:"
+  show_header "Re-encoding ${in@Q}:"
   show_info "${cmd}"
   eval "${cmd}"
 }
@@ -224,7 +224,7 @@ function scan_input {
       IN_CONTAINER=flac
       ;;
     *)
-      show_error "ERROR: ${format_name} unsupported. Exiting."
+      show_error "ERROR: ${format_name@Q} unsupported. Exiting."
       exit 3
       ;;
   esac
@@ -326,7 +326,7 @@ function parse_container {
       OUT_CONTAINER=flac
       ;;
     *)
-      show_error "ERROR: Output ${IN_CONTAINER} containers not supported. Exiting."
+      show_error "ERROR: Output ${1@Q} containers not supported. Exiting."
       exit 3
   esac
 }
@@ -340,7 +340,7 @@ function parse_vcodec {
       OUT_VCODEC=libx265
       ;;
     *)
-      show_error "ERROR: Video codec ${2} is not supported. Exiting."
+      show_error "ERROR: Video codec ${1@Q} is not supported. Exiting."
       exit 3
       ;;
   esac
@@ -362,7 +362,7 @@ function parse_acodec {
       OUT_ACODEC=copy
       ;;
     *)
-      show_error "ERROR: audio codec ${2} not supported. Exiting."
+      show_error "ERROR: Audio codec ${1@Q} not supported. Exiting."
       exit 3
       ;;
   esac
