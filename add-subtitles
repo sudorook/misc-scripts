@@ -404,6 +404,9 @@ function make_cmd {
         copy="${copy} -c:s:${stream_count} mov_text"
       elif [[ "${codec}" = microdvd ]] && [[ "${ext}" = mp4 || "${ext}" = m4v ]]; then
         copy="${copy} -c:s:${stream_count} mov_text"
+      elif [[ "${codec}" =~ "96256" || "${codec}" =~ microdvd ]] && \
+           [[ "${ext}" = mkv ]]; then
+        copy="${copy} -c:s:${stream_count} srt"
       else
         copy="${copy} -c:s:${stream_count} copy"
       fi
