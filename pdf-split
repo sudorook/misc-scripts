@@ -2,10 +2,10 @@
 set -euo pipefail
 source globals
 
-! check_command pdfinfo pdfseparate pdfunite && exit 3
+! check_command pdfinfo pdfseparate && exit 3
 
-OPTIONS=hji:f:l:
-LONGOPTIONS=help,join,input:,first:,last:
+OPTIONS=hi:f:l:
+LONGOPTIONS=help,input:,first:,last:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "$@")
 eval set -- "${PARSED}"
 
@@ -24,10 +24,6 @@ while [ $# -ge 1 ]; do
     -l|--LAST)
       LAST="${2}"
       shift 2
-      ;;
-    -j|--join)
-      JOINPDFS=true
-      shift
       ;;
     -h|--help)
       echo "pdfsplit options:"
@@ -96,14 +92,4 @@ elif (( LAST >= 10 )); then
   fi
 else
   pdfseparate -f ${FIRST} "${IN}" "${OUT}-0%d.pdf"
-fi
-
-# Join
-if [[ -v JOINPDFS ]]; then
-  if [[ "${JOINPDFS}" = true ]]; then
-    NEW="${IN%.*}-new.pdf"
-    rm -f "${NEW}"
-    pdfunite "${OUT}"-*.pdf "${NEW}"
-    rm "${OUT}"-[0-9]*.pdf
-  fi
 fi
