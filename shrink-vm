@@ -24,7 +24,7 @@ function do_shrink() {
     echo -e $'\033[1;31m'"ERROR: Cannot read ${1@Q}. Exiting."$'\033[0m' 1>&2
   fi
 
-  echo -e $'\033[1;33m'"Shrinking..."$'\033[0m'
+  echo -e $'\033[1;32m'"Shrinking..."$'\033[0m'
   mv -f "${1}" "${1}.bak"
   qemu-img convert -O qcow2 "${1}.bak" "${1}"
   chmod --reference="${1}.bak" "${1}"
