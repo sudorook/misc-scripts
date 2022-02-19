@@ -26,7 +26,7 @@ case $XDG_CURRENT_DESKTOP in
     GTKTHEME=$(gsettings get org.gnome.desktop.interface gtk-theme | sed -e "s/'//g")
     ;;
   *)
-    show_error "$XDG_CURRENT_DESKTOP environment not supported."
+    show_error "${XDG_CURRENT_DESKTOP@Q} environment not supported."
     exit 3
     ;;
 esac
@@ -35,27 +35,45 @@ GNOMESHELLDIR="/usr/share/gnome-shell"
 GNOMESHELLBAK="/usr/share/gnome-shell-$(date +%Y%m%d-%I%M%S)"
 
 if [[ -d "/usr/share/themes/${GTKTHEME}" ]]; then
-  show_header "Setting GDM login theme to ${GTKTHEME}."
+  THEMEDIR="/usr/share/themes"
+elif [[ -d "/usr/local/share/themes/${GTKTHEME}" ]]; then
+  THEMEDIR="/usr/local/share/themes"
+elif [[ -d "${HOME}/.local/share/themes/${GTKTHEME}" ]]; then
+  THEMEDIR="${HOME}/.local/share/themes/"
+fi
 
-  show_info "Backing up current GDM settings to ${GNOMESHELLBAK}."
-  sudo cp -r "${GNOMESHELLDIR}" "${GNOMESHELLBAK}"
+show_header "Setting GDM login theme to ${GTKTHEME@Q}."
+show_info "Backing up current GDM settings to ${GNOMESHELLBAK@Q}."
+sudo cp -r "${GNOMESHELLDIR}" "${GNOMESHELLBAK}"
 
-  if [[ "${GTKTHEME}" =~ Adapta ]] || [[ "${GTKTHEME}" =~ Plata ]]; then
-    show_info "Copying over ${GTKTHEME} GDM theme."
-    sudo cp -rf /usr/share/themes/"${GTKTHEME}"/gnome-shell/* "${GNOMESHELLDIR}"
-    sudo cp -f \
-      /usr/share/themes/"${GTKTHEME}"/gnome-shell/extensions/window-list/classic.css \
-      "${GNOMESHELLDIR}"/extensions/window-list@gnome-shell-extensions.gcampax.github.com/
-    sudo cp -f \
-      /usr/share/themes/"${GTKTHEME}"/gnome-shell/extensions/window-list/stylesheet.css \
-      "${GNOMESHELLDIR}"/extensions/window-list@gnome-shell-extensions.gcampax.github.com/
-  elif [[ "${GTKTHEME}" =~ Materia ]]; then
-    show_info "Building ${GTKTHEME} GDM theme from GResource file."
-    sudo glib-compile-resources \
-      --target="/usr/share/gnome-shell/gnome-shell-theme.gresource" \
-      --sourcedir="/usr/share/themes/${GTKTHEME}/gnome-shell" \
-      "/usr/share/themes/${GTKTHEME}/gnome-shell/gnome-shell-theme.gresource.xml"
+if [[ "${GTKTHEME}" =~ ^Adapta ]] || [[ "${GTKTHEME}" =~ ^Plata ]]; then
+  show_info "Copying over ${GTKTHEME@Q} GDM theme."
+  sudo cp -rf "${THEMEDIR}/${GTKTHEME}"/gnome-shell/* "${GNOMESHELLDIR}"
+  sudo cp -vf \
+    "${THEMEDIR}/${GTKTHEME}"/gnome-shell/extensions/window-list/{classic.css,stylesheet.css} \
+    "${GNOMESHELLDIR}"/extensions/window-list@gnome-shell-extensions.gcampax.github.com/
+elif [[ "${GTKTHEME}" =~ ^Materia ]]; then
+  show_info "Building ${GTKTHEME@Q} GDM theme from GResource file."
+  sudo glib-compile-resources \
+    --target="/usr/share/gnome-shell/gnome-shell-theme.gresource" \
+    --sourcedir="${THEMEDIR}/${GTKTHEME}/gnome-shell" \
+    "${THEMEDIR}/${GTKTHEME}/gnome-shell/gnome-shell-theme.gresource.xml"
+elif [[ "${GTKTHEME}" =~ ^Arc ]]; then
+  show_info "Copying over ${GTKTHEME@Q} GDM gresource file."
+  if [[ "${GTKTHEME}" =~ Dark ]]; then
+    [ -f "${THEMEDIR}/Arc-Dark/gnome-shell/gnome-shell-theme-dark.gresource" ] && \
+      sudo cp -f \
+        "${THEMEDIR}/Arc-Dark/gnome-shell/gnome-shell-theme-dark.gresource" \
+        "/usr/share/gnome-shell/gnome-shell-theme.gresource"
+  else
+    [ -f "${THEMEDIR}/Arc/gnome-shell/gnome-shell-theme.gresource" ] &&  \
+      sudo cp -f \
+        "${THEMEDIR}/Arc/gnome-shell/gnome-shell-theme.gresource" \
+        "/usr/share/gnome-shell/gnome-shell-theme.gresource"
   fi
+else
+  show_error "${GTKTHEME@Q} is unsupported."
+  exit 3
 fi
 
 show_success "Done."
