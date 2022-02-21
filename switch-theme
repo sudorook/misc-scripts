@@ -30,7 +30,7 @@ switch_vim_theme() {
 }
 
 switch_neovim_theme() {
-  if [ -f "${HOME}/.vimrc" ]; then
+  if [ -f "${HOME}/.config/nvim/init.vim" ]; then
     sed -i "s/^set background=.*$/set background=${1//[0-9]}/g" "${HOME}/.config/nvim/init.vim"
     sed -i "s/^  let g:colorific_style='.*'$/  let g:colorific_style='${1}'/g" "${HOME}/.config/nvim/init.vim"
     sed -i "s/^set bg=.*$/set bg=${1}/g" "${HOME}/.config/nvim/init.vim"
