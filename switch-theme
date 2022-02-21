@@ -29,6 +29,14 @@ switch_vim_background() {
   fi
 }
 
+switch_neovim_theme() {
+  if [ -f "${HOME}/.vimrc" ]; then
+    sed -i "s/^set background=.*$/set background=${1//[0-9]}/g" "${HOME}/.config/nvim/init.vim"
+    sed -i "s/^  let g:colorific_style='.*'$/  let g:colorific_style='${1}'/g" "${HOME}/.config/nvim/init.vim"
+    sed -i "s/^set bg=.*$/set bg=${1}/g" "${HOME}/.config/nvim/init.vim"
+  fi
+}
+
 switch_kitty_theme() {
   if [ -f "${HOME}/.config/kitty/kitty.conf" ]; then
     sed -i "s/^\(include .*\)\/\(\S\+.conf\)$/\1\/${1}.conf/g" "${HOME}/.config/kitty/kitty.conf"
@@ -136,6 +144,7 @@ set_gtk_theme() {
     switch_terminal_profile "Dark"
     switch_kitty_theme "dark"
     switch_vim_background "dark"
+    switch_neovim_theme "dark"
     switch_tmux_theme "dark"
     switch_thunderbird_theme "Dark"
     switch_gitk_theme "dark"
@@ -145,6 +154,7 @@ set_gtk_theme() {
     switch_terminal_profile "Dark"
     switch_kitty_theme "dark3"
     switch_vim_background "dark3"
+    switch_neovim_theme "dark3"
     switch_tmux_theme "dark3"
     switch_thunderbird_theme "Dark"
     switch_gitk_theme "dark3"
@@ -154,6 +164,7 @@ set_gtk_theme() {
     switch_terminal_profile "Dark"
     switch_kitty_theme "dark2"
     switch_vim_background "dark2"
+    switch_neovim_theme "dark2"
     switch_tmux_theme "dark2"
     switch_thunderbird_theme "Dark"
     switch_gitk_theme "dark2"
@@ -163,6 +174,7 @@ set_gtk_theme() {
     switch_terminal_profile "Light"
     switch_kitty_theme "light"
     switch_vim_background "light"
+    switch_neovim_theme "light"
     switch_tmux_theme "light"
     switch_thunderbird_theme "Light"
     switch_gitk_theme "light"
@@ -172,6 +184,7 @@ set_gtk_theme() {
     switch_terminal_profile "Light"
     switch_kitty_theme "light3"
     switch_vim_background "light3"
+    switch_neovim_theme "light3"
     switch_tmux_theme "light3"
     switch_thunderbird_theme "Light"
     switch_gitk_theme "light3"
@@ -181,6 +194,7 @@ set_gtk_theme() {
     switch_terminal_profile "Light"
     switch_kitty_theme "light2"
     switch_vim_background "light2"
+    switch_neovim_theme "light2"
     switch_tmux_theme "light2"
     switch_thunderbird_theme "Light"
     switch_gitk_theme "light2"
