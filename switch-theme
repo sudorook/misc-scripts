@@ -29,6 +29,12 @@ switch_vim_background() {
   fi
 }
 
+switch_kitty_theme() {
+  if [ -f "${HOME}/.config/kitty/kitty.conf" ]; then
+    sed -i "s/^\(include .*\)\/\(\S\+.conf\)$/\1\/${1}.conf/g" "${HOME}/.config/kitty/kitty.conf"
+  fi
+}
+
 switch_tmux_theme() {
   if [ -f "${HOME}/.tmux.conf" ]; then
     local themestring
@@ -128,6 +134,7 @@ set_gtk_theme() {
   if [[ "$1" =~ [Nn]okto ]]; then
     switch_gtk_settings "Dark"
     switch_terminal_profile "Dark"
+    switch_kitty_theme "dark"
     switch_vim_background "dark"
     switch_tmux_theme "dark"
     switch_thunderbird_theme "Dark"
@@ -136,6 +143,7 @@ set_gtk_theme() {
   elif [[ "$1" =~ ^[Aa]rc-[Dd]ark ]]; then
     switch_gtk_settings "Dark"
     switch_terminal_profile "Dark"
+    switch_kitty_theme "dark3"
     switch_vim_background "dark3"
     switch_tmux_theme "dark3"
     switch_thunderbird_theme "Dark"
@@ -144,6 +152,7 @@ set_gtk_theme() {
   elif [[ "$1" =~ [Nn]oir ]] || [[ "$1" =~ [Dd]ark ]]; then
     switch_gtk_settings "Dark"
     switch_terminal_profile "Dark"
+    switch_kitty_theme "dark2"
     switch_vim_background "dark2"
     switch_tmux_theme "dark2"
     switch_thunderbird_theme "Dark"
@@ -152,6 +161,7 @@ set_gtk_theme() {
   elif [[ "$1" =~ ^[Aa]dapta ]]; then
     switch_gtk_settings "Light"
     switch_terminal_profile "Light"
+    switch_kitty_theme "light"
     switch_vim_background "light"
     switch_tmux_theme "light"
     switch_thunderbird_theme "Light"
@@ -160,6 +170,7 @@ set_gtk_theme() {
   elif [[ "$1" =~ ^[Aa]rc-[Ll]ight ]] || [[ "$1" =~ ^[Aa]rc$ ]]; then
     switch_gtk_settings "Light"
     switch_terminal_profile "Light"
+    switch_kitty_theme "light3"
     switch_vim_background "light3"
     switch_tmux_theme "light3"
     switch_thunderbird_theme "Light"
@@ -168,6 +179,7 @@ set_gtk_theme() {
   elif [[ "$1" =~ [Ll]ight ]] || [[ "$1" =~ [Ll]umine ]]; then
     switch_gtk_settings "Light"
     switch_terminal_profile "Light"
+    switch_kitty_theme "light2"
     switch_vim_background "light2"
     switch_tmux_theme "light2"
     switch_thunderbird_theme "Light"
