@@ -38,7 +38,7 @@
 | `list-fonts`       | list all the fonts referenced in a subtitle file or directory          |
 | `pdf-fixup`        | fix up the metadata in PDF files (newlines in tags, covers, etc.)      |
 | `pdf-split`        | extract range of pages from a PDF                                      |
-| `play`             | play mp3 files above a duration cutoff                                 |
+| `play`             | play media above a duration cutoff                                     |
 | `print-colors`     | print terminal colors                                                  |
 | `print-fontstring` | generate the FFmpeg format string to embed fonts in a container        |
 | `rate-song`        | write song rating metadata to beets database                           |
