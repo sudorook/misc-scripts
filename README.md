@@ -16,6 +16,7 @@
 | `count-commits`    | count commits made by an author over specified period of time          |
 | `count-lines`      | count number of lines in all files in directory                        |
 | `decrypt-secrets`  | decrypt an EncFS-encrypted folder                                      |
+| `decode-base64`    | detect and convert base64 text in emails to UTF-8                      |
 | `delete-swp`       | clear sw[a-p] files in directory (Vim backups)                         |
 | `drop-caches`      | clear system cache                                                     |
 | `dump-streams`     | copy container streams into one file each                              |
