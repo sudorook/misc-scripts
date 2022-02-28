@@ -79,16 +79,12 @@ def get_current_song():
         )
         if len(item) == 1:
             return item[0]
-        print("Parsing failed. See below:")
-        print("Title:", info["title"], " -> ", re.escape(info["title"]))
-        print(
-            "Artist:",
-            info["artist"],
-            " -> ",
-            re.escape(info["artist"]),
+        sys.exit(
+            "Parsing failed. See below:\n",
+            f"Title: {info['title']} -> {re.escape(info['title'])}\n",
+            f"Artist: {info['artist']} -> {re.escape(info['artist'])}\n",
+            f"Album: {info['album']} -> {re.escape(info['album'])}\n",
         )
-        print("Album:", info["album"], " -> ", re.escape(info["album"]))
-        sys.exit()
     else:
         return item[0]
 
@@ -101,8 +97,7 @@ def get_song_from_file(file):
 
     item = lib.items('"path:' + file + '"')
     if len(item) > 1:
-        print("Multiple files found. Exiting.")
-        sys.exit()
+        sys.exit("Multiple files found. Exiting.")
     else:
         return item[0]
 
@@ -112,8 +107,7 @@ def prompt_user_rating():
     _rating = int(input("Rating (1-5): "))
     if 1 <= int(_rating) <= 5:
         return _rating
-    print("Invalid rating. Exiting.")
-    sys.exit()
+    sys.exit("Invalid rating. Exiting.")
 
 
 #
@@ -135,12 +129,7 @@ args = parser.parse_args()
 if args.file is None:
     song = get_current_song()
     print(
-        "Playing '"
-        + song["title"]
-        + "' from '"
-        + song["album"]
-        + "' by "
-        + song["artist"]
+        f"Rating '{song['title']}' from '{song['album']}' by '{song['artist']}'"
     )
 else:
     song = get_song_from_file(args.file)
