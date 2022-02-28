@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """
 Generate a list of playlists from all the artists available in the Beets
 database.
