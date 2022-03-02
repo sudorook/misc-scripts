@@ -1,0 +1,141 @@
+#! /usr/bin/env python3
+""" Benchmark WireGuard server speeds using cURL. """
+
+import argparse
+from itertools import repeat
+import multiprocessing
+import os
+import sys
+import subprocess
+import re
+
+
+def parse_args():
+    """Parse CLI parameters."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-d",
+        "--dir",
+        dest="dirs",
+        action="append",
+        required=False,
+        help="Directory to search for files.",
+    )
+    parser.add_argument(
+        "-f",
+        "--file",
+        dest="files",
+        action="append",
+        required=False,
+        help="Files to add.",
+    )
+    parser.add_argument(
+        "-c",
+        "--count",
+        dest="count",
+        type=int,
+        default=1,
+        required=False,
+        help="Number of pings to average.",
+    )
+    parser.add_argument(
+        "-p",
+        "--parallel",
+        dest="parallel",
+        action="store_true",
+        default=False,
+        help="Test remote server speeds in parallel.",
+    )
+    return parser.parse_args()
+
+
+def parse_url(input_file):
+    """Get URL of server from WireGuard config file."""
+    with open(input_file, encoding="utf-8") as handle:
+        text = handle.readlines()
+    regex = re.compile(r"^Endpoint = (.*):\d+\n?$")
+    for line in text:
+        res = regex.match(line)
+        if res is not None:
+            return res[1]
+    return False
+
+
+def benchmark_url(remote_url, reps=1):
+    """Estimate average network speed."""
+    cmd = ["ping", "-q", "-c", str(reps), remote_url]
+    try:
+        res = subprocess.check_output(cmd)
+        res = (
+            (res.decode("utf-8").splitlines()[-1])
+            .split(" = ")[1]
+            .split("/")[1]
+        )
+    except BaseException as err:
+        print(f"ERROR: {err}", file=sys.stderr)
+        res = float("inf")
+    return float(res)
+
+
+def benchmark_urls(remote_url_list, reps=1):
+    """Iterate over URL list."""
+    _speed_list = []
+    for remote_url in remote_url_list:
+        speed = benchmark_url(remote_url, reps)
+        _speed_list.append(speed)
+    return _speed_list
+
+
+def benchmark_urls_parallel(remote_url_list, reps=1):
+    """Iterate over URL list."""
+    with multiprocessing.Pool() as pool:
+        _speed_list = pool.starmap(
+            benchmark_url, zip(remote_url_list, repeat(reps))
+        )
+    return _speed_list
+
+
+def make_config_list(cli_args):
+    """Generate list of config files."""
+    _config_list = []
+    _url_list = []
+    if cli_args.files:
+        for file in cli_args.files:
+            if os.path.isfile(file):
+                url = parse_url(file)
+                if url:
+                    _config_list.append(file)
+                    _url_list.append(url)
+    if cli_args.dirs:
+        for directory in cli_args.dirs:
+            if os.path.isdir(directory):
+                for file in os.listdir(directory):
+                    if file.endswith(".conf"):
+                        path = os.path.join(directory, file)
+                        url = parse_url(path)
+                        if url:
+                            _config_list.append(path)
+                            _url_list.append(url)
+                        else:
+                            print(
+                                f"Failed to parse {path}. Skipping.",
+                                file=sys.stderr,
+                            )
+    return _config_list, _url_list
+
+
+def print_results(_speed_list, _config_list, _url_list):
+    """Sort by speed and print the results."""
+    grouped_list = sorted(zip(_speed_list, _config_list, _url_list))
+    for item in grouped_list:
+        print(f"{item[0]}\t{item[1]}")
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    config_list, url_list = make_config_list(args)
+    if args.parallel:
+        speed_list = benchmark_urls_parallel(url_list, args.count)
+    else:
+        speed_list = benchmark_urls(url_list, args.count)
+    print_results(speed_list, config_list, url_list)

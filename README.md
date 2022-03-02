@@ -60,6 +60,7 @@
 | `upgrade`          | upgrade system, AUR, Zsh plugins, and Julia packages                   |
 | `vidname-cleanup`  | use regex to clean up file names                                       |
 | `vpn-killswitch`   | add `iptables` rules to block networking if VPN connection is lost     |
+| `wg-sort`          | sort WireGuard configuration files by connection speed                 |
 | `whattodo`         | find all to-do lists and print them in the terminal                    |
 | `write-entry`      | write a entry into your log                                            |
 
