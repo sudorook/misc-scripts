@@ -91,10 +91,14 @@ function get_language {
     return
   fi
 
-  # Parse the end of the file name for three-character strings.
+  # Get last string in the file name for checking whether it contains the
+  # language of the subtitle stream.
   end="$(echo "${name,,}" | \
-         sed -E -e "s/[\ -_]sdh$|[\ -_]hi$//g" | \
+         sed -E -e "s/[ -_]v?[[:digit:]]+$//g" \
+                -e "s/[\ -_]sdh$|[\ -_]hi$//g" | \
          grep -o '[^\ _]*$')"
+
+  # Parse the end of the file name for three-character strings.
   for iso_639_2_code in "${!ISO_639_2[@]}"; do
     iso_639_2_name="${ISO_639_2[${iso_639_2_code}]}"
     if [[ "${end,,}" = "${iso_639_2_code,,}" ]] || \
