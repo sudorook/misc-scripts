@@ -58,7 +58,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def parse_url(input_file):
+def parse_wg_config(input_file):
     """Get URL of server from WireGuard config file."""
     with open(input_file, encoding="utf-8") as handle:
         text = handle.readlines()
@@ -126,17 +126,18 @@ def make_config_list(cli_args):
     if cli_args.files:
         for file in cli_args.files:
             if os.path.isfile(file):
-                url = parse_url(file)
+                url = parse_wg_config(file)
                 if url:
                     _config_list.append(file)
                     _url_list.append(url)
+
     if cli_args.dirs:
         for directory in cli_args.dirs:
             if os.path.isdir(directory):
                 for file in os.listdir(directory):
                     if file.endswith(".conf"):
                         path = os.path.join(directory, file)
-                        url = parse_url(path)
+                        url = parse_wg_config(path)
                         if url:
                             _config_list.append(path)
                             _url_list.append(url)
