@@ -125,6 +125,7 @@ def make_config_list(cli_args):
     if cli_args.ip_addrs:
         for ip_addr in cli_args.ip_addrs:
             if check_ip_address(ip_addr):
+                _config_list.append(None)
                 _url_list.append(ip_addr)
 
     if cli_args.files:
