@@ -90,9 +90,11 @@ def benchmark_url(remote_url, reps=1):
             .split(" = ")[1]
             .split("/")[1]
         )
-    except BaseException as err:
+    except ValueError as err:
         print(f"ERROR: {err}", file=sys.stderr)
         res = float("inf")
+    except KeyboardInterrupt:
+        sys.exit()
     return float(res)
 
 
