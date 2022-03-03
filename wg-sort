@@ -102,7 +102,9 @@ def benchmark_urls(remote_url_list, reps=1):
     """Iterate over URL list."""
     _speed_list = []
     for remote_url in remote_url_list:
+        print(f"Testing {remote_url}... ", end='', file=sys.stderr, flush=True)
         speed = benchmark_url(remote_url, reps)
+        print(f"{speed} ms", file=sys.stderr)
         _speed_list.append(speed)
     return _speed_list
 
