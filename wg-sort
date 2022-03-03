@@ -8,6 +8,7 @@ import os
 import sys
 import subprocess
 import re
+import ipaddress
 
 
 def parse_args():
@@ -28,6 +29,14 @@ def parse_args():
         action="append",
         required=False,
         help="Files to add.",
+    )
+    parser.add_argument(
+        "-i",
+        "--ip_addr",
+        dest="ip_addrs",
+        action="append",
+        required=False,
+        help="IPv4 addresses.",
     )
     parser.add_argument(
         "-c",
@@ -59,6 +68,16 @@ def parse_url(input_file):
         if res is not None:
             return res[1]
     return False
+
+
+def check_ip_address(_ip):
+    """Check if string is valid IP address."""
+    try:
+        ipaddress.ip_address(_ip)
+    except ValueError as err:
+        print(f"ERROR: {err}")
+        return False
+    return True
 
 
 def benchmark_url(remote_url, reps=1):
@@ -99,6 +118,11 @@ def make_config_list(cli_args):
     """Generate list of config files."""
     _config_list = []
     _url_list = []
+    if cli_args.ip_addrs:
+        for ip_addr in cli_args.ip_addrs:
+            if check_ip_address(ip_addr):
+                _url_list.append(ip_addr)
+
     if cli_args.files:
         for file in cli_args.files:
             if os.path.isfile(file):
