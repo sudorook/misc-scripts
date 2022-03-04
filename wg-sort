@@ -39,6 +39,15 @@ def parse_args():
         help="IPv4 addresses.",
     )
     parser.add_argument(
+        "-o",
+        "--output",
+        dest="output_file",
+        type=str,
+        default=None,
+        required=False,
+        help="Output file.",
+    )
+    parser.add_argument(
         "-c",
         "--count",
         dest="count",
@@ -60,7 +69,7 @@ def parse_args():
 
 def parse_wg_config(input_file):
     """Get URL of server from WireGuard config file."""
-    with open(input_file, encoding="utf-8") as handle:
+    with open(input_file, "r", encoding="utf-8") as handle:
         text = handle.readlines()
     regex = re.compile(r"^Endpoint = (.*):\d+\n?$")
     for line in text:
@@ -85,37 +94,45 @@ def benchmark_url(remote_url, reps=1):
     cmd = ["ping", "-q", "-c", str(reps), remote_url]
     try:
         res = subprocess.check_output(cmd)
-        res = (
-            (res.decode("utf-8").splitlines()[-1])
-            .split(" = ")[1]
-            .split("/")[1]
-        )
     except ValueError as err:
         print(f"ERROR: {err}", file=sys.stderr)
         res = float("inf")
     except KeyboardInterrupt:
         sys.exit()
-    return float(res)
+    res = res.decode("utf-8").splitlines()[-1]
+    ping_avg = float((res.split(" = ")[1]).split("/")[1])
+    ping_std = float((res.split(" = ")[1]).split("/")[3].rstrip(" ms"))
+    return ping_avg, ping_std
 
 
-def benchmark_urls(remote_url_list, reps=1):
+def benchmark_urls(remote_url_list, reps=1, verbose=True):
     """Iterate over URL list."""
-    _speed_list = []
+    _speed_avg_list = []
+    _speed_std_list = []
     for remote_url in remote_url_list:
-        print(f"Testing {remote_url}... ", end='', file=sys.stderr, flush=True)
-        speed = benchmark_url(remote_url, reps)
-        print(f"{speed} ms", file=sys.stderr)
-        _speed_list.append(speed)
-    return _speed_list
+        if verbose:
+            print(
+                f"Testing {remote_url}... ",
+                end="",
+                file=sys.stderr,
+                flush=True,
+            )
+        speed_avg, speed_std = benchmark_url(remote_url, reps)
+        if verbose:
+            print(f"{speed_avg}+-{speed_std}", file=sys.stderr)
+        _speed_avg_list.append(speed_avg)
+        _speed_std_list.append(speed_std)
+    return _speed_avg_list, _speed_std_list
 
 
 def benchmark_urls_parallel(remote_url_list, reps=1):
     """Iterate over URL list."""
     with multiprocessing.Pool() as pool:
-        _speed_list = pool.starmap(
-            benchmark_url, zip(remote_url_list, repeat(reps))
-        )
-    return _speed_list
+        res = pool.starmap(benchmark_url, zip(remote_url_list, repeat(reps)))
+    res = list(zip(*res))
+    _speed_avg_list = list(res[0])
+    _speed_std_list = list(res[1])
+    return _speed_avg_list, _speed_std_list
 
 
 def make_config_list(cli_args):
@@ -154,18 +171,36 @@ def make_config_list(cli_args):
     return _config_list, _url_list
 
 
-def print_results(_speed_list, _config_list, _url_list):
+def print_results(_grouped_list):
     """Sort by speed and print the results."""
-    grouped_list = sorted(zip(_speed_list, _config_list, _url_list))
-    for item in grouped_list:
-        print(f"{item[0]}\t{item[1]}")
+    for item in _grouped_list:
+        print(f"{item[0]}+={item[1]}\t{item[2]}\t{item[3]}")
+
+
+def write_results(_grouped_list, _output_file):
+    """Sort by speed and write the results."""
+    with open(_output_file, "w", encoding="utf-8") as handle:
+        handle.write(f"speed_avg\tspeed_std\tfile_path\tip_address\n")
+        for item in _grouped_list:
+            handle.write(f"{item[0]}\t{item[1]}\t{item[2]}\t{item[3]}\n")
 
 
 if __name__ == "__main__":
     args = parse_args()
     config_list, url_list = make_config_list(args)
     if args.parallel:
-        speed_list = benchmark_urls_parallel(url_list, args.count)
+        speed_avg_list, speed_std_list = benchmark_urls_parallel(
+            url_list, args.count
+        )
     else:
-        speed_list = benchmark_urls(url_list, args.count)
-    print_results(speed_list, config_list, url_list)
+        speed_avg_list, speed_std_list = benchmark_urls(url_list, args.count)
+
+    # Group and sort the results
+    grouped_list = sorted(
+        zip(speed_avg_list, speed_std_list, config_list, url_list)
+    )
+
+    if args.output_file:
+        write_results(grouped_list, args.output_file)
+    else:
+        print_results(grouped_list)
