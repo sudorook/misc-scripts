@@ -173,14 +173,15 @@ def make_config_list(cli_args):
 
 def print_results(_grouped_list):
     """Sort by speed and print the results."""
+    print("speed_avg\tspeed_std\tfile_path\tip_address\n")
     for item in _grouped_list:
-        print(f"{item[0]}+={item[1]}\t{item[2]}\t{item[3]}")
+        print(f"{item[0]}\t{item[1]}\t{item[2]}\t{item[3]}")
 
 
 def write_results(_grouped_list, _output_file):
     """Sort by speed and write the results."""
     with open(_output_file, "w", encoding="utf-8") as handle:
-        handle.write(f"speed_avg\tspeed_std\tfile_path\tip_address\n")
+        handle.write("speed_avg\tspeed_std\tfile_path\tip_address\n")
         for item in _grouped_list:
             handle.write(f"{item[0]}\t{item[1]}\t{item[2]}\t{item[3]}\n")
 
