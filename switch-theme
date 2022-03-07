@@ -189,7 +189,8 @@ set_gtk_theme() {
     switch_thunderbird_theme "Light"
     switch_gitk_theme "light3"
     switch_ebook_viewer_theme "Light"
-  elif [[ "$1" =~ [Ll]ight ]] || [[ "$1" =~ [Ll]umine ]]; then
+  elif [[ "$1" =~ [Ll]ight ]] || [[ "$1" =~ [Ll]umine ]] || \
+       [[ "$1" =~ ^[Mm]ateria$ ]]; then
     switch_gtk_settings "Light"
     switch_terminal_profile "Light"
     switch_kitty_theme "light2"
