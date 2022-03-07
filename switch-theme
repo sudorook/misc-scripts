@@ -37,6 +37,16 @@ switch_neovim_theme() {
   fi
 }
 
+switch_alacritty_theme() {
+  if [ -f "${HOME}/.config/alacritty/colorific.yml" ]; then
+    sed -i "s/^\(colors: \*\).*/\1${1}/g" "${HOME}/.config/alacritty/colorific.yml"
+  elif [ -f "${HOME}/.config/alacritty/themes.yml" ]; then
+    sed -i "s/^\(colors: \*\).*/\1${1}/g" "${HOME}/.config/alacritty/themes.yml"
+  elif [ -f "${HOME}/.config/alacritty/alacritty.yml" ]; then
+    sed -i "s/^\(colors: \*\).*/\1${1}/g" "${HOME}/.config/alacritty/alacritty.yml"
+  fi
+}
+
 switch_kitty_theme() {
   if [ -f "${HOME}/.config/kitty/kitty.conf" ]; then
     sed -i "s/^\(include .*\)\/\(\S\+.conf\)$/\1\/${1}.conf/g" "${HOME}/.config/kitty/kitty.conf"
@@ -142,6 +152,7 @@ set_gtk_theme() {
   if [[ "$1" =~ [Nn]okto ]]; then
     switch_gtk_settings "Dark"
     switch_terminal_profile "Dark"
+    switch_alacritty_theme "dark"
     switch_kitty_theme "dark"
     switch_vim_theme "dark"
     switch_neovim_theme "dark"
@@ -152,6 +163,7 @@ set_gtk_theme() {
   elif [[ "$1" =~ ^[Aa]rc-[Dd]ark ]]; then
     switch_gtk_settings "Dark"
     switch_terminal_profile "Dark"
+    switch_alacritty_theme "dark3"
     switch_kitty_theme "dark3"
     switch_vim_theme "dark3"
     switch_neovim_theme "dark3"
@@ -162,6 +174,7 @@ set_gtk_theme() {
   elif [[ "$1" =~ [Nn]oir ]] || [[ "$1" =~ [Dd]ark ]]; then
     switch_gtk_settings "Dark"
     switch_terminal_profile "Dark"
+    switch_alacritty_theme "dark2"
     switch_kitty_theme "dark2"
     switch_vim_theme "dark2"
     switch_neovim_theme "dark2"
@@ -172,6 +185,7 @@ set_gtk_theme() {
   elif [[ "$1" =~ ^[Aa]dapta ]]; then
     switch_gtk_settings "Light"
     switch_terminal_profile "Light"
+    switch_alacritty_theme "light"
     switch_kitty_theme "light"
     switch_vim_theme "light"
     switch_neovim_theme "light"
@@ -182,6 +196,7 @@ set_gtk_theme() {
   elif [[ "$1" =~ ^[Aa]rc-[Ll]ight ]] || [[ "$1" =~ ^[Aa]rc$ ]]; then
     switch_gtk_settings "Light"
     switch_terminal_profile "Light"
+    switch_alacritty_theme "light3"
     switch_kitty_theme "light3"
     switch_vim_theme "light3"
     switch_neovim_theme "light3"
@@ -193,6 +208,7 @@ set_gtk_theme() {
        [[ "$1" =~ ^[Mm]ateria$ ]]; then
     switch_gtk_settings "Light"
     switch_terminal_profile "Light"
+    switch_alacritty_theme "light2"
     switch_kitty_theme "light2"
     switch_vim_theme "light2"
     switch_neovim_theme "light2"
