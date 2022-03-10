@@ -121,6 +121,7 @@ switch_ebook_viewer_theme() {
 }
 
 set_gtk_theme() {
+  if ! [[ -v XDG_CURRENT_DESKTOP ]]; then return; fi
   case $XDG_CURRENT_DESKTOP in
     X-Cinnamon)
       gsettings set org.cinnamon.desktop.interface gtk-theme "'$1'"
@@ -223,6 +224,7 @@ set_gtk_theme() {
 }
 
 set_icon_theme() {
+  if ! [[ -v XDG_CURRENT_DESKTOP ]]; then return; fi
   case $XDG_CURRENT_DESKTOP in
     X-Cinnamon)
       gsettings set org.cinnamon.desktop.interface icon-theme "'$1'"
