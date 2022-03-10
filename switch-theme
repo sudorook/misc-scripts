@@ -194,7 +194,7 @@ set_gtk_theme() {
     switch_thunderbird_theme "Light"
     switch_gitk_theme "light"
     switch_ebook_viewer_theme "Light"
-  elif [[ "$1" =~ ^[Aa]rc-[Ll]ight ]] || [[ "$1" =~ ^[Aa]rc$ ]]; then
+  elif [[ "$1" =~ ^[Aa]rc-[Ll]ight ]] || [[ "$1" =~ ^[Aa]rc(-solid)?$ ]]; then
     switch_gtk_settings "Light"
     switch_terminal_profile "Light"
     switch_alacritty_theme "light3"
