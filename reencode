@@ -187,6 +187,10 @@ function convert_codec {
       ;;
   esac
 
+  if [[ -n "${EXTRA}" ]]; then
+    cmd="${cmd} ${EXTRA}"
+  fi
+
   # add output
   cmd="${cmd} file:${out@Q}"
 
@@ -303,7 +307,7 @@ function print_usage {
   show_header "Usage: reencode"
   echo "  -i|--input          input video"
   echo "  -a|--acodec         audio codec (copy, aac, opus, or mp3)"
-  echo "  -A|--astream_id      select index of one audio stream to encode"
+  echo "  -A|--astream_id     select index of one audio stream to encode"
   echo "  -b|--bitrate_audio  set global audio output bitrate"
   echo "  -v|--vcodec         video codec (h264 or h265)"
   echo "  -V|--vstream_id     select index of one video stream to encode"
@@ -312,6 +316,7 @@ function print_usage {
   echo "  -n|--nodefault      set no subtitles to be shown by default"
   echo "  -d|--dimensions     output dimensions (e.g. 1920x, 1280x720, etc.)"
   echo "  -c|--container      container format (matroska or mp4)"
+  echo "  -e|--extra          extra ffmpeg cli string"
 }
 
 function parse_container {
@@ -411,9 +416,10 @@ NOSUB=false
 CROP=false
 ASTREAM_ID=
 VSTREAM_ID=
+EXTRA=
 
-OPTIONS=i:a:A:b:v:V:r:c:d:hnp
-LONGOPTIONS=input:,acodec:,asteam_id:,bitrate:,vcodec:,vstream_id:,crf:,dimensions:,container:,help,nodefault,crop
+OPTIONS=i:e:a:A:b:v:V:r:c:d:hnp
+LONGOPTIONS=input:,extra:,acodec:,asteam_id:,bitrate:,vcodec:,vstream_id:,crf:,dimensions:,container:,help,nodefault,crop
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 while [ $# -ge 1 ]; do
@@ -423,6 +429,10 @@ while [ $# -ge 1 ]; do
       scan_input
       NAME=${IN%.*}
       BACKUP="${IN}_$(date +%Y%m%d-%H%M%S).bak"
+      shift 2
+      ;;
+    -e|--extra)
+      EXTRA="${2}"
       shift 2
       ;;
     -a|--acodec)
