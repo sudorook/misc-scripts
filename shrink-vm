@@ -73,7 +73,7 @@ case "${OWNER}" in
       show_warning "${QCOW2@Q} owned by ${OWNER}. Trying su..."
       su "${OWNER}" - -c "${FUNCTION} && do_shrink ${QCOW2}"
     else
-      show_error "User ${OWNER@!} not recognized. Exiting."
+      show_error "User ${OWNER@Q} not recognized. Exiting."
       exit 3
     fi
     ;;
