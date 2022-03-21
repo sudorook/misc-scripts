@@ -5,35 +5,23 @@ source globals
 ! check_command parallel && exit 3
 
 function format_c() {
-  local mime
+  local tmp
   if command -v clang-format >/dev/null; then
-    mime="$(file -b --mime-type "${1}")" 
-    if [[ "${mime}" =~ x-c\+\+$|x-c$ ]]; then
-      local tmp
-      tmp="$(mktemp)"
-      clang-format -style=mozilla "${1}" > "${tmp}"
-      mv "${tmp}" "${1}"
-    else
-      show_warning "WARNING: ${1@Q} incompatible MIME type ${mime@Q}. Skipping." >&2
-    fi
+    tmp="$(mktemp)"
+    clang-format -style=mozilla "${1}" > "${tmp}"
+    mv "${tmp}" "${1}"
   else
-    show_error "ERROR: 'clang-format' missing. Exiting." >&2
+    show_error "ERROR: 'clang-format' not installed. Exiting." >&2
     exit 3
   fi
 }
 export -f format_c
 
 function format_python() {
-  local mime
   if command -v black >/dev/null; then
-    mime="$(file -b --mime-type "${1}")" 
-    if [[ "${mime}" =~ x-script.python$ ]]; then
-      black -q -l 79 "${1}"
-    else
-      show_warning "WARNING: ${1@Q} incompatible MIME type ${mime@Q}. Skipping." >&2
-    fi
+    black -q -l 79 "${1}"
   else
-    show_error "ERROR: 'black' missing. Exiting." >&2
+    show_error "ERROR: 'black' not installed. Exiting." >&2
     exit 3
   fi
 }
@@ -47,14 +35,14 @@ function detect_mimetype() {
       if [[ "${1##*.}" != y ]] && [[ "${1##*.}" != l ]]; then
         echo c
       else
-        show_warning "WARNING: ${1@Q} parsers/lexers unspported. Skipping." >&2
+        show_warning "WARNING: ${1@Q} parsers/lexers unspported." >&2
       fi
       ;;
     text/x-script.python)
       echo python
       ;;
     *)
-      show_warning "WARNING: ${mime@Q} unsupported in ${1@Q}. Skipping." >&2
+      show_warning "WARNING: ${1@Q} type ${mime@Q} unsupported." >&2
       ;;
   esac
 }
@@ -62,12 +50,16 @@ export -f detect_mimetype
 
 function format_wrapper() {
   local lang
+  lang="$(detect_mimetype "${1}")"
   if ! [[ -v LANGUAGE ]]; then
-    lang="$(detect_mimetype "${1}")"
     if [[ -z "${lang}" ]]; then
       return
     fi
   else
+    if [[ "${LANGUAGE,,}" != "${lang}" ]] && ! "${FORCE}"; then
+      show_warning "WARNING: ${1@Q} language and MIME type mismatch. Skipping." >&2
+      return
+    fi
     lang="${LANGUAGE}"
   fi
 
@@ -92,22 +84,37 @@ function print_usage() {
   show_header   "Usage: format <file or directory>"
   echo
   show_info     "Flags:"
-  show_listitem "  -l|--language    (optional) programming language (e.g. c++, python)"
-  show_listitem "  -h|--help        print (this) message"
+  show_listitem \
+    "  -l|--language   (optional) programming language (e.g. C++, Python)"
+  show_listitem \
+    "  -h|--help       print (this) message"
+  show_listitem \
+    "  -f|--force      run formatter regardless of MIME type"
   echo
   show_info \
     "Specify a file to format a single file. Specify a directory to\n" \
-    "recursively format _all_ files in it. (Any files without MIME types\n" \
-    "hard-coded in the script will be ignored."
+    "recursively format _all_ files in it. Any files without MIME types\n" \
+    "supported by this script will be ignored."
 }
 
-OPTIONS=hl:
-LONGOPTIONS=help,language:
+
+#
+# Main
+#
+
+FORCE=false
+
+OPTIONS=fhl:
+LONGOPTIONS=force:help,language:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
 while [ $# -ge 1 ]; do
   case "$1" in
+    -f|--force)
+      FORCE=true
+      shift
+      ;;
     -l|--language)
       LANGUAGE="${2}"
       shift 2
