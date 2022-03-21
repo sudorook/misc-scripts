@@ -127,27 +127,20 @@ while [ $# -ge 1 ]; do
   esac
 done
 
-if [[ ${#} -ne 1 ]]; then
-  show_error "ERROR: please specify 1 input file or directory." >&2
-  exit 3
-else
-  if ! [ -f "${1}" ] && ! [ -d "${1}" ]; then
-    show_error "ERROR: input '${1}' not found. Exiting." >&2
-    exit 3
+for ITEM in "${@}"; do
+  if [[ -f "${ITEM}" ]]; then
+    format_wrapper "${ITEM}"
+  elif [[ -d "${ITEM}" ]]; then
+    find "${ITEM}" -type f \
+      -not \( -path "./.git*" -o \
+              -path "./docs/*" -o \
+              -path "*README*" -o \
+              -path "*readme*" -o \
+              -path "*LICENSE*" -o \
+              -path "*license*" -o \
+              -path "*.Rhistory" \) -print0 | \
+      parallel -0 format_wrapper "{}"
+  else
+    show_error "WARNING: ${ITEM@Q} not understood. Skipping." >&2
   fi
-  INPUT="${1}"
-fi
-
-if [[ -f "${INPUT}" ]]; then
-  format_wrapper "${INPUT}"
-elif [[ -d "${INPUT}" ]]; then
-  find "${INPUT}" -type f \
-    -not \( -path "./.git*" -o \
-            -path "./docs/*" -o \
-            -path "*README*" -o \
-            -path "*readme*" -o \
-            -path "*LICENSE*" -o \
-            -path "*license*" -o \
-            -path "*.Rhistory" \) -print0 | \
-    parallel -0 format_wrapper "{}"
-fi
+done
