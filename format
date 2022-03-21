@@ -136,15 +136,27 @@ for ITEM in "${@}"; do
   if [[ -f "${ITEM}" ]]; then
     format_wrapper "${ITEM}"
   elif [[ -d "${ITEM}" ]]; then
-    find "${ITEM}" -type f \
-      -not \( -path "./.git*" -o \
-              -path "./docs/*" -o \
-              -path "*README*" -o \
-              -path "*readme*" -o \
-              -path "*LICENSE*" -o \
-              -path "*license*" -o \
-              -path "*.Rhistory" \) -print0 | \
-      parallel -0 format_wrapper "{}"
+    if check_command parallel; then
+      find "${ITEM}" -type f \
+        -not \( -path "./.git*" -o \
+                -path "./docs/*" -o \
+                -path "*README*" -o \
+                -path "*readme*" -o \
+                -path "*LICENSE*" -o \
+                -path "*license*" -o \
+                -path "*.Rhistory" \) -print0 | \
+        parallel -0 format_wrapper "{}"
+    else
+      find "${ITEM}" -type f \
+        -not \( -path "./.git*" -o \
+                -path "./docs/*" -o \
+                -path "*README*" -o \
+                -path "*readme*" -o \
+                -path "*LICENSE*" -o \
+                -path "*license*" -o \
+                -path "*.Rhistory" \) \
+        -exec bash -c 'format_wrapper "${1}"' bash {} \;
+    fi
   else
     show_error "WARNING: ${ITEM@Q} not understood. Skipping." >&2
   fi
