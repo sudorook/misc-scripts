@@ -81,9 +81,8 @@ function format_wrapper() {
 export -f format_wrapper
 
 function print_usage() {
-  show_header   "Usage: format <file or directory>"
+  show_header   "Usage: format <file or directory> -l <lang>"
   echo
-  show_info     "Flags:"
   show_listitem \
     "  -l|--language   (optional) programming language (e.g. C++, Python)"
   show_listitem \
@@ -91,10 +90,9 @@ function print_usage() {
   show_listitem \
     "  -f|--force      run formatter regardless of MIME type"
   echo
-  show_info \
-    "Specify a file to format a single file. Specify a directory to\n" \
-    "recursively format _all_ files in it. Any files without MIME types\n" \
-    "supported by this script will be ignored."
+  show_info "Specify a file to format a single file. Specify a directory to
+recursively format _all_ files in it. Any files without MIME type
+supported by this script will be ignored."
 }
 
 
