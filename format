@@ -2,6 +2,8 @@
 set -eu
 source globals
 
+! check_command parallel && exit 3
+
 function format_c() {
   local mime
   if command -v clang-format >/dev/null; then
@@ -146,6 +148,6 @@ elif [[ -d "${INPUT}" ]]; then
             -path "*readme*" -o \
             -path "*LICENSE*" -o \
             -path "*license*" -o \
-            -path "*.Rhistory" \) \
-    -exec bash -c 'format_wrapper "${1}"' bash {} \;
+            -path "*.Rhistory" \) -print0 | \
+    parallel -0 format_wrapper "{}"
 fi
