@@ -65,48 +65,68 @@ export -f check_command
 
 # archive destination dir
 archivedir=
+export archivedir
 
 # backup-home, backup-vms
 backup1=
 backup2=
+export backup1
+export backup2
 
 # kvm dirs
 kvmdir=
 kvmshare=
+export kvmdir
+export kvmshare
 
 # virtualbox dirs
 vboxdir=
+export vboxdir
 
 # encrypted folder
 encryptpath=
 decryptpath=
+export encryptpath
+export decryptpath
 
 # theme dirs
 gtkdir=
 icondir=
+export gtkdir
+export icondir
 
 # thunderbird theme
 thunderbirddir=
+export thunderbirddir
 
 # zsh dir
 zshdir=
+export zshdir
 
 # pkgbuild dir
 pkgbuilddir=
+export pkgbuilddir
 
 # project folders
 projectdir=
 ignoreprojectdirs=()
+export projectdir
+export ignoreprojectdirs
 
 # music folders
 musicdir=
+export musicdir
 
 # video folders
 videodir=
+export videodir
 
 # get-webseries
 mediadir=
+export mediadir
 
 # entry
 entrydir=
 template=
+export entrydir
+export template
