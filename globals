@@ -47,6 +47,7 @@ export -f show_listitem
 
 check_command() {
   local state=true
+  local package
   for package in "${@}"; do
     if ! command -v "${package}" >/dev/null; then
       show_error "MISSING: ${package} not installed."
