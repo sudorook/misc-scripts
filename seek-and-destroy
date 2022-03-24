@@ -78,7 +78,6 @@ function sloppy_seek {
             -o -path \"${HOME}/Videos\" \
             -o -path \"${HOME}/.gem\" \
             -o -path \"${HOME}/.go\" \
-            -o -path \"${HOME}/.cache\" \
             -o -path \"${HOME}/.ipython\" \
             -o -path \"${HOME}/.julia\" \
             -o -path \"${HOME}/.lyrics\" \
@@ -132,7 +131,6 @@ function precise_seek {
             -o -path \"${HOME}/Videos\" \
             -o -path \"${HOME}/.gem\" \
             -o -path \"${HOME}/.go\" \
-            -o -path \"${HOME}/.cache\" \
             -o -path \"${HOME}/.ipython\" \
             -o -path \"${HOME}/.julia\" \
             -o -path \"${HOME}/.lyrics\" \
