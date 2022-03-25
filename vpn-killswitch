@@ -2,6 +2,8 @@
 set -euo pipefail
 source globals
 
+! check_command drill ufw nmcli && exit 3
+
 #
 # Functions
 #
