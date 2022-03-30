@@ -60,18 +60,18 @@ case "${OWNER}" in
   "${USER}")
     do_shrink "${QCOW2}"
     ;;
-  root|libvirt-qemu)
+  root)
     show_info "${QCOW2@Q} owned by ${OWNER@Q}. Trying sudo..."
     sudo bash -c "${FUNCTION} && do_shrink ${QCOW2}"
     ;;
-  nobody|kvm)
+  nobody|kvm|libvirt-qemu)
     show_error "ERROR: Cannot edit running instance. Exiting."
     exit 3
     ;;
   *)
     if [[ "$(users)" =~ (^|[[:space:]])${OWNER}($|[[:space:]]) ]]; then
       show_warning "${QCOW2@Q} owned by ${OWNER}. Trying su..."
-      su "${OWNER}" - -c "${FUNCTION} && do_shrink ${QCOW2}"
+      su "${OWNER}" - bash -c "${FUNCTION} && do_shrink ${QCOW2}"
     else
       show_error "User ${OWNER@Q} not recognized. Exiting."
       exit 3
