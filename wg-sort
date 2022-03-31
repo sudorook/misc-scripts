@@ -173,7 +173,7 @@ def make_config_list(cli_args):
 
 def print_results(_grouped_list):
     """Sort by speed and print the results."""
-    print("speed_avg\tspeed_std\tfile_path\tip_address\n")
+    print("speed_avg\tspeed_std\tfile_path\tip_address")
     for item in _grouped_list:
         print(f"{item[0]}\t{item[1]}\t{item[2]}\t{item[3]}")
 
