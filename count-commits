@@ -2,6 +2,8 @@
 set -euo pipefail
 source globals
 
+! check_command awk git && exit 3
+
 get_count() {
   local dir
   local count
