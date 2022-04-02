@@ -2,56 +2,84 @@
 set -euo pipefail
 source globals
 
+#
+# Globals
+#
+
+# File name(s) that contain todo lists.
+FILES=({TODO,todo}{.md,.txt,.rtf})
+
+# Extra hard-coded files not in ${projectsdir} (can be left empty).
+EXTRAS=({"${HOME}/Desktop/","${HOME}/"}{TODO,todo}{.md,.txt,.rtf})
+
+# Directories to ignore when searching for lists. Redundant with
+# $ignoreprojectdirs variable.
+IGNORES=("node_modules")
+
+
+#
+# Functions
+#
+
+function find_todo {
+  local file
+  local files
+  local ignore
+  local ignores
+  local cmd
+
+  for file in "${FILES[@]}"; do
+    if [[ ! -v files ]]; then
+      files="-name ${file}"
+    else
+      files="${files} -o -name ${file}"
+    fi
+  done
+
+  for ignore in "${IGNORES[@]}"; do
+    if [[ ! -v ignores ]]; then
+      ignores="-path \"*${ignore}*\""
+    else
+      ignores="${ignores} -o -path \"*${ignore}*\""
+    fi
+  done
+
+  if [ "${#ignoreprojectdirs[@]}" -gt 0 ]; then
+    for ignore in "${ignoreprojectdirs[@]}"; do
+    if [[ ! -v ignores ]]; then
+      ignores="-path \"*${ignore}*\""
+    else
+      ignores="${ignores} -o -path \"*${ignore}*\""
+    fi
+    done
+  fi
+
+  cmd="find ${projectdir@Q} \( ${ignores} \) -prune -o \( ${files} \) -print"
+  eval "${cmd}"
+}
+
+
+#
+# Main
+#
+
 # Check that required globals are set.
 if [[ -v projectdir ]] && [[ -v ignoreprojectdirs ]]; then
   if [[ -z "${projectdir}" ]]; then
-    show_error "ERROR: 'projectdir' variable unset (see globals)."
-    exit 3
+    show_warning "WARNING: 'projectdir' unset in globals. Searching ${HOME@Q}."
+    projectdir="${HOME}"
   fi
 else
   exit 1
 fi
 
-# File name(s) that contain todo lists.
-FILES=(TODO.md TODO.txt)
-
-# Extra hard-coded files not in ${projectsdir} (can be left empty).
-EXTRAS=("${HOME}/Desktop/TODO.md" "${HOME}/TODO.md")
-
-# Pre-generate the syntax for specifying multiple file names for find.
-NAMES=""
-for FILE in "${FILES[@]}"; do
-  if [[ ${NAMES} = "" ]]; then
-    NAMES="-name ${FILE} "
-  else
-    NAMES+="-o -name ${FILE} "
-  fi
-done
-
 # Search every directory in ${projectdir} for a file matching one in ${FILES}
 # as long as it is not also specified in ${ignoreprojectdirs}.
-find "${projectdir}" -type f \( ${NAMES} \) -print0 |
-while IFS= read -r -d '' todo; do
-  if [ "${#ignoreprojectdirs[@]}" -eq 0 ] || \
-     [ "${ignoreprojectdirs[*]}" = "" ]; then
-    show_info "${todo}"
-    cat "${todo}"
-    echo && echo
-  else
-    flag=false
-    for ignore in "${ignoreprojectdirs[@]}"; do
-      if [[ ${todo} =~ /${ignore}/ ]]; then
-        flag=true
-        break
-      fi
-    done
-    if [ "${flag}" = false ]; then
-      show_info "${todo}"
-      cat "${todo}"
-      echo && echo
-    fi
-  fi
-done
+while read -r TODO; do
+  show_info "${TODO}"
+  cat "${TODO}"
+  echo && echo
+done < <(find_todo)
 
 for EXTRA in "${EXTRAS[@]}"; do
   if [ -f "${EXTRA}" ]; then
