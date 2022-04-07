@@ -46,6 +46,7 @@ function import_wg_config {
   local name="${in%.*}"
   nmcli conn import type wireguard file "${in}"
   nmcli conn down "${name}" 
+  nmcli conn modify "${name}" connection.autoconnect no
 }
 
 function rename_wg_iface {
