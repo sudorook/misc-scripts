@@ -353,6 +353,9 @@ function parse_vcodec {
     h265|x265|libx265|h.265|x.265)
       OUT_VCODEC=libx265
       ;;
+    copy)
+      OUT_VCODEC=copy
+      ;;
     *)
       show_error "ERROR: Video codec ${1@Q} is not supported. Exiting."
       exit 3
