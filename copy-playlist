@@ -55,8 +55,13 @@ if [[ -v INPUT ]] && [[ -v DEST ]]; then
   if [ -f "${INPUT}" ]; then
     shopt -s extglob
     while read -r ITEM; do
-      cp -uav "${MUSIC}/${ITEM}" "${DEST}/${ITEM##*/+([[:digit:]]) }"
-      sync
+      if [ -f "${MUSIC}/${ITEM}" ]; then
+        cp -uav "${MUSIC}/${ITEM}" "${DEST}/${ITEM##*/+([[:digit:]]) }"
+        sync
+      else
+        show_error "ERROR: file ${ITEM@Q} not found. Exiting."
+        exit 3
+      fi
     done < "${INPUT}"
     shopt -u extglob
   fi
