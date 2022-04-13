@@ -53,12 +53,12 @@ fi
 if [[ -v INPUT ]] && [[ -v DEST ]]; then
   mkdir -p "${DEST}"
   if [ -f "${INPUT}" ]; then
-    while read -r file; do
-      newfile="$(echo "${file}" | \
-                 sed -e "s,\(.*\)/\(.*\)/[0-9]\+ \(.*\.mp3\)$,\3,g")"
-      cp -u -v "${MUSIC}/${file}" -d "${DEST}/${newfile}"
+    shopt -s extglob
+    while read -r ITEM; do
+      cp -uav "${MUSIC}/${ITEM}" "${DEST}/${ITEM##*/+([[:digit:]]) }"
+      sync
     done < "${INPUT}"
-    sync
+    shopt -u extglob
   fi
 else
   show_error "Try again."
