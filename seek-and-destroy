@@ -7,8 +7,11 @@ source globals
 #
 
 archivedir="${archivedir:-${HOME}/Desktop}"
+backup1="${backup1:-${HOME}/Desktop}"
+backup2="${backup2:-${HOME}/Desktop}"
 kvmdir="${kvmdir:-${HOME}/Desktop}"
 kvmshare="${kvmsharedir:-${HOME}/Desktop}"
+vboxdir="${vboxdir:-${HOME}/Desktop}"
 encryptpath="${encryptpath:-${HOME}/Desktop}"
 decryptpath="${decryptpath:-${HOME}/Desktop}"
 gtkdir="${gtkdir:-${HOME}/Desktop}"
@@ -63,8 +66,11 @@ function sloppy_seek {
             -o -path \"${HOME}/.zotero\" \
             -o -path \"${HOME}/.zotero-data\" \
             -o -path \"${archivedir}\" \
+            -o -path \"${backup1}\" \
+            -o -path \"${backup2}\" \
             -o -path \"${kvmdir}\" \
             -o -path \"${kvmshare}\" \
+            -o -path \"${vboxdir}\" \
             -o -path \"${encryptpath}\" \
             -o -path \"${decryptpath}\" \
             -o -path \"${gtkdir}\" \
@@ -116,8 +122,11 @@ function precise_seek {
             -o -path \"${HOME}/.zotero\" \
             -o -path \"${HOME}/.zotero-data\" \
             -o -path \"${archivedir}\" \
+            -o -path \"${backup1}\" \
+            -o -path \"${backup2}\" \
             -o -path \"${kvmdir}\" \
             -o -path \"${kvmshare}\" \
+            -o -path \"${vboxdir}\" \
             -o -path \"${encryptpath}\" \
             -o -path \"${decryptpath}\" \
             -o -path \"${gtkdir}\" \
