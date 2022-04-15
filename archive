@@ -44,6 +44,7 @@ function make_pathstring() {
       exit 2
     fi
   done
+
   echo "${pathstring}"
 }
 
@@ -62,20 +63,18 @@ function make_archivename() {
       if [ "${dir:0:2}" = "\~/" ]; then
         dir="${HOME}/${dir:2}"
       fi
-      archive=$(basename "${dir}" | tr "[:upper:]" "[:lower:]" | \
-                sed -e "s/^\.//g" -e "s/\s/_/g")_$(date +%Y%m%d-%H%M%S)
+      archive="$(basename "${dir}" | slugify)_$(date +%Y%m%d-%H%M%S)"
     elif [ -f "${1}" ]; then
       file=${1}
       if [ "${file:0:2}" = "\~/" ]; then
         file="${HOME}/${file:2}"
       fi
-      archive=$(echo "${file%.*}" | tr "[:upper:]" "[:lower:]" | \
-                sed -e "s/^\.//g" -e "s/\s/_/g")_$(date +%Y%m%d-%H%M%S)
+      archive="$(echo "${file%.*}" | slugify)_$(date +%Y%m%d-%H%M%S)"
     fi
   elif [ $# -gt 1 ]; then
-    archive="$(basename "$(pwd)" | tr "[:upper:]" "[:lower:]" | \
-               sed -e "s/^\.//g" -e "s/\s/_/g")_$(date +%Y%m%d-%H%M%S)"
+    archive="$(basename "$(pwd)" | slugify)_$(date +%Y%m%d-%H%M%S)"
   fi
+
   echo "${archive}"
 }
 
@@ -133,6 +132,12 @@ function check_archive_dir() {
     exit 3
   fi
 }
+
+# Convert an input string to a lowercase, slugified version.
+function slugify() {
+  tr "[:upper:]" "[:lower:]" | sed -e "s/^\.//g" -e "s/\s/_/g"
+}
+
 
 #
 # Main
