@@ -74,12 +74,11 @@ function make_archivename() {
 # compression) if available.
 function compress_archive() {
   local run
-
   mkdir -p "${ARCHIVEDIR}"
   case "${Z}" in
     gz)
       if command -v pigz >/dev/null 2>&1; then
-        run="tar cf - --exclude='*.sw[a-p]' ${2}"
+        run="tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}"
         eval "${run}" | pigz > "${ARCHIVEDIR}/${1}.tar.gz"
       else
         run="tar czf ${ARCHIVEDIR}/${1}.tar.gz --exclude='*.sw[a-p]' --exclude='*~' ${2}"
@@ -88,7 +87,7 @@ function compress_archive() {
       ;;
     xz)
       if command -v pixz >/dev/null 2>&1; then
-        run="tar cf - --exclude='*.sw[a-p]' ${2}"
+        run="tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}"
         eval "${run}" | pixz > "${ARCHIVEDIR}/${1}.tar.xz"
       else
         run="tar czf ${ARCHIVEDIR}/${1}.tar.xz --exclude='*.sw[a-p]' --exclude='*~' ${2}"
