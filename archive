@@ -13,22 +13,34 @@ function make_pathstring() {
   local pathstring=""
   local dir
   local link
+  local item
+  local target
 
   for item in "${@}"; do
     if [ -e "${item}" ]; then
       dir="$(pwd)"
+      target="${item}"
+
       if [ "${item:0:2}" = "\~/" ]; then
-        item="${HOME}/${item:2}"
-        dir="$(dirname "${item}")"
+        target="${HOME}/${item:2}"
+        dir="$(dirname "${target}")"
+        target="$(basename "${target}")"
       fi
+
       if [ -L "${item}" ]; then
         link="$(readlink -f "${item}")"
         dir="$(dirname "${link}")"
-        item="$(basename "${link}")"
+        target="$(basename "${link}")"
       fi
-      pathstring+="-C "\"${dir}\"" "\"${item}\"" "
+
+      if [[ "${item}" =~ ^/ ]]; then
+        dir="$(dirname "${item}")"
+        target="$(basename "${item}")"
+      fi
+
+      pathstring="${pathstring} -C ${dir@Q} ${target@Q}"
     else
-      show_error "Item ${item} does not exist. Exiting."
+      show_error "ERROR: ${item@Q} does not exist. Exiting."
       exit 2
     fi
   done
