@@ -117,20 +117,11 @@ function compress_archive() {
 # - 3. $HOME/Desktop
 function check_archive_dir() {
   if ! [[ -v ARCHIVEDIR ]]; then
-    if [[ -v archivedir ]]; then
-      if [ -n "${archivedir}" ]; then
-        ARCHIVEDIR="${archivedir}"
-      else
-        ARCHIVEDIR="${HOME}/Desktop"
-      fi
-    else
-      ARCHIVEDIR="${HOME}/Desktop"
-      show_warning "WARNING: Output defaulting to ${ARCHIVEDIR@Q} directory."
-    fi
-  else
-    if ! [[ -d "${ARCHIVEDIR}" ]]; then
-      show_error "ERROR: Output ${ARCHIVEDIR@Q} does not exist. Exiting."
-    fi
+    ARCHIVEDIR="${archivedir:-${HOME}/Desktop}"
+  fi
+  if ! [ -d "${ARCHIVEDIR}" ]; then
+    show_error "ERROR: Destination ${ARCHIVEDIR@Q} does not exist. Exiting."
+    exit 3
   fi
 }
 
