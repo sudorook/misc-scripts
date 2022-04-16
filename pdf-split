@@ -53,13 +53,8 @@ elif ! [[ -f "${IN}" ]]; then
   exit 3
 fi
 
-if ! [[ -v FIRST ]]; then
-  FIRST=1
-fi
-
-if ! [[ -v LAST ]]; then
-  LAST=${PAGES}
-fi
+FIRST="${FIRST:-1}"
+LAST="${LAST:-${PAGES}}"
 
 if (( LAST > PAGES )); then
   show_warning "WARNING: ${LAST@Q} exceeds number of pages ${PAGES@Q}."
