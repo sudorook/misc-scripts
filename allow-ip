@@ -50,9 +50,7 @@ if ! [[ -v IP ]]; then
 fi
 
 # If the net mask is not specified, only allow the IP address given.
-if ! [[ -v MASK ]]; then
-  MASK=32
-fi
+MASK="${MASK:-32}"
 
 GATEWAY=$(ip route list | \
           grep -e "enp[0-9]\+s[0-9a-f]\+" -e "wlp[0-9]\+s[0-9a-f]\+" | \
