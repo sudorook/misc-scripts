@@ -1,0 +1,69 @@
+#! /bin/bash
+set -eu
+source globals
+
+make_prefix() {
+  local prefix
+  prefix="$(basename "${DIR}")-${TAG}"
+  echo "${prefix}"
+}
+
+print_usage() {
+  show_header "Usage: git-archive"
+  echo "  -d|--dir         directory of git repository to archive"
+  echo "  -t|--tag         tag/branch to archive (e.g. master, HEAD~5, etc.)"
+  echo "  -z|--compress    compression type (zip, gz, xz, or zst)"
+  echo "  -h|--help        show (this) help message"
+}
+
+DIR="${PWD}"
+TAG="HEAD"
+Z="zip"
+
+OPTIONS=d:t:z:h
+LONGOPTIONS=dir:,tag:,compress:,help
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ ${#} -ge 1 ]; do
+  case ${1} in
+    -d|--dir)
+      DIR="${2}"
+      shift 2
+      ;;
+    -t|--tag)
+      TAG="${2}"
+      shift 2
+      ;;
+    -z|--compress)
+      case "${2}" in
+        gz|xz|zst|zstd)
+          Z="tar.${2}"
+          ;;
+        zip|Zip|ZIP)
+          Z="zip"
+          ;;
+        *)
+          show_warning "WARNING: ${2@Q} not understood. Defaulting to ${Z@Q}"
+          ;;
+      esac
+      shift 2
+      ;;
+    -h|--help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR: invalid flag."
+      print_usage
+      exit 3
+      ;;
+  esac
+done
+
+PREFIX="$(make_prefix)"
+git -C "${DIR}" archive --prefix="${PREFIX}/" "${TAG}" -o "${PWD}/${PREFIX}.${Z}"
