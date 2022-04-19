@@ -1,52 +1,53 @@
 #! /usr/bin/env python3
-""" Detect base64-encoded text in emails and convert to UTF-8. """
+"""Detect base64-encoded text in emails and convert to UTF-8."""
 
 import base64
 import os
 import sys
 import re
 
-INFILE=sys.argv[1]
+INFILE = sys.argv[1]
+
 
 def parse_input(raw_data):
-    """ Parse lines of raw data, and convert any detetcted base64 to UTF-8. """
+    """Parse lines of raw data, and convert any detetcted base64 to UTF-8."""
     base64_flag = False
     chunks = []
     chunk = ""
     for line in raw_data:
         if base64_flag is False:
-            if re.match(r'^Content-Transfer-Encoding: base64', line):
+            if re.match(r"^Content-Transfer-Encoding: base64", line):
                 base64_flag = True
                 chunks.append(chunk)
-                chunk = ''
+                chunk = ""
             else:
                 chunk += line
         else:
-            if re.match('^--', line):
+            if re.match("^--", line):
                 base64_flag = False
-                chunk = base64.b64decode(chunk).decode('utf-8')
-                chunk += '\n'+line
+                chunk = base64.b64decode(chunk).decode("utf-8")
+                chunk += "\n" + line
                 chunks.append(chunk)
-                chunk = ''
+                chunk = ""
             else:
                 chunk += line
     chunks.append(chunk)
-    return '\n'.join(chunks)
+    return "\n".join(chunks)
 
 
 def make_output_name(input_file):
-    """ Generate output file name by adding '_parsed' before the extension. """
+    """Generate output file name by adding '_parsed' before the extension."""
     [base, ext] = os.path.splitext(input_file)
-    base += '_parsed'
+    base += "_parsed"
     return base + ext
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if not os.path.isfile(INFILE):
         sys.exit(f"'{INFILE}' not a file. Exiting")
-    with open(INFILE, 'r', encoding='utf-8') as f:
+    with open(INFILE, "r", encoding="utf-8") as f:
         DATA = f.readlines()
     PARSED_DATA = parse_input(DATA)
-    OUTFILE=make_output_name(INFILE)
-    with open(OUTFILE, 'w', encoding='utf-8') as f:
+    OUTFILE = make_output_name(INFILE)
+    with open(OUTFILE, "w", encoding="utf-8") as f:
         f.write(PARSED_DATA)
