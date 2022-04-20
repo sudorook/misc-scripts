@@ -1,0 +1,37 @@
+#! /bin/bash
+set -eu
+source globals
+
+! check_command wget && exit 3
+
+#
+# Globals
+#
+
+AGENTSTRING='Mozilla/5.0 (Macintosh; Intel Mac OS X 12_3_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36'
+URL="${1}"
+DOMAIN="${URL//http*\:\/\//}"
+DOMAIN="${DOMAIN#www\.}"
+DOMAIN="${DOMAIN/\/*/}"
+NAME="${DOMAIN%.*}"
+
+#
+# Main
+#
+
+show_header "Crawling ${URL}..."
+wget \
+  --mirror \
+  --warc-file="${NAME}" \
+  --warc-cdx \
+  --page-requisites \
+  --html-extension \
+  --convert-links \
+  --execute robots=off \
+  --directory-prefix=. \
+  --span-hosts \
+  --domains="${DOMAIN}",www."${DOMAIN}",cdn."${DOMAIN}" \
+  --user-agent="${AGENTSTRING}" \
+  --wait=10 \
+  --random-wait \
+  "${URL}"
