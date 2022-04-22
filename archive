@@ -103,6 +103,27 @@ function compress_archive() {
         eval "${run}"
       fi
       ;;
+    zip)
+      if command -v zip >/dev/null 2>&1; then
+        local tmp=()
+        local delete=()
+        local item
+        local name
+        for item in "${ITEMS[@]}"; do
+          if [[ "${item}" =~ ^/ ]]; then
+            name="$(basename "${item}")"
+            ln -s "${item}" "${name}"
+            tmp+=("${name}")
+            delete+=("${name}")
+          else
+            tmp+=("${item}")
+          fi
+        done
+        zip -q -r "${ARCHIVEDIR}/${1}.zip" "${tmp[@]}" \
+          --exclude='*.sw[a-p]' --exclude='*~'
+        rm "${delete[@]}"
+      fi
+      ;;
     zstd)
       if command -v pzstd >/dev/null 2>&1; then
         run="tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}"
@@ -174,6 +195,9 @@ while [ ${#} -ge 1 ]; do
           ;;
         xz|xigz)
           Z=xz
+          ;;
+        zip)
+          Z=zip
           ;;
         *)
           show_error "ERROR: Compression ${2@Q} not supported. Exiting."
