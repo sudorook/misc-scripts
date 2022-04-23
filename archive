@@ -121,7 +121,9 @@ function compress_archive() {
         done
         zip -q -r "${ARCHIVEDIR}/${1}.zip" "${tmp[@]}" \
           --exclude='*.sw[a-p]' --exclude='*~'
-        rm "${delete[@]}"
+        if [ ${#delete[@]} -gt 0 ]; then
+          rm "${delete[@]}"
+        fi
       fi
       ;;
     zstd)
