@@ -2,7 +2,7 @@
 set -euo pipefail
 source globals
 
-get_terminal_profiles() {
+get_gnome_terminal_profiles() {
   IFS=' ' read -r -a ids <<< \
     "$(dconf read /org/gnome/terminal/legacy/profiles:/list | tr -d "[]',")"
   names=()
@@ -11,7 +11,7 @@ get_terminal_profiles() {
   done
 }
 
-switch_terminal_profile() {
+switch_gnome_terminal_profile() {
   local idx=0
   for name in "${names[@]}"; do
     if [ "$name" = "'$1'" ]; then
@@ -152,7 +152,7 @@ set_gtk_theme() {
 
   if [[ "$1" =~ [Nn]okto ]]; then
     switch_gtk_settings "Dark"
-    switch_terminal_profile "Dark"
+    switch_gnome_terminal_profile "Dark"
     switch_alacritty_theme "dark"
     switch_kitty_theme "dark"
     switch_vim_theme "dark"
@@ -163,7 +163,7 @@ set_gtk_theme() {
     switch_ebook_viewer_theme "Dark"
   elif [[ "$1" =~ ^[Aa]rc-[Dd]ark ]]; then
     switch_gtk_settings "Dark"
-    switch_terminal_profile "Dark"
+    switch_gnome_terminal_profile "Dark"
     switch_alacritty_theme "dark3"
     switch_kitty_theme "dark3"
     switch_vim_theme "dark3"
@@ -174,7 +174,7 @@ set_gtk_theme() {
     switch_ebook_viewer_theme "Dark"
   elif [[ "$1" =~ [Nn]oir ]] || [[ "$1" =~ [Dd]ark ]]; then
     switch_gtk_settings "Dark"
-    switch_terminal_profile "Dark"
+    switch_gnome_terminal_profile "Dark"
     switch_alacritty_theme "dark2"
     switch_kitty_theme "dark2"
     switch_vim_theme "dark2"
@@ -185,7 +185,7 @@ set_gtk_theme() {
     switch_ebook_viewer_theme "Dark"
   elif [[ "$1" =~ ^[Aa]dapta ]]; then
     switch_gtk_settings "Light"
-    switch_terminal_profile "Light"
+    switch_gnome_terminal_profile "Light"
     switch_alacritty_theme "light"
     switch_kitty_theme "light"
     switch_vim_theme "light"
@@ -196,7 +196,7 @@ set_gtk_theme() {
     switch_ebook_viewer_theme "Light"
   elif [[ "$1" =~ ^[Aa]rc-[Ll]ight ]] || [[ "$1" =~ ^[Aa]rc(-solid)?$ ]]; then
     switch_gtk_settings "Light"
-    switch_terminal_profile "Light"
+    switch_gnome_terminal_profile "Light"
     switch_alacritty_theme "light3"
     switch_kitty_theme "light3"
     switch_vim_theme "light3"
@@ -208,7 +208,7 @@ set_gtk_theme() {
   elif [[ "$1" =~ [Ll]ight ]] || [[ "$1" =~ [Ll]umine ]] || \
        [[ "$1" =~ ^[Mm]ateria$ ]]; then
     switch_gtk_settings "Light"
-    switch_terminal_profile "Light"
+    switch_gnome_terminal_profile "Light"
     switch_alacritty_theme "light2"
     switch_kitty_theme "light2"
     switch_vim_theme "light2"
@@ -249,7 +249,7 @@ LONGOPTIONS=gtk:,icon:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
-get_terminal_profiles
+get_gnome_terminal_profiles
 while [ $# -ge 1 ]; do
   case "$1" in
     -g|--gtk)
