@@ -2,6 +2,37 @@
 set -euo pipefail
 source globals
 
+switch_dconf_theme() {
+  if ! [[ -v XDG_CURRENT_DESKTOP ]]; then return; fi
+  case $XDG_CURRENT_DESKTOP in
+    X-Cinnamon)
+      gsettings set org.cinnamon.desktop.interface gtk-theme "'$1'"
+      gsettings set org.cinnamon.desktop.wm.preferences theme "'$1'"
+      if [[ "$1" =~ "-Eta" ]]; then
+        gsettings set org.cinnamon.theme name "'${1%-*}'"
+      elif [[ "$1" =~ "-Compact" ]]; then
+        gsettings set org.cinnamon.theme name "'${1%-*}'"
+      elif [[ "$1" =~ "-Darker" ]]; then
+        gsettings set org.cinnamon.theme name "'${1%er}'"
+      elif [[ "$1" =~ "-Lighter" ]]; then
+        gsettings set org.cinnamon.theme name "'${1%-*}'"
+      else
+        gsettings set org.cinnamon.theme name "'$1'"
+      fi
+      ;;
+    ubuntu:GNOME|GNOME)
+      gsettings set org.gnome.desktop.wm.preferences theme "'$1'"
+      gsettings set org.gnome.desktop.interface gtk-theme "'$1'"
+      gnome-extensions enable "user-theme@gnome-shell-extensions.gcampax.github.com" || true >/dev/null
+      gsettings set org.gnome.shell.extensions.user-theme name "'$1'"
+      ;;
+    *)
+      show_error "$XDG_CURRENT_DESKTOP environment not supported."
+      exit 3
+      ;;
+  esac
+}
+
 switch_environment_d_theme() {
   local envvarconf="${HOME}/environment.d/envvars.conf"
   if [ -f "${envvarconf}" ]; then
@@ -129,35 +160,7 @@ switch_ebook_viewer_theme() {
 }
 
 set_gtk_theme() {
-  if ! [[ -v XDG_CURRENT_DESKTOP ]]; then return; fi
-  case $XDG_CURRENT_DESKTOP in
-    X-Cinnamon)
-      gsettings set org.cinnamon.desktop.interface gtk-theme "'$1'"
-      gsettings set org.cinnamon.desktop.wm.preferences theme "'$1'"
-      if [[ "$1" =~ "-Eta" ]]; then
-        gsettings set org.cinnamon.theme name "'${1%-*}'"
-      elif [[ "$1" =~ "-Compact" ]]; then
-        gsettings set org.cinnamon.theme name "'${1%-*}'"
-      elif [[ "$1" =~ "-Darker" ]]; then
-        gsettings set org.cinnamon.theme name "'${1%er}'"
-      elif [[ "$1" =~ "-Lighter" ]]; then
-        gsettings set org.cinnamon.theme name "'${1%-*}'"
-      else
-        gsettings set org.cinnamon.theme name "'$1'"
-      fi
-      ;;
-    ubuntu:GNOME|GNOME)
-      gsettings set org.gnome.desktop.wm.preferences theme "'$1'"
-      gsettings set org.gnome.desktop.interface gtk-theme "'$1'"
-      gnome-extensions enable "user-theme@gnome-shell-extensions.gcampax.github.com" || true >/dev/null
-      gsettings set org.gnome.shell.extensions.user-theme name "'$1'"
-      ;;
-    *)
-      show_error "$XDG_CURRENT_DESKTOP environment not supported."
-      exit 3
-      ;;
-  esac
-
+  switch_dconf_theme "${1}"
   switch_environment_d_theme "${1}"
 
   if [[ "$1" =~ [Nn]okto ]]; then
