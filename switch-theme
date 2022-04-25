@@ -2,6 +2,13 @@
 set -euo pipefail
 source globals
 
+switch_environment_d_theme() {
+  local envvarconf="${HOME}/environment.d/envvars.conf"
+  if [ -f "${envvarconf}" ]; then
+    sed -i "s/^GTK_THEME=.*$/GTK_THEME=${1}/g" "${envvarconf}"
+  fi
+}
+
 get_gnome_terminal_profiles() {
   IFS=' ' read -r -a ids <<< \
     "$(dconf read /org/gnome/terminal/legacy/profiles:/list | tr -d "[]',")"
@@ -27,13 +34,6 @@ switch_vim_theme() {
     sed -i "s/^set background=.*$/set background=${1//[0-9]}/g" "${HOME}/.vimrc"
     sed -i "s/^  let g:colorific_style='.*'$/  let g:colorific_style='${1}'/g" "${HOME}/.vimrc"
     sed -i "s/^set bg=.*$/set bg=${1}/g" "${HOME}/.vimrc"
-  fi
-}
-
-switch_environment_d_theme() {
-  local envvarconf="${HOME}/environment.d/envvars.conf"
-  if [ -f "${envvarconf}" ]; then
-    sed -i "s/^GTK_THEME=.*$/GTK_THEME=${1}/g" "${envvarconf}"
   fi
 }
 
@@ -151,13 +151,14 @@ set_gtk_theme() {
       gsettings set org.gnome.desktop.interface gtk-theme "'$1'"
       gnome-extensions enable "user-theme@gnome-shell-extensions.gcampax.github.com" || true >/dev/null
       gsettings set org.gnome.shell.extensions.user-theme name "'$1'"
-      switch_environment_d_theme "${1}"
       ;;
     *)
       show_error "$XDG_CURRENT_DESKTOP environment not supported."
       exit 3
       ;;
   esac
+
+  switch_environment_d_theme "${1}"
 
   if [[ "$1" =~ [Nn]okto ]]; then
     switch_gtk_settings "Dark"
