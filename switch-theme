@@ -2,7 +2,7 @@
 set -euo pipefail
 source globals
 
-switch_dconf_theme() {
+switch_dconf_gtk_theme() {
   if ! [[ -v XDG_CURRENT_DESKTOP ]]; then return; fi
   case $XDG_CURRENT_DESKTOP in
     X-Cinnamon)
@@ -33,7 +33,7 @@ switch_dconf_theme() {
   esac
 }
 
-switch_environment_d_theme() {
+switch_environment_d_gtk_theme() {
   local envvarconf="${HOME}/environment.d/envvars.conf"
   if [ -f "${envvarconf}" ]; then
     sed -i "s/^GTK_THEME=.*$/GTK_THEME=${1}/g" "${envvarconf}"
@@ -160,8 +160,8 @@ switch_ebook_viewer_theme() {
 }
 
 set_gtk_theme() {
-  switch_dconf_theme "${1}"
-  switch_environment_d_theme "${1}"
+  switch_dconf_gtk_theme "${1}"
+  switch_environment_d_gtk_theme "${1}"
 
   if [[ "$1" =~ [Nn]okto ]]; then
     switch_gtk_settings "Dark"
