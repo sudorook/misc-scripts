@@ -5,15 +5,16 @@ source globals
 get_gnome_terminal_profiles() {
   IFS=' ' read -r -a ids <<< \
     "$(dconf read /org/gnome/terminal/legacy/profiles:/list | tr -d "[]',")"
-  names=()
+  NAMES=()
   for id in "${ids[@]}"; do
-    names+=("$(dconf read "/org/gnome/terminal/legacy/profiles:/:${id}/visible-name")")
+    NAMES+=("$(dconf read "/org/gnome/terminal/legacy/profiles:/:${id}/visible-name")")
   done
 }
 
 switch_gnome_terminal_profile() {
   local idx=0
-  for name in "${names[@]}"; do
+  local name
+  for name in "${NAMES[@]}"; do
     if [ "$name" = "'$1'" ]; then
       dconf write /org/gnome/terminal/legacy/profiles:/default "'${ids[$idx]}'"
     fi
