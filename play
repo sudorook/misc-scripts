@@ -14,7 +14,7 @@ print_list() {
     find "${DIR}" -type f -name "*.${FORMAT}" -print
   else
     find "${DIR}" -type f -name "*.${FORMAT}" -print0 | \
-      parallel -0 '[ $(echo "$(ffprobe -v error -show_entries stream=duration -select_streams 0 -of compact=p=0:nk=1 {}) > ${CUTOFF}" | bc -l) -eq 1 ] && echo {}'
+      parallel -0 '[ $(echo "$(ffprobe -v error -show_entries stream=duration -select_streams a:0 -of default=noprint_wrappers=1:nk=1 {}) > ${CUTOFF}" | bc -l) -eq 1 ] && echo {}'
   fi
 }
 
