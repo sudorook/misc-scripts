@@ -142,7 +142,15 @@ function precise_seek {
 }
 
 function destroy {
-  xargs -n 1 -exec rm -rf
+  local item
+  local parent
+  while read -r item; do
+    parent="$(dirname "${item}")"
+    rm -rf "${item}"
+    if [[ "${parent}" != . ]]; then
+      rmdir -p --ignore-fail-on-non-empty "${parent}"
+    fi
+  done
 }
 
 
