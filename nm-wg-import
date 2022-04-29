@@ -53,7 +53,13 @@ function rename_wg_iface {
   local in="${1}"
   local oldname="${in%.*}"
   local newname="${2}"
-  nmcli conn modify "${oldname}" connection.id "${newname}"
+  local id="${1##*[-_]}"
+  id="${id%.*}"
+  if [[ "${newname}" =~ ${id} ]]; then
+    nmcli conn modify "${oldname}" connection.id "${newname}"
+  else
+    nmcli conn modify "${oldname}" connection.id "${newname} (${id})"
+  fi
 }
 
 function print_usage {
