@@ -63,7 +63,7 @@ function rename_wg_iface {
 }
 
 function print_usage {
-  show_info "Usage: wg-nm -i <config file> -n <wg connection name>"
+  show_info "Usage: nm-wg-import -i <config file> -n <wg connection name>"
 }
 
 
