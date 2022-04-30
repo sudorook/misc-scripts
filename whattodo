@@ -21,6 +21,13 @@ IGNORES=("node_modules")
 # Functions
 #
 
+function print_todo {
+  local file="${1}"
+  show_info "${file}"
+  cat "${file}"
+  echo && echo
+}
+
 function find_todo {
   local file
   local files
@@ -76,15 +83,11 @@ fi
 # Search every directory in ${projectdir} for a file matching one in ${FILES}
 # as long as it is not also specified in ${ignoreprojectdirs}.
 while read -r TODO; do
-  show_info "${TODO}"
-  cat "${TODO}"
-  echo && echo
+  print_todo "${TODO}"
 done < <(find_todo)
 
 for EXTRA in "${EXTRAS[@]}"; do
   if [ -f "${EXTRA}" ]; then
-    show_info "${EXTRA}"
-    cat "${EXTRA}"
-    echo && echo
+    print_todo "${EXTRA}"
   fi
 done
