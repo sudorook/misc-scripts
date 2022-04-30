@@ -7,10 +7,10 @@ source globals
 #
 
 # File name(s) that contain todo lists.
-FILES=({TODO,todo}{.md,.txt,.rtf})
+FILES=({TODO,TO-DO}{.md,.txt,.rtf})
 
 # Extra hard-coded files not in ${projectsdir} (can be left empty).
-EXTRAS=({"${HOME}/Desktop/","${HOME}/"}{TODO,todo}{.md,.txt,.rtf})
+EXTRAS=({"${HOME}/Desktop/","${HOME}/"}{TODO,TO-DO}{.md,.txt,.rtf})
 
 # Directories to ignore when searching for lists. Redundant with
 # $ignoreprojectdirs variable.
@@ -37,9 +37,9 @@ function find_todo {
 
   for file in "${FILES[@]}"; do
     if [[ ! -v files ]]; then
-      files="-name ${file}"
+      files="-iname ${file}"
     else
-      files="${files} -o -name ${file}"
+      files="${files} -o -iname ${file}"
     fi
   done
 
