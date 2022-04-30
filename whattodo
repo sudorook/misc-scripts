@@ -27,7 +27,10 @@ function print_todo {
   cat "${file}"
   echo && echo
 }
+export -f print_todo
 
+# Search every directory in ${projectdir} for a file matching one in ${FILES}
+# as long as it is not also specified in ${ignoreprojectdirs}.
 function find_todo {
   local file
   local files
@@ -45,23 +48,23 @@ function find_todo {
 
   for ignore in "${IGNORES[@]}"; do
     if [[ ! -v ignores ]]; then
-      ignores="-path \"*${ignore}*\""
+      ignores="-name \"${ignore}\""
     else
-      ignores="${ignores} -o -path \"*${ignore}*\""
+      ignores="${ignores} -o -name \"${ignore}\""
     fi
   done
 
   if [ "${#ignoreprojectdirs[@]}" -gt 0 ]; then
     for ignore in "${ignoreprojectdirs[@]}"; do
     if [[ ! -v ignores ]]; then
-      ignores="-path \"*${ignore}*\""
+      ignores="-name \"${ignore}\""
     else
-      ignores="${ignores} -o -path \"*${ignore}*\""
+      ignores="${ignores} -o -name \"${ignore}\""
     fi
     done
   fi
 
-  cmd="find ${projectdir@Q} \( ${ignores} \) -prune -o \( ${files} \) -print"
+  cmd="find ${projectdir@Q} \( ${ignores} \) -prune , \( ${files} \) -exec bash -c 'print_todo \"\${1}\"' bash {} \;"
   eval "${cmd}"
 }
 
