@@ -65,6 +65,15 @@ function find_todo {
   eval "${cmd}"
 }
 
+function find_extra_todo {
+  local todo
+  for todo in "${EXTRAS[@]}"; do
+    if [ -f "${todo}" ]; then
+      print_todo "${todo}"
+    fi
+  done
+}
+
 
 #
 # Main
@@ -80,14 +89,5 @@ else
   exit 1
 fi
 
-# Search every directory in ${projectdir} for a file matching one in ${FILES}
-# as long as it is not also specified in ${ignoreprojectdirs}.
-while read -r TODO; do
-  print_todo "${TODO}"
-done < <(find_todo)
-
-for EXTRA in "${EXTRAS[@]}"; do
-  if [ -f "${EXTRA}" ]; then
-    print_todo "${EXTRA}"
-  fi
-done
+find_todo
+find_extra_todo
