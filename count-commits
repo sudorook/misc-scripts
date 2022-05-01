@@ -4,54 +4,71 @@ source globals
 
 ! check_command awk git && exit 3
 
+
+#
+# Functions
+#
+
 get_count() {
   local dir
-  local count
   local cmd
-
   dir=${1%/*}
   if git -C "${dir}" rev-parse 2>/dev/null; then
-    if git -C "${dir}" log --oneline >/dev/null 2>&1; then
-      #                                         ^^^^
-      # Pipe stderr to stdout (and then to /dev/null) to suppress error
-      # messages git prints when a repository is empty, etc.
-      cmd="git -C \"${dir}\" log --format='%at %aN'"
-      if [ -n "${TIMECOUNT}" ] && [ -n "${TIMEUNIT}" ]; then
-        cmd+=" | awk -F ' ' -v cutoff=$(date -d -"${TIMECOUNT}${TIMEUNIT}" +%s) '{if (cutoff<=\$1) {print \$0}}'"
-      fi
-      if [ -n "${AUTHOR}" ]; then
-        cmd+=" | cut -d' ' -f2 | grep ^${AUTHOR}$"
-      fi
-      count=$(eval "${cmd}" | wc -l)
-      echo "${count}"
+    cmd="git -C ${dir@Q} rev-list --count --all"
+    if [ -n "${AUTHOR}" ]; then
+      cmd="${cmd} --author=${AUTHOR@Q}"
     fi
+    if [ -n "${SINCE}" ]; then
+      cmd="${cmd} --since=$(date -d -"${SINCE}" +%s)"
+    fi
+    if [ -n "${UNTIL}" ]; then
+      cmd="${cmd} --until=$(date -d -"${UNTIL}" +%s)"
+    else
+      cmd="${cmd} --until=$(date -d now +%s)"
+    fi
+    eval "${cmd}"
   fi
 }
 export -f get_count
 
 
-OPTIONS=ha:d:
-LONGOPTIONS=help,author:,during:
+#
+# Main
+#
+
+SINCE=
+UNTIL=
+AUTHOR=
+PROJECTDIR="${projectdir:-$HOME}"
+
+OPTIONS=ha:s:u:
+LONGOPTIONS=help,author:,since:,until:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
 while [ $# -ge 1 ]; do
   case "$1" in
     -a|--author)
-      export AUTHOR=${2}
+      AUTHOR=${2}
       shift 2
       ;;
-    -d|--during)
-      export TIMECOUNT=${2%%[A-Za-z]*}
-      export TIMEUNIT=${2##*[0-9]}
+    -s|--since)
+      SINCE=${2}
+      shift 2
+      ;;
+    -u|--until)
+      UNTIL=${2}
       shift 2
       ;;
     -h|--help)
-      echo "Usage: count-commits -a|--author <author> -d|--during <period>"
+      echo "Usage: count-commits -a|--author <author>"
+      echo "                     -s|--since  <time>"
+      echo "                     -u|--until  <time>"
       echo
       echo "  author = the author of the commit"
-      echo "  period = the period counting back from now that you want to"
-      echo "           search for commits, e.g. 1week, 2years, 3days, etc."
+      echo "  time   = the period counting back from now, formatted in a way"
+      echo "           understandable by 'date' from coreutils (e.g. 1week,"
+      echo "           2years, 3days, etc.)"
       exit
       ;;
     --)
@@ -65,10 +82,9 @@ while [ $# -ge 1 ]; do
   esac
 done
 
-if [[ -v projectdir ]] && [ -e "${projectdir}" ]; then
-  find -L "${projectdir}" -maxdepth 5 -type d -name ".git" \
-    -exec bash -c 'get_count "${1}"' bash {} \; | awk '{s+=$1}END{print s}'
-else
-  find -L "${HOME}" -maxdepth 5 -type d -name ".git" \
-    -exec bash -c 'get_count "${1}"' bash {} \; | awk '{s+=$1}END{print s}'
-fi
+export AUTHOR
+export SINCE
+export UNTIL
+
+find -L "${PROJECTDIR}" -maxdepth 5 -type d -name ".git" \
+  -exec bash -c 'get_count "${1}"' bash {} \; | awk '{s+=$1}END{print s}'
