@@ -29,9 +29,20 @@ IGNOREDIRS="-name '.git'\
 
 function strip_missing {
   local i
-  for i in $(git -C "${IN}" ls-files -d); do
-    sed "s/${i}\x00//g"
-  done
+  local missing
+  local cmd="sed"
+
+  IFS=$'\n' readarray -t missing <<<"$(git -C "${IN}" ls-files -d)"
+  if [ -n "${missing[*]}" ]; then
+    for i in "${missing[@]}"; do
+      if [ -n "${i}" ]; then
+        cmd="${cmd} -e 's,${i}\x00,,'"
+      fi
+    done
+    eval "${cmd}"
+  else # if no files have been deleted, pass stdin to stdout
+    cat
+  fi
 }
 
 if [ $# -gt 1 ]; then
