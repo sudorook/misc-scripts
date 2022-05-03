@@ -2,10 +2,7 @@
 set -eu
 source globals
 
-if [ $# = 0 ]; then
-  find . \( -name '*.sw[a-p]' -o -name '*.bak' -o -name '*~' \) \
-    -exec rm -rf -- '{}' +
-else
-  find "${@}" \( -name '*.sw[a-p]' -o -name '*.bak' -o -name '*~' \) \
-    -exec rm -rf -- '{}' +
-fi
+IN=("${@:-.}")
+
+find "${IN[@]}" -type f \( -name '*.sw[a-p]' -o -name '*.bak' -o -name '*~' \) \
+  -exec rm -rvf -- '{}' +
