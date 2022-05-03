@@ -2,6 +2,10 @@
 set -eu
 source globals
 
+#
+# Globals
+#
+
 IGNOREFILES="-iname '*.pdf'\
              -o -iname '*.db'\
              -o -iname '*.bin'\
@@ -27,6 +31,10 @@ IGNOREDIRS="-name '.git'\
             -o -name '.deps'\
             -o -name 'autom4te.cache'"
 
+#
+# Functions
+#
+
 function strip_missing {
   local i
   local missing
@@ -44,6 +52,10 @@ function strip_missing {
     cat
   fi
 }
+
+#
+# Main
+#
 
 if [ $# -gt 1 ]; then
   show_warning "WARNING: Ignoring inputs ${*:2}."
