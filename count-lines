@@ -2,98 +2,45 @@
 set -eu
 source globals
 
-IGNOREFILES="-name '*.pdf'\
-             -o -name '*.db'\
-             -o -name '*.bin'\
-             -o -name '*.dat'\
-             -o -name '*.Rhistory'\
-             -o -name '*.doc*'\
-             -o -name '*.ppt*'\
-             -o -name '*.png'\
-             -o -name '*.jpg'\
-             -o -name '*.tiff?'\
-             -o -name '*.gif'\
-             -o -name '*.sw[a-p]'\
-             -o -name '*~'\
-             -o -name '*.tar.*'\
-             -o -name '*.zip'\
-             -o -name '*.git*'\
-             -o -name '*.tgz'"
-IGNOREDIRS="-path '*/.git/*'\
-            -o -path '*/bin/*'\
-            -o -path '*/.deps/*'\
-            -o -path '*/autom4te.cache/*'"
-# BINIGNOREFILES=
-GITIGNOREFILES=
+IGNOREFILES="-iname '*.pdf'\
+             -o -iname '*.db'\
+             -o -iname '*.bin'\
+             -o -iname '*.dat'\
+             -o -iname '.Rhistory'\
+             -o -iname '*.doc*'\
+             -o -iname '*.ppt*'\
+             -o -iname '*.png'\
+             -o -iname '*.svg'\
+             -o -iname '*.jpg'\
+             -o -iname '*.tiff?'\
+             -o -iname '*.gif'\
+             -o -name '.gitignore'\
+             -o -name '.gitattributes'\
+             -o -iname '*.sw[a-p]'\
+             -o -iname '*~'\
+             -o -iname '*.tar.*'\
+             -o -iname '*.zip'\
+             -o -iname '*.tgz'"
+IGNOREDIRS="-name '.git'\
+            -o -name '.github'\
+            -o -name 'bin'\
+            -o -name '.deps'\
+            -o -name 'autom4te.cache'"
 
-# function check_binary {
-#   [[ "$(file -b --mime-encoding "${1}")" = binary ]] && return 0 || return 1
-# }
-# export -f check_binary
-#
-# # Parse out any files with binary character encodings.
-# function find_binfiles {
-#   local binignorefiles
-#
-#   binignorefiles="$(eval \
-#                      "find ""${1}"" -type f \
-#                         -not \( ""${IGNOREFILES}"" \) \
-#                         -not \( ""${IGNOREDIRS}"" \) \
-#                         ${GITIGNOREFILES} \
-#                         -exec bash -c 'check_binary \"{}\"' \; \
-#                         -printf ' -o -path %p'")"
-#
-#   if [ -n "${binignorefiles}" ]; then
-#     binignorefiles="-not \\( ${binignorefiles:4} \\)"
-#   fi
-#   echo "${binignorefiles}"
-# }
+IN="${1:-.}"
 
-# Parse the .gitignore file if the input directory is a Git repository.
-function find_gitignorefiles {
-  ! check_command git && return
-  local gitignorefiles
-  if [ ${#} = 0 ]; then
-    if git rev-parse 2>/dev/null; then
-      gitignorefiles="$(find . -type f \
-                         -exec git check-ignore -q {} \; \
-                         -printf ' -o -path %p')"
-      if [ -n "${gitignorefiles}" ]; then
-        gitignorefiles="-not \\( ${gitignorefiles:4} \\)"
-      fi
-    fi
-  elif git -C "${1}" rev-parse 2>/dev/null; then
-    gitignorefiles="$(find "${1}" -type f \
-                        -exec git -C "${1}" check-ignore -q {} \; \
-                        -printf ' -o -path %p')"
-    if [ -n "${gitignorefiles}" ]; then
-      gitignorefiles="-not \\( ${gitignorefiles:4} \\)"
-    fi
+if [ -f "${IN}" ]; then
+  wc -l "${IN}"
+elif [ -d "${IN}" ]; then
+  if git -C "${IN}" rev-parse 2>/dev/null; then
+    CMD="git -C ${IN@Q} ls-files -co ${IN@Q} | find"
   else
-    gitignorefiles=
+    CMD="find ${IN@Q}"
   fi
-  echo "${gitignorefiles}"
-}
-
-if [ ${#} = 0 ]; then
-  GITIGNOREFILES="$(find_gitignorefiles .)"
-  eval "find . -type f \
-    -not \( ${IGNOREFILES} \) \
-    -not \( ${IGNOREDIRS} \) \
-    ${GITIGNOREFILES} \
-    -exec wc -l -- '{}' +"
+  CMD="${CMD} \( ${IGNOREDIRS} \) -prune , -type f -not \( ${IGNOREFILES} \)"
+  CMD="${CMD} -exec wc -l -- {} +"
+  eval "${CMD}"
 else
-  if [ -d "${1}" ]; then
-    GITIGNOREFILES="$(find_gitignorefiles "${1}")"
-    eval "find ${1@Q} -type f \
-      -not \( ${IGNOREFILES} \) \
-      -not \( ${IGNOREDIRS} \) \
-      ${GITIGNOREFILES} \
-      -exec wc -l -- '{}' +"
-  elif [ -f "${1}" ]; then
-    wc -l "${1}"
-  else
-    show_error "Unknown ${1}."
-    exit 3
-  fi
+  show_error "ERROR: Unknown input ${1@Q}."
+  exit 3
 fi
