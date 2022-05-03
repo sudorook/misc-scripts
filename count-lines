@@ -37,7 +37,7 @@ if [ -f "${IN}" ]; then
   wc -l "${IN}"
 elif [ -d "${IN}" ]; then
   if git -C "${IN}" rev-parse 2>/dev/null; then
-    CMD="git -C ${IN@Q} ls-files -co ${IN@Q} | find"
+    CMD="git -C ${IN@Q} ls-files -co --exclude-per-directory=.gitignore -z | find -files0-from -"
   else
     CMD="find ${IN@Q}"
   fi
