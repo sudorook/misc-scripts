@@ -27,6 +27,13 @@ IGNOREDIRS="-name '.git'\
             -o -name '.deps'\
             -o -name 'autom4te.cache'"
 
+function strip_missing {
+  local i
+  for i in $(git -C "${IN}" ls-files -d); do
+    sed "s/${i}\x00//g"
+  done
+}
+
 if [ $# -gt 1 ]; then
   show_warning "WARNING: Ignoring inputs ${*:2}."
 fi
@@ -37,7 +44,7 @@ if [ -f "${IN}" ]; then
   wc -l "${IN}"
 elif [ -d "${IN}" ]; then
   if git -C "${IN}" rev-parse 2>/dev/null; then
-    CMD="git -C ${IN@Q} ls-files -co --exclude-per-directory=.gitignore -z | find -files0-from -"
+    CMD="git -C ${IN@Q} ls-files -co --exclude-per-directory=.gitignore -z | strip_missing | find -files0-from - -maxdepth 0"
   else
     CMD="find ${IN@Q}"
   fi
