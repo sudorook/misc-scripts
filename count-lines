@@ -27,6 +27,10 @@ IGNOREDIRS="-name '.git'\
             -o -name '.deps'\
             -o -name 'autom4te.cache'"
 
+if [ $# -gt 1 ]; then
+  show_warning "WARNING: Ignoring inputs ${*:2}."
+fi
+
 IN="${1:-.}"
 
 if [ -f "${IN}" ]; then
