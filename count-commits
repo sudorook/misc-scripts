@@ -39,7 +39,6 @@ export -f get_count
 SINCE=
 UNTIL=
 AUTHOR=
-PROJECTDIR="${projectdir:-$HOME}"
 
 OPTIONS=ha:s:u:
 LONGOPTIONS=help,author:,since:,until:
@@ -86,5 +85,8 @@ export AUTHOR
 export SINCE
 export UNTIL
 
-find -L "${PROJECTDIR}" -maxdepth 5 -type d -name ".git" \
+projectdir="${projectdir:-$HOME}"
+PROJECTDIR=("${@:-$projectdir}")
+
+find -L "${PROJECTDIR[@]}" -maxdepth 5 -type d -name ".git" \
   -exec bash -c 'get_count "${1}"' bash {} \; | awk '{s+=$1}END{print s}'
