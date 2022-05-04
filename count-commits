@@ -15,8 +15,8 @@ get_count() {
   dir=${1%/*}
   if git -C "${dir}" rev-parse 2>/dev/null; then
     cmd="git -C ${dir@Q} rev-list --count --all"
-    if [ -n "${AUTHOR}" ]; then
-      cmd="${cmd} --author=${AUTHOR@Q}"
+    if [ -n "${AUTHOR}" ] || [ -n "${EMAIL}" ]; then
+      cmd="${cmd} --author=^${AUTHOR:-.*}\ \<${EMAIL:-.*}\>$"
     fi
     if [ -n "${SINCE}" ]; then
       cmd="${cmd} --since=$(date -d -"${SINCE}" +%s)"
@@ -39,9 +39,10 @@ export -f get_count
 SINCE=
 UNTIL=
 AUTHOR=
+EMAIL=
 
-OPTIONS=ha:s:u:
-LONGOPTIONS=help,author:,since:,until:
+OPTIONS=ha:e:s:u:
+LONGOPTIONS=help,author:,email:,since:,until:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -49,6 +50,10 @@ while [ $# -ge 1 ]; do
   case "$1" in
     -a|--author)
       AUTHOR=${2}
+      shift 2
+      ;;
+    -e|--email)
+      EMAIL=${2}
       shift 2
       ;;
     -s|--since)
@@ -82,6 +87,7 @@ while [ $# -ge 1 ]; do
 done
 
 export AUTHOR
+export EMAIL
 export SINCE
 export UNTIL
 
