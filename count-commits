@@ -14,7 +14,7 @@ get_count() {
   local cmd
   dir=${1%/*}
   if git -C "${dir}" rev-parse 2>/dev/null; then
-    cmd="git -C ${dir@Q} rev-list --count --all"
+    cmd="git -C ${dir@Q} rev-list --count --branches"
     if [ -n "${AUTHOR}" ] || [ -n "${EMAIL}" ]; then
       cmd="${cmd} --author=^${AUTHOR:-.*}\ \<${EMAIL:-.*}\>$"
     fi
