@@ -64,10 +64,12 @@ while [ $# -ge 1 ]; do
       ;;
     -h|--help)
       echo "Usage: count-commits -a|--author <author>"
+      echo "                     -e|--email  <email>"
       echo "                     -s|--since  <time>"
       echo "                     -u|--until  <time>"
       echo
-      echo "  author = the author of the commit"
+      echo "  author = the author of the commit(s)"
+      echo "  email  = email address for commit(s)"
       echo "  time   = the period counting back from now, formatted in a way"
       echo "           understandable by 'date' from coreutils (e.g. 1week,"
       echo "           2years, 3days, etc.)"
