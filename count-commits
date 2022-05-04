@@ -23,8 +23,6 @@ get_count() {
     fi
     if [ -n "${UNTIL}" ]; then
       cmd="${cmd} --until=$(date -d -"${UNTIL}" +%s)"
-    else
-      cmd="${cmd} --until=$(date -d now +%s)"
     fi
     eval "${cmd}"
   fi
