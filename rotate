@@ -61,7 +61,7 @@ if ! display_connected; then
   exit 3
 fi
 
-case ${ROTATION} in
+case ${ROTATION,,} in
   right)
     xrandr --output "${ID}" --rotate right
     dconf write /org/cinnamon/desktop/background/picture-uri "'file://${VERTICAL_BG}'"
