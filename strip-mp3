@@ -2,6 +2,21 @@
 set -eu
 source globals
 
+! check_command ffmpeg mid3v2 && exit 3
+
+#
+# Functions
+#
+
+function strip_wrapper {
+  local in="${1}"
+  local extension=${1##*.}
+  ffmpeg -i "${in}" -map_metadata -1 -map 0:a -c:a copy -f "${extension}" "${TMP}" -y
+  mid3v2 -D "${TMP}"
+  cp "${TMP}" "${in}"
+  sync
+}
+
 #
 # Check inputs and requirements.
 #
@@ -11,19 +26,17 @@ if ! [ -f "${1}" ]; then
   exit 3
 fi
 
-! check_command mid3v2 ffmpeg && exit 3
-
-
 #
 # Main
 #
 
 TMP="$(mktemp)"
-EXTENSION=${1##*.}
+trap 'rm -f ${TMP}; exit' INT TERM ERR EXIT
 
-trap 'rm -f ${TMP}; exit' INT TERM ERR
-
-ffmpeg -i "${1}" -map_metadata -1 -map 0:a -c:a copy -f "${EXTENSION}" "${TMP}" -y
-mid3v2 -D "${TMP}"
-mv "${TMP}" "${1}"
-sync
+for ITEM in "${@}"; do
+  if [ -f "${ITEM}" ]; then
+    strip_wrapper "${ITEM}"
+  else
+    show_warning "WARNING: skipping ${ITEM@Q}."
+  fi
+done
