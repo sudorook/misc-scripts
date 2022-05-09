@@ -2,11 +2,7 @@
 set -euo pipefail
 source globals
 
-! check_command ffmpeg ffprobe && exit 3
-
-if ! [ -f "$1" ]; then
-  show_error "ERROR: invalid input ${1}. Exiting."
-fi
+! check_command ffmpeg ffprobe sed && exit 3
 
 function get_stream_count {
   ffprobe -v error -show_format file:"${1}" | \
@@ -111,6 +107,25 @@ function dump_stream {
       ;;
   esac
 }
+
+
+#
+# Main
+#
+
+if [ $# -eq 0 ]; then
+  show_error "ERROR: No input given. Exiting."
+  exit 3
+fi
+
+if [ $# -gt 1 ]; then
+  show_warning "WARNING: skipping inputs ${*:2}."
+fi
+
+if ! [ -f "$1" ]; then
+  show_error "ERROR: invalid input ${1}. Exiting."
+  exit 3
+fi
 
 STREAM_N="$(get_stream_count "${1}")"
 for i in $(seq 1 "${STREAM_N}"); do
