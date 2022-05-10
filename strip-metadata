@@ -1,5 +1,5 @@
 #! /bin/bash
-set -euo pipefail
+set -Eeuo pipefail
 source globals
 
 ! check_command ffmpeg ffprobe sed && exit 3
