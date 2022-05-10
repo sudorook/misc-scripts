@@ -237,19 +237,20 @@ fi
 
 parse_streams
 
-if [[ "$(file -bi "${IN}")" =~ matroska ]]; then
+TYPE="$(file -bi "${IN}")"
+if [[ "${TYPE}" =~ matroska ]]; then
   if command -v mkvpropedit >/dev/null; then
     strip_matroska
   else
-    show_warning "Use mkvtoolnix-cli for better results. Defauling to ffmpeg."
+    show_warning "WARNING: mkvtoolnix-cli not found. Defaulting to ffmpeg."
     strip_generic "mkv"
   fi
-elif [[ "$(file -bi "${IN}")" =~ mp4|m4a ]]; then
+elif [[ "${TYPE}" =~ mp4|m4a ]]; then
   strip_generic "mp4"
-elif [[ "$(file -bi "${IN}")" =~ x-msvideo ]]; then
+elif [[ "${TYPE}" =~ x-msvideo ]]; then
   strip_generic "avi"
 else
-  show_error "ERROR: file type $(file -bi "${IN}") unsupported. Exiting."
+  show_error "ERROR: file type ${TYPE@Q} unsupported. Exiting."
   exit 3
 fi
 
