@@ -1,8 +1,8 @@
 #! /bin/bash
-set -eu
+set -euo pipefail
 source globals
 
-! check_command ffmpeg ffprobe && exit 3
+! check_command ffmpeg ffprobe sed && exit 3
 
 function strip_titles {
   echo "${1}"
