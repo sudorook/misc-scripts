@@ -8,6 +8,11 @@ function print_usage() {
   echo "Usage: add-cover -a|--audio <audio file> -c|--cover <cover image>"
 }
 
+function get_format() {
+  ffprobe -v error -show_format file:"${AUDIO}" | \
+    sed -n "s/^format_name=\(.*\)/\1/p"
+}
+
 KEEP=false
 
 OPTIONS=ha:c:k
@@ -19,8 +24,6 @@ while [ $# -ge 1 ]; do
   case "$1" in
     -a|--audio)
       AUDIO="${2}"
-      AUDIO_FORMAT=$(ffprobe -v error -show_format "${AUDIO}" | \
-                     sed -n "s/^format_name=\(.*\)/\1/p")
       shift 2
       ;;
     -c|--cover)
@@ -49,12 +52,12 @@ done
 TMP="$(mktemp)"
 trap 'rm -f "${TMP}"' INT TERM EXIT ERR
 
-if [[ -v COVER ]] || [[ -v AUDIO ]]; then
-  ffmpeg -i "${AUDIO}" -i "${COVER}" \
+if [[ -v COVER ]] && [[ -v AUDIO ]]; then
+  ffmpeg -i file:"${AUDIO}" -i file:"${COVER}" \
     -map_metadata 0 -map_chapters 0 -map 0 -map 1:0 \
-    -c copy -f "${AUDIO_FORMAT}" -y "${TMP}"
+    -c copy -f "$(get_format)" -y "${TMP}"
   if "${KEEP}"; then
-    mv "${AUDIO}" "${AUDIO}.bak"
+    mv "${AUDIO}" "${AUDIO}_$(date +%Y%m%d-%H%M%S).bak"
   fi
   mv "${TMP}" "${AUDIO}"
   sync
