@@ -22,7 +22,7 @@ function strip_wrapper {
 #
 
 if ! [ -f "${1}" ]; then
-  show_error "ERROR: ${1} not found. Exiting."
+  show_error "ERROR: ${1@Q} not a file. Exiting."
   exit 3
 fi
 
