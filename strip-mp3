@@ -11,7 +11,7 @@ source globals
 function strip_wrapper {
   local in="${1}"
   local extension=${1##*.}
-  ffmpeg -i "${in}" -map_metadata -1 -map 0:a -c:a copy -f "${extension}" "${TMP}" -y
+  ffmpeg -i file:"${in}" -map_metadata -1 -map 0:a -c:a copy -f "${extension}" file:"${TMP}" -y
   mid3v2 -D "${TMP}"
   cp "${TMP}" "${in}"
   sync
