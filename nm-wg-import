@@ -2,6 +2,8 @@
 set -eu
 source globals
 
+! check_command nmcli sed && exit 3
+
 function check_wg_config {
   local in="${1}"
   local name="${1%.*}"
