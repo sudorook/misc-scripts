@@ -405,8 +405,8 @@ function fill_dimensions {
 
 function compute_crop_filter {
   local cropfilter
-  cropfilter="$(ffmpeg -i "${1}" -vf 'cropdetect=24:2:0' -f null - 2>&1 | \
-                awk '/crop=/{ print $NF}' | tail -1)"
+  cropfilter="$(ffmpeg -i file:"${1}" -vf 'cropdetect=24:2:0' -f null - 2>&1 | \
+                awk '/crop=/{print $NF}' | tail -1)"
   echo "${cropfilter}"
 }
 
