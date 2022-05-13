@@ -24,7 +24,6 @@ function check_wg_config {
     if [[ "${conn_data}" =~ ipv6.addresses:\ *${ipv6addr} ]] && \
        [[ "${conn_data}" =~ ipv4.addresses:\ *${ipv4addr} ]] && \
        [[ "${conn_data}" =~ connection.interface-name:\ *${name} ]]; then
-       # [[ "${conn_data}" =~ ipv4.dns:\ *${dns} ]] && \
       found=true
       break
     fi
