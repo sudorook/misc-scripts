@@ -2,7 +2,7 @@
 set -eu
 source globals
 
-! check_command bc ffprobe mpv parallel && exit 3
+! check_command bc ffprobe mpv && exit 3
 
 
 #
@@ -39,8 +39,13 @@ print_list() {
   if [[ "${CUTOFF}" = 0 ]]; then
     find "${IN[@]}" -type f -name "*.${FORMAT}" -print
   else
-    find "${IN[@]}" -type f -name "*.${FORMAT}" -print0 | \
-      parallel -0 'check_duration {} && echo {}'
+    if command -v parallel >/dev/null; then
+      find "${IN[@]}" -type f -name "*.${FORMAT}" -print0 | \
+        parallel -0 'check_duration {} && echo {}'
+    else
+      find "${IN[@]}" -type f -name "*.${FORMAT}" \
+        -exec bash -c 'check_duration "${1}"' bash {} \; -print
+    fi
   fi
 }
 
