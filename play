@@ -2,7 +2,7 @@
 set -eu
 source globals
 
-! check_command ffprobe bc parallel && exit 3
+! check_command bc ffprobe mpv parallel && exit 3
 
 
 #
