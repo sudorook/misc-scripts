@@ -9,11 +9,26 @@ source globals
 # Functions
 #
 
+check_inputs() {
+  local item
+  for item in "${@}"; do
+    if [ -L "${item}" ]; then
+      item="$(readlink -f "${item}")"
+    fi
+    if [ -d "${item}" ] || [ -f "${item}" ]; then
+      continue
+    else
+      return 1
+    fi
+  done
+  return 0
+}
+
 print_list() {
   if [[ "${CUTOFF}" = 0 ]]; then
-    find "${DIR}" -type f -name "*.${FORMAT}" -print
+    find "${IN[@]}" -type f -name "*.${FORMAT}" -print
   else
-    find "${DIR}" -type f -name "*.${FORMAT}" -print0 | \
+    find "${IN[@]}" -type f -name "*.${FORMAT}" -print0 | \
       parallel -0 '[ $(echo "$(ffprobe -v error -show_entries stream=duration -select_streams a:0 -of default=noprint_wrappers=1:nk=1 file:{}) > ${CUTOFF}" | bc -l) -eq 1 ] && echo {}'
   fi
 }
@@ -68,10 +83,8 @@ done
 # Main
 #
 
-DIR="${1}"
-if ! [ -d "${DIR}" ]; then
-  show_error "ERROR: ${DIR@Q} not found. Exiting."
-fi
+IN=("${@}")
+! check_inputs "${IN[@]}" && exit 3
 export CUTOFF
 
 if "${SHUFFLE}"; then
