@@ -2,7 +2,7 @@
 set -euo pipefail
 source globals
 
-! check_command bc ffprobe mpv && exit 3
+! check_command ffprobe mpv && exit 3
 
 
 #
@@ -27,7 +27,7 @@ check_inputs() {
 check_duration() {
   local duration
   duration="$(ffprobe -v error -show_entries stream=duration -select_streams a:0 -of default=noprint_wrappers=1:nk=1 file:"${1}")"
-  if [ "$(echo "${duration} > ${CUTOFF}" | bc -l)" -eq 1 ]; then
+  if (( "${duration%.*}" >= "${CUTOFF}" )); then
     return 0
   else
     return 1
