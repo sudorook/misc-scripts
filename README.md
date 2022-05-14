@@ -37,10 +37,10 @@
 | `kvm-ls`           | list files in shared KVM directory                                     |
 | `kvm-mv`           | move file to shared KVM directory                                      |
 | `list-fonts`       | list all the fonts referenced in a subtitle file or directory          |
+| `mpv-play`         | play media above a duration cutoff                                     |
 | `nm-wg-import`     | import a WireGuard configuration file using Network Manager            |
 | `pdf-fixup`        | fix up the metadata in PDF files (newlines in tags, covers, etc.)      |
 | `pdf-split`        | extract range of pages from a PDF                                      |
-| `play`             | play media above a duration cutoff                                     |
 | `print-colors`     | print terminal colors                                                  |
 | `print-fontstring` | generate the FFmpeg format string to embed fonts in a container        |
 | `rate-song`        | write song rating metadata to beets database                           |
