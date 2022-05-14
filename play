@@ -24,12 +24,23 @@ check_inputs() {
   return 0
 }
 
+check_duration() {
+  local duration
+  duration="$(ffprobe -v error -show_entries stream=duration -select_streams a:0 -of default=noprint_wrappers=1:nk=1 file:"${1}")"
+  if [ "$(echo "${duration} > ${CUTOFF}" | bc -l)" -eq 1 ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+export -f check_duration
+
 print_list() {
   if [[ "${CUTOFF}" = 0 ]]; then
     find "${IN[@]}" -type f -name "*.${FORMAT}" -print
   else
     find "${IN[@]}" -type f -name "*.${FORMAT}" -print0 | \
-      parallel -0 '[ $(echo "$(ffprobe -v error -show_entries stream=duration -select_streams a:0 -of default=noprint_wrappers=1:nk=1 file:{}) > ${CUTOFF}" | bc -l) -eq 1 ] && echo {}'
+      parallel -0 'check_duration {} && echo {}'
   fi
 }
 
