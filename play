@@ -1,5 +1,5 @@
 #! /bin/bash
-set -eu
+set -euo pipefail
 source globals
 
 ! check_command bc ffprobe mpv && exit 3
