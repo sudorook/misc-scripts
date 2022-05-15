@@ -13,8 +13,13 @@ FILES=({TODO,TO-DO}{.md,.txt,.rtf})
 EXTRAS=({"${HOME}/Desktop/","${HOME}/"}{TODO,TO-DO}{.md,.txt,.rtf})
 
 # Directories to ignore when searching for lists. Redundant with
-# $ignoreprojectdirs variable.
+# $ignoreprojectdirs variable in globals.
 IGNORES=("node_modules")
+IGNORES+=("${ignoreprojectdirs[@]:-}")
+
+# Base directory to search for to-do lists. Uses the ${projectdir} variable in
+# globals by default, with ${HOME} as a fallback if unset.
+PROJECTDIR="${projectdir:-$HOME}"
 
 
 #
@@ -29,8 +34,8 @@ function print_todo {
 }
 export -f print_todo
 
-# Search every directory in ${projectdir} for a file matching one in ${FILES}
-# as long as it is not also specified in ${ignoreprojectdirs}.
+# Search every directory in ${PROJECTDIR} for a file matching one in ${FILES}
+# as long as it is not also specified in ${IGNORES}.
 function find_todo {
   local file
   local files
@@ -54,17 +59,7 @@ function find_todo {
     fi
   done
 
-  if [ "${#ignoreprojectdirs[@]}" -gt 0 ]; then
-    for ignore in "${ignoreprojectdirs[@]}"; do
-    if [[ ! -v ignores ]]; then
-      ignores="-name \"${ignore}\""
-    else
-      ignores="${ignores} -o -name \"${ignore}\""
-    fi
-    done
-  fi
-
-  cmd="find ${projectdir@Q} \( ${ignores} \) -prune , \( ${files} \) -exec bash -c 'print_todo \"\${1}\"' bash {} \;"
+  cmd="find ${PROJECTDIR@Q} \( ${ignores} \) -prune , \( ${files} \) -exec bash -c 'print_todo \"\${1}\"' bash {} \;"
   eval "${cmd}"
 }
 
@@ -82,15 +77,7 @@ function find_extra_todo {
 # Main
 #
 
-# Check that required globals are set.
-if [[ -v projectdir ]] && [[ -v ignoreprojectdirs ]]; then
-  if [[ -z "${projectdir}" ]]; then
-    show_warning "WARNING: 'projectdir' unset in globals. Searching ${HOME@Q}."
-    projectdir="${HOME}"
-  fi
-else
-  exit 1
-fi
+[ $# -gt 0 ] && show_warning "WARNING: Ignoring parameters ${*}." >&2
 
 find_todo
 find_extra_todo
