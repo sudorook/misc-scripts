@@ -63,6 +63,7 @@ function find_todo {
   eval "${cmd}"
 }
 
+# Print out the to-do lists manually specified in ${EXTRAS}
 function find_extra_todo {
   local todo
   for todo in "${EXTRAS[@]}"; do
