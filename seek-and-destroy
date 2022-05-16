@@ -28,19 +28,36 @@ entrydir="${entrydir:-${HOME}/Desktop}"
 # Global functions
 #
 
-function sloppy_seek {
+function seek {
   local inputstring=
   local item
   local cmd
+  local mode="${1}"
 
-  for item in "${@}"; do
-    if [ -z "${inputstring}" ]; then
-      inputstring="-iname \"*${item}*\" -o -iname \".*${item}*\""
-    else
-      inputstring="${inputstring} \
-                   -o -iname \"*${item}*\" -o -iname \".*${item}*\""
-    fi
-  done
+  case ${mode} in
+    precise)
+      for item in "${@:2}"; do
+        if [ -z "${inputstring}" ]; then
+          inputstring="-iname \"${item}\" -o -iname \".${item}\""
+        else
+          inputstring="${inputstring} -o -iname \"${item}\" -o -iname \".${item}\""
+        fi
+      done
+      ;;
+    sloppy)
+      for item in "${@:2}"; do
+        if [ -z "${inputstring}" ]; then
+          inputstring="-iname \"*${item}*\" -o -iname \".*${item}*\""
+        else
+          inputstring="${inputstring} -o -iname \"*${item}*\" -o -iname \".*${item}*\""
+        fi
+      done
+      ;;
+    *)
+      show_error "ERROR: seeker mode ${mode@Q} is incorrect."
+      exit 3
+      ;;
+  esac
 
   cmd="find ${HOME}/ \
          \( -path \"${HOME}/Desktop\" \
@@ -79,64 +96,8 @@ function sloppy_seek {
             -o -path \"${musicdir}\" \
             -o -path \"${videodir}\" \
             -o -path \"${entrydir}\" \
-            -o -path \"${pkgbuilddir}\" \) -prune \
-         -o \( ${inputstring} \) -print"
-
-  eval "${cmd}" 2>/dev/null || true
-}
-
-function precise_seek {
-  local inputstring=
-  local item
-  local cmd
-
-  for item in "${@}"; do
-    if [ -z "${inputstring}" ]; then
-      inputstring="-iname \"${item}\" -o -iname \".${item}\""
-    else
-      inputstring="${inputstring} -o -iname \"${item}\" -o -iname \".${item}\""
-    fi
-  done
-
-  cmd="find ${HOME}/ \
-         \( -path \"${HOME}/Desktop\" \
-            -o -path \"${HOME}/Documents\" \
-            -o -path \"${HOME}/Downloads\" \
-            -o -path \"${HOME}/Music\" \
-            -o -path \"${HOME}/Pictures\" \
-            -o -path \"${projectdir}\" \
-            -o -path \"${HOME}/Public\" \
-            -o -path \"${HOME}/Sync\" \
-            -o -path \"${HOME}/Templates\" \
-            -o -path \"${HOME}/Videos\" \
-            -o -path \"${HOME}/.gem\" \
-            -o -path \"${HOME}/.go\" \
-            -o -path \"${HOME}/.ipython\" \
-            -o -path \"${HOME}/.julia\" \
-            -o -path \"${HOME}/.lyrics\" \
-            -o -path \"${HOME}/.mozilla\" \
-            -o -path \"${HOME}/.npm\" \
-            -o -path \"${HOME}/.R\" \
-            -o -path \"${HOME}/.ssh\" \
-            -o -path \"${HOME}/.thunderbird\" \
-            -o -path \"${HOME}/.zotero\" \
-            -o -path \"${HOME}/.zotero-data\" \
-            -o -path \"${archivedir}\" \
-            -o -path \"${backup1}\" \
-            -o -path \"${backup2}\" \
-            -o -path \"${kvmdir}\" \
-            -o -path \"${kvmshare}\" \
-            -o -path \"${vboxdir}\" \
-            -o -path \"${encryptpath}\" \
-            -o -path \"${decryptpath}\" \
-            -o -path \"${gtkdir}\" \
-            -o -path \"${icondir}\" \
-            -o -path \"${zshdir}\" \
-            -o -path \"${musicdir}\" \
-            -o -path \"${videodir}\" \
-            -o -path \"${entrydir}\" \
-            -o -path \"${pkgbuilddir}\" \) -prune \
-         -o \( ${inputstring} \) -print"
+            -o -path \"${pkgbuilddir}\" \) -prune , \
+         \( ${inputstring} \) -print"
 
   eval "${cmd}" 2>/dev/null || true
 }
@@ -201,23 +162,10 @@ if [ ${#} = 0 ]; then
   exit 3
 fi
 
-RES=
-case ${MODE} in
-  precise)
-    show_header "--- Running precise seeker ---"
-    RES="$(precise_seek "${@}")"
-    ;;
-  sloppy)
-    show_header "--- Running sloppy seeker ---"
-    RES="$(sloppy_seek "${@}")"
-    ;;
-  *)
-    show_error "ERROR: seeker mode ${MODE@Q} is incorrect."
-    exit 3
-    ;;
-esac
+show_header "--- Running ${MODE} seeker ---"
+RES="$(seek "${MODE}" "${@}")"
 
-if [[ -n "${RES}" ]]; then
+if [ -n "${RES}" ]; then
   echo "${RES}"
   check=$(ask_question 'Permission to destroy? (y/N)')
   if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
