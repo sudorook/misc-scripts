@@ -13,19 +13,18 @@ get_count() {
   local dir
   local cmd
   dir=${1%/*}
-  if git -C "${dir}" rev-parse 2>/dev/null; then
-    cmd="git -C ${dir@Q} rev-list --count --branches"
-    if [ -n "${AUTHOR}" ] || [ -n "${EMAIL}" ]; then
-      cmd="${cmd} --author=^${AUTHOR:-.*}\ \<${EMAIL:-.*}\>$"
-    fi
-    if [ -n "${SINCE}" ]; then
-      cmd="${cmd} --since=$(date -d -"${SINCE}" +%s)"
-    fi
-    if [ -n "${UNTIL}" ]; then
-      cmd="${cmd} --until=$(date -d -"${UNTIL}" +%s)"
-    fi
-    eval "${cmd}"
+
+  cmd="git -C ${dir@Q} rev-list --count --branches"
+  if [ -n "${AUTHOR}" ] || [ -n "${EMAIL}" ]; then
+    cmd="${cmd} --author=^${AUTHOR:-.*}\ \<${EMAIL:-.*}\>$"
   fi
+  if [ -n "${SINCE}" ]; then
+    cmd="${cmd} --since=$(date -d -"${SINCE}" +%s)"
+  fi
+  if [ -n "${UNTIL}" ]; then
+    cmd="${cmd} --until=$(date -d -"${UNTIL}" +%s)"
+  fi
+  eval "${cmd}"
 }
 export -f get_count
 
