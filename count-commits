@@ -39,8 +39,8 @@ UNTIL=
 AUTHOR=
 EMAIL=
 
-OPTIONS=ha:e:s:u:
-LONGOPTIONS=help,author:,email:,since:,until:
+OPTIONS=ha:d:e:s:u:
+LONGOPTIONS=help,author:,depth:,email:,since:,until:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -52,6 +52,10 @@ while [ $# -ge 1 ]; do
       ;;
     -e|--email)
       EMAIL=${2}
+      shift 2
+      ;;
+    -d|--depth)
+      DEPTH=${2}
       shift 2
       ;;
     -s|--since)
@@ -94,5 +98,5 @@ export UNTIL
 projectdir="${projectdir:-$HOME}"
 PROJECTDIR=("${@:-$projectdir}")
 
-find -L "${PROJECTDIR[@]}" -maxdepth 5 -type d -name ".git" \
+find -L "${PROJECTDIR[@]}" ${DEPTH:+-maxdepth $DEPTH} -type d -name ".git" \
   -exec bash -c 'get_count "${1}"' bash {} \; | awk '{s+=$1}END{print s}'
