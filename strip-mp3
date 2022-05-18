@@ -10,17 +10,16 @@ source globals
 
 function do_strip_mp3 {
   local in="${1}"
-  local extension=${in##*.}
   local tmp
  
   tmp=$(mktemp)
   trap 'rm -vf "${tmp}"' INT RETURN ERR TERM
 
   ffmpeg -v warning -i file:"${in}" \
-    -map_metadata -1 -map 0:a -c:a copy -f "${extension}" file:"${tmp}" -y
+    -map_metadata -1 -map 0:a -c:a copy -f mp3 file:"${tmp}" -y
   mid3v2 -D "${tmp}"
 
-  [ -f "${tmp}" ] && mv "${tmp}" "${in}"
+  mv "${tmp}" "${in}"
   sync
 }
 export -f do_strip_mp3
