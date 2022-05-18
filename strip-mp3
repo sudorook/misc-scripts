@@ -1,5 +1,5 @@
 #! /bin/bash
-set -eu
+set -Eeuo pipefail
 source globals
 
 ! check_command ffmpeg mid3v2 && exit 3
@@ -8,35 +8,38 @@ source globals
 # Functions
 #
 
-function strip_wrapper {
+function do_strip_mp3 {
   local in="${1}"
-  local extension=${1##*.}
-  ffmpeg -i file:"${in}" -map_metadata -1 -map 0:a -c:a copy -f "${extension}" file:"${TMP}" -y
-  mid3v2 -D "${TMP}"
-  cp "${TMP}" "${in}"
+  local extension=${in##*.}
+  local tmp
+ 
+  tmp=$(mktemp)
+  trap 'rm -vf "${tmp}"' INT RETURN ERR TERM
+
+  ffmpeg -v warning -i file:"${in}" \
+    -map_metadata -1 -map 0:a -c:a copy -f "${extension}" file:"${tmp}" -y
+  mid3v2 -D "${tmp}"
+
+  [ -f "${tmp}" ] && mv "${tmp}" "${in}"
   sync
 }
+export -f do_strip_mp3
 
-#
-# Check inputs and requirements.
-#
-
-if ! [ -f "${1}" ]; then
-  show_error "ERROR: ${1@Q} not a file. Exiting."
-  exit 3
-fi
 
 #
 # Main
 #
 
-TMP="$(mktemp)"
-trap 'rm -f ${TMP}; exit' INT TERM ERR EXIT
-
-for ITEM in "${@}"; do
-  if [ -f "${ITEM}" ]; then
-    strip_wrapper "${ITEM}"
+if [ $# -eq 1 ] && [ -f "${1}" ]; then
+  echo "Stripping ${1@Q}"
+  do_strip_mp3 "${1}"
+else
+  show_header "Stripping files in ${*@Q}..."
+  if command -v parallel >/dev/null; then
+    find "$@" -type f -name "*.mp3" -print0 | \
+      parallel -0 'echo {} && do_strip_mp3 {}'
   else
-    show_warning "WARNING: skipping ${ITEM@Q}."
+    find "$@" -type f -name "*.mp3" -exec \
+      sh -c 'echo "${1}" && do_strip_mp3 "${1}"' sh {} \;
   fi
-done
+fi
