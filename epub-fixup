@@ -4,6 +4,10 @@ source globals
 
 ! check_command zip unzip && exit 3
 
+#
+# Functions
+#
+
 # Add read and write permissions to CSS files
 function set_rw {
   find . -type f -name "*.css" \
@@ -33,16 +37,32 @@ function unset_colors {
     -e "s,\(;*\ *\)color\ *:\ *#\([0-9a-f]\+\)},\1/*color: \2*/},g" {} \;
 }
 
+# Check if file is ePub
+function is_epub {
+  local in="${1}"
+  local ext="${1##*.}"
+  local mime
+  mime="$(file -b --mime-type "${in}")"
+  if [[ "${mime}" =~ epub ]] || [[ "${ext,,}" = epub ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+
+#
+# Main
+#
+
+if ! is_epub "${1}"; then
+  show_error "ERROR: Input not ePub format."
+  exit 3
+fi
+
 FILE="$(basename "${1}")"
 NAME="${1%.*}"
 EXTENSION="${1##*.}"
-
-if ! [[ "$(file -b --mime-type "${1}")" =~ epub ]]; then
-  if ! [[ "${EXTENSION,,}" = epub ]]; then
-    show_error "ERROR: Input not EPUB format."
-    exit 3
-  fi
-fi
 
 BUILDDIR="$(mktemp -d)"
 trap 'rm -rf "${BUILDDIR}"; exit' INT TERM ERR EXIT
