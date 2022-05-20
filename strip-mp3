@@ -35,10 +35,10 @@ if [ $# -eq 1 ] && [ -f "${1}" ]; then
 else
   show_header "Stripping files in ${*@Q}..."
   if command -v parallel >/dev/null; then
-    find "$@" -type f -name "*.mp3" -print0 | \
+    find "$@" -type f -iname "*.mp3" -print0 | \
       parallel -0 'echo {} && do_strip_mp3 {}'
   else
-    find "$@" -type f -name "*.mp3" -exec \
+    find "$@" -type f -iname "*.mp3" -exec \
       sh -c 'echo "${1}" && do_strip_mp3 "${1}"' sh {} \;
   fi
 fi
