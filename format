@@ -2,28 +2,19 @@
 set -eu
 source globals
 
-! check_command parallel && exit 3
+! check_command black clang-format parallel && exit 3
 
 function format_c() {
   local tmp
-  if command -v clang-format >/dev/null; then
-    tmp="$(mktemp)"
-    clang-format -style=mozilla "${1}" > "${tmp}"
-    mv "${tmp}" "${1}"
-  else
-    show_error "ERROR: 'clang-format' not installed. Exiting." >&2
-    exit 3
-  fi
+  tmp="$(mktemp)"
+  clang-format -style=mozilla "${1}" > "${tmp}"
+  mv "${tmp}" "${1}"
+  sync
 }
 export -f format_c
 
 function format_python() {
-  if command -v black >/dev/null; then
-    black -q -l 79 "${1}"
-  else
-    show_error "ERROR: 'black' not installed. Exiting." >&2
-    exit 3
-  fi
+  black -q -l 79 "${1}"
 }
 export -f format_python
 
@@ -35,14 +26,14 @@ function detect_mimetype() {
       if [[ "${1##*.}" != y ]] && [[ "${1##*.}" != l ]]; then
         echo c
       else
-        show_warning "WARNING: ${1@Q} parsers/lexers unspported." >&2
+        show_warning "WARNING: skipping ${1@Q} parser/lexer." >&2
       fi
       ;;
     text/x-script.python)
       echo python
       ;;
     *)
-      show_warning "WARNING: ${1@Q} type ${mime@Q} unsupported." >&2
+      show_warning "WARNING: skipping ${1@Q} type ${mime@Q}." >&2
       ;;
   esac
 }
@@ -132,32 +123,16 @@ while [ $# -ge 1 ]; do
   esac
 done
 
-for ITEM in "${@}"; do
-  if [[ -f "${ITEM}" ]]; then
-    format_wrapper "${ITEM}"
-  elif [[ -d "${ITEM}" ]]; then
-    if check_command parallel; then
-      find "${ITEM}" -type f \
-        -not \( -path "./.git*" -o \
-                -path "./docs/*" -o \
-                -path "*README*" -o \
-                -path "*readme*" -o \
-                -path "*LICENSE*" -o \
-                -path "*license*" -o \
-                -path "*.Rhistory" \) -print0 | \
-        parallel -0 format_wrapper "{}"
-    else
-      find "${ITEM}" -type f \
-        -not \( -path "./.git*" -o \
-                -path "./docs/*" -o \
-                -path "*README*" -o \
-                -path "*readme*" -o \
-                -path "*LICENSE*" -o \
-                -path "*license*" -o \
-                -path "*.Rhistory" \) \
-        -exec bash -c 'format_wrapper "${1}"' bash {} \;
-    fi
+if [ $# -eq 1 ] && [ -f "${1}" ]; then
+  format_wrapper "${1}"
+else
+  if check_command parallel; then
+    find "${@:-.}" \
+      \( -name ".git" -o -path "*/.*" \) -prune , -type f \
+      -print0 | parallel -0 format_wrapper "{}"
   else
-    show_error "WARNING: ${ITEM@Q} not understood. Skipping." >&2
+    find "${@:-.}" \
+      \( -name ".git" -o -path "*/.*" \) -prune , -type f \
+      -exec bash -c 'format_wrapper "${1}"' bash {} \;
   fi
-done
+fi
