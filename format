@@ -2,7 +2,7 @@
 set -eu
 source globals
 
-! check_command black clang-format parallel && exit 3
+! check_command black clang-format && exit 3
 
 function format_c() {
   local tmp
