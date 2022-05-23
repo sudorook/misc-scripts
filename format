@@ -7,6 +7,7 @@ source globals
 function format_c() {
   local tmp
   tmp="$(mktemp)"
+  trap 'rm -f "${tmp}"' RETURN INT ERR EXIT TERM
   clang-format -style=mozilla "${1}" > "${tmp}"
   mv "${tmp}" "${1}"
   sync
