@@ -123,6 +123,9 @@ while [ $# -ge 1 ]; do
   esac
 done
 
+export FORCE
+export LANGUAGE
+
 if [ $# -eq 1 ] && [ -f "${1}" ]; then
   format_wrapper "${1}"
 else
