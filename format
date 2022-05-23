@@ -18,56 +18,49 @@ function format_python() {
 }
 export -f format_python
 
-function detect_mimetype() {
+function format_wrapper() {
+  local lang
   local mime
+
+  # Parse mime-type and language
   mime="$(file -b --mime-type "${1}")"
-  case "${mime}" in
-    text/x-c|text/x-c++)
+  shopt -s extglob
+  mime="${mime/+(text\/x-)?(script.)}"
+  lang=${LANGUAGE:-$mime}
+  lang=${lang,,}
+  lang="${lang//+(cpp)/c++}" # MIME types use 'c++', so convert 'cpp' strings.
+  shopt -u extglob
+
+  # Check if the file MIME type and the specified language are mismatched. If
+  # so, skip unless the FORCE parameter is set to true.
+  if [[ "${mime}" != "${lang}" ]]; then
+    if ! "${FORCE}"; then
+      if ! [[ "${mime}" =~ ${lang} ]]; then
+        show_warning "WARNING: ${1@Q} language and MIME type mismatch. Skipping." >&2
+        return
+      fi
+    else
+      show_info "Force-formatting ${1@Q} to ${lang@Q}." >&2
+    fi
+  fi
+
+  case "${lang}" in
+    c|c++|c++hdr|c++src)
       if [[ "${1##*.}" != y ]] && [[ "${1##*.}" != l ]]; then
-        echo c
+        format_c "${1}"
       else
         show_warning "WARNING: skipping ${1@Q} parser/lexer." >&2
       fi
       ;;
-    text/x-script.python)
-      echo python
+    python)
+      format_python "${1}"
       ;;
     *)
       show_warning "WARNING: skipping ${1@Q} type ${mime@Q}." >&2
       ;;
   esac
-}
-export -f detect_mimetype
 
-function format_wrapper() {
-  local lang
-  lang="$(detect_mimetype "${1}")"
-  if ! [[ -v LANGUAGE ]]; then
-    if [[ -z "${lang}" ]]; then
-      return
-    fi
-  else
-    if [[ "${LANGUAGE,,}" != "${lang}" ]] && ! "${FORCE}"; then
-      show_warning "WARNING: ${1@Q} language and MIME type mismatch. Skipping." >&2
-      return
-    fi
-    lang="${LANGUAGE}"
-  fi
-
-  case "${lang}" in
-    c|C|c++|C++|cpp|CPP)
-      format_c "${1}"
-      ;;
-    python|Python)
-      format_python "${1}"
-      ;;
-    *)
-      show_error "ERROR" >&2
-      exit 3
-      ;;
-  esac
-
-  show_success "${1@Q} done!"
+  show_success "${1@Q} done!" >&2
 }
 export -f format_wrapper
 
