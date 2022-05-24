@@ -2,10 +2,6 @@
 set -eu
 source globals
 
-if ! [[ -v kvmshare ]]; then
-  show_error "KVM shared directory not set in globals."
-  exit 3
-fi
-
-mkdir -p "${kvmshare}"
-mv -f "${@}" "${kvmshare}"
+KVMSHARE="${kvmshare:-${HOME}/.local/libvirt/share}"
+mkdir -p "${KVMSHARE}"
+mv -f "${@}" "${KVMSHARE}"
