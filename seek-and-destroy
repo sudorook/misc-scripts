@@ -106,6 +106,7 @@ function destroy {
   local item
   local parent
   while read -r item; do
+    ! [ -e "${item}" ] && continue
     parent="$(dirname "${item}")"
     rm -rf "${item}"
     if [[ "${parent}" != . ]]; then
