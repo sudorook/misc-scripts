@@ -2,6 +2,7 @@
 set -euo pipefail
 source globals
 
+! check_command grep rsync && exit 3
 
 #
 # Functions
