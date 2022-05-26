@@ -18,7 +18,6 @@ function backup_exists() {
     show_error "Backup destination ${backup1} does not exist."
     exit 1
   fi
-  return 0
 }
 
 # Check if any encfs directories are mounted (/etc/mtab).
@@ -27,8 +26,6 @@ function encfs_unmounted() {
     show_error "Encrypt and unmount before running:"
     show_error "$(grep encfs /etc/mtab | cut -d" " -f2)"
     exit 1
-  else
-    return 0
   fi
 }
 
@@ -80,6 +77,9 @@ function sync_vms() {
 # Main
 #
 
+backup_exists
+encfs_unmounted
+
 OPTIONS=ahv
 LONGOPTIONS=all,home,vms
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
@@ -88,23 +88,17 @@ eval set -- "${PARSED}"
 while [ ${#} -ge 1 ]; do
   case ${1} in
     -a|--all)
-      if backup_exists && encfs_unmounted; then
-        sync_home
-        sync_vms
-      fi
+      sync_home
+      sync_vms
       shift
       break
       ;;
     -h|--home)
-      if backup_exists && encfs_unmounted; then
-        sync_home
-      fi
+      sync_home
       shift
       ;;
     -v|--vms)
-      if backup_exists && encfs_unmounted; then
-        sync_vms
-      fi
+      sync_vms
       shift
       ;;
     --)
