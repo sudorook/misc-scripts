@@ -57,8 +57,8 @@ function sync_vms() {
   mkdir -p "${backup1}/Images/KVM"
   mkdir -p "${backup1}/Images/VirtualBox"
   sudo bash -c "\
-    rsync -Pradog --sparse ${kvmdir}/ ${backup1}/Images/KVM/ && \
-    rsync -Pradog ${vboxdir}/ ${backup1}/Images/VirtualBox/"
+    [[ -v kvmdir ]] && [ -d ${kvmdir} ] && rsync -Pradog --sparse ${kvmdir}/ ${backup1}/Images/KVM/; \
+    [[ -v vboxdir ]] && [ -d ${vboxdir} ] && rsync -Pradog ${vboxdir}/ ${backup1}/Images/VirtualBox/"
   sync
   show_success "Done." && echo
 
