@@ -15,7 +15,7 @@ function backup_exists() {
     exit 1
   fi
   if ! [ -d "${backup1}" ]; then
-    show_error "Backup destination ${backup1} does not exist."
+    show_error "Backup destination ${backup1@Q} does not exist."
     exit 1
   fi
 }
@@ -31,7 +31,7 @@ function encfs_unmounted() {
 
 # Backup home directory to Backups 1 and 2
 function sync_home() {
-  show_info "Syncing ${HOME} to ${backup1}."
+  show_info "Syncing ${HOME@Q} to ${backup1@Q}."
   mkdir -p "${backup1}/${USER^}/"
   sudo rsync -Pradog --delete-excluded "${HOME}/" "${backup1}/${USER^}/" \
     ${vboxdir:+--exclude "${vboxdir#"${HOME}"/}*"} \
@@ -40,7 +40,7 @@ function sync_home() {
   show_success "Done." && echo
 
   if [[ -v backup2 ]] && [ -d "${backup2}" ]; then
-    show_info "Syncing ${backup1} to ${backup2}."
+    show_info "Syncing ${backup1@Q} to ${backup2@Q}."
     sudo rsync -Pradog --delete-excluded \
       "${backup1}/" "${backup2}/" \
       --exclude ".Trash-1000/*"
@@ -51,7 +51,7 @@ function sync_home() {
 
 # Backup VMS to Backups 1 and 2
 function sync_vms() {
-  show_info "Syncing VMs in ${HOME} to ${backup1}."
+  show_info "Syncing VMs in ${HOME@Q} to ${backup1@Q}."
   mkdir -p "${backup1}/Images/KVM"
   mkdir -p "${backup1}/Images/VirtualBox"
   sudo bash -c "\
@@ -61,7 +61,7 @@ function sync_vms() {
   show_success "Done." && echo
 
   if [ -d "${backup2}" ]; then
-    show_info "Syncing VMs in ${backup1} to ${backup2}."
+    show_info "Syncing VMs in ${backup1@Q} to ${backup2@Q}."
     mkdir -p "${backup2}/Images/KVM"
     mkdir -p "${backup2}/Images/VirtualBox"
     sudo bash -c "\
