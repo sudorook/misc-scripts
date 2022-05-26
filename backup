@@ -35,23 +35,9 @@ function encfs_unmounted() {
 function sync_home() {
   show_info "Syncing ${HOME} to ${backup1}."
   mkdir -p "${backup1}/${USER^}/"
-  if [[ -v vboxdir ]] && [[ -v kvmdir ]]; then
-    sudo rsync -Pradog --delete-excluded \
-      "${HOME}/" "${backup1}/${USER^}/" \
-      --exclude "${vboxdir#"${HOME}"/}*" \
-      --exclude "${kvmdir#"${HOME}"/}*"
-  elif [[ -v kvmdir ]]; then
-    sudo rsync -Pradog --delete-excluded \
-      "${HOME}/" "${backup1}/${USER^}/" \
-      --exclude "${kvmdir#"${HOME}"/}*"
-  elif [[ -v vboxdir ]]; then
-    sudo rsync -Pradog --delete-excluded \
-      "${HOME}/" "${backup1}/${USER^}/" \
-      --exclude "${vboxdir#"${HOME}"/}*"
-  else
-    sudo rsync -Pradog --delete-excluded \
-      "${HOME}/" "${backup1}/${USER^}/"
-  fi
+  sudo rsync -Pradog --delete-excluded "${HOME}/" "${backup1}/${USER^}/" \
+    ${vboxdir:+--exclude "${vboxdir#"${HOME}"/}*"} \
+    ${kvmdir:+--exclude "${kvmdir#"${HOME}"/}*"}
   sync
   show_success "Done." && echo
 
