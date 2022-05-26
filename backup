@@ -80,6 +80,9 @@ function sync_vms() {
 backup_exists
 encfs_unmounted
 
+SYNC_HOME=false
+SYNC_VM=false
+
 OPTIONS=ahv
 LONGOPTIONS=all,home,vms
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
@@ -88,17 +91,17 @@ eval set -- "${PARSED}"
 while [ ${#} -ge 1 ]; do
   case ${1} in
     -a|--all)
-      sync_home
-      sync_vms
+      SYNC_HOME=true
+      SYNC_VM=true
       shift
       break
       ;;
     -h|--home)
-      sync_home
+      SYNC_HOME=true
       shift
       ;;
     -v|--vms)
-      sync_vms
+      SYNC_VM=true
       shift
       ;;
     --)
@@ -111,3 +114,6 @@ while [ ${#} -ge 1 ]; do
       ;;
   esac
 done
+
+${SYNC_HOME} && sync_home
+${SYNC_VM} && sync_vms
