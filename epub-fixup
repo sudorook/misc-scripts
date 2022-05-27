@@ -25,15 +25,15 @@ function unjustify {
 # Remove hard-coded colors
 function unset_colors {
   find . -type f -iname "*.css" -exec sed -i \
-    -e "s,background-color\ *:\ *#\(\x\+\);,/*background-color: \1;*/,g" \
-    -e "s,background-color\ *:\ *#\(\x\+\)$,/*background-color: \1*/,g" \
-    -e "s,background-color\ *:\ *#\(\x\+\)},/*background-color: \1*/},g" \
-    -e "s,background-color\ *:\ *\(rgba([\d\,\ ]\+)\);,/*background-color: \1;*/,g" \
-    -e "s,background-color\ *:\ *\(rgba([\d\,\ ]\+)\)$,/*background-color: \1*/,g" \
-    -e "s,background-color\ *:\ *\(rgba([\d\,\ ]\+)\)},/*background-color: \1*/},g" \
-    -e "s,\(;*\ *\)color\ *:\ *#\(\x\+\);,\1/*color: \2;*/,g" \
-    -e "s,\(;*\ *\)color\ *:\ *#\(\x\+\)$,\1/*color: \2*/,g" \
-    -e "s,\(;*\ *\)color\ *:\ *#\(\x\+\)},\1/*color: \2*/},g" {} \;
+    -e "s,background-color\ *:\ *#\([[:xdigit:]]\+\);,/*background-color: \1;*/,g" \
+    -e "s,background-color\ *:\ *#\([[:xdigit:]]\+\)$,/*background-color: \1*/,g" \
+    -e "s,background-color\ *:\ *#\([[:xdigit:]]\+\)},/*background-color: \1*/},g" \
+    -e "s,background-color\ *:\ *\(rgba([\d[[:digit:]]\,\ ]\+)\);,/*background-color: \1;*/,g" \
+    -e "s,background-color\ *:\ *\(rgba([\d[[:digit:]]\,\ ]\+)\)$,/*background-color: \1*/,g" \
+    -e "s,background-color\ *:\ *\(rgba([\d[[:digit:]]\,\ ]\+)\)},/*background-color: \1*/},g" \
+    -e "s,\(;*\ *\)color\ *:\ *#\([[:xdigit:]]\+\);,\1/*color: \2;*/,g" \
+    -e "s,\(;*\ *\)color\ *:\ *#\([[:xdigit:]]\+\)$,\1/*color: \2*/,g" \
+    -e "s,\(;*\ *\)color\ *:\ *#\([[:xdigit:]]\+\)},\1/*color: \2*/},g" {} \;
 }
 
 # Check if file is ePub
