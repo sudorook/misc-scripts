@@ -2,7 +2,7 @@
 set -euo pipefail
 source globals
 
-! check_command zip unzip && exit 3
+! check_command sed zip unzip && exit 3
 
 #
 # Functions
