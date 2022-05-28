@@ -139,7 +139,7 @@ function upgrade_vim_packages() {
     show_warning "Install Vim first. Skipping."
     echo
   else
-    if [[ -v vimpack ]] && [ -d "${vimpack}" ]; then
+    if [ -d "${vimpack}" ]; then
       for dir in "${vimpack}"/*; do
         if git -C "${dir}" rev-parse 2>/dev/null; then
           show_info "$(basename "${dir}")"
