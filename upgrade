@@ -245,14 +245,17 @@ function upgrade_pkgbuild() {
 weechatdir=${HOME}/.weechat/plugins
 function upgrade_weechat_plugins {
   show_header "Upgrading weechat plugins."
-  for dir in "${weechatdir}"/*; do
-    if git -C "${dir}" rev-parse 2>/dev/null; then
-      show_info "$(basename "${dir}")"
-      git -C "${dir}" pull --ff-only origin master --tags
-      sleep 2
-      echo
-    fi
-  done
+  local dir
+  if [ -d "${weechatdir}" ]; then
+    for dir in "${weechatdir}"/*; do
+      if git -C "${dir}" rev-parse 2>/dev/null; then
+        show_info "$(basename "${dir}")"
+        git -C "${dir}" pull --ff-only origin master --tags
+        sleep 2
+        echo
+      fi
+    done
+  fi
 }
 
 #
