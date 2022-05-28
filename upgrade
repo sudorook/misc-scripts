@@ -2,6 +2,7 @@
 set -eu
 source globals
 
+! check_command git && exit 3
 
 #
 # Functions
