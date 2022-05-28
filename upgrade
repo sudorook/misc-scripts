@@ -57,6 +57,7 @@ function upgrade_system() {
 function upgrade_themes() {
   show_header "Upgrading GTK and icon themes."
   local repo_name
+  local dir
 
   if [[ -v gtkdir ]] && [ -d "${gtkdir}" ]; then
     for dir in "${gtkdir}"/*; do
@@ -133,6 +134,7 @@ function upgrade_extra() {
 vimpack=${HOME}/.vim/pack/dist/start
 function upgrade_vim_packages() {
   show_header "Upgrading Vim plugins."
+  local dir
   if ! command -v vim >/dev/null 2>&1; then
     show_warning "Install Vim first. Skipping."
     echo
@@ -155,6 +157,7 @@ function upgrade_vim_packages() {
 
 function upgrade_zsh() {
   show_header "Upgrading zsh plugins."
+  local dir
   if ! command -v zsh >/dev/null 2>&1; then
     show_warning "Install zsh first. Skipping."
     echo
@@ -196,6 +199,7 @@ function upgrade_julia_packages() {
 function upgrade_pkgbuild() {
   command -v makepkg >/dev/null 2>&1 && {
     show_header "Upgrading AUR pkgbuilds."
+    local dir
     if [[ -v pkgbuilddir ]] && [[ -d "${pkgbuilddir}" ]]; then
       for dir in "${pkgbuilddir}"/*; do
         if git -C "${dir}" rev-parse 2>/dev/null; then
