@@ -170,7 +170,7 @@ function convert_codec {
       out="${NAME}.mkv"
       ;;
     mp4)
-      cmd="${cmd} -f mp4"
+      cmd="${cmd} -movflags +faststart -f mp4"
       out="${NAME}.mp4"
       ;;
     mp3)
