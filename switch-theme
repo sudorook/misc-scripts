@@ -40,6 +40,13 @@ switch_environment_d_gtk_theme() {
   fi
 }
 
+switch_xprofile_gtk_theme() {
+  local xprofile="${HOME}/.xprofile"
+  if [ -f "${xprofile}" ]; then
+    sed -i "s/^export GTK_THEME=.*$/export GTK_THEME=\"${1}\"/g" "${xprofile}"
+  fi
+}
+
 get_gnome_terminal_profiles() {
   IFS=' ' read -r -a ids <<< \
     "$(dconf read /org/gnome/terminal/legacy/profiles:/list | tr -d "[]',")"
@@ -162,6 +169,7 @@ switch_ebook_viewer_theme() {
 set_gtk_theme() {
   switch_dconf_gtk_theme "${1}"
   switch_environment_d_gtk_theme "${1}"
+  switch_xprofile_gtk_theme "${1}"
 
   if [[ "$1" =~ [Nn]okto ]]; then
     switch_gtk_settings "Dark"
