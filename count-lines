@@ -67,7 +67,7 @@ if [ -f "${IN}" ]; then
   wc -l "${IN}"
 elif [ -d "${IN}" ]; then
   if command -v git >/dev/null && git -C "${IN}" rev-parse 2>/dev/null; then
-    CMD="git -C ${IN@Q} ls-files -co --exclude-standard -z | strip_missing | find -files0-from - -maxdepth 0"
+    CMD="git -C ${IN@Q} ls-files -co --exclude-standard -z | strip_missing | sed -z -e 's,^,${IN}/,g' | find -files0-from - -maxdepth 0"
   else
     CMD="find ${IN@Q}"
   fi
