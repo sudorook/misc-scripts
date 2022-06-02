@@ -88,9 +88,11 @@ cd "${VIDEODIR}/${NAME}"
 
 if [[ -v START ]]; then
   "${YTDL}" "${URL}" \
-    --write-sub \
+    --embed-thumbnail \
     --embed-subs \
+    --convert-subs srt \
     --add-metadata \
+    --add-chapters \
     --playlist-start "${START}" \
     --prefer-free-formats \
     --download-archive .archive.txt \
@@ -98,9 +100,11 @@ if [[ -v START ]]; then
     --ignore-errors
 else
   "${YTDL}" "${URL}" \
-    --write-sub \
+    --embed-thumbnail \
     --embed-subs \
+    --convert-subs srt \
     --add-metadata \
+    --add-chapters \
     --prefer-free-formats \
     --download-archive .archive.txt \
     -f "bestvideo[ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
