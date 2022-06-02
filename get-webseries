@@ -65,6 +65,7 @@ case "${RESOLUTION}" in
   *)
     HEIGHT=800
     WIDTH=1300
+    show_warning "WARNING: Using 720p default."
     ;;
 esac
 
