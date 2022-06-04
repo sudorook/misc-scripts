@@ -21,6 +21,7 @@
 | `drop-caches`      | clear system cache                                                     |
 | `dump-streams`     | copy container streams into one file each                              |
 | `encrypt-secrets`  | (re)encrypt directory with EncFS                                       |
+| `epub-convert`     | `ebook-convert` wrapper to convert azw3 and mobi files to ePub         |
 | `epub-fixup`       | disable `text-align: justify` and hardcoded colors in EPUB files       |
 | `extract-audio`    | extract audio track from video                                         |
 | `extract-subs`     | extract all subtitle streams from video                                |

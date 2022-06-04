@@ -1,0 +1,17 @@
+#! /bin/bash
+set -eu
+source globals
+
+! check_command ebook-convert && exit 3
+
+for ITEM in "${@}"; do
+  if [ -f "${ITEM}" ]; then
+    case "${ITEM##*.}" in
+      AZW3|MOBI|azw3|mobi)
+        ebook-convert "${ITEM}" "${ITEM%%.*}.epub" --change-justification "left"
+        ;;
+      *)
+        ;;
+    esac
+  fi
+done
