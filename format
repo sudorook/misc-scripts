@@ -19,6 +19,11 @@ function format_python() {
 }
 export -f format_python
 
+function format_rust() {
+  rustfmt "${1}"
+}
+export -f format_rust
+
 function format_wrapper() {
   local lang
   local mime
@@ -26,7 +31,7 @@ function format_wrapper() {
   # Parse mime-type and language
   mime="$(xdg-mime query filetype "${1}")"
   shopt -s extglob
-  mime="${mime/+(text\/x-)?(script.)}"
+  mime="${mime/+(text\/)?(x-)?(script.)}"
   lang=${LANGUAGE:-$mime}
   lang=${lang,,}
   lang="${lang//+(cpp)/c++}" # MIME types use 'c++', so convert 'cpp' strings.
@@ -55,6 +60,9 @@ function format_wrapper() {
       ;;
     python)
       format_python "${1}"
+      ;;
+    rust)
+      format_rust "${1}"
       ;;
     *)
       show_warning "WARNING: skipping ${1@Q} type ${mime@Q}." >&2
