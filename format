@@ -2,7 +2,7 @@
 set -eu
 source globals
 
-! check_command black clang-format && exit 3
+! check_command black clang-format xdg-mime && exit 3
 
 function format_c() {
   local tmp
@@ -24,7 +24,7 @@ function format_wrapper() {
   local mime
 
   # Parse mime-type and language
-  mime="$(file -b --mime-type "${1}")"
+  mime="$(xdg-mime query filetype "${1}")"
   shopt -s extglob
   mime="${mime/+(text\/x-)?(script.)}"
   lang=${LANGUAGE:-$mime}
