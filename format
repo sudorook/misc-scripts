@@ -2,9 +2,10 @@
 set -eu
 source globals
 
-! check_command black clang-format xdg-mime && exit 3
+! check_command xdg-mime && exit 3
 
 function format_c() {
+  ! check_command clang-format && exit 3
   local tmp
   tmp="$(mktemp)"
   trap 'rm -f "${tmp}"' RETURN INT ERR EXIT TERM
@@ -15,11 +16,13 @@ function format_c() {
 export -f format_c
 
 function format_python() {
+  ! check_command black && exit 3
   black -q -l 79 "${1}"
 }
 export -f format_python
 
 function format_rust() {
+  ! check_command rustfmt && exit 3
   rustfmt "${1}"
 }
 export -f format_rust
