@@ -2,12 +2,6 @@
 set -eu
 source globals
 
-make_prefix() {
-  local prefix
-  prefix="$(basename "${DIR}")-${TAG}"
-  echo "${prefix}"
-}
-
 print_usage() {
   show_header "Usage: git-archive"
   echo "  -d|--dir         directory of git repository to archive"
@@ -65,5 +59,5 @@ while [ ${#} -ge 1 ]; do
   esac
 done
 
-PREFIX="$(make_prefix)"
+PREFIX="$(basename "${DIR}")-${TAG}"
 git -C "${DIR}" archive --prefix="${PREFIX}/" "${TAG}" -o "${PWD}/${PREFIX}.${Z}"
