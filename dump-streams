@@ -100,7 +100,7 @@ function dump_stream {
         font_file="$(echo "$info" | sed -n "s/^TAG:filename=\(.*\)/\1/p")"
         cmd="${cmd} -dump_attachment:$idx \"\" -i file:${1@Q} -y"
         show_listitem "${cmd}"
-        eval "${cmd}"
+        eval "${cmd}" || true # FIXME: override return false for attachments
         mv "${font_file}" "${name}_fonts"
       fi
       return
