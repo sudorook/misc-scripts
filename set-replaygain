@@ -94,3 +94,5 @@ else
   done
   rmdir "${TMPDIR}"
 fi
+
+sync
