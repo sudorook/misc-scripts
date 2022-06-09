@@ -245,7 +245,7 @@ if [[ "${TYPE}" =~ matroska ]]; then
     show_warning "WARNING: mkvtoolnix-cli not found. Defaulting to ffmpeg."
     strip_generic "mkv"
   fi
-elif [[ "${TYPE}" =~ mp4|m4a ]]; then
+elif [[ "${TYPE}" =~ mp4|m4a|m4v ]]; then
   strip_generic "mp4"
 elif [[ "${TYPE}" =~ x-msvideo ]]; then
   strip_generic "avi"
