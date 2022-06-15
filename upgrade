@@ -28,6 +28,7 @@ function git_update() {
 function print_usage() {
   show_header "Options:"
   show_listitem " -j|--julia     upgrade Julia packages"
+  show_listitem " -r|--rust     upgrade Rust via rustup"
   show_listitem " -p|--pkgbuild  upgrade AUR pkgbuilds in ${pkgbuilddir:-}"
   show_listitem " -s|--system    upgrade system packages (pacman or apt)"
   show_listitem " -t|--themes    upgrade GTK/icon themes in ${gtkdir:-} and ${icondir:-}"
@@ -219,6 +220,18 @@ function upgrade_julia_packages() {
   echo
 }
 
+function upgrade_rust_packages() {
+  show_header "Upgrading Rust compiler and components."
+  if ! command -v rustup >/dev/null 2>&1; then
+    show_warning "Install rustup first. Skipping."
+  else
+    rustup update
+    sleep 2
+  fi
+
+  echo
+}
+
 function upgrade_pkgbuild() {
   command -v makepkg >/dev/null 2>&1 && {
     show_header "Upgrading AUR pkgbuilds."
@@ -262,8 +275,8 @@ function upgrade_weechat_plugins {
 # Main
 #
 
-OPTIONS=ahjpstnvwxz
-LONGOPTIONS=all,help,julia,pkgbuild,system,theme,nvim,vim,weechat,extra,zsh
+OPTIONS=ahjrpstnvwxz
+LONGOPTIONS=all,help,julia,rust,pkgbuild,system,theme,nvim,vim,weechat,extra,zsh
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -288,6 +301,10 @@ while [ ${#} -ge 1 ]; do
       ;;
     -j|--julia)
       upgrade_julia_packages
+      shift
+      ;;
+    -r|--rust)
+      upgrade_rust
       shift
       ;;
     -p|--pkgbuild)
