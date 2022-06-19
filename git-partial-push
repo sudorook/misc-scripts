@@ -1,0 +1,21 @@
+#! /bin/bash
+set -eu
+
+function head_count {
+  git rev-list --since="${UNTIL}" --count --all
+}
+
+if [ "${#}" -eq 0 ]; then
+  UNTIL="$(date -d now +%s)"
+elif [ "${#}" -eq 1 ]; then
+  UNTIL="$(date -d "${1}" +%s)"
+fi
+
+COUNT="$(head_count)"
+BRANCH="$(git branch --show-current)"
+
+if [ -n "${COUNT}" ] && [ "${COUNT}" -gt 0 ]; then
+  git push origin HEAD~"${COUNT}":"${BRANCH}"
+else
+  git push origin "${BRANCH}"
+fi

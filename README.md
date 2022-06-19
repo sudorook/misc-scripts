@@ -32,6 +32,7 @@
 | `gifify`           | generate a GIF from part of a video                                    |
 | `git-archive`      | simple wrapper for git archive                                         |
 | `git-init`         | wrapper script for initializing a Git repo and setting the metadata    |
+| `git-partial-push` | push commits up to a given date                                        |
 | `join-vids`        | concatenate videos                                                     |
 | `kvm-clear`        | clear out shared KVM directory                                         |
 | `kvm-cp`           | copy file to shared KVM directory                                      |
