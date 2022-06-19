@@ -67,7 +67,7 @@ function join_mkvs() {
   done
 
   rm -f "${OUTFILE}"
-  ffmpeg -f concat -i "${concatfile}" -codec copy output.mkv
+  ffmpeg -f concat -i "${concatfile}" -codec copy "${OUTFILE}"
 
   rm -f "${concatfile}"
 }
@@ -117,6 +117,7 @@ if is_all_mp4s "${@}"; then
 # use the -f concat option for ffmpeg.
 elif is_all_mkvs "${@}"; then
   show_header "Joining MKVs."
+  OUTFILE=output.mkv
   join_mkvs "${@}"
 
 # # If multiple codes are present, use the ffmpeg concat filter.
