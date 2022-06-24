@@ -220,7 +220,7 @@ function upgrade_julia_packages() {
   echo
 }
 
-function upgrade_rust_packages() {
+function upgrade_rust() {
   show_header "Upgrading Rust compiler and components."
   if ! command -v rustup >/dev/null 2>&1; then
     show_warning "Install rustup first. Skipping."
