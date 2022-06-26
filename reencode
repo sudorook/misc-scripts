@@ -10,6 +10,9 @@ source globals
 
 A_BITRATE_PER_STREAM=64
 
+NOSUB=false
+CROP=false
+
 
 #
 # Functions
@@ -420,8 +423,6 @@ function compute_crop_filter {
 # Parse command line options
 #
 
-NOSUB=false
-CROP=false
 ASTREAM_ID=
 VSTREAM_ID=
 EXTRA=
