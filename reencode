@@ -98,7 +98,7 @@ function convert_codec {
       fi
       if [[ "${IN_ACHANNEL_LAYOUT}" = "5.1(side)" ]]; then
         show_warning "WARNING: converting layout from 5.1(side) to 5.1."
-        cmd="${cmd} -af channelmap=channel_layout=5.1"
+        cmd="${cmd} -channel_layout:a 5.1"
       fi
       ;;
     copy)
