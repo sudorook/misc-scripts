@@ -4,18 +4,23 @@ source globals
 
 ! check_command ffmpeg ffprobe bc awk && exit 3
 
-
 #
 # Globals
 #
 
+A_BITRATE_PER_STREAM=64
+
+
+#
+# Functions
+#
+
 function set_audio_bitrate {
   local in="${BACKUP}"
-  local rate_per_stream=64
   local n_streams="${IN_ACHANNELS}"
   local abitrate # stores bitrate in kbps
 
-  abitrate="$((rate_per_stream * n_streams))"
+  abitrate="$((A_BITRATE_PER_STREAM * n_streams))"
 
   if [[ "${IN_ABITRATE}" = 0 ]]; then
     echo "${abitrate}k"
