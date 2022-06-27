@@ -10,7 +10,7 @@ source globals
 
 A_BITRATE_PER_STREAM=64
 
-NOSUB=false
+NO_DEFAULT_SUBS=false
 CROP=false
 
 
@@ -40,7 +40,7 @@ function convert_codec {
   local cmd
 
   cmd="ffmpeg -v info -i file:${in@Q} -map_chapters 0 -map_metadata 0"
-  if [[ "${NOSUB}" = true ]]; then
+  if [[ "${NO_DEFAULT_SUBS}" = true ]]; then
     cmd="${cmd} -default_mode infer_no_subs -disposition:s -default"
   fi
 
@@ -465,7 +465,7 @@ while [ $# -ge 1 ]; do
       shift 2
       ;;
     -n|--nodefault)
-      NOSUB=true
+      NO_DEFAULT_SUBS=true
       shift 1
       ;;
     -r|--crf)
