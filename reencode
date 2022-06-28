@@ -211,7 +211,7 @@ function scan_input {
   local fstring
   # local astring
   local vstring
-  # local sstring
+  local sstring
   local format_name
   local in_width
   local in_height
