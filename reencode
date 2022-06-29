@@ -19,16 +19,17 @@ CROP=false
 #
 
 function set_audio_bitrate {
-  local in="${BACKUP}"
-  local n_streams="${IN_ACHANNELS}"
+  local in="${1}"
+  local n_streams="${2}"
+  local in_abitrate="${3}"
   local abitrate # stores bitrate in kbps
 
   abitrate="$((A_BITRATE_PER_STREAM * n_streams))"
 
-  if [[ "${IN_ABITRATE}" = 0 ]]; then
+  if [[ "${in_abitrate}" = 0 ]]; then
     echo "${abitrate}k"
-  elif [[ "${abitrate}" -gt "${IN_ABITRATE}" ]]; then
-    echo "${IN_ABITRATE}k"
+  elif [[ "${abitrate}" -gt "${in_abitrate}" ]]; then
+    echo "${in_abitrate}k"
   else
     echo "${abitrate}k"
   fi
@@ -38,6 +39,7 @@ function convert_codec {
   local in="${BACKUP}"
   local out
   local cmd
+  local idx
 
   cmd="ffmpeg -v info -i file:${in@Q} -map_chapters 0 -map_metadata 0"
   if [[ "${NO_DEFAULT_SUBS}" = true ]]; then
@@ -102,11 +104,32 @@ function convert_codec {
       if [[ -v OUT_ABITRATE ]]; then
         cmd="${cmd} -c:a libopus -b:a ${OUT_ABITRATE}"
       else
-        cmd="${cmd} -c:a libopus -b:a $(set_audio_bitrate)"
-      fi
-      if [[ "${IN_ACHANNEL_LAYOUT}" = "5.1(side)" ]]; then
-        show_warning "WARNING: converting layout from 5.1(side) to 5.1."
-        cmd="${cmd} -channel_layout:a 5.1"
+        # set computed bitrates individually for each channel because input
+        # channels can have different bitrates and channel layouts
+        cmd="${cmd} -c:a libopus"
+        if [ -n "${ASTREAM_ID}" ]; then
+          if ! [ "${ASTREAM_ID}" = "-1" ]; then
+            cmd="${cmd} -b:a:0 $(set_audio_bitrate \
+                                   "${BACKUP}" \
+                                   "${IN_ASTREAM_CHANNEL_COUNT[${ASTREAM_ID}]}" \
+                                   "${IN_ASTREAM_BITRATE[$ASTREAM_ID]}")"
+            if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${ASTREAM_ID}]}" = "5.1(side)" ]]; then
+              show_warning "WARNING: converting layout from 5.1(side) to 5.1."
+              cmd="${cmd} -channel_layout:a:${ASTREAM_ID} 5.1"
+            fi
+          fi
+        else
+          for idx in $(seq 0 $(( ${#IN_ASTREAM_CHANNEL_COUNT[@]} - 1 ))); do
+            cmd="${cmd} -b:a:${idx} $(set_audio_bitrate \
+                                        "${BACKUP}" \
+                                        "${IN_ASTREAM_CHANNEL_COUNT[${idx}]}" \
+                                        "${IN_ASTREAM_BITRATE[$idx]}")"
+            if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${idx}]}" = "5.1(side)" ]]; then
+              show_warning "WARNING: converting layout from 5.1(side) to 5.1."
+              cmd="${cmd} -channel_layout:a:${idx} 5.1"
+            fi
+          done
+        fi
       fi
       ;;
     copy)
@@ -209,7 +232,7 @@ function convert_codec {
 
 function scan_input {
   local fstring
-  # local astring
+  local astring
   local vstring
   local sstring
   local format_name
@@ -221,8 +244,6 @@ function scan_input {
   fstring="$(ffprobe -v error -show_format file:"${IN}")"
   vstring="$(ffprobe -v error \
                -select_streams v:0 -show_streams file:"${IN}")"
-  astring="$(ffprobe -v error \
-               -select_streams a:0 -show_streams file:"${IN}")"
   sstring="$(ffprobe -v error \
                -select_streams s:0 -show_streams file:"${IN}")"
 
@@ -257,10 +278,17 @@ function scan_input {
   # IN_ACODEC="$(echo "${astring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
   IN_SCODEC="$(echo "${sstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
 
-  IN_ACHANNELS="$(echo "${astring}" | sed -n "s/^channels=\(.*\)/\1/p")"
-  IN_ACHANNEL_LAYOUT="$(echo "${astring}" | sed -n "s/^channel_layout=\(.*\)/\1/p")"
-  IN_ABITRATE="$(echo "${astring}" | \
-                 sed -n "s/^bit_rate=\(.*\)/scale=0;\1\/1000/p" | bc -l)" # kbps
+  IN_ASTREAM_CHANNEL_COUNT=()
+  IN_ASTREAM_CHANNEL_LAYOUT=()
+  IN_ASTREAM_BITRATE=()
+  while read -r astring; do
+    IN_ASTREAM_CHANNEL_COUNT+=("$(echo "${astring}" | cut -d"|" -f3)")
+    IN_ASTREAM_CHANNEL_LAYOUT+=("$(echo "${astring}" | cut -d"|" -f4)")
+    IN_ASTREAM_BITRATE+=("$(echo "${astring}" | cut -d"|" -f5)")
+  done <<< "$(ffprobe -v error \
+                -select_streams a \
+                -show_entries stream=codec_type,channels,channel_layout,bit_rate \
+                -of compact=nokey=1 file:"${IN}")"
 
   if ! [[ -v OUT_VCODEC ]]; then
     OUT_VCODEC=copy
