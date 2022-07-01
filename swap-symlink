@@ -1,0 +1,29 @@
+#! /bin/bash
+set -eu
+source globals
+
+if ! [ -L "${1}" ]; then
+  show_error "ERROR: ${1@Q} not a symlink. Exiting."
+  exit 3
+fi
+
+if readlink -e "${1}" >/dev/null; then
+  SYM="${1}"
+  REF="$(readlink "${SYM}")"
+  ABSSYM="$(realpath -s "${SYM}")"
+  ABSREF="$(readlink -f "${SYM}")"
+
+  if [[ "${REF::1}" = "/" ]]; then
+    rm -v "${SYM}"
+    mv -v "${REF}" "${SYM}"
+    ln -s "${ABSSYM}" "${REF}"
+  else
+    rm -v "${SYM}"
+    mv -v "${ABSREF}" "${SYM}"
+    ln -sr "${SYM}" "${ABSREF}"
+  fi
+
+  sync
+
+  show_success "Swapped ${SYM@Q} and ${REF@Q}"
+fi
