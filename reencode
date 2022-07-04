@@ -28,6 +28,8 @@ function set_audio_bitrate {
 
   if [[ "${in_abitrate}" = 0 ]]; then
     echo "${abitrate}k"
+  elif [[ "${in_abitrate}" = "N/A" ]]; then
+    echo "${abitrate}k"
   elif [[ "${abitrate}" -gt "${in_abitrate}" ]]; then
     echo "${in_abitrate}k"
   else
