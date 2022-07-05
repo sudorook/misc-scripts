@@ -30,7 +30,7 @@ export -f do_strip_mp3
 #
 
 if [ $# -eq 1 ] && [ -f "${1}" ]; then
-  echo "Stripping ${1@Q}"
+  show_header "Stripping ${1@Q}..."
   do_strip_mp3 "${1}"
 else
   show_header "Stripping files in ${*@Q}..."
