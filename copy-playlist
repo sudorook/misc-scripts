@@ -67,4 +67,8 @@ if [[ -v INPUT ]] && [[ -v DEST ]]; then
     fi
   done < "${INPUT}"
   shopt -u extglob
+else
+  show_error "ERROR: Improper usage."
+  print_usage
+  exit 3
 fi
