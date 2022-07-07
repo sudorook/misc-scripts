@@ -52,19 +52,19 @@ fi
 
 if [[ -v INPUT ]] && [[ -v DEST ]]; then
   mkdir -p "${DEST}"
-  if [ -f "${INPUT}" ]; then
-    shopt -s extglob
-    while read -r ITEM; do
-      if [ -f "${MUSIC}/${ITEM}" ]; then
-        cp -uav "${MUSIC}/${ITEM}" "${DEST}/${ITEM##*/+([[:digit:]]) }"
-        sync
-      else
-        show_error "ERROR: file ${ITEM@Q} not found. Exiting."
-        exit 3
-      fi
-    done < "${INPUT}"
-    shopt -u extglob
+  if ! [ -f "${INPUT}" ]; then
+    show_error "ERROR: ${INPUT@Q} not a file. Exiting."
+    exit 3
   fi
-else
-  show_error "Try again."
+  shopt -s extglob
+  while read -r ITEM; do
+    if [ -f "${MUSIC}/${ITEM}" ]; then
+      cp -uav "${MUSIC}/${ITEM}" "${DEST}/${ITEM##*/+([[:digit:]]) }"
+      sync
+    else
+      show_error "ERROR: file ${ITEM@Q} not found. Exiting."
+      exit 3
+    fi
+  done < "${INPUT}"
+  shopt -u extglob
 fi
