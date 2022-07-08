@@ -6,8 +6,12 @@ source globals
 # for accessing network printers when behind a VPN that interferes with access
 # to local machines addressed by a local/internal DNS.
 
-OPTIONS=i:m:
-LONGOPTIONS=ip:,mask:
+function print_usage {
+  show_header "Usage: allow-ip -i|--ip <ip address> -m|--mask <bitmask>"
+}
+
+OPTIONS=hi:m:
+LONGOPTIONS=help,ip:,mask:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -31,6 +35,10 @@ while [ $# -ge 1 ]; do
         MASK="${2}"
       fi
       shift 2
+      ;;
+    -h|--help)
+      print_usage
+      exit
       ;;
     --)
       shift
