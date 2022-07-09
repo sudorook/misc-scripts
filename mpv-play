@@ -49,6 +49,13 @@ print_list() {
   fi
 }
 
+print_usage() {
+  show_header "Usage: mpv-play"
+  show_listitem "  -c|--cutoff   select files with duration above the cutoff"
+  show_listitem "  -f|--format   set extension keep"
+  show_listitem "  -s|--shuffle  shuffle streams"
+}
+
 
 #
 # Globals
@@ -64,8 +71,8 @@ REPLAYGAIN=album
 # Parse command line variables.
 #
 
-OPTIONS=sf:c:
-LONGOPTIONS=shuffle,format:,cutoff:
+OPTIONS=sf:c:h
+LONGOPTIONS=shuffle,format:,cutoff:,help
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -82,6 +89,10 @@ while [ $# -ge 1 ]; do
     -s|--shuffle)
       SHUFFLE=true
       shift
+      ;;
+    -h|--help)
+      print_usage
+      exit
       ;;
     --)
       shift
