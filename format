@@ -61,7 +61,7 @@ function format_wrapper() {
         show_warning "WARNING: skipping ${1@Q} parser/lexer." >&2
       fi
       ;;
-    python)
+    python|python3)
       format_python "${1}"
       ;;
     rust)
