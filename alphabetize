@@ -2,8 +2,13 @@
 set -Eeu
 source globals
 
-OPTIONS=b
-LONGOPTIONS=backup
+function print_usage {
+  show_header "Usage: alphabetize -b|--backup <file>"
+  show_listitem "  -b|--backup  (optional) save the original file"
+}
+
+OPTIONS=bh
+LONGOPTIONS=backup,help
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -13,6 +18,10 @@ while [ $# -ge 1 ]; do
     -b|--backup)
       ISBACKUP=true
       shift 1
+      ;;
+    -h|--help)
+      print_usage
+      exit
       ;;
     --)
       shift
