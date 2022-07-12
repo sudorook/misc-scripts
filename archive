@@ -161,6 +161,14 @@ function slugify() {
   tr "[:upper:]" "[:lower:]" | sed -e "s/^\.//g" -e "s/\s/_/g"
 }
 
+function print_usage() {
+  show_header "Usage: archive"
+  show_listitem \
+    "  -d|--dir       (optional) destination directory"
+  show_listitem \
+    "  -z|--compress  (optional) compression algorithm (xz, zstd, gz, or zip)"
+}
+
 
 #
 # Main
@@ -174,8 +182,8 @@ fi
 
 Z=zstd
 
-OPTIONS=d:z:
-LONGOPTIONS=dir:compress:
+OPTIONS=d:z:h
+LONGOPTIONS=dir:compress:,help
 
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
@@ -208,6 +216,10 @@ while [ ${#} -ge 1 ]; do
       esac
       shift 2
       break
+      ;;
+    -h|--help)
+      print_usage
+      exit
       ;;
     --)
       shift
