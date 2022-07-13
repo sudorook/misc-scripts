@@ -209,14 +209,23 @@ function normalize_cover {
   fi
 }
 
+function print_usage {
+  show_header "Usage: pdf-fixup"
+  show_listitem "  -s|--start      first page number (default: 1)"
+  show_listitem "  -e|--end        last page number (default: end)"
+  show_listitem "  -k|--keep       flag to keep intermediate files (default: false)"
+  show_listitem "  -o|--output     output file name (optional)"
+  show_listitem "  -n|--normalize  resize 1st page to match otherd (default: false)"
+}
+
 
 START=1
 END=end
 KEEP=false
 NORMALIZE=false
 
-OPTIONS=e:kno:s:
-LONGOPTIONS=end:,keep,normalize,output:,start:
+OPTIONS=e:hkno:s:
+LONGOPTIONS=end:,help,keep,normalize,output:,start:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -225,6 +234,10 @@ while [ ${#} -ge 1 ]; do
     -e|--end)
       END="${2}"
       shift 2
+      ;;
+    -h|--help)
+      print_usage
+      exit
       ;;
     -k|--keep)
       KEEP=true
