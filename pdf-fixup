@@ -2,7 +2,7 @@
 set -euo pipefail
 source globals
 
-! check_command pdftk pdftoppm pdfinfo convert && exit 3
+! check_command awk pdftk pdftoppm pdfinfo convert && exit 3
 
 function adjust_page_numbers {
   local offset
