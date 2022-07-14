@@ -2,12 +2,21 @@
 set -eu
 source globals
 
+function print_usage {
+  show_header "Usage: get-webseries"
+  show_listitem "  -d|--destination  location for output directory"
+  show_listitem "  -n|--name         name of output directory"
+  show_listitem "  -u|--url          playlist URL"
+  show_listitem "  -r|--resolution   video resolution (e.g. 1080p)"
+  show_listitem "  -s|--start        playlist index number to start  downloading"
+}
+
 YTDL=yt-dlp
 
 ! check_command "${YTDL}" && exit 3
 
-OPTIONS=d:n:r:s:u:
-LONGOPTIONS=destination:,name:,resolution:,start:,url:
+OPTIONS=d:hn:r:s:u:
+LONGOPTIONS=destination:,help,name:,resolution:,start:,url:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "${PARSED}"
 
@@ -16,6 +25,10 @@ while [ $# -ge 1 ]; do
     -d|--destination)
       VIDEODIR="$2"
       shift 2
+      ;;
+    -h|--help)
+      print_usage
+      exit
       ;;
     -n|--name)
       NAME="$2"
