@@ -297,6 +297,7 @@ while [ ${#} -ge 1 ]; do
       ;;
     -h|--help)
       print_usage
+      exit
       shift
       ;;
     -j|--julia)
