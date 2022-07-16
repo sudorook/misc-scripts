@@ -96,6 +96,12 @@ function enable_killswitch() {
   sudo ufw enable
 }
 
+function print_usage() {
+  show_header "Usage: vpn-killswitch"
+  show_listitem "  -e|--enable   enable firewall 'killswitch'"
+  show_listitem "  -d|--disable  disable 'killswitch' and reset firewall rules"
+}
+
 #
 # Main
 #
@@ -107,8 +113,8 @@ function disable_killswitch() {
   sudo ufw enable
 }
 
-OPTIONS=de
-LONGOPTIONS=disable,enable
+OPTIONS=deh
+LONGOPTIONS=disable,enable,help
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -121,6 +127,10 @@ while [ $# -ge 1 ]; do
     -e|--enable)
       enable_killswitch
       shift
+      ;;
+    -h|--help)
+      print_usage
+      exit
       ;;
     --)
       shift
