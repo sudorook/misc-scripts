@@ -4,6 +4,15 @@ source globals
 
 ! check_command pdfinfo pdfseparate && exit 3
 
+function print_usage {
+  show_header "pdfsplit options:"
+  show_listitem "  -i|--input  <PDF input>"
+  show_listitem "  -f|--first  <# of first page to split>"
+  show_listitem "  -l|--last   <# of last page to split>"
+  show_listitem "  -j|--join   <flag to join split PDF pages together (def: false)"
+}
+
+
 OPTIONS=hi:f:l:
 LONGOPTIONS=help,input:,first:,last:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "$@")
@@ -26,11 +35,7 @@ while [ $# -ge 1 ]; do
       shift 2
       ;;
     -h|--help)
-      echo "pdfsplit options:"
-      echo "  -i|--input  <PDF input>"
-      echo "  -f|--first  <# of first page to split>"
-      echo "  -l|--last   <# of last page to split>"
-      echo "  -j|--join   <flag to join split PDF pages together (def: false)"
+      print_usage
       exit 0
       ;;
     --)
