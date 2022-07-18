@@ -90,6 +90,12 @@ function is_new_user_valid() {
   return 0
 }
 
+function print_usage() {
+  show_header "Usage: rename-user"
+  show_listitem "  -n|--new  new username"
+  show_listitem "  -o|--old  current username"
+}
+
 
 #
 # Parse command line parameters
@@ -98,13 +104,17 @@ function is_new_user_valid() {
 OLDNAME=
 NEWNAME=
 
-OPTIONS=o:n:
-LONGOPTIONS=old:,new:
+OPTIONS=ho:n:
+LONGOPTIONS=help,old:,new:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
 while [ $# -ge 1 ]; do
   case "$1" in
+    -h|--help)
+      print_usage
+      exit
+      ;;
     -o|--old)
       OLDNAME="${2}"
       shift 2
