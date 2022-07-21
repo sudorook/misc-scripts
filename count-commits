@@ -28,6 +28,18 @@ get_count() {
 }
 export -f get_count
 
+print_usage() {
+  show_header "Usage: count-commits"
+  show_listitem "  -a|--author <author>"
+  show_listitem "  -e|--email  <email>"
+  show_listitem "  -s|--since  <time>"
+  show_listitem "  -u|--until  <time>"
+  show_listitem
+  show_listitem "  author = commit author"
+  show_listitem "  email  = commit email address"
+  show_listitem "  time   = date string (e.g. 1week, 2years, etc.),"
+  show_listitem "           passed to 'date' from coreutils"
+}
 
 #
 # Main
@@ -66,16 +78,7 @@ while [ $# -ge 1 ]; do
       shift 2
       ;;
     -h|--help)
-      echo "Usage: count-commits -a|--author <author>"
-      echo "                     -e|--email  <email>"
-      echo "                     -s|--since  <time>"
-      echo "                     -u|--until  <time>"
-      echo
-      echo "  author = the author of the commit(s)"
-      echo "  email  = email address for commit(s)"
-      echo "  time   = the period counting back from now, formatted in a way"
-      echo "           understandable by 'date' from coreutils (e.g. 1week,"
-      echo "           2years, 3days, etc.)"
+      print_usage
       exit
       ;;
     --)
