@@ -162,7 +162,7 @@ while [ ${#} -ge 1 ]; do
       ;;
     -g|--global)
       GLOBAL=true
-      exit
+      shift
       ;;
     -h|--help)
       print_usage
