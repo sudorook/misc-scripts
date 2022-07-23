@@ -115,13 +115,19 @@ function destroy {
   done
 }
 
+function print_usage {
+  show_header "Usage: seek-and-destroy -p|-s <search string>"
+  show_listitem "  -p|--precise  seek files and directories that match exactly"
+  show_listitem "  -s|--sloppy   match anything containing <search string>"
+}
+
 
 #
 # Parse command line options
 #
 
-OPTIONS="ps"
-LONGOPTIONS=precise,sloppy
+OPTIONS="hps"
+LONGOPTIONS=help,precise,sloppy
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 MODE=
@@ -141,6 +147,10 @@ while [ ${#} -ge 1 ]; do
       fi
       MODE=sloppy
       shift
+      ;;
+    -h|--help)
+      print_usage
+      exit
       ;;
     --)
       shift
