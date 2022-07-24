@@ -53,9 +53,9 @@ function find_todo {
 
   for ignore in "${IGNORES[@]}"; do
     if [[ ! -v ignores ]]; then
-      ignores="-name \"${ignore}\""
+      ignores="-name ${ignore@Q}"
     else
-      ignores="${ignores} -o -name \"${ignore}\""
+      ignores="${ignores} -o -name ${ignore@Q}"
     fi
   done
 
