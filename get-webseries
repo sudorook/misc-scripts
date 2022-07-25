@@ -51,7 +51,7 @@ while [ $# -ge 1 ]; do
       break
       ;;
     *)
-      show_error "Error: unknown command line option \"$2\"."
+      show_error "ERROR: unknown command line option ${2@Q}."
       exit 3
       ;;
   esac
