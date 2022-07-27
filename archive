@@ -193,7 +193,6 @@ while [ ${#} -ge 1 ]; do
     -d|--dir)
       ARCHIVEDIR="${2}"
       shift 2
-      break
       ;;
     -z|--compress)
       case "${2}" in
