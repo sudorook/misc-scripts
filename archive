@@ -203,7 +203,7 @@ while [ ${#} -ge 1 ]; do
         gz|pigz)
           Z=gz
           ;;
-        xz|xigz)
+        xz|pixz)
           Z=xz
           ;;
         zip)
