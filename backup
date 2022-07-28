@@ -52,11 +52,16 @@ function sync_home() {
 # Backup VMS to Backups 1 and 2
 function sync_vms() {
   show_info "Syncing VMs in ${HOME@Q} to ${backup1@Q}."
+  local cmd
   mkdir -p "${backup1}/Images/KVM"
   mkdir -p "${backup1}/Images/VirtualBox"
-  sudo bash -c "\
-    [[ -v kvmdir ]] && [ -d ${kvmdir} ] && rsync -Pradog --sparse ${kvmdir}/ ${backup1}/Images/KVM/; \
-    [[ -v vboxdir ]] && [ -d ${vboxdir} ] && rsync -Pradog ${vboxdir}/ ${backup1}/Images/VirtualBox/"
+  if [[ -n "${kvmdir}" ]] && [[ -d ${kvmdir} ]]; then
+    cmd="${cmd:+${cmd} && }rsync -Pradog --sparse ${kvmdir}/ ${backup1}/Images/KVM/"
+  fi
+  if [[ -n "${vboxdir}" ]] && [[ -d ${vboxdir} ]]; then
+    cmd="${cmd:+${cmd} && }rsync -Pradog ${vboxdir}/ ${backup1}/Images/VirtualBox/"
+  fi
+  sudo bash -c "${cmd}"
   sync
   show_success "Done." && echo
 
