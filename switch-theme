@@ -269,8 +269,15 @@ set_icon_theme() {
   fi
 }
 
-OPTIONS=g:i:
-LONGOPTIONS=gtk:,icon:
+print_usage() {
+  show_header "Usage: switch-theme"
+  show_listitem "  -g|--gtk   <GTK theme name>"
+  show_listitem "  -i|--icon  <icon theme name>"
+  show_listitem "  -h|--help  print (this) help message"
+}
+
+OPTIONS=g:hi:
+LONGOPTIONS=gtk:,help,icon:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -280,6 +287,10 @@ while [ $# -ge 1 ]; do
     -g|--gtk)
       set_gtk_theme "$2"
       shift 2
+      ;;
+    -h|--help)
+      print_usage
+      exit
       ;;
     -i|--icon)
       set_icon_theme "$2"
