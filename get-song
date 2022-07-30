@@ -6,8 +6,17 @@ YTDL=yt-dlp
 
 ! check_command "${YTDL}" mid3v2 && exit 3
 
-OPTIONS=t:a:u:f:
-LONGOPTIONS=title:,artist:,url:,format
+function print_usage {
+  show_header "Usage: get-song"
+  show_listitem "  -t|--title   <song title>"
+  show_listitem "  -a|--artist  <name of band / recording artist / etc>"
+  show_listitem "  -u|--url     <url for download>"
+  show_listitem "  -f|--format  <audio format (e.g. mp3, opus)>"
+  show_listitem "  -h|--help    print (this) help message"
+}
+
+OPTIONS=t:a:u:f:h
+LONGOPTIONS=title:,artist:,url:,format,help
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "${PARSED}"
 
@@ -28,6 +37,10 @@ while [ $# -ge 1 ]; do
     -f|--format)
       FORMAT="$2"
       shift 2
+      ;;
+    -h|--help)
+      print_usage
+      exit
       ;;
     --)
       shift
