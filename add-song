@@ -12,10 +12,10 @@ addSong () {
   SONG=$(ask_question "What's the song's name?")
   if [ -z "${SONG}" ]; then exit; fi
 
-  check=$(ask_question "So the name is \"${SONG}\"? [Y/n]")
+  check=$(ask_question "So the name is ${SONG@Q}? [Y/n]")
   while [[ $check =~ ^([nN][oO]|[nN])$ ]]; do
     echo "No problem. Let's try again."
-    check=$(ask_question "So the name is \"${SONG}\"? [Y/n]")
+    check=$(ask_question "So the name is ${SONG@Q}? [Y/n]")
   done
 }
 
@@ -24,10 +24,10 @@ addArtist () {
   ARTIST=$(ask_question "Who made it?")
   if [ -z "${ARTIST}" ]; then exit; fi
 
-  check=$(ask_question "So it's by \"${ARTIST}\"? [Y/n]")
+  check=$(ask_question "So it's by ${ARTIST@Q}? [Y/n]")
   while [[ $check =~ ^([nN][oO]|[nN])$ ]]; do
     echo "No problem. Let's try again."
-    check=$(ask_question "So it's by \"${ARTIST}\"? [Y/n]")
+    check=$(ask_question "So it's by ${ARTIST@Q}? [Y/n]")
   done
 }
 
