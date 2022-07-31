@@ -5,6 +5,7 @@ source globals
 SONG=
 ARTIST=
 FLAG=0
+OUTFILE="${HOME}/Downloads/music2add.txt"
 
 addSong () {
   local check
@@ -30,11 +31,11 @@ addArtist () {
   done
 }
 
-if [ -f "$HOME/.files/music2add" ]; then
+if [ -f "${OUTFILE}" ]; then
   echo "Okay, so..."
 else
-  mkdir -p "$HOME/.files"
-  touch "$HOME/.files/music2add"
+  mkdir -p "$(dirname "${OUTFILE}")"
+  touch "${OUTFILE}"
   echo "Okay, new files, so..."
 fi
 
@@ -50,11 +51,11 @@ do
     FLAG=1
     break
   fi
-done < "$HOME/.files/music2add"
+done < "${OUTFILE}"
 IFS=$IFS_BACKUP
 
 if [ ${FLAG} -eq 0 ]; then
-  printf "%s\t%s" "$SONG" "$ARTIST" >> "$HOME/.files/music2add"
+  printf "%s\t%s" "$SONG" "$ARTIST" >> "${OUTFILE}"
   show_success "Done!"
   exit
 else
