@@ -14,7 +14,7 @@ function git_update() {
     return 1
   fi
   git -C "${1}" checkout master
-  git -C "${1}" fetch --tags
+  git -C "${1}" fetch --tags -f
   h=$(git -C "${1}" rev-parse HEAD)
   u=$(git -C "${1}" rev-parse @{u})
   if [ "$h" = "$u" ]; then
