@@ -74,7 +74,7 @@ function scan_files() {
 
   for infile in *; do
     if [ -f "${infile}" ]; then
-      if [[ "$(file -b --mime-type "${infile}")" =~ video|text|audio ]]; then
+      if [[ "$(file -b --mime-type "${infile}")" =~ video|text|audio|subrip ]]; then
         outfile=$(cleanup_filename "${infile}")
         echo "${outfile}" >&2
         INFILES+=("${infile}")
