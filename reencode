@@ -254,7 +254,7 @@ function scan_input {
     matroska|mkv|matroska,webm|webm)
       IN_CONTAINER=matroska
       ;;
-    mp4|mov,mp4,m4a,3gp,3g2,mj2|m4a|mov)
+    mp4|mov,mp4,m4a,3gp,3g2,mj2|m4a|mov|mpegts)
       IN_CONTAINER=mp4
       ;;
     mp3)
