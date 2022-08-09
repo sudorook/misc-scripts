@@ -285,6 +285,7 @@ while [ ${#} -ge 1 ]; do
     -a|--all)
       upgrade_system
       upgrade_julia_packages
+      upgrade_rust
       upgrade_pkgbuild
       upgrade_themes
       upgrade_vim_packages
