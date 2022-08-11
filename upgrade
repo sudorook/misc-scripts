@@ -232,6 +232,19 @@ function upgrade_rust() {
   echo
 }
 
+function upgrade_R() {
+  show_header "Upgrading R packages."
+  if ! command -v Rscript >/dev/null 2>&1; then
+    show_warning "Install R first. Skipping."
+  else
+    Rscript -e \
+      "update.packages(ask=FALSE, checkBuilt=TRUE, repos='https://cloud.r-project.org/')"
+    sleep 2
+  fi
+
+  echo
+}
+
 function upgrade_pkgbuild() {
   command -v makepkg >/dev/null 2>&1 && {
     show_header "Upgrading AUR pkgbuilds."
@@ -275,8 +288,8 @@ function upgrade_weechat_plugins {
 # Main
 #
 
-OPTIONS=ahjrpstnvwxz
-LONGOPTIONS=all,help,julia,rust,pkgbuild,system,theme,nvim,vim,weechat,extra,zsh
+OPTIONS=ahjrRpstnvwxz
+LONGOPTIONS=all,help,julia,rust,R,pkgbuild,system,theme,nvim,vim,weechat,extra,zsh
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -286,6 +299,7 @@ while [ ${#} -ge 1 ]; do
       upgrade_system
       upgrade_julia_packages
       upgrade_rust
+      upgrade_R
       upgrade_pkgbuild
       upgrade_themes
       upgrade_vim_packages
@@ -307,6 +321,10 @@ while [ ${#} -ge 1 ]; do
       ;;
     -r|--rust)
       upgrade_rust
+      shift
+      ;;
+    -R|--R)
+      upgrade_R
       shift
       ;;
     -p|--pkgbuild)
