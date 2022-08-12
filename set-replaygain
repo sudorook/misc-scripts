@@ -23,6 +23,14 @@ function check_inputs {
   done
 }
 
+function print_usage {
+  show_header "Usage: set-replaygain <file(s) or director(ies)>"
+  show_listitem \
+    "  -k|--keep   flag to keep original files/directories (default: false)"
+  show_listitem \
+    "  -h|--help   print (this) help message"
+}
+
 
 #
 # Main
@@ -30,8 +38,8 @@ function check_inputs {
 
 KEEP=false
 
-OPTIONS=k
-LONGOPTIONS=keep
+OPTIONS=kh
+LONGOPTIONS=keep,help
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -40,6 +48,10 @@ while [ "${#}" -ge 1 ]; do
     -k|--keep)
       KEEP=true
       shift 1
+      ;;
+    -h|--help)
+      print_usage
+      exit
       ;;
     --)
       shift
