@@ -60,6 +60,10 @@ if ! [[ -v URL ]]; then URL=$(ask_question "What is the URL?"); fi
 if ! [[ -v FORMAT ]]; then FORMAT=mp3; fi
 
 # Download the file, extract audio, and set the ID3v2 tags.
-"${YTDL}" --extract-audio --prefer-ffmpeg --audio-format ${FORMAT} \
-  "${URL//\"}" -o "${TITLE} - ${ARTIST}.%(ext)s"
+"${YTDL}" "${URL//\"}" \
+  --extract-audio \
+  --prefer-ffmpeg \
+  --audio-format ${FORMAT} \
+  --ignore-config \
+  -o "${TITLE} - ${ARTIST}.%(ext)s"
 mid3v2 "${TITLE} - ${ARTIST}.${FORMAT}" -a "${ARTIST}" -t "${TITLE}"
