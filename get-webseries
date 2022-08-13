@@ -109,4 +109,5 @@ cd "${VIDEODIR}/${NAME}"
   --prefer-free-formats \
   --download-archive .archive.txt \
   -f "bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
-  --ignore-errors
+  --ignore-errors \
+  --ignore-config
