@@ -5,18 +5,24 @@ source globals
 EXTENSION="${1##*.}"
 
 if ! [ -f "$1" ]; then
-  show_error "Error: $1 does not exist."
+  show_error "ERROR: ${1@Q} does not exist. Exiting."
   exit 1
 fi
 
 if [[ ${EXTENSION} =~ ^([R|r][MD|md|markdown|Markdown]*)$ ]]; then
-  R -q -e "if (require(rmarkdown)) { options(encoding='UTF-8'); render('${1}') }"
+  if check_command R; then
+    R -q -e "if (require(rmarkdown)) { options(encoding='UTF-8'); render('${1}') }"
+  fi
 fi
 
 if [[ ${EXTENSION} =~ ^(tex)$ ]]; then
-  lualatex -shell-escape "${1}"
+  if check_command lualatex; then
+    lualatex -shell-escape "${1}"
+  fi
 fi
 
 if [[ ${EXTENSION} =~ ^([J|j][MD|md|markdown|Markdown]*)$ ]]; then
-  julia -e "using Weave; weave(\"${1}\")"
+  if check_command julia; then
+    julia -e "using Weave; weave(\"${1}\")"
+  fi
 fi
