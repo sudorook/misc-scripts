@@ -8,7 +8,8 @@ function print_usage {
   show_listitem "  -n|--name         name of output directory"
   show_listitem "  -u|--url          playlist URL"
   show_listitem "  -r|--resolution   video resolution (e.g. 1080p)"
-  show_listitem "  -s|--start        playlist index number to start  downloading"
+  show_listitem "  -s|--start        playlist index number to start downloading"
+  show_listitem "  -h|--help         print (this) help message"
 }
 
 YTDL=yt-dlp
