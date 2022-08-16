@@ -238,7 +238,7 @@ fi
 parse_streams
 
 TYPE="$(file -bi "${IN}")"
-if [[ "${TYPE}" =~ matroska ]]; then
+if [[ "${TYPE}" =~ matroska|webm ]]; then
   if command -v mkvpropedit >/dev/null; then
     strip_matroska
   else
