@@ -2,6 +2,8 @@
 set -eu
 source globals
 
+! check_command git && exit 3
+
 print_usage() {
   show_header "Usage: git-archive"
   echo "  -d|--dir         directory of git repository to archive"
