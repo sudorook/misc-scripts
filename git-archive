@@ -6,10 +6,14 @@ source globals
 
 print_usage() {
   show_header "Usage: git-archive"
-  echo "  -d|--dir         directory of git repository to archive"
-  echo "  -t|--tag         tag/branch to archive (e.g. master, HEAD~5, etc.)"
-  echo "  -z|--compress    compression type (zip, gz, xz, or zst)"
-  echo "  -h|--help        show (this) help message"
+  show_listitem \
+    "  -d|--dir         directory of git repository to archive"
+  show_listitem \
+    "  -t|--tag         tag/branch to archive (e.g. master, HEAD~5, etc.)"
+  show_listitem \
+    "  -z|--compress    compression type (zip, gz, xz, or zst)"
+  show_listitem \
+    "  -h|--help        show (this) help message"
 }
 
 DIR="${PWD}"
