@@ -3,10 +3,10 @@ set -euo pipefail
 source globals
 
 function print_usage() {
-  echo "Usage:"
-  echo "  copy-playlist -i|--input <m3u file> \\"
-  echo "                -d|--dest <destination directory> \\"
-  echo "                -m|--music <music directory>"
+  show_header "Usage: copy-playlist"
+  show_listitem "  copy-playlist -i|--input <m3u file> \\"
+  show_listitem "                -d|--dest <destination directory> \\"
+  show_listitem "                -m|--music <music directory>"
 }
 
 OPTIONS=hi:d:m:
