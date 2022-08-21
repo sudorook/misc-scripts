@@ -84,10 +84,9 @@ if [[ "${KEEP}" = true ]]; then
   fi
 fi
 
-bs1770gain "${@}" -o "${TMPDIR}"
-
 # Move files into place.
 if [ "${#}" -eq 1 ]; then
+  bs1770gain "${@}" -o "${TMPDIR}"
   if [[ "${KEEP}" = true ]]; then
     mv "${1}" "${BACKUPDIR}"
   else
@@ -96,6 +95,8 @@ if [ "${#}" -eq 1 ]; then
   mv "${TMPDIR}" "${1}"
 else
   for ITEM in "${@}"; do
+    mkdir -p "${TMPDIR}/$(basename "${ITEM}")"
+    bs1770gain "${ITEM}" -o "${TMPDIR}/$(basename "${ITEM}")"
     if [[ "${KEEP}" = true ]]; then
       mkdir -p "${BACKUPDIR}"
       mv "${ITEM}" "${BACKUPDIR}/"
