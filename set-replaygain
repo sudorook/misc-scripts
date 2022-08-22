@@ -88,22 +88,27 @@ fi
 if [ "${#}" -eq 1 ]; then
   bs1770gain "${@}" -o "${TMPDIR}"
   if [[ "${KEEP}" = true ]]; then
+    mkdir -p "${BACKUPDIR}"
     mv "${1}" "${BACKUPDIR}"
+    mv "${TMPDIR}" "${1}"
   else
-    rm -r "${1}"
+    mv "${1}" "${1}.bak"
+    mv "${TMPDIR}" "${1}"
+    rm -r "${1}.bak"
   fi
-  mv "${TMPDIR}" "${1}"
 else
   for ITEM in "${@}"; do
     mkdir -p "${TMPDIR}/$(basename "${ITEM}")"
     bs1770gain "${ITEM}" -o "${TMPDIR}/$(basename "${ITEM}")"
     if [[ "${KEEP}" = true ]]; then
-      mkdir -p "${BACKUPDIR}"
-      mv "${ITEM}" "${BACKUPDIR}/"
+      mkdir -p "${BACKUPDIR}/$(basename "${ITEM}")"
+      mv "${ITEM}" "${BACKUPDIR}/$(basename "${ITEM}")"
+      mv "${TMPDIR}/$(basename "${ITEM}")" "${ITEM}"
     else
-      rm -r "${ITEM}"
+      mv "${ITEM}" "${ITEM}.bak"
+      mv "${TMPDIR}/$(basename "${ITEM}")" "${ITEM}"
+      rm -r "${ITEM}.bak"
     fi
-    mv "${TMPDIR}/$(basename "${ITEM}")" "${ITEM}"
   done
   rmdir "${TMPDIR}"
 fi
