@@ -76,7 +76,7 @@ if [[ "${KEEP}" = true ]]; then
     if [ -d "${1}" ]; then
       BACKUPDIR="${1}_$(date +%Y%m%d-%H%M%S)"
     else
-      show_warning "Why compute replain gain for one file? Stopping..."
+      show_warning "Why compute album replay gain for one file? Stopping..."
       exit
     fi
   else
