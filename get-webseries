@@ -109,6 +109,6 @@ cd "${VIDEODIR}/${NAME}"
   ${START:+--playlist-start "${START}"} \
   --prefer-free-formats \
   --download-archive .archive.txt \
-  -f "bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
+  -f "bestvideo[ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
   --ignore-errors \
   --ignore-config
