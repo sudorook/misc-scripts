@@ -63,6 +63,30 @@ FILE="$(basename "${1}")"
 NAME="${1%.*}"
 EXTENSION="${1##*.}"
 
+UNSETCOLOR=false
+
+OPTIONS=c
+LONGOPTIONS=unset_color
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ "${#}" -ge 1 ]; do
+  case "${1}" in
+    -c|--unset_color)
+      UNSETCOLOR=true
+      shift 1
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR: invalid flag."
+      exit 3
+      ;;
+  esac
+done
+
 BUILDDIR="$(mktemp -d)"
 trap 'rm -rf "${BUILDDIR}"; exit' INT TERM ERR EXIT
 
@@ -73,7 +97,9 @@ unzip "${FILE}"
 
 set_rw
 unjustify
-# unset_colors
+if ${UNSETCOLOR}; then
+  unset_colors
+fi
 
 zip -u "${FILE}" || true # override return false if no update performed
 
