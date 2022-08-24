@@ -54,15 +54,6 @@ function is_epub {
 # Main
 #
 
-if ! is_epub "${1}"; then
-  show_error "ERROR: Input not ePub format."
-  exit 3
-fi
-
-FILE="$(basename "${1}")"
-NAME="${1%.*}"
-EXTENSION="${1##*.}"
-
 UNSETCOLOR=false
 
 OPTIONS=c
@@ -86,6 +77,15 @@ while [ "${#}" -ge 1 ]; do
       ;;
   esac
 done
+
+if ! is_epub "${1}"; then
+  show_error "ERROR: Input not ePub format."
+  exit 3
+fi
+
+FILE="$(basename "${1}")"
+NAME="${1%.*}"
+EXTENSION="${1##*.}"
 
 BUILDDIR="$(mktemp -d)"
 trap 'rm -rf "${BUILDDIR}"; exit' INT TERM ERR EXIT
