@@ -49,6 +49,12 @@ function is_epub {
   fi
 }
 
+function print_usage {
+  show_header "Usage: epub-fixup -c|--unset_color <input>"
+  show_listitem "  -c  (optional) comment out hard-coded colors"
+  show_listitem "  -h  print (this) help message"
+}
+
 
 #
 # Main
@@ -56,8 +62,8 @@ function is_epub {
 
 UNSETCOLOR=false
 
-OPTIONS=c
-LONGOPTIONS=unset_color
+OPTIONS=ch
+LONGOPTIONS=unset_color,help
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -67,12 +73,17 @@ while [ "${#}" -ge 1 ]; do
       UNSETCOLOR=true
       shift 1
       ;;
+    -h|--help)
+      print_usage
+      exit
+      ;;
     --)
       shift
       break
       ;;
     *)
       show_error "ERROR: invalid flag."
+      print_usage
       exit 3
       ;;
   esac
