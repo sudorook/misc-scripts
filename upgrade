@@ -203,6 +203,7 @@ function upgrade_zsh() {
         done
       else
         show_warning "No zsh plugins found in ${zshdir}. Skipping."
+        echo
       fi
     fi
   fi
