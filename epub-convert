@@ -11,6 +11,7 @@ for ITEM in "${@}"; do
         ebook-convert "${ITEM}" "${ITEM%%.*}.epub" --change-justification "left"
         ;;
       *)
+        show_warning "${ITEM@Q} not supported. Skipping..."
         ;;
     esac
   fi
