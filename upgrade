@@ -8,6 +8,14 @@ source globals
 # Functions
 #
 
+function rand_int() {
+  local min
+  local max
+  min="${1:-1}"
+  max="${2:-10}"
+  shuf -i"${min}-${max}" -n1
+}
+
 function git_update() {
   if [ -z "$(git -C "${1}" remote)" ]; then
     show_warning "No remote is configured. Skipping..."
@@ -73,7 +81,7 @@ function upgrade_themes() {
             popd >/dev/null
           fi
         fi
-        sleep 2
+        sleep "$(rand_int 2 10)"
         echo
       fi
     done
@@ -113,7 +121,7 @@ function upgrade_themes() {
               ;;
           esac
         fi
-        sleep 2
+        sleep "$(rand_int 2 10)"
         echo
       fi
     done
@@ -144,7 +152,7 @@ function upgrade_vim_packages() {
         if git -C "${dir}" rev-parse 2>/dev/null; then
           show_info "$(basename "${dir}")"
           git_update "${dir}" || true
-          sleep 2
+          sleep "$(rand_int 2 10)"
           echo
         fi
       done
@@ -168,7 +176,7 @@ function upgrade_nvim_packages() {
         if git -C "${dir}" rev-parse 2>/dev/null; then
           show_info "$(basename "${dir}")"
           git_update "${dir}" || true
-          sleep 2
+          sleep "$(rand_int 2 10)"
           echo
         fi
       done
@@ -190,14 +198,14 @@ function upgrade_zsh() {
     # 'command -v antigen-update' returns false.
     if zsh -ic "command -v antigen-update" >/dev/null 2>&1; then
       zsh -ic "antigen-update"
-      sleep 2
+      sleep "$(rand_int 2 10)"
     else
       if [[ -v zshdir ]] && [ -d "${zshdir}" ]; then
         for dir in "${zshdir}"/*; do
           if git -C "${dir}" rev-parse 2>/dev/null; then
             show_info "$(basename "${dir}")"
             git -C "${dir}" pull --ff-only origin master --tags
-            sleep 2
+            sleep "$(rand_int 2 10)"
             echo
           fi
         done
@@ -215,7 +223,7 @@ function upgrade_julia_packages() {
     show_warning "Install julia first. Skipping."
   else
     julia -e "using Pkg; Pkg.update()"
-    sleep 2
+    sleep "$(rand_int 2 10)"
   fi
 
   echo
@@ -227,7 +235,7 @@ function upgrade_rust() {
     show_warning "Install rustup first. Skipping."
   else
     rustup update
-    sleep 2
+    sleep "$(rand_int 2 10)"
   fi
 
   echo
@@ -240,7 +248,7 @@ function upgrade_R() {
   else
     Rscript -e \
       "update.packages(ask=FALSE, checkBuilt=TRUE, repos='https://cloud.r-project.org/')"
-    sleep 2
+    sleep "$(rand_int 2 10)"
   fi
 
   echo
@@ -261,7 +269,7 @@ function upgrade_pkgbuild() {
             git reset --hard
             popd >/dev/null
           fi
-          sleep 2
+          sleep "$(rand_int 2 10)"
           echo
         fi
       done
@@ -278,7 +286,7 @@ function upgrade_weechat_plugins {
       if git -C "${dir}" rev-parse 2>/dev/null; then
         show_info "$(basename "${dir}")"
         git -C "${dir}" pull --ff-only origin master --tags
-        sleep 2
+        sleep "$(rand_int 2 10)"
         echo
       fi
     done
