@@ -100,5 +100,9 @@ export UNTIL
 projectdir="${projectdir:-$HOME}"
 PROJECTDIR=("${@:-$projectdir}")
 
-find -L "${PROJECTDIR[@]}" ${DEPTH:+-maxdepth $DEPTH} -type d -name ".git" \
-  -exec bash -c 'get_count "${1}"' bash {} \; | awk '{s+=$1}END{print s}'
+if [ $# -eq 1 ] && git log >/dev/null 2>&1; then
+  get_count "${1}" | awk '{s+=$1}END{print s}'
+else
+  find -L "${PROJECTDIR[@]}" ${DEPTH:+-maxdepth $DEPTH} -type d -name ".git" \
+    -exec bash -c 'get_count "${1}"' bash {} \; | awk '{s+=$1}END{print s}'
+fi
