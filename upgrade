@@ -130,7 +130,7 @@ function upgrade_themes() {
   if [[ -v thunderbirddir ]] && [[ -d "${thunderbirddir}" ]]; then
     show_info "$(basename "${thunderbirddir}") (thunderbird)"
     git -C "${thunderbirddir}/chrome" pull --ff-only origin master
-    sleep 2
+    sleep "$(rand_int 2 10)"
     echo
   fi
 }
