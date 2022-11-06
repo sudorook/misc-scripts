@@ -19,10 +19,48 @@ function display_connected {
   fi
 }
 
+function recenter_transmission {
+  local width
+  local height
+  local offset_x
+  local offset_y
+  local config="${HOME}/.config/transmission/settings.json"
+  if ! [ -f "${config}" ]; then
+    show_warning "WARNING: Transmission config file missing. Skipping."
+    return
+  fi
+  width="$(sed -n 's/.*"main-window-width": \([0-9]\+\),/\1/p' ${config})"
+  height="$(sed -n 's/.*"main-window-height": \([0-9]\+\),/\1/p' ${config})"
+  case "${ROTATION}" in
+    left|right)
+      offset_y=$(((RESOLUTION_X-height-PANEL_OFFSET)/2))
+      offset_x=$(((RESOLUTION_Y-width)/2))
+      ;;
+    inverted|normal)
+      offset_x=$(((RESOLUTION_X-width)/2))
+      offset_y=$(((RESOLUTION_Y-height-PANEL_OFFSET)/2))
+      ;;
+    *)
+      show_error "ERROR: unknown rotation ${ROTATION@Q}."
+      return
+      ;;
+  esac
+  sed -i.bak \
+    -e "s/\(.*\"main-window-width\": \)[0-9]\+,/\1${width},/g" \
+    -e "s/\(.*\"main-window-height\": \)[0-9]\+,/\1${height},/g" \
+    -e "s/\(.*\"main-window-x\": \)[0-9]\+,/\1${offset_x},/g" \
+    -e "s/\(.*\"main-window-y\": \)[0-9]\+,/\1${offset_y},/g" \
+    ${config}
+}
+
 ID="HDMI-1"
 ROTATION=left
 VERTICAL_BG="/usr/share/backgrounds/timed/24-hours-timed.xml"
 HORIZONTAL_BG="/usr/share/backgrounds/timed/island-timed.xml"
+
+RESOLUTION_X=2560
+RESOLUTION_Y=1440
+PANEL_OFFSET=40  # height (in pixels) of the panel
 
 OPTIONS=i:r:h
 LONGOPTIONS=input:,rotation:,help
@@ -84,3 +122,5 @@ case ${ROTATION,,} in
     exit 3
     ;;
 esac
+
+recenter_transmission
