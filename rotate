@@ -19,6 +19,27 @@ function display_connected {
   fi
 }
 
+function get_primary_display_info_xrandr {
+  local info
+  info="$(xrandr -q | grep "connected primary")"
+  ROTATION="$(echo "${info}" | sed -n "s/\([A-Za-z0-9\-]\+\) connected primary \([0-9]\+\)x\([0-9]\+\)[0-9+]\+ \([a-z]\+\) .*/\4/p")"
+  ID="$(echo "${info}" | sed -n "s/\([A-Za-z0-9\-]\+\) connected primary \([0-9]\+\)x\([0-9]\+\)[0-9+]\+ \([a-z]\+\) .*/\1/p")"
+  case "${ROTATION}" in
+    left|right)
+      RESOLUTION_X="$(echo "${info}" | sed -n "s/\([A-Za-z0-9\-]\+\) connected primary \([0-9]\+\)x\([0-9]\+\)[0-9+]\+ \([a-z]\+\) .*/\3/p")"
+      RESOLUTION_Y="$(echo "${info}" | sed -n "s/\([A-Za-z0-9\-]\+\) connected primary \([0-9]\+\)x\([0-9]\+\)[0-9+]\+ \([a-z]\+\) .*/\2/p")"
+      ;;
+    inverted|normal)
+      RESOLUTION_X="$(echo "${info}" | sed -n "s/\([A-Za-z0-9\-]\+\) connected primary \([0-9]\+\)x\([0-9]\+\)[0-9+]\+ \([a-z]\+\) .*/\2/p")"
+      RESOLUTION_Y="$(echo "${info}" | sed -n "s/\([A-Za-z0-9\-]\+\) connected primary \([0-9]\+\)x\([0-9]\+\)[0-9+]\+ \([a-z]\+\) .*/\3/p")"
+      ;;
+    *)
+      show_error "ERROR: unknown rotation ${ROTATION@Q}."
+      return
+      ;;
+  esac
+}
+
 function recenter_transmission {
   local width
   local height
@@ -53,13 +74,11 @@ function recenter_transmission {
     ${config}
 }
 
-ID="HDMI-1"
-ROTATION=left
 VERTICAL_BG="/usr/share/backgrounds/timed/24-hours-timed.xml"
 HORIZONTAL_BG="/usr/share/backgrounds/timed/island-timed.xml"
 
-RESOLUTION_X=2560
-RESOLUTION_Y=1440
+get_primary_display_info_xrandr
+
 PANEL_OFFSET=40  # height (in pixels) of the panel
 
 OPTIONS=i:r:h
