@@ -36,8 +36,8 @@ function get_primary_display_info_xrandr {
   fi
   ID="$(cut -d"|" -f1 <<< "${info}")"
   if ! [ -n "${ID}" ]; then
-    show_warning "WARNING: Could not detect primary display."
-    return
+    show_error "ERROR: Could not detect primary display."
+    exit 3
   fi
   ROTATION="$(cut -d"|" -f4 <<< "${info}")"
   if ! [ -n "${ROTATION}" ]; then
