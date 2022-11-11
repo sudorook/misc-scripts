@@ -108,6 +108,10 @@ while [ $# -ge 1 ]; do
   case "$1" in
     -i|--input)
       ID="$2"
+      if ! display_connected; then
+        show_error "ERROR: display ${ID@Q} not found. Exiting."
+        exit 3
+      fi
       shift 2
       ;;
     -r|--rotation)
@@ -124,7 +128,7 @@ while [ $# -ge 1 ]; do
       break
       ;;
     *)
-      show_error "ERROR: invalid flag ${1}."
+      show_error "ERROR: invalid flag ${1@Q}."
       print_usage
       exit 3
       ;;
@@ -132,11 +136,6 @@ while [ $# -ge 1 ]; do
 done
 
 get_primary_display_info_xrandr "${ID:-}"
-
-if ! display_connected; then
-  show_error "ERROR: display ${ID:-} not found. Exiting."
-  exit 3
-fi
 
 case ${ROTATION,,} in
   right)
