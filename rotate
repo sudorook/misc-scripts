@@ -41,8 +41,8 @@ function get_primary_display_info_xrandr {
   fi
   ROTATION="$(cut -d"|" -f4 <<< "${info}")"
   if ! [ -n "${ROTATION}" ]; then
-    show_warning "WARNING: Could not detect primary display rotation."
-    return
+    show_warning "WARNING: Could not detect primary display rotation. Assuming 'normal'."
+    ROTATION=normal
   fi
   case "${ROTATION}" in
     left|right)
