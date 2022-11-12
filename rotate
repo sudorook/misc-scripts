@@ -7,8 +7,9 @@ source globals
 
 function print_usage {
   show_header "Usage:"
-  echo "  -i|--input         display ID"
-  echo "  -r|--rotation      rotation (left, right, normal, or inverted)"
+  show_listitem "  -i|--input     display ID"
+  show_listitem "  -r|--rotation  rotation (left, right, normal, or inverted)"
+  show_listitem "  -h|--help      print (this) help message"
 }
 
 function display_connected {
