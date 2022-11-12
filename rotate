@@ -60,6 +60,40 @@ function get_primary_display_info_xrandr {
   esac
 }
 
+function recenter_bleachbit {
+  local width
+  local height
+  local offset_x
+  local offset_y
+  local config="${HOME}/.config/bleachbit/bleachbit.ini"
+  if ! [ -f "${config}" ]; then
+    show_warning "WARNING: Bleachbit config file missing. Skipping."
+    return
+  fi
+  width="$(sed -n 's/window_width = \([0-9]\+\)/\1/p' ${config})"
+  height="$(sed -n 's/window_height = \([0-9]\+\)/\1/p' ${config})"
+  case "${ROTATION}" in
+    left|right)
+      offset_y=$(((RESOLUTION_X-height-PANEL_OFFSET-20)/2))  # 20 is hard-coded to match default display position
+      offset_x=$(((RESOLUTION_Y-width)/2))
+      ;;
+    inverted|normal)
+      offset_x=$(((RESOLUTION_X-width)/2))
+      offset_y=$(((RESOLUTION_Y-height-PANEL_OFFSET-20)/2))  # 20 is hard-coded to match default display position
+      ;;
+    *)
+      show_error "ERROR: unknown rotation ${ROTATION@Q}."
+      return
+      ;;
+  esac
+  sed -i.bak \
+    -e "s/^\(window_width = \)[0-9]\+/\1${width}/g" \
+    -e "s/^\(window_height = \)[0-9]\+/\1${height}/g" \
+    -e "s/^\(window_x = \)[0-9]\+/\1${offset_x}/g" \
+    -e "s/^\(window_y = \)[0-9]\+/\1${offset_y}/g" \
+    ${config}
+}
+
 function recenter_transmission {
   local width
   local height
@@ -161,4 +195,5 @@ case ${ROTATION,,} in
     ;;
 esac
 
+recenter_bleachbit
 recenter_transmission
