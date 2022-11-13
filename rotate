@@ -24,12 +24,10 @@ function get_primary_display_info_xrandr {
   local info
   if [[ -v 1 ]] && [[ -n "${1}" ]]; then
     info="$(xrandr -q | \
-            grep "^${1} connected" | \
-            sed -n "s/\([A-Za-z0-9\-]\+\) connected \(primary \)\?\([0-9]\+\)x\([0-9]\+\)[0-9+]\+ \([a-z]\+\)\?.*/\1|\3|\4|\5/p")"
+            sed -n "s/^${1} connected \(primary \)\?\([0-9]\+\)x\([0-9]\+\)[0-9+]\+ \([a-z]\+\)\?.*/\1|\2|\3|\4/p")"
   else
     info="$(xrandr -q | \
-            grep "connected primary" | \
-            sed -n "s/\([A-Za-z0-9\-]\+\) connected primary \([0-9]\+\)x\([0-9]\+\)[0-9+]\+ \([a-z]\+\)\?.*/\1|\2|\3|\4/p")"
+            sed -n "s/^\([A-Za-z0-9\-]\+\) connected primary \([0-9]\+\)x\([0-9]\+\)[0-9+]\+ \([a-z]\+\)\?.*/\1|\2|\3|\4/p")"
   fi
   if ! [ -n "${info}" ]; then
     show_error "ERROR: Failed to parse display info. Exiting."
