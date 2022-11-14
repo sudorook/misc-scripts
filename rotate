@@ -12,14 +12,6 @@ function print_usage {
   show_listitem "  -h|--help      print (this) help message"
 }
 
-function display_connected {
-  if xrandr | grep "^${ID} connected" >/dev/null; then
-    return 0
-  else
-    return 1
-  fi
-}
-
 function get_primary_display_info_xrandr {
   local info
   if [[ -v 1 ]] && [[ -n "${1}" ]]; then
@@ -141,10 +133,6 @@ while [ $# -ge 1 ]; do
   case "$1" in
     -i|--input)
       ID="$2"
-      if ! display_connected; then
-        show_error "ERROR: display ${ID@Q} not found. Exiting."
-        exit 3
-      fi
       shift 2
       ;;
     -r|--rotation)
