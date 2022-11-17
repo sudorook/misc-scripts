@@ -14,6 +14,7 @@ function print_usage {
 
 function get_primary_display_info_xrandr {
   local info
+  local current_rotation
   if [[ -v 1 ]] && [[ -n "${1}" ]]; then
     info="$(xrandr -q | \
             sed -n "s/^${1} connected \(primary \)\?\([0-9]\+\)x\([0-9]\+\)[0-9+]\+ \([a-z]\+\)\?.*/\1|\2|\3|\4/p")"
@@ -30,12 +31,12 @@ function get_primary_display_info_xrandr {
     show_error "ERROR: Could not detect primary display."
     exit 3
   fi
-  ROTATION="$(cut -d"|" -f4 <<< "${info}")"
-  if ! [ -n "${ROTATION}" ]; then
-    show_warning "WARNING: Could not detect primary display rotation. Assuming 'normal'."
-    ROTATION=normal
+  current_rotation="$(cut -d"|" -f4 <<< "${info}")"
+  if ! [ -n "${current_rotation}" ]; then
+    show_warning "WARNING: Could not detect display rotation. Assuming 'normal'."
+    current_rotation=normal
   fi
-  case "${ROTATION}" in
+  case "${current_rotation}" in
     left|right)
       RESOLUTION_X="$(cut -d"|" -f3 <<< "${info}")"
       RESOLUTION_Y="$(cut -d"|" -f2 <<< "${info}")"
@@ -45,10 +46,11 @@ function get_primary_display_info_xrandr {
       RESOLUTION_Y="$(cut -d"|" -f3 <<< "${info}")"
       ;;
     *)
-      show_error "ERROR: unknown rotation ${ROTATION@Q}."
+      show_error "ERROR: unknown rotation ${current_rotation@Q}."
       return
       ;;
   esac
+  ROTATION=${ROTATION:-${current_rotation}}
 }
 
 function recenter_bleachbit {
