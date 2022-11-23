@@ -4,6 +4,132 @@ source globals
 
 ! check_command xrandr dconf && exit 3
 
+function convert_hex_to_bytestring {
+  local hex="${1}"
+  local bytestring
+  case "${hex}" in
+    20)
+      bytestring=' '
+      ;;
+    21)
+      bytestring='!'
+      ;;
+    22)
+      bytestring='"'
+      ;;
+    23)
+      bytestring='#'
+      ;;
+    24)
+      bytestring='$'
+      ;;
+    25)
+      bytestring='%'
+      ;;
+    26)
+      bytestring='&'
+      ;;
+    27)
+      bytestring="'"
+      ;;
+    28)
+      bytestring='('
+      ;;
+    29)
+      bytestring=')'
+      ;;
+    2A|2a)
+      bytestring='*'
+      ;;
+    2B|2b)
+      bytestring='+'
+      ;;
+    2C|2c)
+      bytestring=','
+      ;;
+    2D|2d)
+      bytestring='-'
+      ;;
+    2E|2e)
+      bytestring='.'
+      ;;
+    2F|2f)
+      bytestring='/'
+      ;;
+    3A|3a)
+      bytestring=':'
+      ;;
+    3B|3b)
+      bytestring=';'
+      ;;
+    3C|3c)
+      bytestring='<'
+      ;;
+    3D|3d)
+      bytestring='='
+      ;;
+    3E|3e)
+      bytestring='>'
+      ;;
+    3F|3f)
+      bytestring='?'
+      ;;
+    40)
+      bytestring='@'
+      ;;
+    5B|5b)
+      bytestring='['
+      ;;
+    5C|5c)
+      bytestring='\'
+      ;;
+    5D|5d)
+      bytestring=']'
+      ;;
+    5E|5e)
+      bytestring='^'
+      ;;
+    5F|5f)
+      bytestring='_'
+      ;;
+    60)
+      bytestring='`'
+      ;;
+    7B|7b)
+      bytestring='{'
+      ;;
+    7C|7c)
+      bytestring='|'
+      ;;
+    7D|7d)
+      bytestring='}'
+      ;;
+    7E|7e)
+      bytestring='~'
+      ;;
+    00)
+      bytestring='x0'
+      ;;
+    *)
+      bytestring="x${hex#0}"
+      ;;
+  esac
+  printf "${bytestring}"
+}
+
+
+function convert_uint_to_bytestring {
+  local int="${1}"
+  local hex
+  local str1
+  local str2
+  local bytestring
+  printf -v hex "%.4x" "${int}"
+  str1="$(convert_hex_to_bytestring "${hex:0:2}")"
+  str2="$(convert_hex_to_bytestring "${hex:2:4}")"
+  bytestring="${str1}${str2}"
+  printf "${bytestring}"
+}
 
 function print_usage {
   show_header "Usage:"
@@ -85,6 +211,80 @@ function recenter_bleachbit {
     -e "s/^\(window_x = \)[0-9]\+/\1${offset_x}/g" \
     -e "s/^\(window_y = \)[0-9]\+/\1${offset_y}/g" \
     ${config}
+}
+
+function recenter_keepassxc {
+  local width=800           # hard-code for now...
+  local height=600          # hard-code for now...
+  local titlebar_height=28  # hard-code for now...
+  local x_left_to_left
+  local x_left_to_right
+  local y_top_to_titlebar_top
+  local y_top_to_titlebar_bottom
+  local y_top_to_bottom
+  local screen_width
+  local screen_height
+  local geometry_string
+  local geometry_string_new
+  local config="${HOME}/.cache/keepassxc/keepassxc.ini"
+  local geometry_array_uint=()
+  local geometry_array_byte=()
+
+  if ! [ -f "${config}" ]; then
+    show_warning "WARNING: KeePassXC cache file ${config@Q} missing. Skipping."
+    return
+  fi
+
+  geometry_string="$(sed -n "s/^MainWindowGeometry=@ByteArray(\(.*\))$/\1/p" "${config}")"
+  read -a geometry_array_uint <<< "$(printf ${geometry_string} | od -A n -t u2 --endian=big | tr -d '\n')"
+
+  case "${ROTATION}" in
+    left|right)
+      x_left_to_left=$(((RESOLUTION_Y-width)/2))
+      x_left_to_right=$(((x_left_to_left+width)))
+      y_top_to_titlebar_top=$(((RESOLUTION_X-height-PANEL_OFFSET-20)/2))  # 20 is hard-coded to match default display position
+      y_top_to_titlebar_bottom=$((y_top_to_titlebar_top+titlebar_height))
+      y_top_to_bottom=$(((y_top_to_titlebar_bottom+height)))
+      screen_width="${RESOLUTION_Y}"
+      screen_height="${RESOLUTION_X}"
+      ;;
+    inverted|normal)
+      x_left_to_left=$(((RESOLUTION_X-width)/2))
+      x_left_to_right=$(((x_left_to_left+width)))
+      y_top_to_titlebar_top=$(((RESOLUTION_Y-height-PANEL_OFFSET-20)/2))  # 20 is hard-coded to match default display position
+      y_top_to_titlebar_bottom=$((y_top_to_titlebar_top+titlebar_height))
+      y_top_to_bottom=$(((y_top_to_titlebar_bottom+height)))
+      screen_width="${RESOLUTION_X}"
+      screen_height="${RESOLUTION_Y}"
+      ;;
+    *)
+      show_error "ERROR: unknown rotation ${ROTATION@Q}."
+      return
+      ;;
+  esac
+
+  geometry_array_uint[5]="${x_left_to_left}"
+  geometry_array_uint[13]="${x_left_to_left}"
+  geometry_array_uint[26]="${x_left_to_left}"
+  geometry_array_uint[9]="${x_left_to_right}"
+  geometry_array_uint[17]="${x_left_to_right}"
+  geometry_array_uint[30]="${x_left_to_right}"
+  geometry_array_uint[24]="${screen_width}"
+  # geometry_array_uint[33]="${screen_height}"
+  geometry_array_uint[7]="${y_top_to_titlebar_top}"
+  geometry_array_uint[15]="${y_top_to_titlebar_bottom}"
+  geometry_array_uint[28]="${y_top_to_titlebar_bottom}"
+  geometry_array_uint[11]="${y_top_to_bottom}"
+  geometry_array_uint[19]="${y_top_to_bottom}"
+  geometry_array_uint[32]="${y_top_to_bottom}"
+
+  local i
+  for i in "${geometry_array_uint[@]}"; do
+    geometry_array_byte+=($(convert_uint_to_bytestring "${i}"))
+  done
+  printf -v geometry_string_new '%s' "${geometry_array_byte[@]}"
+  geometry_string_new="$(printf "${geometry_string_new}" | sed -e 's/x0/\\0/g' -e 's/x/\\x/g')"
+  sed -i.bak 's/^MainWindowGeometry=@ByteArray(.*)$/MainWindowGeometry=@ByteArray('"${geometry_string_new//\\/\\\\}"')/g' "${config}"
 }
 
 function recenter_transmission {
@@ -185,4 +385,5 @@ case ${ROTATION,,} in
 esac
 
 recenter_bleachbit
+recenter_keepassxc
 recenter_transmission
