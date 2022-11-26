@@ -321,6 +321,14 @@ function recenter_transmission {
     ${config}
 }
 
+function rotate_cinnamon_monitor_xml {
+  local config="${HOME}/.config/cinnamon-monitors.xml"
+  if ! [ -f "${config}" ]; then
+    show_warning "${config@} not found. Skipping."
+  fi
+  sed -i "s,<rotation>[a-z]\+</rotation>,<rotation>${ROTATION}</rotation>,g" "${config}"
+}
+
 VERTICAL_BG="/usr/share/backgrounds/timed/24-hours-timed.xml"
 HORIZONTAL_BG="/usr/share/backgrounds/timed/island-timed.xml"
 
@@ -383,6 +391,8 @@ case ${ROTATION,,} in
     exit 3
     ;;
 esac
+
+rotate_cinnamon_monitor_xml
 
 recenter_bleachbit
 recenter_keepassxc
