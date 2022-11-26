@@ -358,10 +358,18 @@ function rotate_display_xrandr {
 function change_cinnamon_desktop_bg {
   case ${ROTATION} in
     right|left)
-      dconf write /org/cinnamon/desktop/background/picture-uri "'file://${VERTICAL_BG}'"
+      if [ -f "${VERTICAL_BG}" ]; then
+        dconf write /org/cinnamon/desktop/background/picture-uri "'file://${VERTICAL_BG}'"
+      else
+        show_warning "Background ${VERTICAL_BG@Q} not found. Skipping."
+      fi
       ;;
     normal|inverted)
-      dconf write /org/cinnamon/desktop/background/picture-uri "'file://${HORIZONTAL_BG}'"
+      if [ -f "${HORIZONTAL_BG}" ]; then
+        dconf write /org/cinnamon/desktop/background/picture-uri "'file://${HORIZONTAL_BG}'"
+      else
+        show_warning "Background ${HORIZONTAL_BG@Q} not found. Skipping."
+      fi
       ;;
     *)
       show_error "ERROR: invalid rotation ${ROTATION@Q}. Exiting."
