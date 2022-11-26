@@ -329,6 +329,28 @@ function rotate_cinnamon_monitor_xml {
   sed -i "s,<rotation>[a-z]\+</rotation>,<rotation>${ROTATION}</rotation>,g" "${config}"
 }
 
+function parse_rotation {
+  case ${ROTATION,,} in
+    right)
+      ROTATION=right
+      ;;
+    left)
+      ROTATION=left
+      ;;
+    normal)
+      ROTATION=normal
+      ;;
+    inverted)
+      ROTATION=inverted
+      ;;
+    *)
+      show_error "ERROR: invalid rotation ${ROTATION@Q}. Exiting."
+      print_usage
+      exit 3
+      ;;
+  esac
+}
+
 VERTICAL_BG="/usr/share/backgrounds/timed/24-hours-timed.xml"
 HORIZONTAL_BG="/usr/share/backgrounds/timed/island-timed.xml"
 
@@ -367,6 +389,7 @@ while [ $# -ge 1 ]; do
 done
 
 get_primary_display_info_xrandr "${ID:-}"
+parse_rotation
 
 case ${ROTATION,,} in
   right)
