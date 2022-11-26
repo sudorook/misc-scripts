@@ -326,7 +326,9 @@ function rotate_cinnamon_monitor_xml {
   if ! [ -f "${config}" ]; then
     show_warning "${config@} not found. Skipping."
   fi
-  sed -i "s,<rotation>[a-z]\+</rotation>,<rotation>${ROTATION}</rotation>,g" "${config}"
+  sed -i.bak \
+    "s,<rotation>[a-z]\+</rotation>,<rotation>${ROTATION}</rotation>,g" \
+    "${config}"
 }
 
 function parse_rotation {
