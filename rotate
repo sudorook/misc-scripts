@@ -4,6 +4,12 @@ source globals
 
 ! check_command xrandr dconf && exit 3
 
+# Map 2-character hexadecimal values (1 byte), in a format familiar to that
+# found in the KeePassXC configuration file.
+# - Two-character codes with preceding 0 are abbreviated to 1 character. For
+#   example, '\x0d' is shortened to '\xd'.
+# - Values with non-ambigious ASCII values are mapped directly to the
+#   character. For example, '26' maps to '&'.
 function convert_hex_to_bytestring {
   local hex="${1}"
   local bytestring
@@ -108,16 +114,19 @@ function convert_hex_to_bytestring {
       bytestring='~'
       ;;
     00)
-      bytestring='x0'
+      bytestring='x0'  # Don't include the '\' yet -- it causes problems when passing strings around...
       ;;
     *)
-      bytestring="x${hex#0}"
+      bytestring="x${hex#0}"  # Don't include the '\' yet -- it causes problems when passing strings around...
       ;;
   esac
-  printf "${bytestring}"
+  printf "${bytestring}"  # Use printf to avoid adding a newline to the bytestring.
 }
 
-
+# Converts an unsigned short int (2 bytes) to a byte array represented as
+# hexadecimal values. The 2 bytes are split into two 1-byte halves and
+# converted independently. Then, they are contatenated into the final byte
+# string.
 function convert_uint_to_bytestring {
   local int="${1}"
   local hex
@@ -154,7 +163,7 @@ function get_primary_display_info_xrandr {
   fi
   ID="$(cut -d"|" -f1 <<< "${info}")"
   if ! [ -n "${ID}" ]; then
-    show_error "ERROR: Could not detect primary display."
+    show_error "ERROR: Could not detect primary display. Exiting."
     exit 3
   fi
   current_rotation="$(cut -d"|" -f4 <<< "${info}")"
@@ -283,8 +292,16 @@ function recenter_keepassxc {
     geometry_array_byte+=($(convert_uint_to_bytestring "${i}"))
   done
   printf -v geometry_string_new '%s' "${geometry_array_byte[@]}"
-  geometry_string_new="$(printf "${geometry_string_new}" | sed -e 's/x0/\\0/g' -e 's/x/\\x/g')"
-  sed -i.bak 's/^MainWindowGeometry=@ByteArray(.*)$/MainWindowGeometry=@ByteArray('"${geometry_string_new//\\/\\\\}"')/g' "${config}"
+
+  # Convert the 'xhh' values to '\xhh' and the 'x0's to '\0's.
+  geometry_string_new="$(printf "${geometry_string_new}" | \
+                         sed -e 's/x0/\\0/g' -e 's/x/\\x/g')"
+
+# ${geometry_string_new} is changed ('\' -> '\\') so '\'s next to '('s don't
+# get parsed as opening braces for capture groups.
+  sed -i.bak \
+    's/^MainWindowGeometry=@ByteArray(.*)$/MainWindowGeometry=@ByteArray('"${geometry_string_new//\\/\\\\}"')/g'
+    "${config}"
 }
 
 function recenter_transmission {
