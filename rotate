@@ -374,6 +374,30 @@ function rotate_display_xrandr {
   xrandr --output "${ID}" --rotate "${ROTATION}"
 }
 
+function change_gnome_desktop_bg {
+  case ${ROTATION} in
+    right|left)
+      if [ -f "${VERTICAL_BG}" ]; then
+        dconf write /org/gnome/desktop/background/picture-uri "'file://${VERTICAL_BG}'"
+      else
+        show_warning "Background ${VERTICAL_BG@Q} not found. Skipping."
+      fi
+      ;;
+    normal|inverted)
+      if [ -f "${HORIZONTAL_BG}" ]; then
+        dconf write /org/gnome/desktop/background/picture-uri "'file://${HORIZONTAL_BG}'"
+      else
+        show_warning "Background ${HORIZONTAL_BG@Q} not found. Skipping."
+      fi
+      ;;
+    *)
+      show_error "ERROR: invalid rotation ${ROTATION@Q}. Exiting."
+      print_usage
+      exit 3
+      ;;
+  esac
+}
+
 function change_cinnamon_desktop_bg {
   case ${ROTATION} in
     right|left)
@@ -443,6 +467,12 @@ case "${XDG_CURRENT_DESKTOP}" in
     rotate_display_xrandr
     change_cinnamon_desktop_bg
     rotate_cinnamon_monitor_xml
+    ;;
+  GNOME)
+    if [[ "${XDG_SESSION_TYPE}" = x11 ]]; then
+      rotate_display_xrandr
+      change_gnome_desktop_bg
+    fi
     ;;
   *)
     show_error "ERROR: Environment ${XDG_CURRENT_DESKTOP@Q} unsupported. Exiting."
