@@ -34,15 +34,17 @@ export -f get_count
 
 print_usage() {
   show_header "Usage: count-commits"
-  show_listitem "  -a|--author <author>"
-  show_listitem "  -e|--email  <email>"
-  show_listitem "  -s|--since  <time>"
-  show_listitem "  -u|--until  <time>"
-  show_listitem
-  show_listitem "  author = commit author"
-  show_listitem "  email  = commit email address"
-  show_listitem "  time   = date string (e.g. 1week, 2years, etc.),"
-  show_listitem "           passed to 'date' from coreutils"
+  echo
+  show_listitem "  -a|--author  <author>"
+  show_listitem "  -e|--email   <email>"
+  show_listitem "  -s|--since   <time>"
+  show_listitem "  -u|--until   <time>"
+  show_listitem "  -h|--help    print (this) help message"
+  echo
+  show_listitem "<author> = commit author"
+  show_listitem "<email>  = committer/author email address"
+  show_listitem \
+    "<time>   = string (e.g. 1week, 2years, now), passed to 'date' from coreutils"
 }
 
 #
