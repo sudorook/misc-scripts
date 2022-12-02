@@ -14,6 +14,10 @@ get_count() {
   local cmd
   dir=${1%/*}
 
+  # Git will traverse the entire from HEAD to the first commit where the
+  # committer or the author date falls outside the range. This can caused
+  # unexpected behavior for merge / rebase / fixup commits, as the committer
+  # and author dates will likely not match.
   cmd="git -C ${dir@Q} rev-list --count --branches"
   if [ -n "${AUTHOR}" ] || [ -n "${EMAIL}" ]; then
     cmd="${cmd} --author=^${AUTHOR:-.*}\ \<${EMAIL:-.*}\>$"
