@@ -300,7 +300,7 @@ function recenter_keepassxc {
 # ${geometry_string_new} is changed ('\' -> '\\') so '\'s next to '('s don't
 # get parsed as opening braces for capture groups.
   sed -i.bak \
-    's/^MainWindowGeometry=@ByteArray(.*)$/MainWindowGeometry=@ByteArray('"${geometry_string_new//\\/\\\\}"')/g'
+    's/^MainWindowGeometry=@ByteArray(.*)$/MainWindowGeometry=@ByteArray('"${geometry_string_new//\\/\\\\}"')/g' \
     "${config}"
 }
 
