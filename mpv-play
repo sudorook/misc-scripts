@@ -51,9 +51,10 @@ print_list() {
 
 print_usage() {
   show_header "Usage: mpv-play"
-  show_listitem "  -c|--cutoff   select files with duration above the cutoff"
-  show_listitem "  -f|--format   set extension keep"
-  show_listitem "  -s|--shuffle  shuffle streams"
+  show_listitem "  -c|--cutoff <int>     filter out files below cutoff (default: 0)"
+  show_listitem "  -f|--format <string>  set extension keep (default: 'mp3')"
+  show_listitem "  -s|--shuffle          flag shuffle streams (default: false)"
+  show_listitem "  -h|--help             print (this) help message"
 }
 
 
