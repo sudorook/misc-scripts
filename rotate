@@ -306,8 +306,8 @@ function recenter_keepassxc {
   geometry_string_new="$(printf "${geometry_string_new}" | \
                          sed -e 's/x0/\\0/g' -e 's/x/\\x/g')"
 
-# ${geometry_string_new} is changed ('\' -> '\\') so '\'s next to '('s don't
-# get parsed as opening braces for capture groups.
+  # ${geometry_string_new} is changed ('\' -> '\\') so '\'s next to '('s don't
+  # get parsed as opening braces for capture groups.
   sed -i.bak \
     's/^MainWindowGeometry=@ByteArray(.*)$/MainWindowGeometry=@ByteArray('"${geometry_string_new//\\/\\\\}"')/g' \
     "${config}"
@@ -431,8 +431,8 @@ function recenter_vlc {
   geometry_string_new="$(printf "${geometry_string_new}" | \
                          sed -e 's/x0/\\0/g' -e 's/x/\\x/g')"
 
-# ${geometry_string_new} is changed ('\' -> '\\') so '\'s next to '('s don't
-# get parsed as opening braces for capture groups.
+  # ${geometry_string_new} is changed ('\' -> '\\') so '\'s next to '('s don't
+  # get parsed as opening braces for capture groups.
   sed -i.bak \
     's/^geometry=@ByteArray(.*)$/geometry=@ByteArray('"${geometry_string_new//\\/\\\\}"')/g' \
     "${config}"
