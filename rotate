@@ -10,6 +10,9 @@ source globals
 #   example, '\x0d' is shortened to '\xd'.
 # - Values with non-ambigious ASCII values are mapped directly to the
 #   character. For example, '26' maps to '&'.
+# - '\xhh' values are instead returned as 'xhh' without the backslash. This is
+#   to avoid the need to escape the strings every time they are passed around
+#   among variables and functions.
 function convert_hex_to_bytestring {
   local hex="${1}"
   local bytestring
