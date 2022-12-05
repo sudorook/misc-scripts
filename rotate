@@ -363,6 +363,11 @@ function recenter_vlc {
   geometry_string="$(sed -n "s/^geometry=@ByteArray(\(.*\))$/\1/p" "${config}")"
   read -a geometry_array_uint <<< "$(printf ${geometry_string} | od -A n -t u2 --endian=big | tr -d '\n')"
 
+  # Compute the application dimensions from the geometry string. The '/2*2'
+  # part of each expression is to ensure that the dimensions are even numbers
+  # (there are divide-by-2 operations when computing the center), and the '+1'
+  # is so that values are 'rounded' up to the nearest even number instead of
+  # rounded down.
   width=$(((geometry_array_uint[9]-geometry_array_uint[5]+1)/2*2))
   height=$(((geometry_array_uint[11]-geometry_array_uint[15]+1)/2*2))
   titlebar_height=$(((geometry_array_uint[15]-geometry_array_uint[7]+1)/2*2))
