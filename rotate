@@ -225,6 +225,97 @@ function recenter_bleachbit {
     ${config}
 }
 
+function recenter_clementine {
+  local width
+  local height
+  local titlebar_height
+  local x_left_to_left
+  local x_left_to_right
+  local y_top_to_titlebar_top
+  local y_top_to_titlebar_bottom
+  local y_top_to_bottom
+  local screen_width
+  local screen_height
+  local geometry_string
+  local geometry_string_new
+  local config="${HOME}/.config/Clementine/Clementine.conf"
+  local geometry_array_uint=()
+  local geometry_array_byte=()
+
+  if ! [ -f "${config}" ]; then
+    show_warning "WARNING: Clementine config file ${config@Q} missing. Skipping."
+    return
+  fi
+
+  geometry_string="$(sed -n "s/^geometry=@ByteArray(\(.*\))$/\1/p" "${config}")"
+  read -a geometry_array_uint <<< "$(printf ${geometry_string} | od -A n -t u2 --endian=big | tr -d '\n')"
+
+  # Compute the application dimensions from the geometry string. The '/2*2'
+  # part of each expression is to ensure that the dimensions are even numbers
+  # (there are divide-by-2 operations when computing the center), and the '+1'
+  # is so that values are 'rounded' up to the nearest even number instead of
+  # rounded down.
+  width=$(((geometry_array_uint[9]-geometry_array_uint[5]+1)/2*2))
+  height=$(((geometry_array_uint[11]-geometry_array_uint[15]+1)/2*2))
+  titlebar_height=$(((geometry_array_uint[15]-geometry_array_uint[7]+1)/2*2))
+
+  case "${ROTATION}" in
+    left|right)
+      x_left_to_left=$(((RESOLUTION_Y-width)/2))
+      x_left_to_right=$(((x_left_to_left+width)))
+      y_top_to_titlebar_top=$(((RESOLUTION_X-height-PANEL_OFFSET-20)/2))  # 20 is hard-coded to match default display position
+      y_top_to_titlebar_bottom=$((y_top_to_titlebar_top+titlebar_height))
+      y_top_to_bottom=$(((y_top_to_titlebar_bottom+height)))
+      screen_width="${RESOLUTION_Y}"
+      screen_height="${RESOLUTION_X}"
+      ;;
+    inverted|normal)
+      x_left_to_left=$(((RESOLUTION_X-width)/2))
+      x_left_to_right=$(((x_left_to_left+width)))
+      y_top_to_titlebar_top=$(((RESOLUTION_Y-height-PANEL_OFFSET-20)/2))  # 20 is hard-coded to match default display position
+      y_top_to_titlebar_bottom=$((y_top_to_titlebar_top+titlebar_height))
+      y_top_to_bottom=$(((y_top_to_titlebar_bottom+height)))
+      screen_width="${RESOLUTION_X}"
+      screen_height="${RESOLUTION_Y}"
+      ;;
+    *)
+      show_error "ERROR: unknown rotation ${ROTATION@Q}."
+      return
+      ;;
+  esac
+
+  geometry_array_uint[5]="${x_left_to_left}"
+  geometry_array_uint[13]="${x_left_to_left}"
+  geometry_array_uint[26]="${x_left_to_left}"
+  geometry_array_uint[9]="${x_left_to_right}"
+  geometry_array_uint[17]="${x_left_to_right}"
+  geometry_array_uint[30]="${x_left_to_right}"
+  geometry_array_uint[24]="${screen_width}"
+  # geometry_array_uint[33]="${screen_height}"
+  geometry_array_uint[7]="${y_top_to_titlebar_top}"
+  geometry_array_uint[15]="${y_top_to_titlebar_bottom}"
+  geometry_array_uint[28]="${y_top_to_titlebar_bottom}"
+  geometry_array_uint[11]="${y_top_to_bottom}"
+  geometry_array_uint[19]="${y_top_to_bottom}"
+  geometry_array_uint[32]="${y_top_to_bottom}"
+
+  local i
+  for i in "${geometry_array_uint[@]}"; do
+    geometry_array_byte+=($(convert_uint_to_bytestring "${i}"))
+  done
+  printf -v geometry_string_new '%s' "${geometry_array_byte[@]}"
+
+  # Convert the 'xhh' values to '\xhh' and the 'x0's to '\0's.
+  geometry_string_new="$(printf "${geometry_string_new}" | \
+                         sed -e 's/x0/\\0/g' -e 's/x/\\x/g')"
+
+  # ${geometry_string_new} is changed ('\' -> '\\') so '\'s next to '('s don't
+  # get parsed as opening braces for capture groups.
+  sed -i.bak \
+    's/^geometry=@ByteArray(.*)$/geometry=@ByteArray('"${geometry_string_new//\\/\\\\}"')/g' \
+    "${config}"
+}
+
 function recenter_keepassxc {
   local width
   local height
@@ -584,6 +675,7 @@ case "${XDG_CURRENT_DESKTOP}" in
 esac
 
 recenter_bleachbit
+recenter_clementine
 recenter_keepassxc
 recenter_transmission
 recenter_vlc
