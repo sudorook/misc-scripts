@@ -213,11 +213,18 @@ function recenter_qt_application {
     show_warning "WARNING: ${1} cache file ${config@Q} missing. Skipping."
     return
   fi
-
-  geometry_string="$(sed -n "s/^${pattern}=@ByteArray(\(.*\))$/\1/p" "${config}")"
+  geometry_string="$(sed -n "s/^${pattern}\ \?=\ \?@ByteArray(\(.*\))$/\1/p" "${config}")"
   read -a geometry_array_uint <<< "$(printf ${geometry_string} | \
                                      od -A n -t u2 --endian=big | \
                                      tr -d '\n')"
+
+  if [ ${#geometry_array_uint[@]} -eq 0 ]; then
+    show_warning "Failed to parse ${config@Q}. Skipping."
+    return
+  elif ! [ ${#geometry_array_uint[@]} -eq 24 ]; then
+    show_warning "Unexpected # of values in ${config@Q} geometry bytestring. Skipping."
+    return
+  fi
 
   # Compute the application dimensions from the geometry string. The '/2*2'
   # part of each expression is to ensure that the dimensions are even numbers
@@ -281,7 +288,7 @@ function recenter_qt_application {
   # ${geometry_string_new} is changed ('\' -> '\\') so '\'s next to '('s don't
   # get parsed as opening braces for capture groups.
   sed -i.bak \
-    's/^'"${pattern}"'=@ByteArray(.*)$/'"${pattern}"'=@ByteArray('"${geometry_string_new//\\/\\\\}"')/g' \
+    's/^'"${pattern}"'\(\ \?=\ \?@ByteArray(\).*)$/'"${pattern}"'\1'"${geometry_string_new//\\/\\\\}"')/g' \
     "${config}"
 }
 
