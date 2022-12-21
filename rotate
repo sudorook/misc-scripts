@@ -2,7 +2,7 @@
 set -euo pipefail
 source globals
 
-! check_command xrandr dconf && exit 3
+! check_command xrandr dconf sed && exit 3
 
 # Map 2-character hexadecimal values (1 byte), in a format familiar to that
 # found in the KeePassXC configuration file.
