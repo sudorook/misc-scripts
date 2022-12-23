@@ -8,25 +8,25 @@ switch_dconf_gtk_theme() {
   if ! [[ -v XDG_CURRENT_DESKTOP ]]; then return; fi
   case $XDG_CURRENT_DESKTOP in
     X-Cinnamon)
-      dconf write /org/cinnamon/desktop/interface/gtk-theme "'$1'"
-      dconf write /org/cinnamon/desktop/wm/preferences/theme "'$1'"
-      if [[ "$1" =~ "-Eta" ]]; then
+      dconf write /org/cinnamon/desktop/interface/gtk-theme "'${1}'"
+      dconf write /org/cinnamon/desktop/wm/preferences/theme "'${1}'"
+      if [[ "${1}" =~ "-Eta" ]]; then
         dconf write /org/cinnamon/theme/name "'${1%-*}'"
-      elif [[ "$1" =~ "-Compact" ]]; then
+      elif [[ "${1}" =~ "-Compact" ]]; then
         dconf write /org/cinnamon/theme/name "'${1%-*}'"
-      elif [[ "$1" =~ "-Darker" ]]; then
+      elif [[ "${1}" =~ "-Darker" ]]; then
         dconf write /org/cinnamon/theme/name "'${1%er}'"
-      elif [[ "$1" =~ "-Lighter" ]]; then
+      elif [[ "${1}" =~ "-Lighter" ]]; then
         dconf write /org/cinnamon/theme/name "'${1%-*}'"
       else
-        dconf write /org/cinnamon/theme/name "'$1'"
+        dconf write /org/cinnamon/theme/name "'${1}'"
       fi
       ;;
     ubuntu:GNOME|GNOME)
-      dconf write /org/gnome/desktop/wm/preferences/theme "'$1'"
-      dconf write /org/gnome/desktop/interface/gtk-theme "'$1'"
+      dconf write /org/gnome/desktop/wm/preferences/theme "'${1}'"
+      dconf write /org/gnome/desktop/interface/gtk-theme "'${1}'"
       gnome-extensions enable "user-theme@gnome-shell-extensions.gcampax.github.com" || true >/dev/null
-      if [[ "$1" =~ "-Lighter" ]]; then
+      if [[ "${1}" =~ "-Lighter" ]]; then
         dconf write /org/gnome/shell/extensions/user-theme/name "'${1%-*}'"
       else
         dconf write /org/gnome/shell/extensions/user-theme/name "'${1}'"
@@ -66,8 +66,8 @@ switch_gnome_terminal_profile() {
   local idx=0
   local name
   for name in "${NAMES[@]}"; do
-    if [ "$name" = "'$1'" ]; then
-      dconf write /org/gnome/terminal/legacy/profiles:/default "'${ids[$idx]}'"
+    if [ "${name}" = "'${1}'" ]; then
+      dconf write /org/gnome/terminal/legacy/profiles:/default "'${ids[${idx}]}'"
     fi
     idx=$((idx+1))
   done
@@ -124,11 +124,11 @@ switch_tmux_theme() {
 switch_thunderbird_theme() {
   if [[ -v thunderbirddir ]] && [ -d "${thunderbirddir}/chrome" ]; then
     local userchrome="${thunderbirddir}/chrome/userChrome.css"
-    if [ "$1" = "Dark" ]; then
+    if [ "${1}" = "Dark" ]; then
       sed -i "s,^\(@import \"icons/darkIcons.css\"; /\*For light Folder Tree and Message List\*/\),/\* \1,g" "${userchrome}"
       sed -i "s,^/\* \(@import \"icons/lightIcons.css\"; /\*For dark Folder Tree and Message List\*/\),\1,g" "${userchrome}"
       sed -i "s,^/\* \(@import \"tweaks/dark-folder-pane.css\";\),\1,g" "${userchrome}"
-    elif [ "$1" = "Light" ]; then
+    elif [ "${1}" = "Light" ]; then
       sed -i "s,^/\* \(@import \"icons/darkIcons.css\"; /\*For light Folder Tree and Message List\*/\),\1,g" "${userchrome}"
       sed -i "s,^/\* \(@import \"icons/lightIcons.css\"; /\*For dark Folder Tree and Message List\*/\),\1,g" "${userchrome}"
       sed -i "s,^\(@import \"tweaks/dark-folder-pane.css\";\),/\* \1,g" "${userchrome}"
@@ -140,7 +140,7 @@ switch_thunderbird_theme() {
 switch_gtk_settings() {
   local gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
   if [[ -f ${gtksettings} ]]; then
-    if [ "$1" = "Dark" ]; then
+    if [ "${1}" = "Dark" ]; then
       sed -i "s/^gtk-application-prefer-dark-theme=false$/gtk-application-prefer-dark-theme=true/g" "${gtksettings}"
       sed -i "s/^gtk-application-prefer-dark-theme=0$/gtk-application-prefer-dark-theme=1/g" "${gtksettings}"
     elif [ "${1}" = "Light" ]; then
@@ -152,13 +152,13 @@ switch_gtk_settings() {
 
 switch_gitk_theme() {
   local gitkdir="${HOME}/.config/git"
-  [[ -f "${gitkdir}/gitk-$1" ]] && cp "${gitkdir}/gitk-${1}" "${gitkdir}/gitk"
+  [[ -f "${gitkdir}/gitk-${1}" ]] && cp "${gitkdir}/gitk-${1}" "${gitkdir}/gitk"
 }
 
 switch_ebook_viewer_theme() {
   local calibresettings="${HOME}/.config/calibre/viewer-webengine.json"
   if [[ -f ${calibresettings} ]]; then
-    if [ "$1" = "Dark" ]; then
+    if [ "${1}" = "Dark" ]; then
       sed -i 's/\("current_color_scheme"\): "sepia-light"/\1: "sepia-dark"/g' \
         "${calibresettings}"
       sed -i 's/\("current_color_scheme"\): "white"/\1: "black"/g' \
@@ -177,7 +177,7 @@ set_gtk_theme() {
   switch_environment_d_gtk_theme "${1}"
   switch_xprofile_gtk_theme "${1}"
 
-  if [[ "$1" =~ [Nn]okto ]]; then
+  if [[ "${1}" =~ [Nn]okto ]]; then
     switch_gtk_settings "Dark"
     switch_gnome_terminal_profile "Dark"
     switch_alacritty_theme "dark"
@@ -188,7 +188,7 @@ set_gtk_theme() {
     switch_thunderbird_theme "Dark"
     switch_gitk_theme "dark"
     switch_ebook_viewer_theme "Dark"
-  elif [[ "$1" =~ ^[Aa]rc-[Dd]ark ]]; then
+  elif [[ "${1}" =~ ^[Aa]rc-[Dd]ark ]]; then
     switch_gtk_settings "Dark"
     switch_gnome_terminal_profile "Dark"
     switch_alacritty_theme "dark3"
@@ -199,7 +199,7 @@ set_gtk_theme() {
     switch_thunderbird_theme "Dark"
     switch_gitk_theme "dark3"
     switch_ebook_viewer_theme "Dark"
-  elif [[ "$1" =~ [Nn]oir ]] || [[ "$1" =~ [Dd]ark ]]; then
+  elif [[ "${1}" =~ [Nn]oir ]] || [[ "${1}" =~ [Dd]ark ]]; then
     switch_gtk_settings "Dark"
     switch_gnome_terminal_profile "Dark"
     switch_alacritty_theme "dark2"
@@ -210,7 +210,7 @@ set_gtk_theme() {
     switch_thunderbird_theme "Dark"
     switch_gitk_theme "dark2"
     switch_ebook_viewer_theme "Dark"
-  elif [[ "$1" =~ ^[Aa]dapta ]]; then
+  elif [[ "${1}" =~ ^[Aa]dapta ]]; then
     switch_gtk_settings "Light"
     switch_gnome_terminal_profile "Light"
     switch_alacritty_theme "light"
@@ -221,7 +221,7 @@ set_gtk_theme() {
     switch_thunderbird_theme "Light"
     switch_gitk_theme "light"
     switch_ebook_viewer_theme "Light"
-  elif [[ "$1" =~ ^[Aa]rc-[Ll]ight ]] || [[ "$1" =~ ^[Aa]rc(-solid)?$ ]]; then
+  elif [[ "${1}" =~ ^[Aa]rc-[Ll]ight ]] || [[ "${1}" =~ ^[Aa]rc(-solid)?$ ]]; then
     switch_gtk_settings "Light"
     switch_gnome_terminal_profile "Light"
     switch_alacritty_theme "light3"
@@ -232,8 +232,8 @@ set_gtk_theme() {
     switch_thunderbird_theme "Light"
     switch_gitk_theme "light3"
     switch_ebook_viewer_theme "Light"
-  elif [[ "$1" =~ [Ll]ight ]] || [[ "$1" =~ [Ll]umine ]] || \
-       [[ "$1" =~ ^[Mm]ateria$ ]]; then
+  elif [[ "${1}" =~ [Ll]ight ]] || [[ "${1}" =~ [Ll]umine ]] || \
+       [[ "${1}" =~ ^[Mm]ateria$ ]]; then
     switch_gtk_settings "Light"
     switch_gnome_terminal_profile "Light"
     switch_alacritty_theme "light2"
@@ -254,10 +254,10 @@ set_icon_theme() {
   if ! [[ -v XDG_CURRENT_DESKTOP ]]; then return; fi
   case $XDG_CURRENT_DESKTOP in
     X-Cinnamon)
-      dconf write /org/cinnamon/desktop/interface/icon-theme "'$1'"
+      dconf write /org/cinnamon/desktop/interface/icon-theme "'${1}'"
       ;;
     ubuntu:GNOME|GNOME)
-      dconf write /org/gnome/desktop/interface/icon-theme "'$1'"
+      dconf write /org/gnome/desktop/interface/icon-theme "'${1}'"
       ;;
     *)
       show_error "$XDG_CURRENT_DESKTOP environment not supported."
@@ -267,7 +267,7 @@ set_icon_theme() {
 
   local qt5ctconf=${HOME}/.config/qt5ct/qt5ct.conf
   if [ -f "${qt5ctconf}" ]; then
-    sed -i "s/^icon_theme=.*$/icon_theme=$1/g" "${qt5ctconf}"
+    sed -i "s/^icon_theme=.*$/icon_theme=${1}/g" "${qt5ctconf}"
   fi
 }
 
@@ -285,9 +285,9 @@ eval set -- "$PARSED"
 
 get_gnome_terminal_profiles
 while [ $# -ge 1 ]; do
-  case "$1" in
+  case "${1}" in
     -g|--gtk)
-      set_gtk_theme "$2"
+      set_gtk_theme "${2}"
       shift 2
       ;;
     -h|--help)
@@ -295,7 +295,7 @@ while [ $# -ge 1 ]; do
       exit
       ;;
     -i|--icon)
-      set_icon_theme "$2"
+      set_icon_theme "${2}"
       shift 2
       ;;
     --)
