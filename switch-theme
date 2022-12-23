@@ -2,6 +2,8 @@
 set -euo pipefail
 source globals
 
+! check_command dconf sed && exit 3
+
 switch_dconf_gtk_theme() {
   if ! [[ -v XDG_CURRENT_DESKTOP ]]; then return; fi
   case $XDG_CURRENT_DESKTOP in
