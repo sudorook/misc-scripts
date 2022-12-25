@@ -2,6 +2,8 @@
 set -euo pipefail
 source globals
 
+! check_command ffmpeg && exit 3
+
 function extract_audio {
   local nstreams=0
   local stype
