@@ -65,6 +65,7 @@ function seek {
             -o -path \"${HOME}/Sync\" \
             -o -path \"${HOME}/Templates\" \
             -o -path \"${videodir}\" \
+            -o -path \"${HOME}/.cargo\" \
             -o -path \"${HOME}/.gem\" \
             -o -path \"${HOME}/.go\" \
             -o -path \"${HOME}/.ipython\" \
