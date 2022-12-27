@@ -178,8 +178,8 @@ RES="$(seek "${MODE}" "${@}")"
 
 if [ -n "${RES}" ]; then
   echo "${RES}"
-  check=$(ask_question 'Permission to destroy? (y/N)')
-  if [[ ${check} =~ ^([yY][eE][sS]|[yY])$ ]]; then
+  CHECK=$(ask_question 'Permission to destroy? (y/N)')
+  if [[ ${CHECK} =~ ^([yY][eE][sS]|[yY])$ ]]; then
     echo "Yessir!"
     echo "${RES}" | destroy
     show_success "Target(s) eliminated."
