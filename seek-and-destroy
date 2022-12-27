@@ -99,7 +99,7 @@ function seek {
             -o -path \"${pkgbuilddir}\" \) -prune , \
          \( ${inputstring} \) -print"
 
-  eval "${cmd}" 2>/dev/null || true
+  eval "${cmd}"
 }
 
 function destroy {
