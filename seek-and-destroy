@@ -3,28 +3,6 @@ set -euo pipefail
 source globals
 
 #
-# Check global variables
-#
-
-archivedir="${archivedir:-${HOME}/Desktop}"
-backup1="${backup1:-${HOME}/Desktop}"
-backup2="${backup2:-${HOME}/Desktop}"
-kvmdir="${kvmdir:-${HOME}/Desktop}"
-kvmshare="${kvmsharedir:-${HOME}/Desktop}"
-vboxdir="${vboxdir:-${HOME}/Desktop}"
-encryptpath="${encryptpath:-${HOME}/Desktop}"
-decryptpath="${decryptpath:-${HOME}/Desktop}"
-gtkdir="${gtkdir:-${HOME}/Desktop}"
-icondir="${icondir:-${HOME}/Desktop}"
-zshdir="${zshdir:-${HOME}/Desktop}"
-musicdir="${musicdir:-${HOME}/Music}"
-videodir="${videodir:-${HOME}/Videos}"
-pkgbuilddir="${pkgbuilddir:-${HOME}/Desktop}"
-projectdir="${projectdir:-${HOME}/Projects}"
-entrydir="${entrydir:-${HOME}/Desktop}"
-
-
-#
 # Global functions
 #
 
@@ -32,11 +10,28 @@ function seek {
   local inputstring=
   local item
   local cmd
-  local mode="${1}"
 
-  case ${mode} in
+  # set default paths when global vars (from globals file) are not defined
+  local archivedir="${archivedir:-${HOME}/Desktop}"
+  local backup1="${backup1:-${HOME}/Desktop}"
+  local backup2="${backup2:-${HOME}/Desktop}"
+  local kvmdir="${kvmdir:-${HOME}/Desktop}"
+  local kvmshare="${kvmsharedir:-${HOME}/Desktop}"
+  local vboxdir="${vboxdir:-${HOME}/Desktop}"
+  local encryptpath="${encryptpath:-${HOME}/Desktop}"
+  local decryptpath="${decryptpath:-${HOME}/Desktop}"
+  local gtkdir="${gtkdir:-${HOME}/Desktop}"
+  local icondir="${icondir:-${HOME}/Desktop}"
+  local zshdir="${zshdir:-${HOME}/Desktop}"
+  local musicdir="${musicdir:-${HOME}/Music}"
+  local videodir="${videodir:-${HOME}/Videos}"
+  local pkgbuilddir="${pkgbuilddir:-${HOME}/Desktop}"
+  local projectdir="${projectdir:-${HOME}/Projects}"
+  local entrydir="${entrydir:-${HOME}/Desktop}"
+
+  case ${MODE} in
     precise)
-      for item in "${@:2}"; do
+      for item in "${@}"; do
         if [ -z "${inputstring}" ]; then
           inputstring="-iname \"${item}\" -o -iname \".${item}\""
         else
@@ -45,7 +40,7 @@ function seek {
       done
       ;;
     sloppy)
-      for item in "${@:2}"; do
+      for item in "${@}"; do
         if [ -z "${inputstring}" ]; then
           inputstring="-iname \"*${item}*\" -o -iname \".*${item}*\""
         else
@@ -54,7 +49,7 @@ function seek {
       done
       ;;
     *)
-      show_error "ERROR: seeker mode ${mode@Q} is incorrect."
+      show_error "ERROR: seeker mode ${MODE@Q} is incorrect."
       exit 3
       ;;
   esac
@@ -63,13 +58,13 @@ function seek {
          \( -path \"${HOME}/Desktop\" \
             -o -path \"${HOME}/Documents\" \
             -o -path \"${HOME}/Downloads\" \
-            -o -path \"${HOME}/Music\" \
+            -o -path \"${musicdir}\" \
             -o -path \"${HOME}/Pictures\" \
             -o -path \"${projectdir}\" \
             -o -path \"${HOME}/Public\" \
             -o -path \"${HOME}/Sync\" \
             -o -path \"${HOME}/Templates\" \
-            -o -path \"${HOME}/Videos\" \
+            -o -path \"${videodir}\" \
             -o -path \"${HOME}/.gem\" \
             -o -path \"${HOME}/.go\" \
             -o -path \"${HOME}/.ipython\" \
@@ -93,10 +88,8 @@ function seek {
             -o -path \"${gtkdir}\" \
             -o -path \"${icondir}\" \
             -o -path \"${zshdir}\" \
-            -o -path \"${musicdir}\" \
-            -o -path \"${videodir}\" \
-            -o -path \"${entrydir}\" \
-            -o -path \"${pkgbuilddir}\" \) -prune , \
+            -o -path \"${pkgbuilddir}\" \
+            -o -path \"${entrydir}\" \) -prune , \
          \( ${inputstring} \) -print"
 
   eval "${cmd}"
@@ -174,7 +167,7 @@ if [ ${#} = 0 ]; then
 fi
 
 show_header "--- Running ${MODE} seeker ---"
-RES="$(seek "${MODE}" "${@}")"
+RES="$(seek "${@}")"
 
 if [ -n "${RES}" ]; then
   echo "${RES}"
