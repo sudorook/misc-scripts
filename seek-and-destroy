@@ -162,6 +162,8 @@ done
 # Run seeker and destroyer
 #
 
+MODE="${MODE:-precise}"
+
 if [ ${#} = 0 ]; then
   show_error "ERROR: no input(s) given. Exiting."
   exit 3
