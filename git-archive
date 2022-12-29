@@ -16,7 +16,29 @@ print_usage() {
     "  -h|--help        show (this) help message"
 }
 
-DIR="${PWD}"
+check_dir() {
+  if ! [[ -v DIR ]]; then
+    if git log >/dev/null 2>&1; then
+      DIR="$(git rev-parse --show-toplevel)"
+    else
+      show_error "No Git directory specified. Exiting."
+      exit 3
+    fi
+  elif [[ "${DIR}" = . ]]; then
+    if git log >/dev/null 2>&1; then
+      DIR="$(git rev-parse --show-toplevel)"
+    else
+      show_error "${PWD@Q} is not a Git directory. Exiting."
+      exit 3
+    fi
+  else
+    if ! git -C "${DIR}" log >/dev/null 2>&1; then
+      show_error "${DIR@Q} is not a Git directory. Exiting."
+      exit 3
+    fi
+  fi
+}
+
 TAG="HEAD"
 Z="zip"
 
@@ -64,6 +86,8 @@ while [ ${#} -ge 1 ]; do
       ;;
   esac
 done
+
+check_dir
 
 PREFIX="$(basename "${DIR}")-${TAG}"
 git -C "${DIR}" archive --prefix="${PREFIX}/" "${TAG}" -o "${PWD}/${PREFIX}.${Z}"
