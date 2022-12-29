@@ -58,11 +58,11 @@ while [ ${#} -ge 1 ]; do
       shift 2
       ;;
     -z|--compress)
-      case "${2}" in
+      case "${2,,}" in
         gz|xz|zst|zstd)
           Z="tar.${2}"
           ;;
-        zip|Zip|ZIP)
+        zip)
           Z="zip"
           ;;
         *)
