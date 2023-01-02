@@ -1,7 +1,8 @@
 #! /bin/bash
 set -eu
+source globals
 
-! check_commands git && exit 3
+! check_command git && exit 3
 
 function head_count {
   git rev-list --since="${UNTIL}" --count --all
