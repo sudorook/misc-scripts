@@ -195,9 +195,9 @@ function upgrade_zsh() {
     echo
   else
     # antigen-update may not be in the bash PATH, so check the zsh path if
-    # 'command -v antigen-update' returns false.
-    if zsh -ic "command -v antigen-update" >/dev/null 2>&1; then
-      zsh -ic "antigen-update"
+    # 'command -v antigen' returns false.
+    if zsh -ic "command -v antigen" >/dev/null 2>&1; then
+      zsh -ic "antigen update"
       sleep "$(rand_int 2 10)"
     else
       if [[ -v zshdir ]] && [ -d "${zshdir}" ]; then
