@@ -188,6 +188,23 @@ function strip_matroska {
   done
 }
 
+function strip_image {
+  if ${KEEP}; then
+    cp "${IN}" "${BACKUP}"
+  fi
+
+  if command -v magick >/dev/null; then
+    magick "${IN}" -strip "${TMP}"
+    mv "${TMP}" "${IN}"
+  elif command -v convert >/dev/null; then
+    convert "${IN}" -strip "${TMP}"
+    mv "${TMP}" "${IN}"
+  else
+    show_error "ERROR: imagemagick not found. Exiting."
+    exit 3
+  fi
+}
+
 IN="${1}"
 BACKUP="${IN}_$(date +%Y%m%d-%H%M%S).bak"
 TMP="$(mktemp)"
@@ -249,6 +266,8 @@ elif [[ "${TYPE}" =~ mp4|m4a|m4v|quicktime ]]; then
   strip_generic "mp4"
 elif [[ "${TYPE}" =~ x-msvideo ]]; then
   strip_generic "avi"
+elif [[ "${TYPE}" =~ image/jpeg ]]; then
+  strip_image
 else
   show_error "ERROR: file type ${TYPE@Q} unsupported. Exiting."
   exit 3
