@@ -6,7 +6,60 @@ source globals
 # Check inputs and requirements
 #
 
-! check_command bs1770gain && exit 3
+function compute_bs1770gain {
+  ! check_command bs1770gain && exit 3
+  if [ "${#}" -eq 1 ]; then
+    bs1770gain "${@}" -o "${TMPDIR}"
+    if [[ "${KEEP}" = true ]]; then
+      mkdir -p "${BACKUPDIR}"
+      mv "${1}" "${BACKUPDIR}"
+      mv "${TMPDIR}" "${1}"
+    else
+      mv "${1}" "${1}.bak"
+      mv "${TMPDIR}" "${1}"
+      rm -r "${1}.bak"
+    fi
+  else
+    for ITEM in "${@}"; do
+      mkdir -p "${TMPDIR}/$(basename "${ITEM}")"
+      bs1770gain "${ITEM}" -o "${TMPDIR}/$(basename "${ITEM}")"
+      if [[ "${KEEP}" = true ]]; then
+        mkdir -p "${BACKUPDIR}/$(basename "${ITEM}")"
+        mv "${ITEM}" "${BACKUPDIR}/$(basename "${ITEM}")"
+        mv "${TMPDIR}/$(basename "${ITEM}")" "${ITEM}"
+      else
+        mv "${ITEM}" "${ITEM}.bak"
+        mv "${TMPDIR}/$(basename "${ITEM}")" "${ITEM}"
+        rm -r "${ITEM}.bak"
+      fi
+    done
+    rmdir "${TMPDIR}"
+  fi
+  sync
+}
+
+function compute_r128gain {
+  ! check_command r128gain && exit 3
+  if [ "${#}" -eq 1 ]; then
+    if [[ "${KEEP}" = true ]]; then
+      cp -r "${1}" "${BACKUPDIR}"
+      r128gain -a -r "${1}"
+    else
+      r128gain -a -r "${1}"
+    fi
+  else
+    for ITEM in "${@}"; do
+      if [[ "${KEEP}" = true ]]; then
+        mkdir -p "${BACKUPDIR}/"
+        cp -r "${ITEM}" "${BACKUPDIR}/$(basename "${ITEM}")"
+        r128gain -a -r "${ITEM}"
+      else
+        r128gain -a -r "${ITEM}"
+      fi
+    done
+  fi
+  sync
+}
 
 function check_inputs {
   local input
@@ -28,6 +81,8 @@ function print_usage {
   show_listitem \
     "  -k|--keep   flag to keep original files/directories (default: false)"
   show_listitem \
+    "  -g|--gain   loudness scanner (default: bs1770gain)"
+  show_listitem \
     "  -h|--help   print (this) help message"
 }
 
@@ -37,9 +92,10 @@ function print_usage {
 #
 
 KEEP=false
+GAIN=bs1770gain
 
-OPTIONS=kh
-LONGOPTIONS=keep,help
+OPTIONS=khg:
+LONGOPTIONS=keep,help,gain:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -48,6 +104,10 @@ while [ "${#}" -ge 1 ]; do
     -k|--keep)
       KEEP=true
       shift 1
+      ;;
+    -g|--gain)
+      GAIN="${2}"
+      shift 2
       ;;
     -h|--help)
       print_usage
@@ -84,33 +144,15 @@ if [[ "${KEEP}" = true ]]; then
   fi
 fi
 
-# Move files into place.
-if [ "${#}" -eq 1 ]; then
-  bs1770gain "${@}" -o "${TMPDIR}"
-  if [[ "${KEEP}" = true ]]; then
-    mkdir -p "${BACKUPDIR}"
-    mv "${1}" "${BACKUPDIR}"
-    mv "${TMPDIR}" "${1}"
-  else
-    mv "${1}" "${1}.bak"
-    mv "${TMPDIR}" "${1}"
-    rm -r "${1}.bak"
-  fi
-else
-  for ITEM in "${@}"; do
-    mkdir -p "${TMPDIR}/$(basename "${ITEM}")"
-    bs1770gain "${ITEM}" -o "${TMPDIR}/$(basename "${ITEM}")"
-    if [[ "${KEEP}" = true ]]; then
-      mkdir -p "${BACKUPDIR}/$(basename "${ITEM}")"
-      mv "${ITEM}" "${BACKUPDIR}/$(basename "${ITEM}")"
-      mv "${TMPDIR}/$(basename "${ITEM}")" "${ITEM}"
-    else
-      mv "${ITEM}" "${ITEM}.bak"
-      mv "${TMPDIR}/$(basename "${ITEM}")" "${ITEM}"
-      rm -r "${ITEM}.bak"
-    fi
-  done
-  rmdir "${TMPDIR}"
-fi
-
-sync
+case "${GAIN}" in
+  bs1770gain)
+    compute_bs1770gain "${@}"
+    ;;
+  r128gain)
+    compute_r128gain "${@}"
+    ;;
+  *)
+    show_error "ERROR: ${GAIN@Q} not supported. Exiting."
+    exit 3
+    ;;
+esac
