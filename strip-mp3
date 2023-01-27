@@ -38,7 +38,7 @@ if [ $# -eq 1 ] && [ -f "${1}" ]; then
   show_header "Stripping ${1@Q}..."
   do_strip_mp3 "${1}"
 else
-  show_header "Stripping files in ${*@Q}..."
+  show_header "Stripping ${*@Q}..."
   if command -v parallel >/dev/null; then
     find "$@" -type f -iname "*.mp3" -print0 | \
       parallel -0 'echo {} && do_strip_mp3 {}'
