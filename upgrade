@@ -41,7 +41,7 @@ function print_usage() {
   show_listitem "  -r|--rust      upgrade Rust via rustup"
   show_listitem "  -p|--pkgbuild  upgrade AUR pkgbuilds in ${pkgbuilddir:-}"
   show_listitem "  -s|--system    upgrade system packages (pacman or apt)"
-  show_listitem "  -t|--themes    upgrade GTK/icon themes in ${gtkdir:-} and ${icondir:-}"
+  show_listitem "  -t|--themes    upgrade themes in ${gtkdir:-}, ${plasmadir:-}, and ${icondir:-}"
   show_listitem "  -v|--vim       upgrade Git-versioned Vim packages installed in ${vimpack:-}"
   show_listitem "  -n|--nvim      upgrade Git-versioned Neovim packages installed in ${nvimpack:-}"
   show_listitem "  -w|--weechat   upgrade wee-slack plugin for weechat in ${weechatdir:-}"
@@ -65,12 +65,32 @@ function upgrade_system() {
 }
 
 function upgrade_themes() {
-  show_header "Upgrading GTK and icon themes."
+  show_header "Upgrading GTK, Plasma, and icon themes."
   local repo_name
   local dir
 
   if [[ -v gtkdir ]] && [ -d "${gtkdir}" ]; then
     for dir in "${gtkdir}"/*; do
+      if git -C "${dir}" rev-parse 2>/dev/null; then
+        repo_name="$(basename "${dir}")"
+        show_info "${repo_name}"
+        if git_update "${dir}"; then
+          if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
+            pushd "${dir}" >/dev/null
+            git checkout tweak
+            git rebase master
+            git checkout master
+            popd >/dev/null
+          fi
+        fi
+        sleep "$(rand_int 2 10)"
+        echo
+      fi
+    done
+  fi
+
+  if [[ -v plasmadir ]] && [ -d "${plasmadir}" ]; then
+    for dir in "${plasmadir}"/*; do
       if git -C "${dir}" rev-parse 2>/dev/null; then
         repo_name="$(basename "${dir}")"
         show_info "${repo_name}"

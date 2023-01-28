@@ -91,8 +91,10 @@ export decryptpath
 
 # theme dirs
 gtkdir=
+plasmadir=
 icondir=
 export gtkdir
+export plasmadir
 export icondir
 
 # thunderbird theme
