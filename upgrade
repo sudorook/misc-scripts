@@ -26,8 +26,8 @@ function git_update() {
   git -C "${1}" checkout master
   git -C "${1}" fetch --tags -f
   h=$(git -C "${1}" rev-parse HEAD)
-  u=$(git -C "${1}" rev-parse @{u})
-  if [ "$h" = "$u" ]; then
+  u=$(git -C "${1}" rev-parse "@{u}")
+  if [ "${h}" = "${u}" ]; then
     return 1
   else
     git -C "${1}" merge
