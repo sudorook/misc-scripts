@@ -15,16 +15,14 @@ function do_strip_mp3 {
   tmp=$(mktemp)
   trap 'rm -vf "${tmp}"' INT RETURN ERR TERM
 
-  ffmpeg -v warning -i file:"${in}" \
-    -c copy \
-    -f mp4 file:"${tmp}" -y
-  ffmpeg -v warning -i file:"${tmp}" \
-    -map_metadata -1 -map 0:a -c:a copy \
-    -fflags +bitexact -flags:v +bitexact -flags:a +bitexact \
-    -f mp3 file:"${in}" -y
-  mid3v2 -D "${in}"
-  rm "${tmp}"
+  ffmpeg -v warning -i file:"${in}" -c copy -f avi - | \
+    ffmpeg -v warning -i - \
+      -map_metadata -1 -map 0:a -c:a copy \
+      -fflags +bitexact -flags:v +bitexact -flags:a +bitexact \
+      -f mp3 file:"${tmp}" -y
+  mid3v2 -D "${tmp}"
 
+  mv "${tmp}" "${in}"
   sync
 }
 export -f do_strip_mp3
