@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 source globals
 
-! check_command ffmpeg mid3v2 && exit 3
+! check_command ffmpeg && exit 3
 
 #
 # Functions
@@ -20,7 +20,6 @@ function do_strip_mp3 {
       -map_metadata -1 -map 0:a -c:a copy \
       -fflags +bitexact -flags:v +bitexact -flags:a +bitexact \
       -f mp3 file:"${tmp}" -y
-  mid3v2 -D "${tmp}"
 
   mv "${tmp}" "${in}"
   sync
