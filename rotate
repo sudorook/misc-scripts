@@ -214,15 +214,15 @@ function recenter_qt_application {
     return
   fi
   geometry_string="$(sed -n "s/^${pattern}\ \?=\ \?@ByteArray(\(.*\))$/\1/p" "${config}")"
-  read -a geometry_array_uint <<< "$(printf ${geometry_string} | \
-                                     od -A n -t u2 --endian=big | \
-                                     tr -d '\n')"
+  read -r -a geometry_array_uint <<< "$(printf "${geometry_string}" | \
+                                        od -A n -t u2 --endian=big | \
+                                        tr -d '\n')"
 
   if [ ${#geometry_array_uint[@]} -eq 0 ]; then
-    show_warning "Failed to parse ${config@Q}. Skipping."
+    show_warning "WARNING: Failed to parse ${config@Q}. Skipping."
     return
   elif ! [ ${#geometry_array_uint[@]} -eq 24 ]; then
-    show_warning "Unexpected # of values in ${config@Q} geometry bytestring. Skipping."
+    show_warning "WARNING: Unexpected # of values in ${config@Q} geometry bytestring. Skipping."
     return
   fi
 
@@ -302,8 +302,8 @@ function recenter_bleachbit {
     show_warning "WARNING: Bleachbit config file missing. Skipping."
     return
   fi
-  width="$(sed -n 's/window_width = \([0-9]\+\)/\1/p' ${config})"
-  height="$(sed -n 's/window_height = \([0-9]\+\)/\1/p' ${config})"
+  width="$(sed -n 's/window_width = \([0-9]\+\)/\1/p' "${config}")"
+  height="$(sed -n 's/window_height = \([0-9]\+\)/\1/p' "${config}")"
   case "${ROTATION}" in
     left|right)
       offset_y=$(((RESOLUTION_X-height-PANEL_OFFSET-20)/2))  # 20 is hard-coded to match default display position
@@ -323,7 +323,7 @@ function recenter_bleachbit {
     -e "s/^\(window_height = \)[0-9]\+/\1${height}/g" \
     -e "s/^\(window_x = \)[0-9]\+/\1${offset_x}/g" \
     -e "s/^\(window_y = \)[0-9]\+/\1${offset_y}/g" \
-    ${config}
+    "${config}"
 }
 
 function recenter_transmission {
@@ -336,8 +336,8 @@ function recenter_transmission {
     show_warning "WARNING: Transmission config file missing. Skipping."
     return
   fi
-  width="$(sed -n 's/.*"main-window-width": \([0-9]\+\),/\1/p' ${config})"
-  height="$(sed -n 's/.*"main-window-height": \([0-9]\+\),/\1/p' ${config})"
+  width="$(sed -n 's/.*"main-window-width": \([0-9]\+\),/\1/p' "${config}")"
+  height="$(sed -n 's/.*"main-window-height": \([0-9]\+\),/\1/p' "${config}")"
   case "${ROTATION}" in
     left|right)
       offset_y=$(((RESOLUTION_X-height-PANEL_OFFSET)/2))
@@ -357,7 +357,7 @@ function recenter_transmission {
     -e "s/\(.*\"main-window-height\": \)[0-9]\+,/\1${height},/g" \
     -e "s/\(.*\"main-window-x\": \)[0-9]\+,/\1${offset_x},/g" \
     -e "s/\(.*\"main-window-y\": \)[0-9]\+,/\1${offset_y},/g" \
-    ${config}
+    "${config}"
 }
 
 function rotate_cinnamon_monitor_xml {
@@ -503,7 +503,7 @@ if ! [[ "${ROTATION}" = "${CURRENT_ROTATION}" ]]; then
       ;;
   esac
 else
-  show_warning "Leaving current rotation ${CURRENT_ROTATION@Q} unchanged."
+  show_info "Leaving current rotation ${CURRENT_ROTATION@Q} unchanged."
 fi
 
 recenter_bleachbit
