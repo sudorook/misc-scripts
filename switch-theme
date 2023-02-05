@@ -2,41 +2,96 @@
 set -euo pipefail
 source globals
 
-! check_command dconf sed && exit 3
+! check_command sed && exit 3
 
-switch_dconf_gtk_theme() {
-  if ! [[ -v XDG_CURRENT_DESKTOP ]]; then return; fi
-  case $XDG_CURRENT_DESKTOP in
-    X-Cinnamon)
-      dconf write /org/cinnamon/desktop/interface/gtk-theme "'${1}'"
-      dconf write /org/cinnamon/desktop/wm/preferences/theme "'${1}'"
-      if [[ "${1}" =~ "-Eta" ]]; then
-        dconf write /org/cinnamon/theme/name "'${1%-*}'"
-      elif [[ "${1}" =~ "-Compact" ]]; then
-        dconf write /org/cinnamon/theme/name "'${1%-*}'"
-      elif [[ "${1}" =~ "-Darker" ]]; then
-        dconf write /org/cinnamon/theme/name "'${1%er}'"
-      elif [[ "${1}" =~ "-Lighter" ]]; then
-        dconf write /org/cinnamon/theme/name "'${1%-*}'"
-      else
-        dconf write /org/cinnamon/theme/name "'${1}'"
-      fi
+switch_dconf_cinnamon_theme() {
+  ! check_command dconf && return
+  dconf write /org/cinnamon/desktop/interface/gtk-theme "'${1}'"
+  dconf write /org/cinnamon/desktop/wm/preferences/theme "'${1}'"
+  if [[ "${1}" =~ "-Eta" ]]; then
+    dconf write /org/cinnamon/theme/name "'${1%-*}'"
+  elif [[ "${1}" =~ "-Compact" ]]; then
+    dconf write /org/cinnamon/theme/name "'${1%-*}'"
+  elif [[ "${1}" =~ "-Darker" ]]; then
+    dconf write /org/cinnamon/theme/name "'${1%er}'"
+  elif [[ "${1}" =~ "-Lighter" ]]; then
+    dconf write /org/cinnamon/theme/name "'${1%-*}'"
+  else
+    dconf write /org/cinnamon/theme/name "'${1}'"
+  fi
+}
+
+switch_dconf_gnome_theme() {
+  ! check_command dconf && return
+  dconf write /org/gnome/desktop/wm/preferences/theme "'${1}'"
+  dconf write /org/gnome/desktop/interface/gtk-theme "'${1}'"
+  gnome-extensions enable "user-theme@gnome-shell-extensions.gcampax.github.com" || true >/dev/null
+  if [[ "${1}" =~ "-Lighter" ]]; then
+    dconf write /org/gnome/shell/extensions/user-theme/name "'${1%-*}'"
+  else
+    dconf write /org/gnome/shell/extensions/user-theme/name "'${1}'"
+  fi
+}
+
+switch_plasma_theme() {
+  ! check_command qdbus plasma-apply-lookandfeel kvantummanager && return
+  case "${1,,}" in
+    arc)
+      plasma-apply-lookandfeel -a com.github.sudorook.arc
+      qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Arc"
+      kvantummanager --set Arc
       ;;
-    ubuntu:GNOME|GNOME)
-      dconf write /org/gnome/desktop/wm/preferences/theme "'${1}'"
-      dconf write /org/gnome/desktop/interface/gtk-theme "'${1}'"
-      gnome-extensions enable "user-theme@gnome-shell-extensions.gcampax.github.com" || true >/dev/null
-      if [[ "${1}" =~ "-Lighter" ]]; then
-        dconf write /org/gnome/shell/extensions/user-theme/name "'${1%-*}'"
-      else
-        dconf write /org/gnome/shell/extensions/user-theme/name "'${1}'"
-      fi
+    arcdark|arc-dark)
+      plasma-apply-lookandfeel -a com.github.sudorook.arc-dark
+      qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Arc-Dark"
+      kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
+      kvantummanager --set ArcDark
+      ;;
+    arc-darker|arcdarker)
+      plasma-apply-lookandfeel -a com.github.sudorook.arc-darker
+      qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Arc-Darker"
+      kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
+      kvantummanager --set ArcDarker
+      ;;
+    breeze)
+      plasma-apply-lookandfeel -a org.kde.breeze.desktop
+      qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Breeze"
+      kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "Breeze"
+      ;;
+    breeze-dark|breezedark)
+      plasma-apply-lookandfeel -a org.kde.breezedark.desktop
+      qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Breeze"
+      kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "Breeze"
+      ;;
+    breeze-twilight|breezetwilight)
+      plasma-apply-lookandfeel -a org.kde.breezetwilight.desktop
+      qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Breeze"
+      kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "Breeze"
+      ;;
+    materia)
+      plasma-apply-lookandfeel -a com.github.sudorook.materia
+      qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Materia"
+      kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
+      kvantummanager --set Materia
+      ;;
+    materiadark|materia-dark)
+      plasma-apply-lookandfeel -a com.github.sudorook.materia-dark
+      qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Materia-dark"
+      kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
+      kvantummanager --set MateriaDark
+      ;;
+    materialight|materia-light)
+      plasma-apply-lookandfeel -a com.github.sudorook.materia-light
+      qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Materia-light"
+      kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
+      kvantummanager --set MateriaLight
       ;;
     *)
-      show_error "$XDG_CURRENT_DESKTOP environment not supported."
-      exit 3
+      show_error "ERROR: ${1@Q} not supported. Exiting."
       ;;
   esac
+  dbus-send --session --type=signal /KGlobalSettings \
+    org.kde.KGlobalSettings.notifyChange int32:2 int32:0
 }
 
 switch_environment_d_gtk_theme() {
@@ -54,6 +109,7 @@ switch_xprofile_gtk_theme() {
 }
 
 get_gnome_terminal_profiles() {
+  ! check_command dconf && return
   IFS=' ' read -r -a ids <<< \
     "$(dconf read /org/gnome/terminal/legacy/profiles:/list | tr -d "[]',")"
   NAMES=()
@@ -63,6 +119,7 @@ get_gnome_terminal_profiles() {
 }
 
 switch_gnome_terminal_profile() {
+  ! check_command dconf && return
   local idx=0
   local name
   for name in "${NAMES[@]}"; do
@@ -172,95 +229,150 @@ switch_ebook_viewer_theme() {
   fi
 }
 
-set_gtk_theme() {
-  switch_dconf_gtk_theme "${1}"
+set_theme() {
+  if ! [[ -v XDG_CURRENT_DESKTOP ]]; then
+    return
+  fi
+
+  case ${XDG_CURRENT_DESKTOP} in
+    X-Cinnamon)
+      switch_dconf_cinnamon_theme "${1}"
+      ;;
+    ubuntu:GNOME|GNOME)
+      switch_dconf_gnome_theme "${1}"
+      ;;
+    KDE)
+      switch_plasma_theme "${1}"
+      ;;
+    *)
+      show_error "$XDG_CURRENT_DESKTOP environment not supported."
+      exit 3
+      ;;
+  esac
+
   switch_environment_d_gtk_theme "${1}"
   switch_xprofile_gtk_theme "${1}"
 
-  if [[ "${1}" =~ [Nn]okto ]]; then
-    switch_gtk_settings "Dark"
-    switch_gnome_terminal_profile "Dark"
-    switch_alacritty_theme "dark"
-    switch_kitty_theme "dark"
-    switch_vim_theme "dark"
-    switch_neovim_theme "dark"
-    switch_tmux_theme "dark"
-    switch_thunderbird_theme "Dark"
-    switch_gitk_theme "dark"
-    switch_ebook_viewer_theme "Dark"
-  elif [[ "${1}" =~ ^[Aa]rc-[Dd]ark ]]; then
-    switch_gtk_settings "Dark"
-    switch_gnome_terminal_profile "Dark"
-    switch_alacritty_theme "dark3"
-    switch_kitty_theme "dark3"
-    switch_vim_theme "dark3"
-    switch_neovim_theme "dark3"
-    switch_tmux_theme "dark3"
-    switch_thunderbird_theme "Dark"
-    switch_gitk_theme "dark3"
-    switch_ebook_viewer_theme "Dark"
-  elif [[ "${1}" =~ [Nn]oir ]] || [[ "${1}" =~ [Dd]ark ]]; then
-    switch_gtk_settings "Dark"
-    switch_gnome_terminal_profile "Dark"
-    switch_alacritty_theme "dark2"
-    switch_kitty_theme "dark2"
-    switch_vim_theme "dark2"
-    switch_neovim_theme "dark2"
-    switch_tmux_theme "dark2"
-    switch_thunderbird_theme "Dark"
-    switch_gitk_theme "dark2"
-    switch_ebook_viewer_theme "Dark"
-  elif [[ "${1}" =~ ^[Aa]dapta ]]; then
-    switch_gtk_settings "Light"
-    switch_gnome_terminal_profile "Light"
-    switch_alacritty_theme "light"
-    switch_kitty_theme "light"
-    switch_vim_theme "light"
-    switch_neovim_theme "light"
-    switch_tmux_theme "light"
-    switch_thunderbird_theme "Light"
-    switch_gitk_theme "light"
-    switch_ebook_viewer_theme "Light"
-  elif [[ "${1}" =~ ^[Aa]rc-[Ll]ight ]] || [[ "${1}" =~ ^[Aa]rc(-solid)?$ ]]; then
-    switch_gtk_settings "Light"
-    switch_gnome_terminal_profile "Light"
-    switch_alacritty_theme "light3"
-    switch_kitty_theme "light3"
-    switch_vim_theme "light3"
-    switch_neovim_theme "light3"
-    switch_tmux_theme "light3"
-    switch_thunderbird_theme "Light"
-    switch_gitk_theme "light3"
-    switch_ebook_viewer_theme "Light"
-  elif [[ "${1}" =~ [Ll]ight ]] || [[ "${1}" =~ [Ll]umine ]] || \
-       [[ "${1}" =~ ^[Mm]ateria$ ]]; then
-    switch_gtk_settings "Light"
-    switch_gnome_terminal_profile "Light"
-    switch_alacritty_theme "light2"
-    switch_kitty_theme "light2"
-    switch_vim_theme "light2"
-    switch_neovim_theme "light2"
-    switch_tmux_theme "light2"
-    switch_thunderbird_theme "Light"
-    switch_gitk_theme "light2"
-    switch_ebook_viewer_theme "Light"
-  else
-    show_error "ERROR: theme ${1@Q} not understood. Exiting."
-    exit 3
-  fi
+  case "${1,,}" in
+    adapta-nokto|adapta-nokto-eta|adaptanokto|adaptanoktoeta)
+      switch_gtk_settings "Dark"
+      switch_gnome_terminal_profile "Dark"
+      switch_alacritty_theme "dark"
+      switch_kitty_theme "dark"
+      switch_vim_theme "dark"
+      switch_neovim_theme "dark"
+      switch_tmux_theme "dark"
+      switch_thunderbird_theme "Dark"
+      switch_gitk_theme "dark"
+      switch_ebook_viewer_theme "Dark"
+      ;;
+    arc-dark|arcdark)
+      switch_gtk_settings "Dark"
+      switch_gnome_terminal_profile "Dark"
+      switch_alacritty_theme "dark3"
+      switch_kitty_theme "dark3"
+      switch_vim_theme "dark3"
+      switch_neovim_theme "dark3"
+      switch_tmux_theme "dark3"
+      switch_thunderbird_theme "Dark"
+      switch_gitk_theme "dark3"
+      switch_ebook_viewer_theme "Dark"
+      ;;
+    plata-noir|platanoir|plata-noir-compact|platanoircompact|materia|materia-dark|materiadark|breeze-dark|breezedark)
+      switch_gtk_settings "Dark"
+      switch_gnome_terminal_profile "Dark"
+      switch_alacritty_theme "dark2"
+      switch_kitty_theme "dark2"
+      switch_vim_theme "dark2"
+      switch_neovim_theme "dark2"
+      switch_tmux_theme "dark2"
+      switch_thunderbird_theme "Dark"
+      switch_gitk_theme "dark2"
+      switch_ebook_viewer_theme "Dark"
+      ;;
+    adapta|adapta-eta|adaptaeta)
+      switch_gtk_settings "Light"
+      switch_gnome_terminal_profile "Light"
+      switch_alacritty_theme "light"
+      switch_kitty_theme "light"
+      switch_vim_theme "light"
+      switch_neovim_theme "light"
+      switch_tmux_theme "light"
+      switch_thunderbird_theme "Light"
+      switch_gitk_theme "light"
+      switch_ebook_viewer_theme "Light"
+      ;;
+    arc|arc-lighter|arclighter|arc-darker|arcdarker|arc-solid|arcsolid|arc-lighter-solid|arclightersolid|arc-dark-solid|arcdarksolid)
+      switch_gtk_settings "Light"
+      switch_gnome_terminal_profile "Light"
+      switch_alacritty_theme "light3"
+      switch_kitty_theme "light3"
+      switch_vim_theme "light3"
+      switch_neovim_theme "light3"
+      switch_tmux_theme "light3"
+      switch_thunderbird_theme "Light"
+      switch_gitk_theme "light3"
+      switch_ebook_viewer_theme "Light"
+      ;;
+    materia-light|materialight|breeze|breeze-twilight|breezetwilight)
+      switch_gtk_settings "Light"
+      switch_gnome_terminal_profile "Light"
+      switch_alacritty_theme "light2"
+      switch_kitty_theme "light2"
+      switch_vim_theme "light2"
+      switch_neovim_theme "light2"
+      switch_tmux_theme "light2"
+      switch_thunderbird_theme "Light"
+      switch_gitk_theme "light2"
+      switch_ebook_viewer_theme "Light"
+      ;;
+    *)
+      show_error "ERROR: theme ${1@Q} not understood. Exiting."
+      exit 3
+      ;;
+  esac
 }
 
 set_icon_theme() {
-  if ! [[ -v XDG_CURRENT_DESKTOP ]]; then return; fi
-  case $XDG_CURRENT_DESKTOP in
+  ! [[ -v XDG_CURRENT_DESKTOP ]] && return
+  case ${XDG_CURRENT_DESKTOP} in
     X-Cinnamon)
       dconf write /org/cinnamon/desktop/interface/icon-theme "'${1}'"
       ;;
     ubuntu:GNOME|GNOME)
       dconf write /org/gnome/desktop/interface/icon-theme "'${1}'"
       ;;
+    KDE)
+      ! [ -e "/usr/lib/plasma-changeicons" ] && return
+      case "${1,,}" in
+        breeze)
+          /usr/lib/plasma-changeicons "breeze"
+          ;;
+        breeze-dark|breezedark)
+          /usr/lib/plasma-changeicons "breeze-dark"
+          ;;
+        epapirus)
+          /usr/lib/plasma-changeicons "ePapirus"
+          ;;
+        epapirus-dark|epapirusdark)
+          /usr/lib/plasma-changeicons "ePapirus-Dark"
+          ;;
+        papirus)
+          /usr/lib/plasma-changeicons "Papirus"
+          ;;
+        papirus-dark|papirusdark)
+          /usr/lib/plasma-changeicons "Papirus-Dark"
+          ;;
+        papirus-light|papiruslight)
+          /usr/lib/plasma-changeicons "Papirus-Light"
+          ;;
+        *)
+          /usr/lib/plasma-changeicons "${1}"
+          ;;
+      esac
+      ;;
     *)
-      show_error "$XDG_CURRENT_DESKTOP environment not supported."
+      show_error "${XDG_CURRENT_DESKTOP} environment not supported."
       exit 3
       ;;
   esac
@@ -273,21 +385,21 @@ set_icon_theme() {
 
 print_usage() {
   show_header "Usage: switch-theme"
-  show_listitem "  -g|--gtk   <GTK theme name>"
-  show_listitem "  -i|--icon  <icon theme name>"
-  show_listitem "  -h|--help  print (this) help message"
+  show_listitem "  -t|--theme  <theme name>"
+  show_listitem "  -i|--icon   <icon theme name>"
+  show_listitem "  -h|--help   print (this) help message"
 }
 
-OPTIONS=g:hi:
-LONGOPTIONS=gtk:,help,icon:
+OPTIONS=t:hi:
+LONGOPTIONS=theme:,help,icon:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
 get_gnome_terminal_profiles
 while [ $# -ge 1 ]; do
   case "${1}" in
-    -g|--gtk)
-      set_gtk_theme "${2}"
+    -t|--theme)
+      set_theme "${2}"
       shift 2
       ;;
     -h|--help)
