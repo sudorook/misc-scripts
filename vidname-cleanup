@@ -41,7 +41,8 @@ function cleanup_filename() {
   newname=$(echo "${name}" | \
     sed -e "s/_\|\./\ /g" | \
     sed -e "s/^\[[^]]*\]\ \?//g" | \
-    sed -e "s/\ \[[^()]*\]//g" | \
+    sed -e "s/\ \[[^()]*\]$//g" | \
+    sed -e "s/\ \[[^()]*\]\ //g" | \
     sed -e "s/^([^()]*)\ \?//g" | \
     sed -e "s/\ ([^()]*)//g" | \
     sed -e "s/\(DVD\|HDTV\|BluRay\|WEB-DL\|BRRip\|DVDRip\|HDRip\).*//g" | \
