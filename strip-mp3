@@ -22,7 +22,6 @@ function do_strip_mp3 {
       -f mp3 file:"${tmp}" -y
 
   mv "${tmp}" "${in}"
-  sync
 }
 export -f do_strip_mp3
 
@@ -44,3 +43,5 @@ else
       sh -c 'echo "${1}" && do_strip_mp3 "${1}"' sh {} \;
   fi
 fi
+
+sync
