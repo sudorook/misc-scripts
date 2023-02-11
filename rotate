@@ -446,11 +446,12 @@ function change_cinnamon_desktop_bg {
 
 VERTICAL_BG="/usr/share/backgrounds/timed/24-hours-timed.xml"
 HORIZONTAL_BG="/usr/share/backgrounds/timed/island-timed.xml"
+CENTER=false
 
 PANEL_OFFSET=40  # height (in pixels) of the panel
 
-OPTIONS=i:r:h
-LONGOPTIONS=input:,rotation:,help
+OPTIONS=i:r:hc
+LONGOPTIONS=input:,rotation:,help,center
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
 eval set -- "$PARSED"
 
@@ -463,6 +464,10 @@ while [ $# -ge 1 ]; do
     -r|--rotation)
       ROTATION="$2"
       shift 2
+      ;;
+    -c|--center)
+      CENTER=true
+      shift
       ;;
     -h|--help)
       print_usage
@@ -506,20 +511,22 @@ else
   show_info "Leaving current rotation ${CURRENT_ROTATION@Q} unchanged."
 fi
 
-recenter_bleachbit
-recenter_transmission
+if "${CENTER}"; then
+  recenter_bleachbit
+  recenter_transmission
 
-recenter_qt_application \
-  "Clementine" \
-  "${HOME}/.config/Clementine/Clementine.conf" \
-  "geometry"
+  recenter_qt_application \
+    "Clementine" \
+    "${HOME}/.config/Clementine/Clementine.conf" \
+    "geometry"
 
-recenter_qt_application \
-  "KeePassXC" \
-  "${HOME}/.cache/keepassxc/keepassxc.ini" \
-  "MainWindowGeometry"
+  recenter_qt_application \
+    "KeePassXC" \
+    "${HOME}/.cache/keepassxc/keepassxc.ini" \
+    "MainWindowGeometry"
 
-recenter_qt_application \
-  "VLC" \
-  "${HOME}/.config/vlc/vlc-qt-interface.conf" \
-  "geometry"
+  recenter_qt_application \
+    "VLC" \
+    "${HOME}/.config/vlc/vlc-qt-interface.conf" \
+    "geometry"
+fi
