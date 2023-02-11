@@ -74,6 +74,7 @@ function seek {
             -o -path \"${HOME}/.mozilla\" \
             -o -path \"${HOME}/.npm\" \
             -o -path \"${HOME}/.R\" \
+            -o -path \"${HOME}/.rustup\" \
             -o -path \"${HOME}/.ssh\" \
             -o -path \"${HOME}/.thunderbird\" \
             -o -path \"${HOME}/.zotero\" \
