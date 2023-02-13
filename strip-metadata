@@ -252,6 +252,11 @@ else
   show_warning "Failed to force UTF-8 locale."
 fi
 
+if ! [ -f "${IN}" ]; then
+  show_error "ERROR: file ${IN@Q} does not exist. Exiting."
+  exit 3
+fi
+
 parse_streams
 
 TYPE="$(file -bi "${IN}")"
