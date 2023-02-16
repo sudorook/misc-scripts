@@ -57,16 +57,22 @@ switch_plasma_theme() {
       plasma-apply-lookandfeel -a org.kde.breeze.desktop
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Breeze"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "Breeze"
+      sudo kwriteconfig5 --file "/etc/sddm.conf.d/kde_settings.conf" --group Theme --key Current "breeze"
+      sudo kwriteconfig5 --file "/etc/sddm.conf.d/kde_settings.conf" --group Theme --key CursorTheme "breeze_cursors"
       ;;
     breeze-dark|breezedark)
       plasma-apply-lookandfeel -a org.kde.breezedark.desktop
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Breeze"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "Breeze"
+      sudo kwriteconfig5 --file "/etc/sddm.conf.d/kde_settings.conf" --group Theme --key Current "breeze"
+      sudo kwriteconfig5 --file "/etc/sddm.conf.d/kde_settings.conf" --group Theme --key CursorTheme "breeze_cursors"
       ;;
     breeze-twilight|breezetwilight)
       plasma-apply-lookandfeel -a org.kde.breezetwilight.desktop
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Breeze"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "Breeze"
+      sudo kwriteconfig5 --file "/etc/sddm.conf.d/kde_settings.conf" --group Theme --key Current "breeze"
+      sudo kwriteconfig5 --file "/etc/sddm.conf.d/kde_settings.conf" --group Theme --key CursorTheme "breeze_cursors"
       ;;
     materia)
       plasma-apply-lookandfeel -a com.github.sudorook.materia
