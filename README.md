@@ -59,6 +59,7 @@
 | `split-cue`        | use a CUE file to split a single large audio file into MP3 components  |
 | `strip-metadata`   | remove metadata from MKV and MP4 containers and streams                |
 | `strip-mp3`        | use `id3convert` and `ffmpeg` to strip metadata from MP3 files         |
+| `swapfile`         | create or destroy swapfile                                             |
 | `swap-symlink`     | switch around a symlink and its reference location                     |
 | `switch-theme`     | switch GTK or icon theme (and edit Vim/UI settings accordingly)        |
 | `upgrade`          | upgrade system, AUR, Zsh plugins, and Julia packages                   |

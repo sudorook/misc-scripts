@@ -1,0 +1,75 @@
+#!/bin/bash
+set -eu
+source globals
+
+! check_command blkid grep swapon && exit 3
+
+function set_swap_on {
+  # Create swapfile if it doesn't exist.
+  if ! [ -f /swapfile ]; then
+    dd if=/dev/zero of=/swapfile bs=1M count=16384 status=progress
+    sync
+  fi
+
+  # Set permissions.
+  if [[ "$(stat -c "%a" /swapfile)" != 600 ]]; then
+    chmod 0600 /swapfile
+  fi
+
+  # Create UUID.
+  if ! blkid -o value /swapfile | grep -q ^swap$; then
+    mkswap -U clear /swapfile
+  fi
+
+  # Check if swap partition active. If not run...
+  if ! swapon --show | grep -q '^/swapfile\s'; then
+    swapon /swapfile
+  fi
+}
+
+function set_swap_off {
+  # Disable swap partition if it is active.
+  if swapon --show | grep -q '^/swapfile\s'; then
+    sync
+    [ -e /proc/sys/vm/drop_caches ] && echo 3 > /proc/sys/vm/drop_caches
+    sync
+    swapoff /swapfile
+  fi
+
+  # Delete swap file if it exists.
+  [ -f /swapfile ] && rm /swapfile
+}
+
+function print_usage {
+  show_header "Usage: swapfile <on|off>"
+}
+
+if ! [ "${#}" -eq 1 ]; then
+  show_error "ERROR: Incorrect # of parameters. Exiting"
+  exit 3
+fi
+
+case "${1}" in
+  on)
+    if [ ${EUID} -eq 0 ]; then
+      set_swap_on
+    else
+      sudo bash -c "$(declare -f set_swap_on); set_swap_on"
+    fi
+    ;;
+  off)
+    if [ ${EUID} -eq 0 ]; then
+      set_swap_off
+    else
+      sudo bash -c "$(declare -f set_swap_off); set_swap_off"
+    fi
+    ;;
+  help|--help|-h)
+    print_usage
+    ;;
+  *)
+    show_error "ERROR: ${1@Q} not understood. Exiting."
+    print_usage
+    exit 3
+    ;;
+esac
