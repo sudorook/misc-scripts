@@ -7,22 +7,26 @@ source globals
 function set_swap_on {
   # Create swapfile if it doesn't exist.
   if ! [ -f /swapfile ]; then
+    show_info "Creating /swapfile"
     dd if=/dev/zero of=/swapfile bs=1M count=16384 status=progress
     sync
   fi
 
   # Set permissions.
   if [[ "$(stat -c "%a" /swapfile)" != 600 ]]; then
+    show_info "Setting /swapfile permissions"
     chmod 0600 /swapfile
   fi
 
   # Create UUID.
   if ! blkid -o value /swapfile | grep -q ^swap$; then
+    show_info "Setting /swapfile UUID"
     mkswap -U clear /swapfile
   fi
 
-  # Check if swap partition active. If not run...
+  # Check if swap partition active. If not run
   if ! swapon --show | grep -q '^/swapfile\s'; then
+    show_info "Activating /swapfile"
     swapon /swapfile
   fi
 }
@@ -30,14 +34,19 @@ function set_swap_on {
 function set_swap_off {
   # Disable swap partition if it is active.
   if swapon --show | grep -q '^/swapfile\s'; then
+    show_info "Flushing cache"
     sync
     [ -e /proc/sys/vm/drop_caches ] && echo 3 > /proc/sys/vm/drop_caches
     sync
+    show_info "Deactivating /swapfile"
     swapoff /swapfile
   fi
 
   # Delete swap file if it exists.
-  [ -f /swapfile ] && rm /swapfile
+  if [ -f /swapfile ]; then
+    show_info "Deleting /swapfile"
+    rm /swapfile
+  fi
 }
 
 function print_usage {
@@ -45,7 +54,7 @@ function print_usage {
 }
 
 if ! [ "${#}" -eq 1 ]; then
-  show_error "ERROR: Incorrect # of parameters. Exiting"
+  show_error "ERROR: Incorrect # of parameters. Exiting."
   exit 3
 fi
 
