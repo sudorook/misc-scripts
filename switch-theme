@@ -34,21 +34,24 @@ switch_dconf_gnome_theme() {
 }
 
 switch_plasma_theme() {
-  ! check_command qdbus plasma-apply-lookandfeel kvantummanager && return
+  ! check_command qdbus plasma-apply-lookandfeel && return
   case "${1,,}" in
     arc)
+      ! check_command kvantummanager && return
       plasma-apply-lookandfeel -a com.github.sudorook.arc
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Arc"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
       kvantummanager --set Arc
       ;;
     arcdark|arc-dark)
+      ! check_command kvantummanager && return
       plasma-apply-lookandfeel -a com.github.sudorook.arc-dark
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Arc-Dark"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
       kvantummanager --set ArcDark
       ;;
     arc-darker|arcdarker)
+      ! check_command kvantummanager && return
       plasma-apply-lookandfeel -a com.github.sudorook.arc-darker
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Arc-Darker"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
@@ -76,18 +79,21 @@ switch_plasma_theme() {
       sudo kwriteconfig5 --file "/etc/sddm.conf.d/kde_settings.conf" --group Theme --key CursorTheme "breeze_cursors"
       ;;
     materia)
+      ! check_command kvantummanager && return
       plasma-apply-lookandfeel -a com.github.sudorook.materia
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Materia"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
       kvantummanager --set Materia
       ;;
     materiadark|materia-dark)
+      ! check_command kvantummanager && return
       plasma-apply-lookandfeel -a com.github.sudorook.materia-dark
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Materia-dark"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
       kvantummanager --set MateriaDark
       ;;
     materialight|materia-light)
+      ! check_command kvantummanager && return
       plasma-apply-lookandfeel -a com.github.sudorook.materia-light
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Materia-light"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
