@@ -39,6 +39,7 @@ switch_plasma_theme() {
     arc)
       plasma-apply-lookandfeel -a com.github.sudorook.arc
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Arc"
+      kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
       kvantummanager --set Arc
       ;;
     arcdark|arc-dark)
