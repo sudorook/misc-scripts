@@ -362,6 +362,7 @@ set_icon_theme() {
       elif [ -e "/usr/lib/x86_64-linux-gnu/plasma-changeicons" ]; then
         exec_changeicons="/usr/lib/x86_64-linux-gnu/plasma-changeicons"
       else
+        show_warning "WARNING: 'plasma-changeicons' not found. Skipping."
         return
       fi
       case "${1,,}" in
