@@ -356,31 +356,38 @@ set_icon_theme() {
       dconf write /org/gnome/desktop/interface/icon-theme "'${1}'"
       ;;
     KDE)
-      ! [ -e "/usr/lib/plasma-changeicons" ] && return
+      local exec_changeicons
+      if [ -e "/usr/lib/plasma-changeicons" ]; then
+        exec_changeicons="/usr/lib/plasma-changeicons"
+      elif [ -e "/usr/lib/x86_64-linux-gnu/plasma-changeicons" ]; then
+        exec_changeicons="/usr/lib/x86_64-linux-gnu/plasma-changeicons"
+      else
+        return
+      fi
       case "${1,,}" in
         breeze)
-          /usr/lib/plasma-changeicons "breeze"
+          "${exec_changeicons}" "breeze"
           ;;
         breeze-dark|breezedark)
-          /usr/lib/plasma-changeicons "breeze-dark"
+          "${exec_changeicons}" "breeze-dark"
           ;;
         epapirus)
-          /usr/lib/plasma-changeicons "ePapirus"
+          "${exec_changeicons}" "ePapirus"
           ;;
         epapirus-dark|epapirusdark)
-          /usr/lib/plasma-changeicons "ePapirus-Dark"
+          "${exec_changeicons}" "ePapirus-Dark"
           ;;
         papirus)
-          /usr/lib/plasma-changeicons "Papirus"
+          "${exec_changeicons}" "Papirus"
           ;;
         papirus-dark|papirusdark)
-          /usr/lib/plasma-changeicons "Papirus-Dark"
+          "${exec_changeicons}" "Papirus-Dark"
           ;;
         papirus-light|papiruslight)
-          /usr/lib/plasma-changeicons "Papirus-Light"
+          "${exec_changeicons}" "Papirus-Light"
           ;;
         *)
-          /usr/lib/plasma-changeicons "${1}"
+          "${exec_changeicons}" "${1}"
           ;;
       esac
       ;;
