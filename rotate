@@ -2,8 +2,6 @@
 set -euo pipefail
 source globals
 
-! check_command xrandr dconf sed && exit 3
-
 # Map 2-character hexadecimal values (1 byte), in a format familiar to that
 # found in the KeePassXC configuration file.
 # - Two-character codes with preceding 0 are abbreviated to 1 character. For
@@ -535,6 +533,7 @@ done
 
 case "${XDG_CURRENT_DESKTOP}" in
   X-Cinnamon)
+    ! check_command xrandr dconf sed && exit 3
     get_primary_display_info_xrandr "${ID:-}"
     if ! [[ "${ROTATION}" = "${CURRENT_ROTATION}" ]]; then
       rotate_display_xrandr
@@ -548,6 +547,7 @@ case "${XDG_CURRENT_DESKTOP}" in
     get_primary_display_info_xrandr "${ID:-}"
     if ! [[ "${ROTATION}" = "${CURRENT_ROTATION}" ]]; then
       if [[ "${XDG_SESSION_TYPE}" = x11 ]]; then
+        ! check_command xrandr dconf sed && exit 3
         rotate_display_xrandr
         change_gnome_desktop_bg
       fi
@@ -558,6 +558,7 @@ case "${XDG_CURRENT_DESKTOP}" in
   KDE)
     get_primary_display_info_kde "${ID:-}"
     if ! [[ "${ROTATION}" = "${CURRENT_ROTATION}" ]]; then
+      ! check_command kscreen-doctor jq grep && exit 3
       rotate_display_kde
     else
       show_info "Leaving current rotation ${CURRENT_ROTATION@Q} unchanged."
@@ -570,6 +571,8 @@ case "${XDG_CURRENT_DESKTOP}" in
 esac
 
 if "${CENTER}"; then
+  ! check_command sed && exit 3
+
   recenter_bleachbit
   recenter_transmission
 
