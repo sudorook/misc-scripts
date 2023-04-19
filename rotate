@@ -379,7 +379,7 @@ function parse_rotation {
     left)
       ROTATION=left
       ;;
-    normal)
+    normal|none)
       ROTATION=normal
       ;;
     inverted)
