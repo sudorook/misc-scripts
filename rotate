@@ -189,6 +189,47 @@ function get_primary_display_info_xrandr {
   esac
 }
 
+function get_primary_display_info_kde {
+  local info
+  local current_rotation_int
+
+  if [[ -v 1 ]] && [[ -n "${1}" ]]; then
+    info="$(kscreen-doctor --json | jq ".outputs[] | select(.name = ${1}")"
+  else
+    info="$(kscreen-doctor --json | jq ".outputs[] | select(.primary)")"
+  fi
+
+  ID="$(echo "${info}" | jq -r ".name")"
+  if [ -z "${info}" ]; then
+    show_error "ERROR: Failed to parse display info. Exiting."
+    exit 3
+  fi
+  if [ -z "${ID}" ]; then
+    show_error "ERROR: Could not detect primary display. Exiting."
+    exit 3
+  fi
+
+  current_rotation_int="$(echo "${info}" | jq -r '.rotation')"
+  case "${current_rotation_int}" in
+    1)
+      CURRENT_ROTATION=normal
+      ;;
+    2)
+      CURRENT_ROTATION=left
+      ;;
+    4)
+      CURRENT_ROTATION=inverted
+      ;;
+    8)
+      CURRENT_ROTATION=right
+      ;;
+    *)
+      show_error "ERROR: Unknown rotation code ${current_rotation_int@Q}. Exiting."
+      exit 3
+      ;;
+  esac
+}
+
 function recenter_qt_application {
   local appname="${1}"
   local config="${2}"
@@ -397,6 +438,10 @@ function rotate_display_xrandr {
   xrandr --output "${ID}" --rotate "${ROTATION}"
 }
 
+function rotate_display_kde {
+  kscreen-doctor output."${ID}".rotation."${ROTATION}"
+}
+
 function change_gnome_desktop_bg {
   case ${ROTATION} in
     right|left)
@@ -464,6 +509,7 @@ while [ $# -ge 1 ]; do
       ;;
     -r|--rotation)
       ROTATION="$2"
+      parse_rotation
       shift 2
       ;;
     -c|--center)
@@ -487,30 +533,41 @@ while [ $# -ge 1 ]; do
   esac
 done
 
-get_primary_display_info_xrandr "${ID:-}"
-parse_rotation
-
-if ! [[ "${ROTATION}" = "${CURRENT_ROTATION}" ]]; then
-  case "${XDG_CURRENT_DESKTOP}" in
-    X-Cinnamon)
+case "${XDG_CURRENT_DESKTOP}" in
+  X-Cinnamon)
+    get_primary_display_info_xrandr "${ID:-}"
+    if ! [[ "${ROTATION}" = "${CURRENT_ROTATION}" ]]; then
       rotate_display_xrandr
       change_cinnamon_desktop_bg
       rotate_cinnamon_monitor_xml
-      ;;
-    GNOME)
+    else
+      show_info "Leaving current rotation ${CURRENT_ROTATION@Q} unchanged."
+    fi
+    ;;
+  GNOME)
+    get_primary_display_info_xrandr "${ID:-}"
+    if ! [[ "${ROTATION}" = "${CURRENT_ROTATION}" ]]; then
       if [[ "${XDG_SESSION_TYPE}" = x11 ]]; then
         rotate_display_xrandr
         change_gnome_desktop_bg
       fi
-      ;;
-    *)
-      show_error "ERROR: Environment ${XDG_CURRENT_DESKTOP@Q} unsupported. Exiting."
-      exit 3
-      ;;
-  esac
-else
-  show_info "Leaving current rotation ${CURRENT_ROTATION@Q} unchanged."
-fi
+    else
+      show_info "Leaving current rotation ${CURRENT_ROTATION@Q} unchanged."
+    fi
+    ;;
+  KDE)
+    get_primary_display_info_kde "${ID:-}"
+    if ! [[ "${ROTATION}" = "${CURRENT_ROTATION}" ]]; then
+      rotate_display_kde
+    else
+      show_info "Leaving current rotation ${CURRENT_ROTATION@Q} unchanged."
+    fi
+    ;;
+  *)
+    show_error "ERROR: Environment ${XDG_CURRENT_DESKTOP@Q} unsupported. Exiting."
+    exit 3
+    ;;
+esac
 
 if "${CENTER}"; then
   recenter_bleachbit
