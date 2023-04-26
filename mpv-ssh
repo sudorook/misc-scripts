@@ -2,7 +2,7 @@
 set -euo pipefail
 source globals
 
-! check_command mpv && exit 3
+! check_command mpv ssh sftp && exit 3
 
 #
 # Functions
