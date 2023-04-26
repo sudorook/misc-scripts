@@ -39,6 +39,7 @@
 | `kvm-mv`           | move file to shared KVM directory                                      |
 | `list-fonts`       | list all the fonts referenced in a subtitle file or directory          |
 | `mpv-play`         | play media above a duration cutoff                                     |
+| `mpv-ssh`          | search remote directories over SSH and pipe as playlist to mpv         |
 | `nm-wg-import`     | import a WireGuard configuration file using Network Manager            |
 | `pdf-fixup`        | fix up the metadata in PDF files (newlines in tags, covers, etc.)      |
 | `pdf-split`        | extract range of pages from a PDF                                      |
