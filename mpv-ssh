@@ -89,7 +89,7 @@ done
 # Main
 #
 
-if [ -u "${USER}" ]; then
+if [ -z "${USER}" ]; then
   show_error "ERROR: SSH user not specified. Exiting."
   exit 3
 fi
