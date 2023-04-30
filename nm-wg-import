@@ -7,6 +7,7 @@ source globals
 function check_wg_config {
   local in="${1}"
   local name="${1%.*}"
+  name="$(basename "${1}")"
   local conn
   local conn_data
   
@@ -45,6 +46,7 @@ function check_wg_config {
 function import_wg_config {
   local in="${1}"
   local name="${in%.*}"
+  name="$(basename "${name}")"
   nmcli conn import type wireguard file "${in}"
   nmcli conn down "${name}" 
   nmcli conn modify "${name}" connection.autoconnect no
@@ -53,6 +55,7 @@ function import_wg_config {
 function rename_wg_iface {
   local in="${1}"
   local oldname="${in%.*}"
+  oldname="$(basename "${oldname}")"
   local newname="${2}"
   local id="${1##*[-_]}"
   id="${id%.*}"
