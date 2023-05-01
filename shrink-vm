@@ -61,7 +61,7 @@ case "${OWNER}" in
   "${USER}")
     do_shrink "${QCOW2}"
     ;;
-  root)
+  root|qemu)
     show_info "${QCOW2@Q} owned by ${OWNER@Q}. Trying sudo..."
     sudo bash -c "${FUNCTION} && do_shrink ${QCOW2}"
     ;;
