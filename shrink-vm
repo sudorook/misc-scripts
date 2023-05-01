@@ -28,6 +28,7 @@ function do_shrink() {
   mv -f "${1}" "${1}.bak"
   qemu-img convert -O qcow2 "${1}.bak" "${1}"
   chmod --reference="${1}.bak" "${1}"
+  chown --reference="${1}.bak" "${1}"
   rm -f "${1}.bak"
 }
 FUNCTION=$(declare -f do_shrink)
