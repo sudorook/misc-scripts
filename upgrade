@@ -256,6 +256,7 @@ function upgrade_rust() {
   if ! command -v rustup >/dev/null 2>&1; then
     show_warning "Install rustup first. Skipping."
   else
+    rustup self upgrade-data
     rustup update
     sleep "$(rand_int 2 10)"
   fi
