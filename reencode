@@ -61,29 +61,24 @@ function convert_codec {
   fi
 
   # set video codec
-  for idx in $(seq 0 $(( ${#IN_VSTREAM_CODEC_NAME[@]} - 1 ))); do
-    if [ -n "${VSTREAM_ID}" ]; then
-      if [ "${idx}" = "${VSTREAM_ID}" ]; then
-        case "${OUT_VCODEC}" in
-          h264|x264|libx264|h.264|x.264)
-            cmd="${cmd} -c:v:${idx} libx264 -x264-params crf=${CRF} -preset slow"
-            ;;
-          h265|x265|libx265|h.265|x.265)
-            cmd="${cmd} -c:v:${idx} libx265 -x265-params crf=${CRF} -preset slow"
-            ;;
-          copy)
-            cmd="${cmd} -c:v:${idx} copy"
-            ;;
-          *)
-            show_error "ERROR: video codec ${OUT_VCODEC@Q} is not supported. Exiting."
-            exit 3
-            ;;
-        esac
-      else
-        cmd="${cmd} -c:v:${idx} copy"
-      fi
-    else
-      # show_warning "${IN_VSTREAM_CODEC_NAME[${idx}]}" >&2
+  if [ -n "${VSTREAM_ID}" ]; then
+    case "${OUT_VCODEC}" in
+      h264|x264|libx264|h.264|x.264)
+        cmd="${cmd} -c:v:${VSTREAM_ID} libx264 -x264-params crf=${CRF} -preset slow"
+        ;;
+      h265|x265|libx265|h.265|x.265)
+        cmd="${cmd} -c:v:${VSTREAM_ID} libx265 -x265-params crf=${CRF} -preset slow"
+        ;;
+      copy)
+        cmd="${cmd} -c:v:${VSTREAM_ID} copy"
+        ;;
+      *)
+        show_error "ERROR: video codec ${OUT_VCODEC@Q} is not supported. Exiting."
+        exit 3
+        ;;
+    esac
+  else
+    for idx in $(seq 0 $(( ${#IN_VSTREAM_CODEC_NAME[@]} - 1 ))); do
       if ! [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]]; then
         case "${OUT_VCODEC}" in
           h264|x264|libx264|h.264|x.264)
@@ -103,8 +98,8 @@ function convert_codec {
       else
         cmd="${cmd} -c:v:${idx} copy"
       fi
-    fi
-  done
+    done
+  fi
 
   if [ -n "${ASTREAM_ID}" ]; then
     if ! [ "${ASTREAM_ID}" = "-1" ]; then
