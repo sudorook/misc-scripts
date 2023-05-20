@@ -61,21 +61,50 @@ function convert_codec {
   fi
 
   # set video codec
-  case "${OUT_VCODEC}" in
-    h264|x264|libx264|h.264|x.264)
-      cmd="${cmd} -c:v libx264 -x264-params crf=${CRF} -preset slow"
-      ;;
-    h265|x265|libx265|h.265|x.265)
-      cmd="${cmd} -c:v libx265 -x265-params crf=${CRF} -preset slow"
-      ;;
-    copy)
-      cmd="${cmd} -c:v copy"
-      ;;
-    *)
-      show_error "ERROR: video codec ${OUT_VCODEC@Q} is not supported. Exiting."
-      exit 3
-      ;;
-  esac
+  for idx in $(seq 0 $(( ${#IN_VSTREAM_CODEC_NAME[@]} - 1 ))); do
+    if [ -n "${VSTREAM_ID}" ]; then
+      if [ "${idx}" = "${VSTREAM_ID}" ]; then
+        case "${OUT_VCODEC}" in
+          h264|x264|libx264|h.264|x.264)
+            cmd="${cmd} -c:v:${idx} libx264 -x264-params crf=${CRF} -preset slow"
+            ;;
+          h265|x265|libx265|h.265|x.265)
+            cmd="${cmd} -c:v:${idx} libx265 -x265-params crf=${CRF} -preset slow"
+            ;;
+          copy)
+            cmd="${cmd} -c:v:${idx} copy"
+            ;;
+          *)
+            show_error "ERROR: video codec ${OUT_VCODEC@Q} is not supported. Exiting."
+            exit 3
+            ;;
+        esac
+      else
+        cmd="${cmd} -c:v:${idx} copy"
+      fi
+    else
+      # show_warning "${IN_VSTREAM_CODEC_NAME[${idx}]}" >&2
+      if ! [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]]; then
+        case "${OUT_VCODEC}" in
+          h264|x264|libx264|h.264|x.264)
+            cmd="${cmd} -c:v:${idx} libx264 -x264-params crf=${CRF} -preset slow"
+            ;;
+          h265|x265|libx265|h.265|x.265)
+            cmd="${cmd} -c:v:${idx} libx265 -x265-params crf=${CRF} -preset slow"
+            ;;
+          copy)
+            cmd="${cmd} -c:v:${idx} copy"
+            ;;
+          *)
+            show_error "ERROR: video codec ${OUT_VCODEC@Q} is not supported. Exiting."
+            exit 3
+            ;;
+        esac
+      else
+        cmd="${cmd} -c:v:${idx} copy"
+      fi
+    fi
+  done
 
   if [ -n "${ASTREAM_ID}" ]; then
     if ! [ "${ASTREAM_ID}" = "-1" ]; then
@@ -238,14 +267,11 @@ function scan_input {
   local vstring
   local sstring
   local format_name
-  local in_width
-  local in_height
-  # local out_width
-  # local out_height
+  local idx
 
   fstring="$(ffprobe -v error -show_format file:"${IN}")"
-  vstring="$(ffprobe -v error \
-               -select_streams v:0 -show_streams file:"${IN}")"
+  # vstring="$(ffprobe -v error \
+  #              -select_streams v:0 -show_streams file:"${IN}")"
   sstring="$(ffprobe -v error \
                -select_streams s:0 -show_streams file:"${IN}")"
 
@@ -280,6 +306,20 @@ function scan_input {
   # IN_ACODEC="$(echo "${astring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
   IN_SCODEC="$(echo "${sstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
 
+  IN_VSTREAM_CODEC_NAME=()
+  IN_VSTREAM_WIDTH=()
+  IN_VSTREAM_HEIGHT=()
+  IN_VSTREAM_DISPLAY_ASPECT_RATIO=()
+  while read -r vstring; do
+    IN_VSTREAM_CODEC_NAME+=("$(echo "${vstring}" | cut -d"|" -f2)")
+    IN_VSTREAM_WIDTH+=("$(echo "${vstring}" | cut -d"|" -f4)")
+    IN_VSTREAM_HEIGHT+=("$(echo "${vstring}" | cut -d"|" -f5)")
+    IN_VSTREAM_DISPLAY_ASPECT_RATIO+=("$(echo "${vstring}" | cut -d"|" -f6)")
+  done <<< "$(ffprobe -v error \
+                -select_streams v \
+                -show_entries stream=codec_type,codec_name,width,height,display_aspect_ratio \
+                -of compact=nokey=1 file:"${IN}")"
+
   IN_ASTREAM_CHANNEL_COUNT=()
   IN_ASTREAM_CHANNEL_LAYOUT=()
   IN_ASTREAM_BITRATE=()
@@ -311,17 +351,16 @@ function scan_input {
   #   fi
   # fi
 
-  ASPECTRATIO="$(echo "${vstring}" | sed -n "s/^display_aspect_ratio=\(.*\)$/\1/p")"
-
-  in_width="$(echo "${vstring}" | sed -n "s/^width=\(.*\)$/\1/p")"
-  in_height="$(echo "${vstring}" | sed -n "s/^height=\(.*\)$/\1/p")"
-  IN_DIMENSIONS="${in_width}x${in_height}"
-
-  # DURATION="$(echo "${fstring}" | sed -n "s/^duration=\(.*\)$/\1/p")"
-
-  if ! [[ -v FPS ]]; then
-    FPS="$(echo "${vstring}" | sed -n "s/^r_frame_rate=\(.*\)$/\1/p" | bc -l)"
-  fi
+  # use first video stream to get display properties
+  for idx in $(seq 0 $(( ${#IN_VSTREAM_CODEC_NAME[@]} - 1 ))); do
+    if [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]]; then
+      continue
+    else
+      ASPECTRATIO="${IN_VSTREAM_DISPLAY_ASPECT_RATIO[${idx}]}"
+      IN_DIMENSIONS="${IN_VSTREAM_WIDTH[${idx}]}x${IN_VSTREAM_HEIGHT[${idx}]}"
+      break
+    fi
+  done
 }
 
 function check_compat {
