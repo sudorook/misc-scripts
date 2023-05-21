@@ -48,13 +48,7 @@ function convert_codec {
     cmd="${cmd} -default_mode infer_no_subs -disposition:s -default"
   fi
 
-  if [ -n "${VSTREAM_ID}" ]; then
-    if ! [ "${VSTREAM_ID}" = "-1" ]; then
-      cmd="${cmd} -map 0:v:${VSTREAM_ID}"
-    fi
-  else
-    cmd="${cmd} -map 0:v:?"
-  fi
+  cmd="${cmd} -map 0:v:${VSTREAM_ID:-?}"
 
   if "${CROP}"; then
     cmd="${cmd} -vf '$(compute_crop_filter "${BACKUP}")'"
@@ -101,13 +95,7 @@ function convert_codec {
     done
   fi
 
-  if [ -n "${ASTREAM_ID}" ]; then
-    if ! [ "${ASTREAM_ID}" = "-1" ]; then
-      cmd="${cmd} -map 0:a:${ASTREAM_ID}"
-    fi
-  else
-    cmd="${cmd} -map 0:a:?"
-  fi
+  cmd="${cmd} -map 0:a:${ASTREAM_ID:-?}"
 
   # set audio codec
   case "${OUT_ACODEC}" in
