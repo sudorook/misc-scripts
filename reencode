@@ -122,15 +122,13 @@ function convert_codec {
         # channels can have different bitrates and channel layouts
         cmd="${cmd} -c:a libopus"
         if [ -n "${ASTREAM_ID}" ]; then
-          if ! [ "${ASTREAM_ID}" = "-1" ]; then
-            cmd="${cmd} -b:a:0 $(set_audio_bitrate \
-                                   "${BACKUP}" \
-                                   "${IN_ASTREAM_CHANNEL_COUNT[${ASTREAM_ID}]}" \
-                                   "${IN_ASTREAM_BITRATE[$ASTREAM_ID]}")"
-            if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${ASTREAM_ID}]}" = "5.1(side)" ]]; then
-              show_warning "WARNING: converting layout from 5.1(side) to 5.1."
-              cmd="${cmd} -channel_layout:a:${ASTREAM_ID} 5.1"
-            fi
+          cmd="${cmd} -b:a:0 $(set_audio_bitrate \
+                                 "${BACKUP}" \
+                                 "${IN_ASTREAM_CHANNEL_COUNT[${ASTREAM_ID}]}" \
+                                 "${IN_ASTREAM_BITRATE[$ASTREAM_ID]}")"
+          if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${ASTREAM_ID}]}" = "5.1(side)" ]]; then
+            show_warning "WARNING: converting layout from 5.1(side) to 5.1."
+            cmd="${cmd} -channel_layout:a:${ASTREAM_ID} 5.1"
           fi
         else
           for idx in $(seq 0 $(( ${#IN_ASTREAM_CHANNEL_COUNT[@]} - 1 ))); do
