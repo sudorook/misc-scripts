@@ -22,7 +22,7 @@ function extract_audio {
     acodec="$(echo "${astring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
     stype="$(echo "${astring}" | sed -n "s/^codec_type=\(.*\)$/\1/p")"
     if [[ "${stype}" = audio ]]; then
-      out="${name}_${i}.$acodec"
+      out="${name}_${i}.${acodec}"
       cmd="ffmpeg -i file:${in@Q} -c:a copy -y file:${out@Q}"
       show_listitem "${cmd}" >&2
       eval "${cmd}"

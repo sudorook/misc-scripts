@@ -12,11 +12,11 @@ function print_usage {
 
 OPTIONS=hi:m:
 LONGOPTIONS=help,ip:,mask:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
 
-while [ $# -ge 1 ]; do
-  case "$1" in
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
     -i|--ip)
       # If IP address given as xxx.xxx.xxx.xxx:
       if [[ "${2}" == "$(echo "${2}" | \
@@ -31,7 +31,7 @@ while [ $# -ge 1 ]; do
       shift 2
       ;;
     -m|--mask)
-      if (($2 >= 0 && $2 <= 32)); then
+      if ((${2} >= 0 && ${2} <= 32)); then
         MASK="${2}"
       fi
       shift 2

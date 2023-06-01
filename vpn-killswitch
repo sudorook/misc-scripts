@@ -115,11 +115,11 @@ function disable_killswitch() {
 
 OPTIONS=deh
 LONGOPTIONS=disable,enable,help
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
 
-while [ $# -ge 1 ]; do
-  case "$1" in
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
     -d|--disable)
       disable_killswitch
       shift

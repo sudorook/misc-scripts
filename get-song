@@ -17,25 +17,25 @@ function print_usage {
 
 OPTIONS=t:a:u:f:h
 LONGOPTIONS=title:,artist:,url:,format,help
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
-while [ $# -ge 1 ]; do
-  case "$1" in
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
     -t|--title)
-      TITLE="$2"
+      TITLE="${2}"
       shift 2
       ;;
     -a|--artist)
-      ARTIST="$2"
+      ARTIST="${2}"
       shift 2
       ;;
     -u|--url)
-      URL="$2"
+      URL="${2}"
       shift 2
       ;;
     -f|--format)
-      FORMAT="$2"
+      FORMAT="${2}"
       shift 2
       ;;
     -h|--help)
@@ -63,7 +63,7 @@ if ! [[ -v FORMAT ]]; then FORMAT=mp3; fi
 "${YTDL}" "${URL//\"}" \
   --extract-audio \
   --prefer-ffmpeg \
-  --audio-format ${FORMAT} \
+  --audio-format "${FORMAT}" \
   --ignore-config \
   -o "${TITLE} - ${ARTIST}.%(ext)s"
 mid3v2 "${TITLE} - ${ARTIST}.${FORMAT}" -a "${ARTIST}" -t "${TITLE}"

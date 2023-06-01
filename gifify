@@ -218,18 +218,18 @@ trap 'rm -f ${TMP}; exit' INT TERM ERR EXIT
 
 OPTIONS=i:o:s:e:l:d:t:p:
 LONGOPTIONS=input:,output:,start:,end:,length:,resolution:,subtitle:,fps:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
 
-while [ $# -ge 1 ]; do
-  case "$1" in
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
     -i|--input)
-      IN="$2"
+      IN="${2}"
       scan_input
       shift 2
       ;;
     -o|--output)
-      OUT="$2"
+      OUT="${2}"
       case "${2##*.}" in
         GIF|gif|Gif)
           FORMAT=gif
@@ -238,21 +238,21 @@ while [ $# -ge 1 ]; do
           FORMAT=webp
           ;;
         *)
-          show_error "ERROR: '$2' unsupported output format."
+          show_error "ERROR: ${2@Q} unsupported output format."
           exit 3
       esac
       shift 2
       ;;
     -s|--start)
-      START="$2"
+      START="${2}"
       shift 2
       ;;
     -e|--end)
-      END="$2"
+      END="${2}"
       shift 2
       ;;
     -l|--length)
-      LENGTH="$2"
+      LENGTH="${2}"
       shift 2
       ;;
     -t|--subtitle)

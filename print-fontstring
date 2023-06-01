@@ -119,11 +119,11 @@ CONTAINER=
 
 OPTIONS=i:d:fc:
 LONGOPTIONS=input:,font_dir:,force,container:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
 
-while [ $# -ge 1 ]; do
-  case "$1" in
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
     -i|--input)
       INPUT="${2}"
       shift 2
@@ -162,20 +162,20 @@ fi
 
 if [[ -v INPUT ]]; then
   if [[ -f "${INPUT}" ]]; then
-    if $FORCE; then
+    if ${FORCE}; then
       show_warning "Why search input fonts when they are to be overridden?"
       # make_string_v3 "${INPUT}" "${FONTDIR}"
     else
       make_string_v4 "${INPUT}" "${FONTDIR}"
     fi
   else
-    show_error "ERROR: input ${INPUT} is not a file. Exiting."
+    show_error "ERROR: input ${INPUT@Q} is not a file. Exiting."
   fi
 else
   if [[ "${CONTAINER}" = mkv ]]; then
     make_string_mkv "${FONTDIR}"
   else
-    if $FORCE; then
+    if ${FORCE}; then
       make_string_v1 "${FONTDIR}"
     else
       make_string_v2 "${FONTDIR}"

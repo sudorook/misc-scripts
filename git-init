@@ -15,7 +15,7 @@ make_random_alias() {
   range="$(date -d "1970-01-01 UTC ${RAND_RANGE}" "+%s")"
   string='! NEW_DATE="$(TZ='"${TZ}"' date -d "1970-01-01 UTC $(echo "$(date +%s)" - '"${range}"' + $(shuf -i '"0-${range}"' -n 1) | bc -l) seconds" "+%c")"'
   string="${string}"' && export GIT_AUTHOR_DATE="${NEW_DATE}" && export GIT_COMMITTER_DATE="${NEW_DATE}" &&'
-  echo "$string"
+  echo "${string}"
 }
 
 make_workday_alias() {
@@ -128,8 +128,8 @@ print_usage() {
 
 OPTIONS=n:e:s:r:o:t:hg
 LONGOPTIONS=name:,email:,schedule:,range:,roffset:,timezone:,help,global
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
 
 GLOBAL=false
 

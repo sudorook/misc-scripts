@@ -57,7 +57,7 @@ function make_archivename() {
   local dir
   local file
 
-  if [ $# -eq 1 ]; then
+  if [ ${#} -eq 1 ]; then
     if [ -d "${1}" ]; then
       dir=${1}
       if [ "${dir:0:2}" = "\~/" ]; then
@@ -71,7 +71,7 @@ function make_archivename() {
       fi
       archive="$(echo "${file%.*}" | slugify)_$(date +%Y%m%d-%H%M%S)"
     fi
-  elif [ $# -gt 1 ]; then
+  elif [ ${#} -gt 1 ]; then
     archive="$(basename "$(pwd)" | slugify)_$(date +%Y%m%d-%H%M%S)"
   fi
 
@@ -79,7 +79,7 @@ function make_archivename() {
 }
 
 # Take the (1) archive name and the (2) pathstring and compress into a tarball
-# to be found in $ARCHIVEDIR (see globals). Uses pigz (parallelized gzip
+# to be found in ${ARCHIVEDIR} (see globals). Uses pigz (parallelized gzip
 # compression) if available.
 function compress_archive() {
   local run
@@ -145,7 +145,7 @@ function compress_archive() {
 # preference is:
 # - 1. the directory specified by the -d flag
 # - 2. the archivedir global variable
-# - 3. $HOME/Desktop
+# - 3. ${HOME}/Desktop
 function check_archive_dir() {
   if ! [[ -v ARCHIVEDIR ]]; then
     ARCHIVEDIR="${archivedir:-${HOME}/Desktop}"
@@ -174,7 +174,7 @@ function print_usage() {
 # Main
 #
 
-if [ $# == 0 ]; then
+if [ ${#} == 0 ]; then
   show_error "Incorrect # of parameters."
   echo "Usage: archive /path/to/directory1 /path/to/directory2 ..."
   exit 1

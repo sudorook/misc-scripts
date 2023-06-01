@@ -18,13 +18,13 @@ YTDL=yt-dlp
 
 OPTIONS=d:hn:r:s:u:
 LONGOPTIONS=destination:,help,name:,resolution:,start:,url:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
-while [ $# -ge 1 ]; do
-  case "$1" in
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
     -d|--destination)
-      VIDEODIR="$2"
+      VIDEODIR="${2}"
       shift 2
       ;;
     -h|--help)
@@ -32,11 +32,11 @@ while [ $# -ge 1 ]; do
       exit
       ;;
     -n|--name)
-      NAME="$2"
+      NAME="${2}"
       shift 2
       ;;
     -u|--url)
-      URL="$2"
+      URL="${2}"
       shift 2
       ;;
     -r|--resolution)
@@ -44,7 +44,7 @@ while [ $# -ge 1 ]; do
       shift 2
       ;;
     -s|--start)
-      START="$2"
+      START="${2}"
       shift 2
       ;;
     --)

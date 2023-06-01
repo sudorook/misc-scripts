@@ -9,12 +9,12 @@ function print_usage {
 
 OPTIONS=bh
 LONGOPTIONS=backup,help
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
 
 ISBACKUP=false
-while [ $# -ge 1 ]; do
-  case "$1" in
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
     -b|--backup)
       ISBACKUP=true
       shift 1
@@ -35,7 +35,7 @@ while [ $# -ge 1 ]; do
 done
 
 if ! [ -e "${1}" ]; then
-  show_error "ERROR: ${1} does not exist."
+  show_error "ERROR: ${1@Q} does not exist."
   exit 2
 fi
 

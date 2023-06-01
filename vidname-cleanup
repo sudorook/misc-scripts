@@ -98,7 +98,7 @@ function print_files() {
   local idx
 
   for idx in "${!INFILES[@]}"; do
-    echo "${OUTFILES[$idx]}"
+    echo "${OUTFILES[${idx}]}"
   done
 }
 
@@ -106,7 +106,7 @@ function rename_files() {
   local idx
 
   for idx in "${!INFILES[@]}"; do
-    mv -v "${INFILES[$idx]}" "${OUTFILES[$idx]}"
+    mv -v "${INFILES[${idx}]}" "${OUTFILES[${idx}]}"
   done
 }
 

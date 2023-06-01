@@ -9,7 +9,7 @@ source globals
 # Check if all files passed to script are mp4s.
 function is_all_mp4s() {
   for file in "${@}"; do
-    echo "$file"
+    echo "${file}"
     if ! [ "${file##*.}" = "mp4" ]; then
       return 1
     fi
@@ -20,7 +20,7 @@ function is_all_mp4s() {
 # Check if all files passed to script are mkvs.
 function is_all_mkvs() {
   for file in "${@}"; do
-    echo "$file"
+    echo "${file}"
     if ! [ "${file##*.}" = "mkv" ]; then
       return 1
     fi
@@ -139,7 +139,7 @@ else
     name=${file%.*}
     extension=${file##*.}
     if [ "${extension}" = "mp4" ]; then
-      mp4s+=("$file")
+      mp4s+=("${file}")
     else
       ffmpeg -i "${file}" "${name}.mp4"
       mp4s+=("${name}.mp4")
@@ -149,6 +149,6 @@ else
   join_mp4s "${mp4s[@]}"
 
   for f in "${temp[@]}"; do
-    rm "$f"
+    rm "${f}"
   done
 fi

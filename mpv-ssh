@@ -48,10 +48,10 @@ DIR=
 
 OPTIONS="d:shr:u:"
 LONGOPTIONS=dir:,shuffle,help,remote:,user:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
 
-while [ $# -ge 1 ]; do
+while [ ${#} -ge 1 ]; do
   case "${1}" in
     -d|--dir)
       DIR="${2}"

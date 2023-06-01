@@ -496,17 +496,17 @@ PANEL_OFFSET=40  # height (in pixels) of the panel
 
 OPTIONS=i:r:hc
 LONGOPTIONS=input:,rotation:,help,center
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
 
-while [ $# -ge 1 ]; do
-  case "$1" in
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
     -i|--input)
-      ID="$2"
+      ID="${2}"
       shift 2
       ;;
     -r|--rotation)
-      ROTATION="$2"
+      ROTATION="${2}"
       parse_rotation
       shift 2
       ;;

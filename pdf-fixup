@@ -307,7 +307,7 @@ clean_meta_tags
 adjust_page_numbers
 "${NORMALIZE}" && normalize_cover
 
-if ! $KEEP; then
+if ! ${KEEP}; then
   pdftk "${TMP}" update_info_utf8 "${DATA}" output "${OUTPUT}"
   rm -f "${TMP}" "${DATA}"
 else

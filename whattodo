@@ -13,13 +13,13 @@ FILES=({TODO,TO-DO}{.md,.txt,.rtf})
 EXTRAS=({"${HOME}/Desktop/","${HOME}/"}{TODO,TO-DO}{.md,.txt,.rtf})
 
 # Directories to ignore when searching for lists. Redundant with
-# $ignoreprojectdirs variable in globals.
+# ${ignoreprojectdirs} variable in globals.
 IGNORES=("node_modules")
 IGNORES+=("${ignoreprojectdirs[@]:-}")
 
 # Base directory to search for to-do lists. Uses the ${projectdir} variable in
 # globals by default, with ${HOME} as a fallback if unset.
-PROJECTDIR="${projectdir:-$HOME}"
+PROJECTDIR="${projectdir:-${HOME}}"
 
 
 #
@@ -78,7 +78,7 @@ function find_extra_todo {
 # Main
 #
 
-[ $# -gt 0 ] && show_warning "WARNING: Ignoring parameters ${*}." >&2
+[ ${#} -gt 0 ] && show_warning "WARNING: Ignoring parameters ${*}." >&2
 
 find_todo
 find_extra_todo

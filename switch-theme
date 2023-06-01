@@ -258,7 +258,7 @@ set_theme() {
       switch_plasma_theme "${1}"
       ;;
     *)
-      show_error "$XDG_CURRENT_DESKTOP environment not supported."
+      show_error "${XDG_CURRENT_DESKTOP} environment not supported."
       exit 3
       ;;
   esac
@@ -413,11 +413,11 @@ print_usage() {
 
 OPTIONS=t:hi:
 LONGOPTIONS=theme:,help,icon:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
 
 get_gnome_terminal_profiles
-while [ $# -ge 1 ]; do
+while [ ${#} -ge 1 ]; do
   case "${1}" in
     -t|--theme)
       set_theme "${2}"

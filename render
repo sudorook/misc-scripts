@@ -4,7 +4,7 @@ source globals
 
 EXTENSION="${1##*.}"
 
-if ! [ -f "$1" ]; then
+if ! [ -f "${1}" ]; then
   show_error "ERROR: ${1@Q} does not exist. Exiting."
   exit 1
 fi

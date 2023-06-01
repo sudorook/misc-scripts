@@ -28,15 +28,15 @@ function print_interfaces {
     cut -d ":" -f2 | sed -e 's/^\s\(.*\)$/  \1/g'
 }
 
-if [ "$#" -ne 1 ]; then
+if [ "${#}" -ne 1 ]; then
   show_error "Error. Specify the network interface to restart."
   print_interfaces
   exit 1
 fi
 
-iface=$1
+iface="${1}"
 
-if [ "$iface" = "all" ]; then
+if [ "${iface}" = "all" ]; then
   sudo bash -c "\
     systemctl stop NetworkManager.service && \
     ip link set dev wlp3s0 down && \
@@ -49,16 +49,16 @@ if [ "$iface" = "all" ]; then
   exit 0
 fi
 
-if test "$(ip link show | grep -c "$iface")" -ne 0; then
+if test "$(ip link show | grep -c "${iface}")" -ne 0; then
   sudo bash -c "\
     systemctl stop NetworkManager.service && \
-    ip link set dev $iface down && \
-    macchanger -e $iface && \
-    ip link set dev $iface up && \
+    ip link set dev ${iface} down && \
+    macchanger -e ${iface} && \
+    ip link set dev ${iface} up && \
     systemctl start NetworkManager.service"
   exit 0
 else
-  show_error "Interface $iface doesn't exist. Pick from:"
+  show_error "Interface ${iface@Q} doesn't exist. Pick from:"
   print_interfaces
   exit 1
 fi

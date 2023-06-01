@@ -79,7 +79,7 @@ function dump_stream {
           cmd="${cmd} -c copy file:${out@Q} -y"
           ;;
         *)
-          show_warning "Format ${codec_name} not supported. Skipping."
+          show_warning "Format ${codec_name@Q} not supported. Skipping."
           return
           ;;
       esac
@@ -97,8 +97,8 @@ function dump_stream {
     attachment)
       if [[ "${codec_name}" =~ ^[o|t]tf ]]; then
         mkdir -p "${name}_fonts"
-        font_file="$(echo "$info" | sed -n "s/^TAG:filename=\(.*\)/\1/p")"
-        cmd="${cmd} -dump_attachment:$idx \"\" -i file:${1@Q} -y"
+        font_file="$(echo "${info}" | sed -n "s/^TAG:filename=\(.*\)/\1/p")"
+        cmd="${cmd} -dump_attachment:${idx} \"\" -i file:${1@Q} -y"
         show_listitem "${cmd}"
         eval "${cmd}" || true # FIXME: override return false for attachments
         mv "${font_file}" "${name}_fonts"
@@ -113,17 +113,17 @@ function dump_stream {
 # Main
 #
 
-if [ $# -eq 0 ]; then
+if [ ${#} -eq 0 ]; then
   show_error "ERROR: No input given. Exiting."
   exit 3
 fi
 
-if [ $# -gt 1 ]; then
+if [ ${#} -gt 1 ]; then
   show_warning "WARNING: skipping inputs ${*:2}."
 fi
 
-if ! [ -f "$1" ]; then
-  show_error "ERROR: invalid input ${1}. Exiting."
+if ! [ -f "${1}" ]; then
+  show_error "ERROR: invalid input ${1@Q}. Exiting."
   exit 3
 fi
 

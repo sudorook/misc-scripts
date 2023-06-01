@@ -106,11 +106,11 @@ NEWNAME=
 
 OPTIONS=ho:n:
 LONGOPTIONS=help,old:,new:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
-eval set -- "$PARSED"
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
 
-while [ $# -ge 1 ]; do
-  case "$1" in
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
     -h|--help)
       print_usage
       exit
@@ -182,7 +182,7 @@ su "${NEWNAME}" - -c \
 
 # Prompt to change password.
 REPLY=$(ask_question "Change password for ${NEWNAME}? (y/N)")
-if [[ $REPLY =~ ^([Yy][Ee][Ss]|[Yy])$ ]]; then
+if [[ "${REPLY}" =~ ^([Yy][Ee][Ss]|[Yy])$ ]]; then
   passwd "${NEWNAME}"
 fi
 
