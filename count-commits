@@ -50,8 +50,8 @@ print_usage() {
 parse_date() {
   local string_array
   local string_array_part2
-  local idx
-  local idx2
+  local item
+  local item2
   local digits
   local suffix
   local prefix
@@ -59,10 +59,10 @@ parse_date() {
   suffix=
   prefix=
   IFS=' ' read -r -a string_array <<< "${1}"
-  for idx in $(seq 0 "$((${#string_array[@]}-1))"); do
-    IFS='-' read -r -a string_array_part2 <<< "${string_array[${idx}]}"
-    for idx2 in $(seq 0 "$((${#string_array_part2[@]}-1))"); do
-      case "${string_array_part2[${idx2}]}" in
+  for item in "${string_array[@]}"; do
+    IFS='-' read -r -a string_array_part2 <<< "${item}"
+    for item2 in "${string_array_part2[@]}"; do
+      case "${item2}" in
         one|1)
           digits=${digits}+1
           ;;
@@ -157,7 +157,7 @@ parse_date() {
         prefix="-"
         ;;
       *)
-        suffix="${suffix:+${suffix} }${string_array_part2[${idx2}]}"
+        suffix="${suffix:+${suffix} }${item2}"
         ;;
       esac
     done
