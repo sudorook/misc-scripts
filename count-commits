@@ -23,10 +23,10 @@ get_count() {
     cmd="${cmd} --author=^${AUTHOR:-.*}\ \<${EMAIL:-.*}\>$"
   fi
   if [ -n "${SINCE}" ]; then
-    cmd="${cmd} --since=$(date -d -"${SINCE}" +%s)"
+    cmd="${cmd} --since=$(date -d "${SINCE}" +%s)"
   fi
   if [ -n "${UNTIL}" ]; then
-    cmd="${cmd} --until=$(date -d -"${UNTIL}" +%s)"
+    cmd="${cmd} --until=$(date -d "${UNTIL}" +%s)"
   fi
   eval "${cmd}"
 }
@@ -45,6 +45,125 @@ print_usage() {
   show_listitem "<email>  = committer/author email address"
   show_listitem \
     "<time>   = string (e.g. 1week, 2years, now), passed to 'date' from coreutils"
+}
+
+parse_date() {
+  local string_array
+  local string_array_part2
+  local idx
+  local idx2
+  local digits
+  local suffix
+  local prefix
+  digits=
+  suffix=
+  prefix=
+  IFS=' ' read -r -a string_array <<< "${1}"
+  for idx in $(seq 0 "$((${#string_array[@]}-1))"); do
+    IFS='-' read -r -a string_array_part2 <<< "${string_array[${idx}]}"
+    for idx2 in $(seq 0 "$((${#string_array_part2[@]}-1))"); do
+      case "${string_array_part2[${idx2}]}" in
+        one|1)
+          digits=${digits}+1
+          ;;
+        two|2)
+          digits=${digits}+2
+          ;;
+        three|3)
+          digits=${digits}+3
+          ;;
+        four|4)
+          digits=${digits}+4
+          ;;
+        five|5)
+          digits=${digits}+5
+          ;;
+        six|6)
+          digits=${digits}+6
+          ;;
+        seven|7)
+          digits=${digits}+7
+          ;;
+        eight|8)
+          digits=${digits}+8
+          ;;
+        nine|9)
+          digits=${digits}+9
+          ;;
+        ten|10)
+          digits=${digits}+10
+          ;;
+        eleven|11)
+          digits=${digits}+11
+          ;;
+        twelve|12)
+          digits=${digits}+12
+          ;;
+        thirteen|13)
+          digits=${digits}+13
+          ;;
+        fourteen|14)
+          digits=${digits}+14
+          ;;
+        fifteen|15)
+          digits=${digits}+15
+          ;;
+        sixteen|16)
+          digits=${digits}+16
+          ;;
+        seventeen|17)
+          digits=${digits}+17
+          ;;
+        eighteen|18)
+          digits=${digits}+18
+          ;;
+        nineteen|19)
+          digits=${digits}+19
+          ;;
+        twenty|20)
+          digits=${digits}+20
+          ;;
+        thirty|30)
+          digits=${digits}+30
+          ;;
+        forty|40)
+          digits=${digits}+40
+          ;;
+        fifty|50)
+          digits=${digits}+50
+          ;;
+        sixty|60)
+          digits=${digits}+60
+          ;;
+        seventy|70)
+          digits=${digits}+70
+          ;;
+        eighty|80)
+          digits=${digits}+80
+          ;;
+        ninety|90)
+          digits=${digits}+90
+          ;;
+        hundred|100)
+          digits="${digits}*100"
+          ;;
+        thousand|1000|1,000)
+          digits="${digits}*1000"
+          ;;
+        million|1000000|1,000,000)
+          digits="${digits}*1000000"
+          ;;
+      ago)
+        prefix="-"
+        ;;
+      *)
+        suffix="${suffix:+${suffix} }${string_array_part2[${idx2}]}"
+        ;;
+      esac
+    done
+  done
+  [ -n "${digits}" ] && digits="$((digits))"
+  echo "${prefix}${digits:+${digits} }${suffix}"
 }
 
 #
@@ -76,11 +195,11 @@ while [ ${#} -ge 1 ]; do
       shift 2
       ;;
     -s|--since)
-      SINCE=${2}
+      SINCE="$(parse_date "${2}")"
       shift 2
       ;;
     -u|--until)
-      UNTIL=${2}
+      UNTIL="$(parse_date "${2}")"
       shift 2
       ;;
     -h|--help)
