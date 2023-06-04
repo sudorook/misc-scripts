@@ -67,14 +67,14 @@ function cleanup_filename() {
   if [[ "${name}" = "${extension}" ]]; then
     echo "${newname}"
   else
-    lang="$(echo "${name}" | sed -e "s/_\|\./\ /g" | grep -o '[^\ ]*$')"
+    lang="$(echo "${name}" | sed -e "s/_\|\./\ /g" | grep -o '[^\ ？!?]*$')"
     lang="$(get_language "${lang}")"
     if [ -z "${lang}" ]; then
       echo "${newname}.${extension}"
     else
       local tmp
-      tmp="$(echo "${newname}" | grep -o '[^\ ]*$')"
-      if [[ "${lang}" = "${tmp}" ]]; then
+      tmp="$(echo "${newname}" | grep -o '[^\ ？!?]*$')"
+      if [[ "${lang,,}" = "${tmp,,}" ]]; then
         echo "${newname}.${extension}"
       else
         echo "${newname} ${lang}.${extension}"
