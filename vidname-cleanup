@@ -17,9 +17,19 @@ function get_language() {
     fi
   done
 
-  # If language not found, try to parse three-character strings as a fallback.
+  # if language not found, try to parse three-character strings as a fallback.
   if [ -z "${res}" ]; then
-    for lang in "${!ISO_639_2[@]}"; do
+    for lang in "${!iso_639_2[@]}"; do
+      if [[ "${1,,}" = "${lang,,}" ]]; then
+        res="${1^^}"
+        break
+      fi
+    done
+  fi
+
+  # If language not found, try to parse two-character strings as a fallback.
+  if [ -z "${res}" ]; then
+    for lang in "${!ISO_639_1[@]}"; do
       if [[ "${1,,}" = "${lang,,}" ]]; then
         res="${1^^}"
         break
