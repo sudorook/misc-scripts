@@ -22,7 +22,7 @@ function detect_encoding {
   if [ "$(echo "${confidence} > .9" | bc -l)" -eq 1 ]; then
     encoding="$(echo "${res}" | sed -n "s|.*\ \([A-Za-z0-9\-]\+\) with .*|\1|p")"
   else
-    show_warning "WARNING: Using fallback to get character encoding for ${1}." >&2
+    show_warning "WARNING: Using fallback to get character encoding for ${1@Q}." >&2
     encoding="$(uchardet "${1}")"
     if [ -z "${encoding}" ]; then
       encoding="$(file -b --mime-encoding "${1}")"
@@ -52,13 +52,15 @@ function convert_charset {
       # No need to do anything.
       ;;
     utf-8-sig|UTF-8-SIG)
-      show_error "WARNING: Failed to remove byte-order mark in ${1}. Skipping..."
+      show_error "WARNING: Failed to remove byte-order mark in ${1@Q}. Skipping..."
       ;;
     unknown-8bit)
-      show_warning "WARNING: Unknown character encoding for ${1}. Skipping..."
+      show_warning "WARNING: Unknown character encoding for ${1@Q}. Skipping..."
+      ;;
+    binary)
       ;;
     *)
-      show_info "INFO: Converting ${file} from ${encoding} to UTF-8." >&2
+      show_info "INFO: Converting ${file@Q} from ${encoding@Q} to UTF-8." >&2
       iconv -f "${encoding}" -t utf-8 "${1}" > "${tmp}"
       mv "${tmp}" "${1}"
       ;;
@@ -146,7 +148,7 @@ function get_language {
     fi
   done
 
-  show_warning "${in@Q} defaulting to ${LANG_DEFAULT}" >&2
+  show_warning "${in@Q} defaulting to ${LANG_DEFAULT@Q}" >&2
   echo "${LANG_DEFAULT}"
 }
 
@@ -212,7 +214,7 @@ function find_subs {
         avi|m4v|mp4|mkv|webm|idx)
           ;;
         *)
-          show_warning "WARNING: ${file} not supported. Skipping..."
+          show_warning "WARNING: ${file@Q} not supported. Skipping..."
           ;;
       esac
     fi
@@ -247,7 +249,7 @@ function find_subs {
             avi|m4v|mp4|mkv|webm|idx)
               ;;
             *)
-              show_warning "WARNING: ${file} not supported. Skipping..."
+              show_warning "WARNING: ${file@Q} not supported. Skipping..."
               ;;
           esac
         fi
@@ -291,7 +293,7 @@ function check_lang_match {
         default_crop="$(echo "${ISO_639_1_ISO_3166_1[${default}]}" | cut -d" " -f1)"  # this could backfire...
         ;;
       *)
-        show_error "ERROR: Something is wrong with default language ${default}. Exiting..."
+        show_error "ERROR: Something is wrong with default language ${default@Q}. Exiting..."
         exit 3
         ;;
     esac
@@ -306,7 +308,7 @@ function check_lang_match {
         lang_crop="$(echo "${ISO_639_1_ISO_3166_1[${lang}]}" | cut -d" " -f1)"  # this could backfire...
         ;;
       *)
-        show_error "ERROR: Something is wrong with subtitle language ${lang}. Exiting..."
+        show_error "ERROR: Something is wrong with subtitle language ${lang@Q}. Exiting..."
         exit 3
         ;;
     esac
@@ -490,7 +492,7 @@ function make_cmd {
       CMD="ffmpeg ${ptsflag} ${inputs} ${mapping} ${disposition} ${copy} -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
     *)
-      show_error "ERROR: ${ext} files are not supported."
+      show_error "ERROR: ${ext@Q} files are not supported."
       exit 3
   esac
 }
@@ -582,7 +584,7 @@ if [[ ${#} -ne 1 ]]; then
 fi
 
 if ! [[ -f "${1}" ]]; then
-  show_error "ERROR: input ${1} not a file."
+  show_error "ERROR: input ${1@Q} not a file."
   exit 3
 fi
 
