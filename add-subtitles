@@ -67,6 +67,10 @@ function convert_charset {
   sync
 }
 
+function strip_webvtt_style {
+  sed -i '/^STYLE*$/{:a;N;N;/^\s*}*$/M!ba;d}' "${1}"
+}
+
 function get_language {
   local in
   local name
@@ -192,6 +196,13 @@ function find_subs {
           fi
           SUBLIST+=("${file}")
           ;;
+        vtt)
+          if [[ "${subenc}" != binary ]]; then
+            convert_charset "${file}"
+            strip_webvtt_style "${file}"
+          fi
+          SUBLIST+=("${file}")
+          ;;
         sub)
           if [ -f "${file%.*}.idx" ]; then
             IS_IMGSUB=true
@@ -219,6 +230,13 @@ function find_subs {
                 convert_charset "${subdir}/${file}"
               fi
               SUBLIST+=("${subdir}/${file}")
+              ;;
+            vtt)
+              if [[ "${subenc}" != binary ]]; then
+                convert_charset "${file}"
+                strip_webvtt_style "${file}"
+              fi
+              SUBLIST+=("${file}")
               ;;
             sub)
               if [ -f "${subdir}/${file%.*}.idx" ]; then
@@ -399,7 +417,7 @@ function make_cmd {
       mapping="${mapping} -map ${file_count}:s"
 
       # set output subtitle codec
-      if [[ "${codec}" = sami ]]; then
+      if [[ "${codec}" = sami || "${codec}" = webvtt ]]; then
         case "${ext}" in
           mp4|m4v)
             copy="${copy} -c:s:${stream_count} mov_text"
