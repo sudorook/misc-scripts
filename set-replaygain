@@ -130,7 +130,7 @@ TMPDIR="$(mktemp -d)"
 trap 'rm -rf "${TMPDIR}"; exit' INT TERM ERR
 
 # Check that input files/directories exist before computing replay gain.
-check_inputs  "${@}"
+check_inputs "${@}"
 
 # Generate name for backup directory.
 if [[ "${KEEP}" = true ]]; then
