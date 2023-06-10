@@ -8,6 +8,7 @@ source globals
 
 function compute_bs1770gain {
   ! check_command bs1770gain && exit 3
+  local item
   if [ "${#}" -eq 1 ]; then
     bs1770gain "${@}" -o "${TMPDIR}"
     if [[ "${KEEP}" = true ]]; then
@@ -20,17 +21,17 @@ function compute_bs1770gain {
       rm -r "${1}.bak"
     fi
   else
-    for ITEM in "${@}"; do
-      mkdir -p "${TMPDIR}/$(basename "${ITEM}")"
-      bs1770gain "${ITEM}" -o "${TMPDIR}/$(basename "${ITEM}")"
+    for item in "${@}"; do
+      mkdir -p "${TMPDIR}/$(basename "${item}")"
+      bs1770gain "${item}" -o "${TMPDIR}/$(basename "${item}")"
       if [[ "${KEEP}" = true ]]; then
-        mkdir -p "${BACKUPDIR}/$(basename "${ITEM}")"
-        mv "${ITEM}" "${BACKUPDIR}/$(basename "${ITEM}")"
-        mv "${TMPDIR}/$(basename "${ITEM}")" "${ITEM}"
+        mkdir -p "${BACKUPDIR}/$(basename "${item}")"
+        mv "${item}" "${BACKUPDIR}/$(basename "${item}")"
+        mv "${TMPDIR}/$(basename "${item}")" "${item}"
       else
-        mv "${ITEM}" "${ITEM}.bak"
-        mv "${TMPDIR}/$(basename "${ITEM}")" "${ITEM}"
-        rm -r "${ITEM}.bak"
+        mv "${item}" "${item}.bak"
+        mv "${TMPDIR}/$(basename "${item}")" "${item}"
+        rm -r "${item}.bak"
       fi
     done
     rmdir "${TMPDIR}"
@@ -40,6 +41,7 @@ function compute_bs1770gain {
 
 function compute_r128gain {
   ! check_command r128gain && exit 3
+  local item
   if [ "${#}" -eq 1 ]; then
     if [[ "${KEEP}" = true ]]; then
       cp -r "${1}" "${BACKUPDIR}"
@@ -48,13 +50,13 @@ function compute_r128gain {
       r128gain -a -r "${1}"
     fi
   else
-    for ITEM in "${@}"; do
+    for item in "${@}"; do
       if [[ "${KEEP}" = true ]]; then
         mkdir -p "${BACKUPDIR}/"
-        cp -r "${ITEM}" "${BACKUPDIR}/$(basename "${ITEM}")"
-        r128gain -a -r "${ITEM}"
+        cp -r "${item}" "${BACKUPDIR}/$(basename "${item}")"
+        r128gain -a -r "${item}"
       else
-        r128gain -a -r "${ITEM}"
+        r128gain -a -r "${item}"
       fi
     done
   fi
