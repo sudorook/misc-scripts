@@ -63,6 +63,127 @@ function compute_r128gain {
   sync
 }
 
+function scan_track_ebur128 {
+  local data
+  local peak
+  local i
+
+  data="$(ffmpeg -v info -nostdin -nostats -hide_banner -i file:"./${1}" \
+    -map a -af ebur128=peak=true -f null - 2>&1)"
+
+  peak="$(echo "${data}" | \
+    tail -n 14 | \
+    sed -n '/^\s\+True peak:/{N;s/.*\s\+Peak:\s\+\([+0-9\.-]\+\) dBFS/\1/p}')"
+  i="$(echo "${data}" | \
+    tail -n 14 | \
+    sed -n '/^\s\+Integrated loudness:/{N;s/.*\s\+I:\s\+\([+0-9\.-]\+\) LUFS/\1/p}')"
+
+  echo "${peak}|${i}"
+}
+export -f scan_track_ebur128
+
+function scan_album_ebur128 {
+  local data
+  local peak
+  local i
+  local file
+  local cmd
+  local count=0
+
+  cmd="ffmpeg -v info -nostdin -nostats -hide_banner"
+  while read -r file; do
+    file="${file/#/\.\/}"
+    cmd="${cmd} -i file:${file@Q}"
+    count=$((count+1))
+  done <<< "$(find "${@}" -type f \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \))"
+  cmd="${cmd} -map a -filter_complex 'concat=n=${count}:v=0:a=1,ebur128=peak=true[o]' -map '[o]' -f null - 2>&1"
+  data="$(eval "${cmd}")"
+
+  peak="$(echo "${data}" | \
+    tail -n 14 | \
+    sed -n '/^\s\+True peak:/{N;s/.*\s\+Peak:\s\+\([+0-9\.-]\+\) dBFS/\1/p}')"
+  i="$(echo "${data}" | \
+    tail -n 14 | \
+    sed -n '/^\s\+Integrated loudness:/{N;s/.*\s\+I:\s\+\([+0-9\.-]\+\) LUFS/\1/p}')"
+
+  echo "${peak}|${i}"
+}
+export -f scan_album_ebur128
+
+function tag_track_ebur128 {
+  local file
+  local replaygain_album_gain
+  local replaygain_album_peak
+  local replaygain_track_gain
+  local replaygain_track_peak
+  local track_data
+  local codec
+  local tmp
+  tmp="$(mktemp)"
+
+  file="${1}"
+  replaygain_album_gain="${2}"
+  replaygain_album_peak="${3}"
+
+  track_data="$(scan_track_ebur128 "${file}")"
+  codec="$(ffprobe -v error -select_streams a -show_entries stream=codec_name -of compact=nokey=1 file:./"${file}")"
+  codec="$(echo "${codec}" | cut -d"|" -f2)"
+  replaygain_track_peak="$(echo "${track_data}" | cut -d"|" -f1)"
+  replaygain_track_gain="$(echo "${track_data}" | cut -d"|" -f2)"
+  replaygain_track_peak="$(echo "scale=6; e(l(10)*${replaygain_track_peak}/20)" | bc -l)"
+  replaygain_track_gain="$(echo "scale=2; -18-(${replaygain_track_gain}/1)" | bc -l)"
+
+  echo "Tagging ${file@Q}..." >&2
+  ffmpeg -v error -nostdin -nostats -hide_banner -i file:./"${file}" -map 0 -map_metadata 0 \
+    -metadata REPLAYGAIN_TRACK_GAIN="${replaygain_track_gain} dB" \
+    -metadata REPLAYGAIN_ALBUM_GAIN="${replaygain_album_gain} dB" \
+    -metadata REPLAYGAIN_TRACK_PEAK="${replaygain_track_peak}" \
+    -metadata REPLAYGAIN_ALBUM_PEAK="${replaygain_album_peak}" \
+    -c copy -f "${codec}" -y "${tmp}"
+  mv "${tmp}" "${file}"
+}
+export -f tag_track_ebur128
+
+function compute_ebur128gain {
+  ! check_command ffmpeg ffprobe bc && exit 3
+  local item
+
+  if [[ "${KEEP}" = true ]]; then
+    if [ "${#}" -eq 1 ]; then
+      cp -ra "${1}" "${BACKUPDIR}"
+    else
+      for item in "${@}"; do
+        mkdir -p "${BACKUPDIR}/"
+        cp -ra "${item}" "${BACKUPDIR}/$(basename "${item}")"
+      done
+    fi
+  fi
+
+  local album_data
+  local replaygain_album_gain
+  local replaygain_album_peak
+
+  echo "Calculating album gain..." >&2
+  album_data="$(scan_album_ebur128 "${@}")"
+  replaygain_album_peak="$(echo "${album_data}" | cut -d"|" -f1)"
+  replaygain_album_gain="$(echo "${album_data}" | cut -d"|" -f2)"
+  replaygain_album_peak="$(echo "scale=6; e(l(10)*${replaygain_album_peak}/20)" | bc -l)"
+  replaygain_album_gain="$(echo "scale=2; -18-(${replaygain_album_gain}/1)" | bc -l)"
+
+  if command -v parallel >/dev/null; then
+    find "${@}" \
+      -type f \
+      \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \) -print0 \
+      | parallel -0 "tag_track_ebur128 {} ${replaygain_album_gain} ${replaygain_album_peak}"
+  else
+    find "${@}" \
+      -type f \
+      \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \) -exec \
+      sh -c 'tag_track_ebur128 "${1}" '"${replaygain_album_gain} ${replaygain_album_peak}" sh {} \;
+  fi
+  sync
+}
+
 function check_inputs {
   local input
 
@@ -152,6 +273,9 @@ case "${GAIN}" in
     ;;
   r128gain)
     compute_r128gain "${@}"
+    ;;
+  ebur128gain|ebur128|ffmpeg)
+    compute_ebur128gain "${@}"
     ;;
   *)
     show_error "ERROR: ${GAIN@Q} not supported. Exiting."
