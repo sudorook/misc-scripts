@@ -137,7 +137,7 @@ function tag_track_loudnorm {
 export -f tag_track_loudnorm
 
 function compute_loudnormgain {
-  ! check_command ffmpeg ffprobe bc && exit 3
+  ! check_command ffmpeg ffprobe sed jq bc && exit 3
   local item
 
   if [[ "${KEEP}" = true ]]; then
@@ -258,7 +258,7 @@ function tag_track_ebur128 {
 export -f tag_track_ebur128
 
 function compute_ebur128gain {
-  ! check_command ffmpeg ffprobe bc && exit 3
+  ! check_command ffmpeg ffprobe bc sed && exit 3
   local item
 
   if [[ "${KEEP}" = true ]]; then
