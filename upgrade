@@ -232,7 +232,7 @@ function upgrade_zsh() {
           fi
         done
       else
-        show_warning "No zsh plugins found in ${zshdir}. Skipping."
+        show_warning "No zsh plugins found in ${zshdir@Q}. Skipping."
         echo
       fi
     fi
