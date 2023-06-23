@@ -10,7 +10,7 @@ source globals
 
 print_list() {
   ssh \
-    "${USER}"@"${REMOTE}" \
+    "${USER:+${USER}@}${REMOTE}" \
     'find '"${DIR@Q}/"' -type f \( -name "*.mkv" -o -name "*.mp4" -o -name "*.avi" \)'
 }
 
