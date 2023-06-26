@@ -580,6 +580,7 @@ fill_dimensions # must be called after scan_input has run
 check_compat    # check whether output codecs and compatible
 
 mv "${IN}" "${BACKUP}"
+sync
 
 # set traps
 if [[ "${IN_CONTAINER}" = "${OUT_CONTAINER}" ]]; then
