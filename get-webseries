@@ -79,7 +79,7 @@ case "${RESOLUTION}" in
   *)
     HEIGHT=800
     WIDTH=1300
-    show_warning "WARNING: Using 720p default."
+    show_warning "WARNING: ${RESOLUTION@Q} not supported. Defaulting to 720p."
     ;;
 esac
 
