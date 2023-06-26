@@ -51,7 +51,7 @@ function convert_codec {
   cmd="${cmd} -map 0:v:${VSTREAM_ID:-?}"
 
   if "${CROP}"; then
-    cmd="${cmd} -vf '$(compute_crop_filter "${BACKUP}")'"
+    cmd="${cmd} -vf '$(compute_crop_filter "${in}")'"
   fi
 
   # set video codec
@@ -123,7 +123,7 @@ function convert_codec {
         cmd="${cmd} -c:a libopus"
         if [ -n "${ASTREAM_ID}" ]; then
           cmd="${cmd} -b:a:0 $(set_audio_bitrate \
-                                 "${BACKUP}" \
+                                 "${in}" \
                                  "${IN_ASTREAM_CHANNEL_COUNT[${ASTREAM_ID}]}" \
                                  "${IN_ASTREAM_BITRATE[${ASTREAM_ID}]}")"
           if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${ASTREAM_ID}]}" = "5.1(side)" ]]; then
@@ -133,7 +133,7 @@ function convert_codec {
         else
           for idx in $(seq 0 $(( ${#IN_ASTREAM_CHANNEL_COUNT[@]} - 1 ))); do
             cmd="${cmd} -b:a:${idx} $(set_audio_bitrate \
-                                        "${BACKUP}" \
+                                        "${in}" \
                                         "${IN_ASTREAM_CHANNEL_COUNT[${idx}]}" \
                                         "${IN_ASTREAM_BITRATE[$idx]}")"
             if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${idx}]}" = "5.1(side)" ]]; then
