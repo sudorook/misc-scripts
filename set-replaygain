@@ -317,7 +317,7 @@ function print_usage {
   show_listitem \
     "  -k|--keep   flag to keep original files/directories (default: false)"
   show_listitem \
-    "  -g|--gain   loudness scanner (default: bs1770gain)"
+    "  -g|--gain   loudness scanner (*bs1770gain*, r128gain, loudnorm, or ebur128)"
   show_listitem \
     "  -h|--help   print (this) help message"
 }
