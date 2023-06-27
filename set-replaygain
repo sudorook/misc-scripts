@@ -122,7 +122,7 @@ function tag_track_loudnorm {
   codec="$(echo "${codec}" | cut -d"|" -f2)"
   replaygain_track_peak="$(echo "${track_data}" | cut -d"|" -f1)"
   replaygain_track_gain="$(echo "${track_data}" | cut -d"|" -f2)"
-  replaygain_track_peak="$(echo "scale=6; e(l(10)*${replaygain_track_peak}/20)" | bc -l)"
+  replaygain_track_peak="$(echo "scale=6; e(l(10)*${replaygain_track_peak}/20)" | bc -l | sed 's/^\./0./')"
   replaygain_track_gain="$(echo "scale=2; -18-(${replaygain_track_gain}/1)" | bc -l)"
 
   echo "Tagging ${file@Q}..." >&2
@@ -159,7 +159,7 @@ function compute_loudnormgain {
   album_data="$(scan_album_loudnorm "${@}")"
   replaygain_album_peak="$(echo "${album_data}" | cut -d"|" -f1)"
   replaygain_album_gain="$(echo "${album_data}" | cut -d"|" -f2)"
-  replaygain_album_peak="$(echo "scale=6; e(l(10)*${replaygain_album_peak}/20)" | bc -l)"
+  replaygain_album_peak="$(echo "scale=6; e(l(10)*${replaygain_album_peak}/20)" | bc -l | sed 's/^\./0./')"
   replaygain_album_gain="$(echo "scale=2; -18-(${replaygain_album_gain}/1)" | bc -l)"
 
   if command -v parallel >/dev/null; then
@@ -243,7 +243,7 @@ function tag_track_ebur128 {
   codec="$(echo "${codec}" | cut -d"|" -f2)"
   replaygain_track_peak="$(echo "${track_data}" | cut -d"|" -f1)"
   replaygain_track_gain="$(echo "${track_data}" | cut -d"|" -f2)"
-  replaygain_track_peak="$(echo "scale=6; e(l(10)*${replaygain_track_peak}/20)" | bc -l)"
+  replaygain_track_peak="$(echo "scale=6; e(l(10)*${replaygain_track_peak}/20)" | bc -l | sed 's/^\./0./')"
   replaygain_track_gain="$(echo "scale=2; -18-(${replaygain_track_gain}/1)" | bc -l)"
 
   echo "Tagging ${file@Q}..." >&2
@@ -280,7 +280,7 @@ function compute_ebur128gain {
   album_data="$(scan_album_ebur128 "${@}")"
   replaygain_album_peak="$(echo "${album_data}" | cut -d"|" -f1)"
   replaygain_album_gain="$(echo "${album_data}" | cut -d"|" -f2)"
-  replaygain_album_peak="$(echo "scale=6; e(l(10)*${replaygain_album_peak}/20)" | bc -l)"
+  replaygain_album_peak="$(echo "scale=6; e(l(10)*${replaygain_album_peak}/20)" | bc -l | sed 's/^\./0./')"
   replaygain_album_gain="$(echo "scale=2; -18-(${replaygain_album_gain}/1)" | bc -l)"
 
   if command -v parallel >/dev/null; then
