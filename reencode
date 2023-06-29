@@ -154,17 +154,19 @@ function convert_codec {
   esac
 
   # specify frame size if different from the input
-  if ! [[ "${IN_DIMENSIONS}" = "${OUT_DIMENSIONS}" ]]; then
-    # only add the size parameter if the output width/height are not larger
-    # that the corresponding input values
-    if [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f1)" -lt \
-          "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f1)" ]] || \
-       [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f2)" -lt \
-          "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f2)" ]]; then
-      show_warning \
-        "WARNING: Dimensions ${OUT_DIMENSIONS@Q} exceed input ${IN_DIMENSIONS@Q}."
-    else
-      cmd="${cmd} -s ${OUT_DIMENSIONS}"
+  if [[ -v IN_DIMENSIONS ]]; then
+    if ! [[ "${IN_DIMENSIONS}" = "${OUT_DIMENSIONS}" ]]; then
+      # only add the size parameter if the output width/height are not larger
+      # that the corresponding input values
+      if [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f1)" -lt \
+            "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f1)" ]] || \
+         [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f2)" -lt \
+            "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f2)" ]]; then
+        show_warning \
+          "WARNING: Dimensions ${OUT_DIMENSIONS@Q} exceed input ${IN_DIMENSIONS@Q}."
+      else
+        cmd="${cmd} -s ${OUT_DIMENSIONS}"
+      fi
     fi
   fi
 
@@ -447,17 +449,19 @@ function fill_dimensions {
   local out_width
   local out_height
 
-  if ! [[ -v OUT_DIMENSIONS ]]; then
-    OUT_DIMENSIONS="${IN_DIMENSIONS}"
-  else
-    out_width="$(echo "${OUT_DIMENSIONS}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\1,p")"
-    out_height="$(echo "${OUT_DIMENSIONS}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\2,p")"
-    if [ -z "${out_width}" ] && [ -n "${out_height}" ]; then
-      out_width="$(printf %.0f "$(echo "${out_height} * ${ASPECTRATIO}" | sed 's,:,/,g' | bc -l)")"
-    elif [ -n "${out_width}" ] && [ -z "${out_height}" ]; then
-      out_height="$(printf %.0f "$(echo "${out_width} / (${ASPECTRATIO})" | sed 's,:,/,g' | bc -l)")"
+  if [[ -v IN_DIMENSIONS ]]; then
+    if ! [[ -v OUT_DIMENSIONS ]]; then
+      OUT_DIMENSIONS="${IN_DIMENSIONS}"
+    else
+      out_width="$(echo "${OUT_DIMENSIONS}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\1,p")"
+      out_height="$(echo "${OUT_DIMENSIONS}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\2,p")"
+      if [ -z "${out_width}" ] && [ -n "${out_height}" ]; then
+        out_width="$(printf %.0f "$(echo "${out_height} * ${ASPECTRATIO}" | sed 's,:,/,g' | bc -l)")"
+      elif [ -n "${out_width}" ] && [ -z "${out_height}" ]; then
+        out_height="$(printf %.0f "$(echo "${out_width} / (${ASPECTRATIO})" | sed 's,:,/,g' | bc -l)")"
+      fi
+      OUT_DIMENSIONS="${out_width}x${out_height}"
     fi
-    OUT_DIMENSIONS="${out_width}x${out_height}"
   fi
 }
 
