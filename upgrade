@@ -258,23 +258,21 @@ function upgrade_rust() {
   else
     rustup self upgrade-data
     rustup update
-    sleep "$(rand_int 2 10)"
-  fi
-
-  if ! [ -d /usr/share/cargo/registry ]; then
-    show_info "Updating crates."
-    if [ -d "${projectdir}"/crate_dl ]; then
-      pushd "${projectdir}"/crate_dl >/dev/null
-      cargo fetch
-      popd >/dev/null
-    else
-      local tmpdir
-      tmpdir="$(mktemp -d)"
-      git clone --depth 1 https://github.com/sudorook/crate_dl.git "${tmpdir}"
-      pushd "${tmpdir}" >/dev/null
-      cargo fetch
-      popd >/dev/null
-      rm -rf "${tmpdir}"
+    if ! [ -d /usr/share/cargo/registry ]; then
+      show_info "Updating crates."
+      if [ -d "${projectdir}"/crate_dl ]; then
+        pushd "${projectdir}"/crate_dl >/dev/null
+        cargo fetch
+        popd >/dev/null
+      else
+        local tmpdir
+        tmpdir="$(mktemp -d)"
+        git clone --depth 1 https://github.com/sudorook/crate_dl.git "${tmpdir}"
+        pushd "${tmpdir}" >/dev/null
+        cargo fetch
+        popd >/dev/null
+        rm -rf "${tmpdir}"
+      fi
     fi
   fi
 
