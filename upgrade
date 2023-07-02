@@ -53,14 +53,16 @@ function upgrade_system() {
   command -v pacman >/dev/null 2>&1 && {
     show_header "Upgrading Arch Linux packages."
     sudo -k sh -c "pacman -Syu && paccache -r && paccache -ruk0"
-    echo && return 0
+    echo
+    return 0
   }
 
   # Debian, Ubuntu (apt)
   command -v apt >/dev/null 2>&1 && {
     show_header "Upgrading Debian packages."
     sudo -k sh -c "apt update && apt -y full-upgrade && apt -y autoremove"
-    echo && return 0
+    echo
+    return 0
   }
 }
 
