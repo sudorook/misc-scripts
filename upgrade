@@ -32,7 +32,7 @@ function git_update() {
   local h
   local u
   if [ -z "$(git -C "${1}" remote)" ]; then
-    show_warning "No remote is configured. Skipping..."
+    show_warning "No remote is configured. Skipping."
     return 1
   fi
   git -C "${1}" checkout master
