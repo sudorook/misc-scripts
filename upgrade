@@ -8,6 +8,18 @@ source globals
 # Functions
 #
 
+function check_command() { # overrides check_command() in globals
+  local state=true
+  local package
+  for package in "${@}"; do
+    if ! command -v "${package}" >/dev/null; then
+      show_error "Install ${package@Q} first. Skipping."
+      state=false
+    fi
+  done
+  "${state}" && return 0 || return 1
+}
+
 function rand_int() {
   local min
   local max
@@ -50,20 +62,20 @@ function print_usage() {
 
 function upgrade_system() {
   # Arch Linux (pacman)
-  command -v pacman >/dev/null 2>&1 && {
+  if check_command pacman; then
     show_header "Upgrading Arch Linux packages."
     sudo -k sh -c "pacman -Syu && paccache -r && paccache -ruk0"
     echo
     return 0
-  }
+  fi
 
   # Debian, Ubuntu (apt)
-  command -v apt >/dev/null 2>&1 && {
+  if check_command apt; then
     show_header "Upgrading Debian packages."
     sudo -k sh -c "apt update && apt -y full-upgrade && apt -y autoremove"
     echo
     return 0
-  }
+  fi
 }
 
 function upgrade_themes() {
@@ -167,10 +179,7 @@ vimpack=${HOME}/.vim/pack/dist/start
 function upgrade_vim_packages() {
   show_header "Upgrading Vim plugins."
   local dir
-  if ! command -v vim >/dev/null 2>&1; then
-    show_warning "Install Vim first. Skipping."
-    echo
-  else
+  if check_command vim; then
     if [ -d "${vimpack}" ]; then
       for dir in "${vimpack}"/*; do
         if git -C "${dir}" rev-parse 2>/dev/null; then
@@ -184,6 +193,8 @@ function upgrade_vim_packages() {
       show_warning "${vimpack@Q} does not exist. Skipping."
       echo
     fi
+  else
+    echo # for output text spacing
   fi
 }
 
@@ -191,10 +202,7 @@ nvimpack=${HOME}/.config/nvim/pack/dist/start
 function upgrade_nvim_packages() {
   show_header "Upgrading Neovim plugins."
   local dir
-  if ! command -v nvim >/dev/null 2>&1; then
-    show_warning "Install Neovim first. Skipping."
-    echo
-  else
+  if check_command nvim; then
     if [ -d "${nvimpack}" ]; then
       for dir in "${nvimpack}"/*; do
         if git -C "${dir}" rev-parse 2>/dev/null; then
@@ -208,16 +216,15 @@ function upgrade_nvim_packages() {
       show_warning "${nvimpack@Q} does not exist. Skipping."
       echo
     fi
+  else
+    echo # for output text spacing
   fi
 }
 
 function upgrade_zsh() {
   show_header "Upgrading zsh plugins."
   local dir
-  if ! command -v zsh >/dev/null 2>&1; then
-    show_warning "Install zsh first. Skipping."
-    echo
-  else
+  if check_command zsh; then
     # antigen-update may not be in the bash PATH, so check the zsh path if
     # 'command -v antigen' returns false.
     if zsh -ic "command -v antigen" >/dev/null 2>&1; then
@@ -238,26 +245,23 @@ function upgrade_zsh() {
         echo
       fi
     fi
+  else
+    echo # for output text spacing
   fi
 }
 
 function upgrade_julia_packages() {
   show_header "Upgrading Julia packages."
-  if ! command -v julia >/dev/null 2>&1; then
-    show_warning "Install julia first. Skipping."
-  else
+  if check_command julia; then
     julia -e "using Pkg; Pkg.update()"
     sleep "$(rand_int 2 10)"
   fi
-
   echo
 }
 
 function upgrade_rust() {
   show_header "Upgrading Rust compiler and components."
-  if ! command -v rustup >/dev/null 2>&1; then
-    show_warning "Install rustup first. Skipping."
-  else
+  if check_command rustup cargo; then
     rustup self upgrade-data
     rustup update
     if ! [ -d /usr/share/cargo/registry ]; then
@@ -277,25 +281,21 @@ function upgrade_rust() {
       fi
     fi
   fi
-
   echo
 }
 
 function upgrade_R() {
   show_header "Upgrading R packages."
-  if ! command -v Rscript >/dev/null 2>&1; then
-    show_warning "Install R first. Skipping."
-  else
+  if check_command Rscript; then
     Rscript -e \
       "update.packages(ask=FALSE, checkBuilt=TRUE, repos='https://cloud.r-project.org/')"
     sleep "$(rand_int 2 10)"
   fi
-
   echo
 }
 
 function upgrade_pkgbuild() {
-  command -v makepkg >/dev/null 2>&1 && {
+  if check_command makepkg; then
     show_header "Upgrading AUR pkgbuilds."
     local dir
     if [[ -v pkgbuilddir ]] && [[ -d "${pkgbuilddir}" ]]; then
@@ -313,8 +313,13 @@ function upgrade_pkgbuild() {
           echo
         fi
       done
+    else
+      show_warning "No PKGBUILDs found. Skipping."
+      echo
     fi
-  }
+  else
+    echo # for output text spacing
+  fi
 }
 
 weechatdir=${HOME}/.weechat/plugins
@@ -330,6 +335,9 @@ function upgrade_weechat_plugins {
         echo
       fi
     done
+  else
+    show_warning "No weechat plugin directory exists. Skipping."
+    echo
   fi
 }
 
