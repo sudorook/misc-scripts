@@ -50,7 +50,7 @@ check_command() {
   local package
   for package in "${@}"; do
     if ! command -v "${package}" >/dev/null; then
-      show_error "MISSING: ${package} not installed."
+      show_error "MISSING: ${package@Q} not installed."
       state=false
     fi
   done
