@@ -58,6 +58,7 @@ function print_usage() {
   show_listitem "  -n|--nvim      upgrade Git-versioned Neovim packages installed in ${nvimpack:-}"
   show_listitem "  -w|--weechat   upgrade wee-slack plugin for weechat in ${weechatdir:-}"
   show_listitem "  -z|--zsh       upgrade Zsh plugins in ${zshdir:-}"
+  show_listitem "  -x|--extra     execute custom upgrade rules"
 }
 
 function upgrade_system() {
