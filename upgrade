@@ -263,23 +263,27 @@ function upgrade_julia_packages() {
 function upgrade_rust() {
   show_header "Upgrading Rust compiler and components."
   if check_command rustup cargo; then
-    rustup self upgrade-data
-    rustup update
-    if ! [ -d /usr/share/cargo/registry ]; then
-      show_info "Updating crates."
-      if [ -d "${projectdir}"/crate_dl ]; then
-        pushd "${projectdir}"/crate_dl >/dev/null
-        cargo fetch
-        popd >/dev/null
-      else
-        local tmpdir
-        tmpdir="$(mktemp -d)"
-        git clone --depth 1 https://github.com/sudorook/crate_dl.git "${tmpdir}"
-        pushd "${tmpdir}" >/dev/null
-        cargo fetch
-        popd >/dev/null
-        rm -rf "${tmpdir}"
+    if ! [[ "$(rustup toolchain list)" = "no installed toolchains" ]]; then
+      rustup self upgrade-data
+      rustup update
+      if ! [ -d /usr/share/cargo/registry ]; then
+        show_info "Updating crates."
+        if [ -d "${projectdir}"/crate_dl ]; then
+          pushd "${projectdir}"/crate_dl >/dev/null
+          cargo fetch
+          popd >/dev/null
+        else
+          local tmpdir
+          tmpdir="$(mktemp -d)"
+          git clone --depth 1 https://github.com/sudorook/crate_dl.git "${tmpdir}"
+          pushd "${tmpdir}" >/dev/null
+          cargo fetch
+          popd >/dev/null
+          rm -rf "${tmpdir}"
+        fi
       fi
+    else
+      show_warning "No rust toolchain installed. Skipping."
     fi
   fi
   echo
