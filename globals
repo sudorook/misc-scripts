@@ -46,15 +46,19 @@ show_listitem() {
 export -f show_listitem
 
 check_command() {
-  local state=true
   local package
+  local missing=()
   for package in "${@}"; do
     if ! command -v "${package}" >/dev/null; then
-      show_error "MISSING: ${package@Q} not installed."
-      state=false
+      missing+=("${package}")
     fi
   done
-  "${state}" && return 0 || return 1
+  if [ ${#missing[@]} -eq 0 ]; then
+    return 0
+  else
+    show_error "MISSING: ${missing[*]@Q} not installed."
+    return 1
+  fi
 }
 export -f check_command
 
