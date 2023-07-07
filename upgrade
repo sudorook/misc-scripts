@@ -9,15 +9,19 @@ source globals
 #
 
 function check_command() { # overrides check_command() in globals
-  local state=true
   local package
+  local missing=()
   for package in "${@}"; do
     if ! command -v "${package}" >/dev/null; then
-      show_error "Install ${package@Q} first. Skipping."
-      state=false
+      missing+=("${package}")
     fi
   done
-  "${state}" && return 0 || return 1
+  if [ ${#missing[@]} -eq 0 ]; then
+    return 0
+  else
+    show_warning "Install ${missing[*]@Q} first. Skipping."
+    return 1
+  fi
 }
 
 function rand_int() {
