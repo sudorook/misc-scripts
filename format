@@ -8,7 +8,7 @@ function format_c() {
   ! check_command clang-format && exit 3
   local tmp
   tmp="$(mktemp)"
-  trap 'rm -f "${tmp}"' RETURN INT ERR EXIT TERM
+  trap 'rm -f "${tmp}"' INT ERR TERM
   if [ -f "${HOME}/.clang-format" ]; then
     clang-format "${1}" > "${tmp}"
   else
