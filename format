@@ -76,7 +76,7 @@ function format_wrapper() {
       ;;
   esac
 
-  show_success "${1@Q} done!" >&2
+  show_success "${lang@Q}: ${1@Q} done!" >&2
 }
 export -f format_wrapper
 
