@@ -488,6 +488,22 @@ function change_cinnamon_desktop_bg {
   esac
 }
 
+function change_kde_desktop_bg {
+  case "${ROTATION}" in
+    right|left)
+      plasma-apply-wallpaperimage "${VERTICAL_BG}"
+      ;;
+    normal|inverted)
+      plasma-apply-wallpaperimage "${HORIZONTAL_BG}"
+      ;;
+    *)
+      show_error "ERROR: invalid rotation ${ROTATION@Q}. Exiting."
+      print_usage
+      exit 3
+      ;;
+  esac
+}
+
 VERTICAL_BG="/usr/share/backgrounds/timed/24-hours-timed.xml"
 HORIZONTAL_BG="/usr/share/backgrounds/timed/island-timed.xml"
 CENTER=false
