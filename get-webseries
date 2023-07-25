@@ -59,9 +59,6 @@ while [ ${#} -ge 1 ]; do
 done
 
 # Prompt for inputs if they were not already specified on the command line.
-if ! [[ -v NAME ]]; then
-  NAME=$(ask_question "What is the name of the series?");
-fi
 if ! [[ -v URL ]]; then
   URL=$(ask_question "What is the URL?");
 fi
@@ -97,8 +94,8 @@ if ! [[ -v VIDEODIR ]]; then
   fi
 fi
 
-mkdir -p "${VIDEODIR}/${NAME}"
-cd "${VIDEODIR}/${NAME}"
+mkdir -p "${VIDEODIR}"
+cd "${VIDEODIR}"
 
 "${YTDL}" "${URL}" \
   --embed-thumbnail \
@@ -110,6 +107,6 @@ cd "${VIDEODIR}/${NAME}"
   --prefer-free-formats \
   --download-archive .archive.txt \
   -f "bestvideo[ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
-  -o "%(playlist_index)d %(title)s [%(id)s].%(ext)s" \
+  -o "${NAME:-"%(playlist_title)s"}/%(playlist_index)d %(title)s [%(id)s].%(ext)s" \
   --ignore-errors \
   --ignore-config
