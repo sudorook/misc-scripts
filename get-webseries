@@ -105,7 +105,7 @@ cd "${VIDEODIR}"
   --add-chapters \
   ${START:+--playlist-start "${START}"} \
   --prefer-free-formats \
-  --download-archive .archive.txt \
+  --download-archive "${NAME:+${NAME}/}".archive.txt \
   -f "bestvideo[ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
   -o "${NAME:-"%(playlist_title)s"}/%(playlist_index)d %(title)s [%(id)s].%(ext)s" \
   --ignore-errors \
