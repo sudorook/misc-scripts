@@ -10,6 +10,7 @@ source globals
 
 # Add read and write permissions to CSS files
 function set_rw {
+  find . -type d -exec chmod u+rwx,+rx {} \;
   find . -type f -iname "*.css" -exec chmod u+w,+r {} \;
 }
 
