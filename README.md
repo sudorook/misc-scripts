@@ -88,6 +88,7 @@ specific scripts.
 | encryptpath       | encrypted EncFS store (source)                  | `decrypt-secrets`, `encrypt-secrets`            |
 | decryptpath       | decrypted EncFS store (destination)             | `decrypt-secrets`, `encrypt-secrets`            |
 | gtkdir            | directory that contains sources for GTK themes  | `upgrade`                                       |
+| plasmadir         | directory containing Plasma themes source repos | `upgrade`                                       |
 | icondir           | directory that contains sources for icon themes | `upgrade`                                       |
 | thunderbirddir    | path to Thunderbird profile directory           | `upgrade`                                       |
 | zshdir            | where Zsh themes are downloaded                 | `upgrade`                                       |
