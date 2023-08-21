@@ -1,7 +1,7 @@
 # Miscellaneous scripts
 
 | Script             | Description                                                            |
-| :---:              | :---:                                                                  |
+| ------------------ | ---------------------------------------------------------------------- |
 | `add-cover`        | embeds images in audio files                                           |
 | `add-ovpn`         | `nmcli` wrapper for importing an OpenVPN configuration file            |
 | `add-subtitles`    | embed srt files into video                                             |
@@ -71,14 +71,13 @@
 | `wget-mirror`      | `wget` wrapper to create local mirror of website                       |
 | `write-entry`      | write a entry into your log                                            |
 
-
 ## Globals
 
 The `globals` file contains global variables that need to be set before running
 specific scripts.
 
 | Variable          | Description                                     | Required By                                     |
-| :---:             | :---:                                           | :---:                                           |
+| ----------------- | ----------------------------------------------- | ----------------------------------------------- |
 | archivedir        | destination for archive files                   | `archive`                                       |
 | backup1           | path to backup destination device               | `backup`                                        |
 | backup2           | path of device to mirror backup1                | `backup`                                        |
