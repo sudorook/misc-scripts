@@ -215,7 +215,7 @@ function print_usage {
   show_listitem "  -e|--end        last page number (default: end)"
   show_listitem "  -k|--keep       flag to keep intermediate files (default: false)"
   show_listitem "  -o|--output     output file name (optional)"
-  show_listitem "  -n|--normalize  resize 1st page to match otherd (default: false)"
+  show_listitem "  -n|--normalize  resize 1st page to match others (default: false)"
 }
 
 
