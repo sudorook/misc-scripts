@@ -3,7 +3,7 @@ set -Eeuo pipefail
 source globals
 source langs
 
-! check_command ffmpeg iconv chardetect uchardet bc && exit 3
+! check_command bc chardetect ffmpeg ffprobe find grep iconv sed uchardet && exit 3
 
 #
 # Globals

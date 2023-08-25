@@ -2,8 +2,7 @@
 set -euo pipefail
 source globals
 
-! check_command ffprobe mpv && exit 3
-
+! check_command ffprobe find mpv && exit 3
 
 #
 # Functions

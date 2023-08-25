@@ -2,7 +2,7 @@
 set -eu
 source globals
 
-! check_command xdg-mime && exit 3
+! check_command find xdg-mime && exit 3
 
 function format_c() {
   ! check_command clang-format && exit 3

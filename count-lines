@@ -2,6 +2,8 @@
 set -eu
 source globals
 
+! check_command find sed && exit 3
+
 #
 # Globals
 #

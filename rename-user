@@ -2,7 +2,7 @@
 set -euo pipefail
 source globals
 
-! check_command awk ps && exit 3
+! check_command awk find ps sed && exit 3
 
 #
 # Functions

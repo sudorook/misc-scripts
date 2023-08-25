@@ -2,6 +2,8 @@
 set -eu
 source globals
 
+! check_command find && exit 3
+
 KVMSHARE="${kvmshare:-${HOME}/.local/libvirt/share}"
 mkdir -p "${KVMSHARE}"
 find "${KVMSHARE}" -maxdepth 1 ! -path "${KVMSHARE}" -exec rm -rf -- '{}' +

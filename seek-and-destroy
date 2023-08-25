@@ -2,6 +2,8 @@
 set -euo pipefail
 source globals
 
+! check_command find && exit 3
+
 #
 # Global functions
 #

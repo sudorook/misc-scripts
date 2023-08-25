@@ -2,8 +2,7 @@
 set -euo pipefail
 source globals
 
-! check_command awk git && exit 3
-
+! check_command awk find git && exit 3
 
 #
 # Functions

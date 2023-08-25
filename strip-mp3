@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 source globals
 
-! check_command ffmpeg && exit 3
+! check_command ffmpeg find && exit 3
 
 #
 # Functions
