@@ -19,6 +19,12 @@ function format_c() {
 }
 export -f format_c
 
+function format_js() {
+  ! check_command prettier && exit 3
+  prettier -w "${1}"
+}
+export -f format_js
+
 function format_python() {
   ! check_command black && exit 3
   black -q -l 79 "${1}"
@@ -38,7 +44,7 @@ function format_wrapper() {
   # Parse mime-type and language
   mime="$(xdg-mime query filetype "${1}")"
   shopt -s extglob
-  mime="${mime/+(text\/)?(x-)?(script.)}"
+  mime="${mime/+(text\/|application\/)?(x-)?(script.)}"
   lang=${LANGUAGE:-${mime}}
   lang=${lang,,}
   lang="${lang//+(cpp)/c++}" # MIME types use 'c++', so convert 'cpp' strings.
@@ -64,6 +70,9 @@ function format_wrapper() {
       else
         show_warning "WARNING: skipping ${1@Q} parser/lexer." >&2
       fi
+      ;;
+    js|json)
+      format_js "${1}"
       ;;
     python|python3)
       format_python "${1}"
