@@ -296,11 +296,15 @@ function upgrade_rust() {
 function upgrade_R() {
   show_header "Upgrading R packages."
   if check_command Rscript; then
-    Rscript -e \
-      "update.packages(ask=FALSE,
-                       checkBuilt=TRUE,
-                       lib=\"${R_LIBS_USER}\",
-                       repos='https://cloud.r-project.org/')"
+    if [[ -v R_LIBS_USER ]]; then
+      Rscript -e \
+        "update.packages(ask=FALSE,
+                         checkBuilt=TRUE,
+                         lib=\"${R_LIBS_USER}\",
+                         repos='https://cloud.r-project.org/')"
+    else
+      show_warning "R_LIBS_USER is not set. Skipping."
+    fi
     sleep "$(rand_int 2 10)"
   fi
   echo
