@@ -297,7 +297,10 @@ function upgrade_R() {
   show_header "Upgrading R packages."
   if check_command Rscript; then
     Rscript -e \
-      "update.packages(ask=FALSE, checkBuilt=TRUE, repos='https://cloud.r-project.org/')"
+      "update.packages(ask=FALSE,
+                       checkBuilt=TRUE,
+                       lib=\"${R_LIBS_USER}\",
+                       repos='https://cloud.r-project.org/')"
     sleep "$(rand_int 2 10)"
   fi
   echo
