@@ -2,6 +2,8 @@
 set -eu
 source globals
 
+! check_command find && exit 3
+
 IN=("${@:-.}")
 
 find "${IN[@]}" -type f \( -name '*.sw[a-p]' -o -name '*.bak' -o -name '*~' \) \
