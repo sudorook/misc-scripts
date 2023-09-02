@@ -41,13 +41,14 @@ USER=
 PORT=22
 # PROTOCOL=sftp
 DIR=
+NUM=
 
 #
 # Parse command line variables.
 #
 
-OPTIONS="d:shr:u:"
-LONGOPTIONS=dir:,shuffle,help,remote:,user:
+OPTIONS="d:shn:r:u:"
+LONGOPTIONS=dir:,shuffle,help,num:,remote:,user:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -64,6 +65,10 @@ while [ ${#} -ge 1 ]; do
     -h|--help)
       print_usage
       exit
+      ;;
+    -n|--num)
+      NUM="${2}"
+      shift 2
       ;;
     -u|--user)
       USER="${2}"
@@ -105,10 +110,10 @@ if [ -z "${DIR}" ]; then
 fi
 
 if "${SHUFFLE}"; then
-  print_list | make_filename | \
+  print_list | head -n "${NUM:--0}" | make_filename | \
     mpv --shuffle --playlist=- --load-unsafe-playlists --prefetch-playlist
 else
   # `find` output is not in any particular order, so pipe though `sort` first
-  print_list | sort -V | make_filename | \
+  print_list | sort -V | head -n "${NUM:--0}" | make_filename | \
     mpv --playlist=- --load-unsafe-playlists --prefetch-playlist
 fi
