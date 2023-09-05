@@ -274,6 +274,7 @@ function upgrade_rust() {
         show_info "Updating crates."
         if [ -d "${projectdir}"/crate_dl ]; then
           pushd "${projectdir}"/crate_dl >/dev/null
+          rm -f Cargo.lock
           cargo fetch
           popd >/dev/null
         else
