@@ -46,7 +46,9 @@ function git_update() {
   if [ "${h}" = "${u}" ]; then
     return 1
   else
+    git -C "${1}" stash
     git -C "${1}" merge
+    git -C "${1}" stash pop
     return 0
   fi
 }
