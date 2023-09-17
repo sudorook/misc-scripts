@@ -32,24 +32,77 @@ function rand_int() {
   shuf -i"${min}-${max}" -n1
 }
 
+function is_git_dirty() {
+  if [ "${#}" -eq 0 ]; then
+    if [[ "$(git status --porcelain --untracked-files=no)" != "" ]]; then
+      return 0
+    else
+      return 1
+    fi
+  else
+    if [[ "$(git -C "${1}" status --porcelain --untracked-files=no)" != "" ]]; then
+      return 0
+    else
+      return 1
+    fi
+  fi
+}
+
 function git_update() {
   local h
   local u
+  local b
+  local d=false
+  local n=false
+
   if [ -z "$(git -C "${1}" remote)" ]; then
     show_warning "No remote is configured. Skipping."
     return 1
   fi
-  git -C "${1}" checkout master
+
+  # get current branch
+  b="$(git -C "${1}" branch --show-current)"
+
+  # check if repository is dirty
+  if is_git_dirty "${1}"; then
+    d=true
+  fi
+
+  # if dirty, stash changes on current branch
+  if "${d}"; then
+    git -C "${1}" stash
+  fi
+
+  # if not master branch, switch to it
+  if [[ "${b}" != "master" ]]; then
+    git -C "${1}" checkout master
+  fi
+
+  # fetch updates
   git -C "${1}" fetch --tags -f
+
+  # merge changes if local and remote HEAD differ
   h=$(git -C "${1}" rev-parse HEAD)
   u=$(git -C "${1}" rev-parse "@{u}")
-  if [ "${h}" = "${u}" ]; then
-    return 1
-  else
-    git -C "${1}" stash
+  if [ "${h}" != "${u}" ]; then
+    n=true
     git -C "${1}" merge
+  fi
+
+  # restore original checked-out branch
+  if [[ "${b}" != "master" ]]; then
+    git -C "${1}" checkout "${b}"
+  fi
+
+  # restore stashed changes
+  if "${d}"; then
     git -C "${1}" stash pop
+  fi
+
+  if "${n}"; then
     return 0
+  else
+    return 1
   fi
 }
 
