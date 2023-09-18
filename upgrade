@@ -143,86 +143,79 @@ function upgrade_themes() {
   show_header "Upgrading GTK, Plasma, and icon themes."
   local repo_name
   local dir
+  local branch
+  local dirty=false
 
+  local dirs=()
   if [[ -v gtkdir ]] && [ -d "${gtkdir}" ]; then
     for dir in "${gtkdir}"/*; do
       if git -C "${dir}" rev-parse 2>/dev/null; then
-        repo_name="$(basename "${dir}")"
-        show_info "${repo_name}"
-        if git_update "${dir}"; then
-          if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
-            pushd "${dir}" >/dev/null
-            git checkout tweak
-            git rebase master
-            git checkout master
-            popd >/dev/null
-          fi
-        fi
-        sleep "$(rand_int 2 10)"
-        echo
+        dirs+=("${dir}")
       fi
     done
   fi
-
   if [[ -v plasmadir ]] && [ -d "${plasmadir}" ]; then
     for dir in "${plasmadir}"/*; do
       if git -C "${dir}" rev-parse 2>/dev/null; then
-        repo_name="$(basename "${dir}")"
-        show_info "${repo_name}"
-        if git_update "${dir}"; then
-          if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
-            pushd "${dir}" >/dev/null
-            git checkout tweak
-            git rebase master
-            git checkout master
-            popd >/dev/null
-          fi
-        fi
-        sleep "$(rand_int 2 10)"
-        echo
+        dirs+=("${dir}")
+      fi
+    done
+  fi
+  if [[ -v icondir ]] && [ -d "${icondir}" ]; then
+    for dir in "${icondir}"/*; do
+      if git -C "${dir}" rev-parse 2>/dev/null; then
+        dirs+=("${dir}")
       fi
     done
   fi
 
-  if [[ -v icondir ]] && [ -d "${icondir}" ]; then
-    for dir in "${icondir}"/*; do
-      if git -C "${dir}" rev-parse 2>/dev/null; then
-        repo_name="$(basename "${dir}")"
-        show_info "${repo_name}"
-        if git_update "${dir}"; then
-          case "${repo_name}" in
-            papirus-icon-theme)
-              if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
-                pushd "${dir}" >/dev/null
-                git checkout tweak
-                git reset HEAD~1
-                git reset --hard
-                git clean -xdf
-                git rebase master
-                tools/_restore_adapta_icons.sh
-                sync
-                git add .
-                git commit -m "Mirror updates to Adapta icon set."
-                git checkout master
-                popd >/dev/null
-              fi
-              ;;
-            *)
-              if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
-                pushd "${dir}" >/dev/null
-                git checkout tweak
-                git rebase master
-                git checkout master
-                popd >/dev/null
-              fi
-              ;;
-          esac
-        fi
-        sleep "$(rand_int 2 10)"
-        echo
-      fi
-    done
-  fi
+  for dir in "${dirs[@]}"; do
+    repo_name="$(basename "${dir}")"
+    show_info "${repo_name}"
+    branch="$(git -C "${dir}" branch --show-current)"
+    if is_git_dirty "${dir}"; then
+      dirty=true
+    fi
+    if git_update "${dir}"; then
+      case "${repo_name}" in
+        papirus-icon-theme)
+          if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
+            pushd "${dir}" >/dev/null
+            git checkout tweak
+            git reset HEAD~1
+            git reset --hard
+            git clean -xdf
+            git rebase master
+            tools/_restore_adapta_icons.sh
+            sync
+            git add .
+            git commit -m "Mirror updates to Adapta icon set."
+            git checkout master
+            popd >/dev/null
+          fi
+          ;;
+        *)
+          if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
+            if "${dirty}"; then
+              git -C "${dir}" stash
+            fi
+            if [ "${branch}" != tweak ]; then
+              git -C "${dir}" checkout tweak
+            fi
+            git -C "${dir}" rebase master
+            if [ "${branch}" != tweak ]; then
+              git -C "${dir}" checkout "${branch}"
+            fi
+            if "${dirty}"; then
+              git -C "${dir}" stash pop
+            fi
+          fi
+          ;;
+      esac
+    fi
+    sleep "$(rand_int 2 10)"
+    echo
+  done
 
   if [[ -v thunderbirddir ]] && [[ -d "${thunderbirddir}/chrome" ]]; then
     show_info "$(basename "${thunderbirddir}") (thunderbird)"
