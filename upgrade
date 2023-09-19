@@ -308,12 +308,15 @@ function update_images() {
   show_header "Upgrading Podman images."
   local image
   if check_command podman; then
-    while read -r image; do
-      # echo "${image}"
-      podman image pull "${image}"
-    done <<< "$(podman image list --format "{{ .Repository }}")"
-    show_info "Pruning dangling images."
-    podman image prune --force
+    if [[ "$(podman image list --noheading)" = "" ]]; then
+      show_warning "No images installed. Skipping..."
+    else
+      while read -r image; do
+        podman image pull "${image}"
+      done <<< "$(podman image list --format "{{ .Repository }}")"
+      show_info "Pruning dangling images."
+      podman image prune --force
+    fi
   fi
   echo
 }
