@@ -27,6 +27,7 @@ print_usage() {
   show_listitem "  -r|--remote           IP address of SSH server"
   show_listitem "  -u|--user             SSH user name"
   show_listitem "  -d|--directory        remote directory to search over SSH"
+  show_listitem "  -n|--num              number of files to stream over SSH"
   show_listitem "  -h|--help             print (this) help message"
 }
 
