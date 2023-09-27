@@ -2,7 +2,7 @@
 set -euo pipefail
 source globals
 
-! check_command find mpv ssh sftp && exit 3
+! check_command find fzf mpv ssh sftp && exit 3
 
 #
 # Functions
@@ -12,6 +12,12 @@ print_list() {
   ssh \
     "${USER:+${USER}@}${REMOTE}" \
     'find '"${DIR@Q}/"' -type f \( -name "*.mkv" -o -name "*.mp4" -o -name "*.avi" \)'
+}
+
+print_fuzzy_dir() {
+  ssh \
+    "${USER:+${USER}@}${REMOTE}" \
+    'find '"${DIR@Q}"' -type d' | fzf --algo=v2 --filter="${QUERY}" | head -n 1
 }
 
 make_filename() {
@@ -27,6 +33,7 @@ print_usage() {
   show_listitem "  -r|--remote           IP address of SSH server"
   show_listitem "  -u|--user             SSH user name"
   show_listitem "  -d|--directory        remote directory to search over SSH"
+  show_listitem "  -q|--query            query string for searching remote directories"
   show_listitem "  -n|--num              number of files to stream over SSH"
   show_listitem "  -h|--help             print (this) help message"
 }
@@ -43,13 +50,14 @@ PORT=22
 # PROTOCOL=sftp
 DIR=
 NUM=
+QUERY=
 
 #
 # Parse command line variables.
 #
 
-OPTIONS="d:shn:r:u:"
-LONGOPTIONS=dir:,shuffle,help,num:,remote:,user:
+OPTIONS="d:shn:q:r:u:"
+LONGOPTIONS=dir:,shuffle,help,num:,query:,remote:,user:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -57,6 +65,10 @@ while [ ${#} -ge 1 ]; do
   case "${1}" in
     -d|--dir)
       DIR="${2}"
+      shift 2
+      ;;
+    -q|--query)
+      QUERY="${2}"
       shift 2
       ;;
     -s|--shuffle)
@@ -108,6 +120,10 @@ fi
 if [ -z "${DIR}" ]; then
   show_error "ERROR: No path specified. Exiting."
   exit 3
+fi
+
+if [ -n "${QUERY}" ]; then
+  DIR="$(print_fuzzy_dir || true)"
 fi
 
 if "${SHUFFLE}"; then
