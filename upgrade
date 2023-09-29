@@ -176,6 +176,8 @@ function upgrade_themes() {
     branch="$(git -C "${dir}" branch --show-current)"
     if is_git_dirty "${dir}"; then
       dirty=true
+    else
+      dirty=false
     fi
     if git_update "${dir}"; then
       case "${repo_name}" in
