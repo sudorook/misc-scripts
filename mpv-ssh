@@ -127,8 +127,8 @@ if [ -n "${QUERY}" ]; then
 fi
 
 if "${SHUFFLE}"; then
-  print_list | head -n "${NUM:--0}" | make_filename | \
-    mpv --shuffle --playlist=- --load-unsafe-playlists --prefetch-playlist=yes
+  print_list | shuf | head -n "${NUM:--0}" | make_filename | \
+    mpv --playlist=- --load-unsafe-playlists --prefetch-playlist=yes
 else
   # `find` output is not in any particular order, so pipe though `sort` first
   print_list | sort -V | head -n "${NUM:--0}" | make_filename | \
