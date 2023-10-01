@@ -10,6 +10,7 @@
 | `archive`          | tar a directory and output to ~/Desktop with a unique filename         |
 | `backup`           | backup home directory to external drive (up to 2 backups at once)      |
 | `battery-notify`   | use `notify-send` to display when the battery level is too high or low |
+| `cleanup`          | wrapper script for cleanup programs                                    |
 | `clipify`          | cut clips out of videos                                                |
 | `copy-playlist`    | copy files in a playlist (e.g. m3u) to a destination directory         |
 | `count-commits`    | count commits made by an author over specified period of time          |

@@ -1,0 +1,58 @@
+#! /bin/bash
+set -eu
+source globals
+
+function delete_directory() {
+  if [ -d "${1}" ]; then
+    rm -rvf "${1}"
+  fi
+}
+
+function delete_config_section() {
+  local header="${2}"
+  local file="${1}"
+  sed "/\[${header}\]/,/^\s*$/{d}" "${file}"
+}
+
+# KDE Clipboard
+if check_command qdbus; then
+  show_header "Clearing Klipper history."
+  qdbus org.kde.klipper /klipper org.kde.klipper.klipper.clearClipboardHistory
+  echo
+fi
+
+# Nvim undo
+show_header "Clearing Neovim undo history."
+delete_directory "${HOME}/.local/state/nvim/undo"
+echo
+
+# Vim undo
+show_header "Clearing Vim undo history."
+delete_directory "${HOME}/.vim/undo"
+echo
+
+# Recent files, etc.
+if check_command sweeper; then
+  show_header "Running sweeper."
+  sweeper --automatic
+  echo
+fi
+
+# Okular recent files
+# show_header "Clearing Okular history."
+# delete_config_section "${HOME}/.config/okularrc" "Recent Files"
+# echo
+
+# System-wide cleanup
+if check_command bleachbit; then
+  show_header "Running BleachBit (user)."
+  bleachbit -c --preset
+
+  show_header "Running BleachBit (root)."
+  sudo bleachbit -c --preset
+fi
+
+# Calibre trash
+show_header "Emptying Calibre trash."
+delete_directory "${HOME}/Documents/Library/.caltrash/"
+echo
