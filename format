@@ -25,6 +25,12 @@ function format_js() {
 }
 export -f format_js
 
+function format_markdown() {
+  ! check_command prettier && exit 3
+  prettier --loglevel silent --prose-wrap always -w "${1}"
+}
+export -f format_markdown
+
 function format_python() {
   ! check_command black && exit 3
   black -q -l 79 "${1}"
@@ -73,6 +79,9 @@ function format_wrapper() {
       ;;
     js|json)
       format_js "${1}"
+      ;;
+    markdown)
+      format_markdown "${1}"
       ;;
     python|python3)
       format_python "${1}"
