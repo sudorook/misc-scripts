@@ -12,12 +12,6 @@ function delete_directory() {
   fi
 }
 
-function delete_config_section() {
-  local header="${2}"
-  local file="${1}"
-  sed "/\[${header}\]/,/^\s*$/{d}" "${file}"
-}
-
 # KDE Clipboard
 if check_command qdbus; then
   show_header "Clearing Klipper history."
@@ -41,11 +35,6 @@ if check_command sweeper; then
   sweeper --automatic
 fi
 echo
-
-# Okular recent files
-# show_header "Clearing Okular history."
-# delete_config_section "${HOME}/.config/okularrc" "Recent Files"
-# echo
 
 # System-wide cleanup
 if check_command bleachbit; then
