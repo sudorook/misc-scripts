@@ -22,8 +22,8 @@ function delete_config_section() {
 if check_command qdbus; then
   show_header "Clearing Klipper history."
   qdbus org.kde.klipper /klipper org.kde.klipper.klipper.clearClipboardHistory
-  echo
 fi
+echo
 
 # Nvim undo
 delete_directory \
@@ -39,8 +39,8 @@ delete_directory \
 if check_command sweeper; then
   show_header "Running sweeper."
   sweeper --automatic
-  echo
 fi
+echo
 
 # Okular recent files
 # show_header "Clearing Okular history."
@@ -54,6 +54,8 @@ if check_command bleachbit; then
 
   show_header "Running BleachBit (root)."
   sudo bleachbit -c --preset
+else
+  echo
 fi
 
 # Calibre trash
