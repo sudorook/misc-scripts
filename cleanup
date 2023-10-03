@@ -4,7 +4,11 @@ source globals
 
 function delete_directory() {
   if [ -d "${1}" ]; then
+    if [[ -v 2 ]]; then
+      show_header "${2}"
+    fi
     rm -rvf "${1}"
+    echo
   fi
 }
 
@@ -22,14 +26,14 @@ if check_command qdbus; then
 fi
 
 # Nvim undo
-show_header "Clearing Neovim undo history."
-delete_directory "${HOME}/.local/state/nvim/undo"
-echo
+delete_directory \
+  "${HOME}/.local/state/nvim/undo" \
+  "Clearing Neovim undo history."
 
 # Vim undo
-show_header "Clearing Vim undo history."
-delete_directory "${HOME}/.vim/undo"
-echo
+delete_directory \
+  "${HOME}/.vim/undo" \
+  "Clearing Vim undo history."
 
 # Recent files, etc.
 if check_command sweeper; then
@@ -53,6 +57,6 @@ if check_command bleachbit; then
 fi
 
 # Calibre trash
-show_header "Emptying Calibre trash."
-delete_directory "${HOME}/Documents/Library/.caltrash/"
-echo
+delete_directory \
+  "${HOME}/Documents/Library/.caltrash/" \
+  "Emptying Calibre trash."
