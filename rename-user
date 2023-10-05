@@ -47,13 +47,13 @@ function is_old_user_valid() {
                 '{if (($3 >= mn) && ($3 <= mx)) print $1}')"
 
   if [[ "${all_sys}" =~ ${user} ]]; then
-    show_warning "${user} is a system user."
+    show_warning "${user@Q} is a system user."
     return 1
   fi
   if [[ "${all_user}" =~ ${user} ]]; then
     # Check that old user has no currently running processes.
     if ps -u "${user}" >/dev/null 2>&1; then
-      show_warning "User ${user} has running processes."
+      show_warning "User ${user@Q} has running processes."
       return 1
     else
       return 0
@@ -80,11 +80,11 @@ function is_new_user_valid() {
                 '{if (($3 >= mn) && ($3 <= mx)) print $1}')"
 
   if [[ "${all_sys}" =~ ${user} ]]; then
-    show_warning "${user} is a system user."
+    show_warning "${user@Q} is a system user."
     return 1
   fi
   if [[ "${all_user}" =~ ${user} ]]; then
-    show_warning "${user} already exists."
+    show_warning "${user@Q} already exists."
     return 1
   fi
   return 0
@@ -145,22 +145,22 @@ fi
 
 # Make sure that OLDNAME and NEWNAME entries are valid.
 if ! is_username_valid "${OLDNAME}"; then
-  show_error "ERROR: ${OLDNAME} is not a valid name. Exiting."
+  show_error "ERROR: ${OLDNAME@Q} is not a valid name. Exiting."
   exit 3
 fi
 
 if ! is_username_valid "${NEWNAME}"; then \
-  show_error "ERROR: ${NEWNAME} is not a valid name. Exiting."
+  show_error "ERROR: ${NEWNAME@Q} is not a valid name. Exiting."
   exit 3
 fi
 
 if ! is_old_user_valid "${OLDNAME}"; then
-  show_error "ERROR: ${OLDNAME} invalid. Exiting."
+  show_error "ERROR: ${OLDNAME@Q} invalid. Exiting."
   exit 3
 fi
 
 if ! is_new_user_valid "${NEWNAME}"; then
-  show_error "ERROR: ${NEWNAME} invalid. Exiting."
+  show_error "ERROR: ${NEWNAME@Q} invalid. Exiting."
   exit 3
 fi
 
