@@ -2,12 +2,12 @@
 set -eu
 source globals
 
-EXTENSION="${1##*.}"
-
-if ! [ -f "${1}" ]; then
+if ! [[ -v 1 ]] || ! [ -f "${1}" ]; then
   show_error "ERROR: ${1@Q} does not exist. Exiting."
   exit 1
 fi
+
+EXTENSION="${1##*.}"
 
 if [[ ${EXTENSION} =~ ^([R|r][MD|md|markdown|Markdown]*)$ ]]; then
   if check_command R; then
