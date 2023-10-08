@@ -3,12 +3,16 @@ set -eu
 source globals
 
 function delete_directory() {
+  local dir_owner
   if [ -d "${1}" ]; then
-    if [[ -v 2 ]]; then
-      show_header "${2}"
+    dir_owner="$(stat -c "%U" "${1}")"
+    if [[ "${USER}" = "${dir_owner}" ]]; then
+      if [[ -v 2 ]]; then
+        show_header "${2}"
+      fi
+      rm -rvf "${1}"
+      echo
     fi
-    rm -rvf "${1}"
-    echo
   fi
 }
 
