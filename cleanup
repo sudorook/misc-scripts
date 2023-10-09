@@ -38,10 +38,13 @@ delete_directory \
 
 # Recent files, etc.
 if check_command sweeper; then
-  show_header "Running sweeper."
-  sweeper --automatic
+  if [ -v DESKTOP_SESSION ]; then
+    show_header "Running sweeper."
+    echo sweeper --automatic
+  fi
+else
+  echo
 fi
-echo
 
 # System-wide cleanup
 if check_command bleachbit; then
