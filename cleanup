@@ -26,10 +26,10 @@ else
   echo
 fi
 
-# Nvim undo
+# Nvim state
 delete_directory \
-  "${HOME}/.local/state/nvim/undo" \
-  "Clearing Neovim undo history."
+  "${HOME}/.local/state/nvim" \
+  "Clearing Neovim state."
 
 # Vim undo
 delete_directory \
