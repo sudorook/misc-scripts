@@ -20,7 +20,8 @@ function delete_directory() {
 if check_command qdbus; then
   if qdbus >/dev/null 2>&1; then
     show_header "Clearing Klipper history."
-    echo qdbus org.kde.klipper /klipper org.kde.klipper.klipper.clearClipboardHistory
+    qdbus org.kde.klipper /klipper org.kde.klipper.klipper.clearClipboardHistory
+    echo
   fi
 else
   echo
@@ -40,7 +41,8 @@ delete_directory \
 if check_command sweeper; then
   if [ -v DESKTOP_SESSION ]; then
     show_header "Running sweeper."
-    echo sweeper --automatic
+    sweeper --automatic
+    echo
   fi
 else
   echo
@@ -49,7 +51,7 @@ fi
 # System-wide cleanup
 if check_command bleachbit; then
   show_header "Running BleachBit ($USER)."
-  echo bleachbit -c --preset
+  bleachbit -c --preset
 else
   echo
 fi
