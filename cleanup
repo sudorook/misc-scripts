@@ -48,11 +48,8 @@ fi
 
 # System-wide cleanup
 if check_command bleachbit; then
-  show_header "Running BleachBit (user)."
-  bleachbit -c --preset
-
-  show_header "Running BleachBit (root)."
-  sudo bleachbit -c --preset
+  show_header "Running BleachBit ($USER)."
+  echo bleachbit -c --preset
 else
   echo
 fi
