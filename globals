@@ -21,11 +21,13 @@ show_question() {
 }
 export -f show_question
 ask_question() {
+  local var
   read -r -p $'\033[1;34m'"$* "$'\033[0m' var
   echo "${var}"
 }
 export -f ask_question
 ask_secret() {
+  local var
   stty -echo
   read -r -p $'\033[1;34m'"$* "$'\033[0m' var
   stty echo
