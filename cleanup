@@ -50,8 +50,13 @@ fi
 
 # System-wide cleanup
 if check_command bleachbit; then
-  show_header "Running BleachBit ($USER)."
-  bleachbit -c --preset
+  if [ -f "${HOME}/.config/bleachbit/bleachbit.ini" ]; then
+    show_header "Running BleachBit ($USER)."
+    bleachbit -c --preset
+  else
+    show_warning "BleachBit not configured. Skipping."
+    echo
+  fi
 else
   echo
 fi
