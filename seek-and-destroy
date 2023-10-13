@@ -72,6 +72,7 @@ function seek {
             -o -path \"${HOME}/.go\" \
             -o -path \"${HOME}/.ipython\" \
             -o -path \"${HOME}/.julia\" \
+            -o -path \"${HOME}/.local/share/containers\" \
             -o -path \"${HOME}/.lyrics\" \
             -o -path \"${HOME}/.mozilla\" \
             -o -path \"${HOME}/.npm\" \
