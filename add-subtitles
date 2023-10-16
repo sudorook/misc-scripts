@@ -530,7 +530,7 @@ function backup_files {
   done
 
   if [ -d "${indir}/Subs" ]; then
-    rmdir "${indir}/Subs"
+    rmdir "${indir}/Subs" --ignore-fail-on-non-empty
   fi
 }
 
