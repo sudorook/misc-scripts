@@ -124,6 +124,10 @@ fi
 
 if [ -n "${QUERY}" ]; then
   DIR="$(print_fuzzy_dir || true)"
+  if [ -z "${DIR}" ]; then
+    show_error "ERROR: Failed to find search directory. Exiting."
+    exit 3
+  fi
 fi
 
 if "${SHUFFLE}"; then
