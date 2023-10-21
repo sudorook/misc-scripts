@@ -176,8 +176,10 @@ function convert_codec {
       # convert subtitle format to mov_text for mp4 output
       if [[ "${IN_CONTAINER}" = "${OUT_CONTAINER}" ]]; then
         cmd="${cmd} -map 0:s:? -c:s copy"
-      else
+      elif [[ "${IN_SCODEC}" = 94213 ]]; then
         cmd="${cmd} -map 0:s:? -c:s mov_text"
+      else
+        cmd="${cmd} -map 0:s:? -c:s copy"
       fi
       ;;
     matroska|mkv)
