@@ -260,8 +260,11 @@ function scan_input {
 
   format_name="$(echo "${fstring}" | sed -n "s/^format_name=\(.*\)/\1/p")"
   case "${format_name}" in
-    matroska|mkv|matroska,webm|webm)
+    matroska|mkv)
       IN_CONTAINER=matroska
+      ;;
+    matroska,webm|webm)
+      IN_CONTAINER=webm
       ;;
     mp4|mov,mp4,m4a,3gp,3g2,mj2|m4a|mov|mpegts)
       IN_CONTAINER=mp4
@@ -282,7 +285,14 @@ function scan_input {
   esac
 
   if ! [[ -v OUT_CONTAINER ]]; then
-    OUT_CONTAINER="${IN_CONTAINER}"
+    case "${IN_CONTAINER}" in
+      matroska,webm|webm)
+        OUT_CONTAINER=matroska
+        ;;
+      *)
+        OUT_CONTAINER="${IN_CONTAINER}"
+        ;;
+    esac
   fi
 
   # IN_VCODEC="$(echo "${vstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
