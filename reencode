@@ -277,6 +277,9 @@ function scan_input {
     avi)
       IN_CONTAINER=avi
       ;;
+    ogg)
+      IN_CONTAINER=ogg
+      ;;
     flac)
       IN_CONTAINER=flac
       ;;
