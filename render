@@ -9,20 +9,24 @@ fi
 
 EXTENSION="${1##*.}"
 
-if [[ ${EXTENSION} =~ ^([R|r][MD|md|markdown|Markdown]*)$ ]]; then
-  if check_command R; then
-    R -q -e "if (require(rmarkdown)) { options(encoding='UTF-8'); render('${1}') }"
-  fi
-fi
-
-if [[ ${EXTENSION} =~ ^(tex)$ ]]; then
-  if check_command lualatex; then
-    lualatex -shell-escape "${1}"
-  fi
-fi
-
-if [[ ${EXTENSION} =~ ^([J|j][MD|md|markdown|Markdown]*)$ ]]; then
-  if check_command julia; then
-    julia -e "using Weave; weave(\"${1}\")"
-  fi
-fi
+case "${EXTENSION,,}" in
+  rmd|rmarkdown)
+    if check_command R; then
+      R -q -e "if (require(rmarkdown)) { options(encoding='UTF-8'); render('${1}') }"
+    fi
+    ;;
+  tex|latex)
+    if check_command lualatex; then
+      lualatex -shell-escape "${1}"
+    fi
+    ;;
+  jmd|jmarkdown)
+    if check_command julia; then
+      julia -e "using Weave; weave(\"${1}\")"
+    fi
+    ;;
+  *)
+    show_error "${EXTENSION@Q} not supported. Exiting."
+    exit 3
+    ;;
+esac
