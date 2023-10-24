@@ -6,46 +6,46 @@ source globals
 
 function set_swap_on {
   # Create swapfile if it doesn't exist.
-  if ! [ -f /swapfile ]; then
-    show_info "Creating /swapfile"
-    dd if=/dev/zero of=/swapfile bs=1M count=16384 status=progress
+  if ! [ -f "${SWAPFILE}" ]; then
+    show_info "Creating ${SWAPFILE@Q}"
+    dd if=/dev/zero of="${SWAPFILE}" bs=1M count=16384 status=progress
     sync
   fi
 
   # Set permissions.
-  if [[ "$(stat -c "%a" /swapfile)" != 600 ]]; then
-    show_info "Setting /swapfile permissions"
-    chmod 0600 /swapfile
+  if [[ "$(stat -c "%a" "${SWAPFILE}")" != 600 ]]; then
+    show_info "Setting ${SWAPFILE@Q} permissions"
+    chmod 0600 "${SWAPFILE}"
   fi
 
   # Create UUID.
-  if ! blkid -o value /swapfile | grep -q "^swap$"; then
-    show_info "Setting /swapfile UUID"
-    mkswap -U clear /swapfile
+  if ! blkid -o value "${SWAPFILE}" | grep -q "^swap$"; then
+    show_info "Setting ${SWAPFILE@Q} UUID"
+    mkswap -U clear "${SWAPFILE}"
   fi
 
   # Check if swap partition active. If not run
-  if ! swapon --show | grep -q '^/swapfile\s'; then
-    show_info "Activating /swapfile"
-    swapon /swapfile
+  if ! swapon --show | grep -q "^${SWAPFILE}\s"; then
+    show_info "Activating ${SWAPFILE@Q}"
+    swapon "${SWAPFILE}"
   fi
 }
 
 function set_swap_off {
   # Disable swap partition if it is active.
-  if swapon --show | grep -q '^/swapfile\s'; then
+  if swapon --show | grep -q "^${SWAPFILE}\s"; then
     show_info "Flushing cache"
     sync
     [ -e /proc/sys/vm/drop_caches ] && echo 3 > /proc/sys/vm/drop_caches
     sync
-    show_info "Deactivating /swapfile"
-    swapoff /swapfile
+    show_info "Deactivating ${SWAPFILE@Q}"
+    swapoff "${SWAPFILE}"
   fi
 
   # Delete swap file if it exists.
-  if [ -f /swapfile ]; then
-    show_info "Deleting /swapfile"
-    rm /swapfile
+  if [ -f "${SWAPFILE}" ]; then
+    show_info "Deleting ${SWAPFILE@Q}"
+    rm "${SWAPFILE}"
   fi
 }
 
@@ -57,6 +57,8 @@ if ! [ "${#}" -eq 1 ]; then
   show_error "ERROR: Incorrect # of parameters. Exiting."
   exit 3
 fi
+
+SWAPFILE=/swapfile
 
 case "${1}" in
   on)
