@@ -19,7 +19,7 @@ function set_swap_on {
   fi
 
   # Create UUID.
-  if ! blkid -o value /swapfile | grep -q ^swap$; then
+  if ! blkid -o value /swapfile | grep -q "^swap$"; then
     show_info "Setting /swapfile UUID"
     mkswap -U clear /swapfile
   fi
