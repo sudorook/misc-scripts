@@ -5,6 +5,13 @@ source globals
 ! check_command blkid grep swapon && exit 3
 
 function set_swap_on {
+  # Create destination dir for swap file if it doesn't exist."
+  local swapdir
+  swapdir="$(dirname "${SWAPFILE}")"
+  if [ "${swapdir}" != '/' ] && ! [ -d "${swapdir}" ]; then
+    mkdir -p "${swapdir}"
+  fi
+
   # Create swapfile if it doesn't exist.
   if ! [ -f "${SWAPFILE}" ]; then
     show_info "Creating ${SWAPFILE@Q}"
