@@ -46,19 +46,11 @@ function find_todo {
   local cmd
 
   for file in "${FILES[@]}"; do
-    if [[ ! -v files ]]; then
-      files="-iname ${file}"
-    else
-      files="${files} -o -iname ${file}"
-    fi
+    files="${files:+${files} -o }-iname ${file}"
   done
 
   for ignore in "${IGNORES[@]}"; do
-    if [[ ! -v ignores ]]; then
-      ignores="-name ${ignore@Q}"
-    else
-      ignores="${ignores} -o -name ${ignore@Q}"
-    fi
+    ignores="${ignores:+${ignores} -o }-name ${ignore@Q}"
   done
 
   cmd="find ${PROJECTDIR@Q} \( ${ignores} \) -prune , \( ${files} \) -exec bash -c 'print_todo \"\${1}\"' bash {} \;"
