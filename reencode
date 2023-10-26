@@ -236,6 +236,17 @@ function convert_codec {
       cmd="${cmd} -f flac"
       out="${NAME}.flac"
       ;;
+    opus)
+      if [ "${#IN_VSTREAM_CODEC_NAME[@]}" -eq 0 ] || [ "${VSTREAM_ID}" -eq -1 ]; then
+        cmd="${cmd} -f opus"
+        out="${NAME}.opus"
+      else
+        show_warning "WARNING: Opus does not support video streams. Switching to Matroska."
+        OUT_CONTAINER=mka
+        cmd="${cmd} -f matroska"
+        out="${NAME}.mka"
+      fi
+      ;;
     *)
       show_error "ERROR: Container ${OUT_CONTAINER@Q} not supported. Exiting."
       exit 3
@@ -424,6 +435,9 @@ function parse_container {
       ;;
     flac|FLAC)
       OUT_CONTAINER=flac
+      ;;
+    opus|Opus)
+      OUT_CONTAINER=opus
       ;;
     *)
       show_error "ERROR: Output ${1@Q} containers not supported. Exiting."
