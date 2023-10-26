@@ -224,6 +224,10 @@ function convert_codec {
       cmd="${cmd} -f matroska"
       out="${NAME}.mkv"
       ;;
+    mka)
+      cmd="${cmd} -f matroska"
+      out="${NAME}.mka"
+      ;;
     mp4)
       cmd="${cmd} -movflags +faststart -f mp4"
       out="${NAME}.mp4"
