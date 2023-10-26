@@ -282,8 +282,6 @@ function scan_input {
   _ffprobe="${_ffprobe}${ANALYZEDURATION:+ -analyzeduration ${ANALYZEDURATION}}"
 
   fstring="$(eval "${_ffprobe} -v error -show_format file:${IN@Q}")"
-  # sstring="$(eval "${_ffprobe} -v error \
-  #              -select_streams s:0 -show_streams file:${IN@Q}")"
   sstring="$(eval "${_ffprobe} -v error -select_streams s:0 -show_streams file:${IN@Q}")"
 
   format_name="$(echo "${fstring}" | sed -n "s/^format_name=\(.*\)/\1/p")"
@@ -326,8 +324,6 @@ function scan_input {
     esac
   fi
 
-  # IN_VCODEC="$(echo "${vstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
-  # IN_ACODEC="$(echo "${astring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
   IN_SCODEC="$(echo "${sstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
 
   IN_VSTREAM_CODEC_NAME=()
@@ -360,20 +356,11 @@ function scan_input {
     OUT_VCODEC=copy
   fi
   if ! [[ -v OUT_ACODEC ]]; then
-    # OUT_ACODEC="${IN_ACODEC}"
     OUT_ACODEC=copy
   fi
   if ! [[ -v OUT_SCODEC ]]; then
     OUT_SCODEC=copy
   fi
-  # if ! [[ -v OUT_SCODEC ]]; then
-  #   # OUT_SCODEC="${IN_SCODEC}"
-  #   if [[ "${IN_SCODEC}" = 94213 ]] && [[ "${OUT_CONTAINER}" = matroska ]]; then
-  #     OUT_SCODEC=srt
-  #   else
-  #     OUT_SCODEC=copy
-  #   fi
-  # fi
 
   # use first video stream to get display properties
   for idx in $(seq 0 $(( ${#IN_VSTREAM_CODEC_NAME[@]} - 1 ))); do
