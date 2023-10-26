@@ -13,6 +13,8 @@ A_BITRATE_PER_STREAM=64
 NO_DEFAULT_SUBS=false
 CROP=false
 
+PROBESIZE=1G
+ANALYZEDURATION=1G
 
 #
 # Functions
@@ -43,7 +45,9 @@ function convert_codec {
   local cmd
   local idx
 
-  cmd="ffmpeg -v info -i file:${in@Q} -map_chapters 0 -map_metadata 0"
+  cmd="ffmpeg${PROBESIZE:+ -probesize ${PROBESIZE}}"
+  cmd="${cmd}${ANALYZEDURATION:+ -analyzeduration ${ANALYZEDURATION}}"
+  cmd="${cmd} -v info -i file:${in@Q} -map_chapters 0 -map_metadata 0"
   if [[ "${NO_DEFAULT_SUBS}" = true ]]; then
     cmd="${cmd} -default_mode infer_no_subs -disposition:s -default"
   fi
@@ -254,11 +258,14 @@ function scan_input {
   local format_name
   local idx
 
-  fstring="$(ffprobe -v error -show_format file:"${IN}")"
-  # vstring="$(ffprobe -v error \
-  #              -select_streams v:0 -show_streams file:"${IN}")"
-  sstring="$(ffprobe -v error \
-               -select_streams s:0 -show_streams file:"${IN}")"
+  local _ffprobe="ffprobe"
+  _ffprobe="${_ffprobe}${PROBESIZE:+ -probesize ${PROBESIZE}}"
+  _ffprobe="${_ffprobe}${ANALYZEDURATION:+ -analyzeduration ${ANALYZEDURATION}}"
+
+  fstring="$(eval "${_ffprobe} -v error -show_format file:${IN@Q}")"
+  # sstring="$(eval "${_ffprobe} -v error \
+  #              -select_streams s:0 -show_streams file:${IN@Q}")"
+  sstring="$(eval "${_ffprobe} -v error -select_streams s:0 -show_streams file:${IN@Q}")"
 
   format_name="$(echo "${fstring}" | sed -n "s/^format_name=\(.*\)/\1/p")"
   case "${format_name}" in
@@ -313,10 +320,10 @@ function scan_input {
     IN_VSTREAM_WIDTH+=("$(echo "${vstring}" | cut -d"|" -f4)")
     IN_VSTREAM_HEIGHT+=("$(echo "${vstring}" | cut -d"|" -f5)")
     IN_VSTREAM_DISPLAY_ASPECT_RATIO+=("$(echo "${vstring}" | cut -d"|" -f6)")
-  done <<< "$(ffprobe -v error \
+  done <<< "$(eval "${_ffprobe} -v error \
                 -select_streams v \
                 -show_entries stream=codec_type,codec_name,width,height,display_aspect_ratio \
-                -of compact=nokey=1 file:"${IN}")"
+                -of compact=nokey=1 file:${IN@Q}")"
 
   IN_ASTREAM_CHANNEL_COUNT=()
   IN_ASTREAM_CHANNEL_LAYOUT=()
@@ -325,10 +332,10 @@ function scan_input {
     IN_ASTREAM_CHANNEL_COUNT+=("$(echo "${astring}" | cut -d"|" -f3)")
     IN_ASTREAM_CHANNEL_LAYOUT+=("$(echo "${astring}" | cut -d"|" -f4)")
     IN_ASTREAM_BITRATE+=("$(echo "${astring}" | cut -d"|" -f5)")
-  done <<< "$(ffprobe -v error \
+  done <<< "$(eval "${_ffprobe} -v error \
                 -select_streams a \
                 -show_entries stream=codec_type,channels,channel_layout,bit_rate \
-                -of compact=nokey=1 file:"${IN}")"
+                -of compact=nokey=1 file:${IN@Q}")"
 
   if ! [[ -v OUT_VCODEC ]]; then
     OUT_VCODEC=copy
