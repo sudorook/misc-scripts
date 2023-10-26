@@ -52,110 +52,114 @@ function convert_codec {
     cmd="${cmd} -default_mode infer_no_subs -disposition:s -default"
   fi
 
-  cmd="${cmd} -map 0:v:${VSTREAM_ID:-?}"
+  if ! [ "${VSTREAM_ID}" -eq -1 ]; then
+    cmd="${cmd} -map 0:v:${VSTREAM_ID:-?}"
 
-  if "${CROP}"; then
-    cmd="${cmd} -vf '$(compute_crop_filter "${in}")'"
+    if "${CROP}"; then
+      cmd="${cmd} -vf '$(compute_crop_filter "${in}")'"
+    fi
+
+    # set video codec
+    if [ -n "${VSTREAM_ID}" ]; then
+      case "${OUT_VCODEC}" in
+        h264|x264|libx264|h.264|x.264)
+          cmd="${cmd} -c:v:${VSTREAM_ID} libx264 -x264-params crf=${CRF} -preset slow"
+          ;;
+        h265|x265|libx265|h.265|x.265)
+          cmd="${cmd} -c:v:${VSTREAM_ID} libx265 -x265-params crf=${CRF} -preset slow"
+          ;;
+        copy)
+          cmd="${cmd} -c:v:${VSTREAM_ID} copy"
+          ;;
+        *)
+          show_error "ERROR: video codec ${OUT_VCODEC@Q} is not supported. Exiting."
+          exit 3
+          ;;
+      esac
+    else
+      for idx in $(seq 0 $(( ${#IN_VSTREAM_CODEC_NAME[@]} - 1 ))); do
+        if ! [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]]; then
+          case "${OUT_VCODEC}" in
+            h264|x264|libx264|h.264|x.264)
+              cmd="${cmd} -c:v:${idx} libx264 -x264-params crf=${CRF} -preset slow"
+              ;;
+            h265|x265|libx265|h.265|x.265)
+              cmd="${cmd} -c:v:${idx} libx265 -x265-params crf=${CRF} -preset slow"
+              ;;
+            copy)
+              cmd="${cmd} -c:v:${idx} copy"
+              ;;
+            *)
+              show_error "ERROR: video codec ${OUT_VCODEC@Q} is not supported. Exiting."
+              exit 3
+              ;;
+          esac
+        else
+          cmd="${cmd} -c:v:${idx} copy"
+        fi
+      done
+    fi
   fi
 
-  # set video codec
-  if [ -n "${VSTREAM_ID}" ]; then
-    case "${OUT_VCODEC}" in
-      h264|x264|libx264|h.264|x.264)
-        cmd="${cmd} -c:v:${VSTREAM_ID} libx264 -x264-params crf=${CRF} -preset slow"
+  if ! [ "${ASTREAM_ID}" -eq -1 ]; then
+    cmd="${cmd} -map 0:a:${ASTREAM_ID:-?}"
+
+    # set audio codec
+    case "${OUT_ACODEC}" in
+      libfdk_aac|aac)
+        # this only works for ffmpeg manually compiled with libfdk_aac
+        if [[ -v OUT_ABITRATE ]]; then
+          cmd="${cmd} -c:a libfdk_aac -b:a ${OUT_ABITRATE}"
+        else
+          cmd="${cmd} -c:a libfdk_aac -vbr 5"
+        fi
         ;;
-      h265|x265|libx265|h.265|x.265)
-        cmd="${cmd} -c:v:${VSTREAM_ID} libx265 -x265-params crf=${CRF} -preset slow"
+      libmp3lame|mp3lame|mp3)
+        if [[ -v OUT_ABITRATE ]]; then
+          cmd="${cmd} -c:a libmp3lame -b:a ${OUT_ABITRATE}"
+        else
+          cmd="${cmd} -c:a libmp3lame -b:a 320k"
+        fi
+        ;;
+      libopus|opus)
+        if [[ -v OUT_ABITRATE ]]; then
+          cmd="${cmd} -c:a libopus -b:a ${OUT_ABITRATE}"
+        else
+          # set computed bitrates individually for each channel because input
+          # channels can have different bitrates and channel layouts
+          cmd="${cmd} -c:a libopus"
+          if [ -n "${ASTREAM_ID}" ]; then
+            cmd="${cmd} -b:a:0 $(set_audio_bitrate \
+                                  "${in}" \
+                                  "${IN_ASTREAM_CHANNEL_COUNT[${ASTREAM_ID}]}" \
+                                  "${IN_ASTREAM_BITRATE[${ASTREAM_ID}]}")"
+            if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${ASTREAM_ID}]}" = "5.1(side)" ]]; then
+              show_warning "WARNING: converting layout from 5.1(side) to 5.1."
+              cmd="${cmd} -channel_layout:a:${ASTREAM_ID} 5.1"
+            fi
+          else
+            for idx in $(seq 0 $(( ${#IN_ASTREAM_CHANNEL_COUNT[@]} - 1 ))); do
+              cmd="${cmd} -b:a:${idx} $(set_audio_bitrate \
+                                          "${in}" \
+                                          "${IN_ASTREAM_CHANNEL_COUNT[${idx}]}" \
+                                          "${IN_ASTREAM_BITRATE[$idx]}")"
+              if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${idx}]}" = "5.1(side)" ]]; then
+                show_warning "WARNING: converting layout from 5.1(side) to 5.1."
+                cmd="${cmd} -channel_layout:a:${idx} 5.1"
+              fi
+            done
+          fi
+        fi
         ;;
       copy)
-        cmd="${cmd} -c:v:${VSTREAM_ID} copy"
+        cmd="${cmd} -c:a copy"
         ;;
       *)
-        show_error "ERROR: video codec ${OUT_VCODEC@Q} is not supported. Exiting."
+        show_error "ERROR: audio codec ${OUT_ACODEC@Q} not supported. Exiting."
         exit 3
         ;;
     esac
-  else
-    for idx in $(seq 0 $(( ${#IN_VSTREAM_CODEC_NAME[@]} - 1 ))); do
-      if ! [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]]; then
-        case "${OUT_VCODEC}" in
-          h264|x264|libx264|h.264|x.264)
-            cmd="${cmd} -c:v:${idx} libx264 -x264-params crf=${CRF} -preset slow"
-            ;;
-          h265|x265|libx265|h.265|x.265)
-            cmd="${cmd} -c:v:${idx} libx265 -x265-params crf=${CRF} -preset slow"
-            ;;
-          copy)
-            cmd="${cmd} -c:v:${idx} copy"
-            ;;
-          *)
-            show_error "ERROR: video codec ${OUT_VCODEC@Q} is not supported. Exiting."
-            exit 3
-            ;;
-        esac
-      else
-        cmd="${cmd} -c:v:${idx} copy"
-      fi
-    done
   fi
-
-  cmd="${cmd} -map 0:a:${ASTREAM_ID:-?}"
-
-  # set audio codec
-  case "${OUT_ACODEC}" in
-    libfdk_aac|aac)
-      # this only works for ffmpeg manually compiled with libfdk_aac
-      if [[ -v OUT_ABITRATE ]]; then
-        cmd="${cmd} -c:a libfdk_aac -b:a ${OUT_ABITRATE}"
-      else
-        cmd="${cmd} -c:a libfdk_aac -vbr 5"
-      fi
-      ;;
-    libmp3lame|mp3lame|mp3)
-      if [[ -v OUT_ABITRATE ]]; then
-        cmd="${cmd} -c:a libmp3lame -b:a ${OUT_ABITRATE}"
-      else
-        cmd="${cmd} -c:a libmp3lame -b:a 320k"
-      fi
-      ;;
-    libopus|opus)
-      if [[ -v OUT_ABITRATE ]]; then
-        cmd="${cmd} -c:a libopus -b:a ${OUT_ABITRATE}"
-      else
-        # set computed bitrates individually for each channel because input
-        # channels can have different bitrates and channel layouts
-        cmd="${cmd} -c:a libopus"
-        if [ -n "${ASTREAM_ID}" ]; then
-          cmd="${cmd} -b:a:0 $(set_audio_bitrate \
-                                 "${in}" \
-                                 "${IN_ASTREAM_CHANNEL_COUNT[${ASTREAM_ID}]}" \
-                                 "${IN_ASTREAM_BITRATE[${ASTREAM_ID}]}")"
-          if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${ASTREAM_ID}]}" = "5.1(side)" ]]; then
-            show_warning "WARNING: converting layout from 5.1(side) to 5.1."
-            cmd="${cmd} -channel_layout:a:${ASTREAM_ID} 5.1"
-          fi
-        else
-          for idx in $(seq 0 $(( ${#IN_ASTREAM_CHANNEL_COUNT[@]} - 1 ))); do
-            cmd="${cmd} -b:a:${idx} $(set_audio_bitrate \
-                                        "${in}" \
-                                        "${IN_ASTREAM_CHANNEL_COUNT[${idx}]}" \
-                                        "${IN_ASTREAM_BITRATE[$idx]}")"
-            if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${idx}]}" = "5.1(side)" ]]; then
-              show_warning "WARNING: converting layout from 5.1(side) to 5.1."
-              cmd="${cmd} -channel_layout:a:${idx} 5.1"
-            fi
-          done
-        fi
-      fi
-      ;;
-    copy)
-      cmd="${cmd} -c:a copy"
-      ;;
-    *)
-      show_error "ERROR: audio codec ${OUT_ACODEC@Q} not supported. Exiting."
-      exit 3
-      ;;
-  esac
 
   # specify frame size if different from the input
   if [[ -v IN_DIMENSIONS ]]; then
