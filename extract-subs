@@ -43,7 +43,7 @@ function parse_streams {
 }
 
 function extract_streams {
-  local cmd="ffmpeg -v warning"
+  local cmd="ffmpeg -probesize 1G -analyzeduration 1G -v warning"
   local tmp
   local out
   for i in $(seq 0 $(( ${#TITLES[@]} - 1))); do
