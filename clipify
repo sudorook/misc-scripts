@@ -18,10 +18,10 @@ function scan_input {
   local vstring
   local sstring
 
-  fstring="$(ffprobe -v error -show_format file:"${IN}")"
-  vstring="$(ffprobe -v error \
+  fstring="$(ffprobe -probesize 1G -analyzeduration 1G -v error -show_format file:"${IN}")"
+  vstring="$(ffprobe -probesize 1G -analyzeduration 1G -v error \
                -select_streams v:0 -show_streams file:"${IN}")"
-  sstring="$(ffprobe -v error \
+  sstring="$(ffprobe -probesize 1G -analyzeduration 1G -v error \
                -select_streams s:0 -show_streams file:"${IN}")"
 
   if ! [[ -v VCODEC ]]; then
@@ -54,7 +54,7 @@ function scan_input {
 }
 
 function make_clip {
-  cmd="ffmpeg -v info -y -i file:${IN@Q} -ss ${START}"
+  cmd="ffmpeg -probesize 1G -analyzeduration 1G -v info -i file:${IN@Q} -ss ${START}"
   if [[ -v LENGTH ]]; then
     cmd="${cmd} -t ${LENGTH}"
   elif [[ -v END ]]; then
