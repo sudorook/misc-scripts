@@ -119,14 +119,14 @@ function strip_generic {
     esac
   done
 
-  case "${container}" in
-    mkv|MKV|matroska|Matroska)
+  case "${container,,}" in
+    mkv|matroska)
       cmd="${cmd} -f matroska -y ${TMP}"
       ;;
-    mp4|MP4)
+    mp4)
       cmd="${cmd} -f mp4 -y ${TMP}"
       ;;
-    avi|AVI)
+    avi)
       cmd="${cmd} -f avi -y ${TMP}"
       ;;
     *)
