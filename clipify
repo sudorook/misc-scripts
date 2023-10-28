@@ -60,7 +60,7 @@ function make_clip {
   elif [[ -v END ]]; then
     cmd="${cmd} -to ${END}"
   fi
-  cmd="${cmd} -y file:${OUT@Q}"
+  cmd="${cmd} -c copy -y file:${OUT@Q}"
   eval "${cmd}"
 }
 
