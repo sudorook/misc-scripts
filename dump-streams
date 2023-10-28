@@ -5,7 +5,7 @@ source globals
 ! check_command ffmpeg ffprobe sed && exit 3
 
 function get_stream_count {
-  ffprobe -v error -show_format file:"${1}" | \
+  ffprobe -analyzeduration 1G -probesize 1G -v error -show_format file:"${1}" | \
     sed -n "s/nb_streams=\([0-9]\+\)/\1/p" 2>/dev/null
 }
 
@@ -14,7 +14,7 @@ function pick_container {
   local format_name
   local container_type
 
-  format="$(ffprobe -v error -show_format file:"${1}")"
+  format="$(ffprobe -analyzeduration 1G -probesize 1G -v error -show_format file:"${1}")"
   format_name="$(echo "${format}" | sed -n "s/^format_name=\(.*\)/\1/p")"
 
   if [[ "${format_name}" =~ matroska ]]; then
