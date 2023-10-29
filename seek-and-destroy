@@ -34,20 +34,12 @@ function seek {
   case ${MODE} in
     precise)
       for item in "${@}"; do
-        if [ -z "${inputstring}" ]; then
-          inputstring="-iname \"${item}\" -o -iname \".${item}\""
-        else
-          inputstring="${inputstring} -o -iname \"${item}\" -o -iname \".${item}\""
-        fi
+        inputstring="${inputstring:+${inputstring} -o }-iname \"${item}\" -o -iname \".${item}\""
       done
       ;;
     sloppy)
       for item in "${@}"; do
-        if [ -z "${inputstring}" ]; then
-          inputstring="-iname \"*${item}*\" -o -iname \".*${item}*\""
-        else
-          inputstring="${inputstring} -o -iname \"*${item}*\" -o -iname \".*${item}*\""
-        fi
+        inputstring="${inputstring:+${inputstring} -o }-iname \"*${item}*\" -o -iname \".*${item}*\""
       done
       ;;
     *)
