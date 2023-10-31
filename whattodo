@@ -30,7 +30,7 @@ PROJECTDIR="${projectdir:-${HOME}}"
 
 function print_todo {
   local file="${1}"
-  show_info "${file}"
+  show_header "${file//${HOME}\/}"
   cat "${file}"
   echo && echo
 }
