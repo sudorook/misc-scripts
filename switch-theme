@@ -25,7 +25,7 @@ switch_dconf_gnome_theme() {
   ! check_command dconf && return
   dconf write /org/gnome/desktop/wm/preferences/theme "'${1}'"
   dconf write /org/gnome/desktop/interface/gtk-theme "'${1}'"
-  gnome-extensions enable "user-theme@gnome-shell-extensions.gcampax.github.com" || true >/dev/null
+  gnome-extensions enable "user-theme@gnome-shell-extensions.gcampax.github.com" || true > /dev/null
   if [[ "${1}" =~ "-Lighter" ]]; then
     dconf write /org/gnome/shell/extensions/user-theme/name "'${1%-*}'"
   else
@@ -43,14 +43,14 @@ switch_plasma_theme() {
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
       kvantummanager --set Arc
       ;;
-    arcdark|arc-dark)
+    arcdark | arc-dark)
       ! check_command kvantummanager && return
       plasma-apply-lookandfeel -a com.github.sudorook.arc-dark
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Arc-Dark"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
       kvantummanager --set ArcDark
       ;;
-    arc-darker|arcdarker)
+    arc-darker | arcdarker)
       ! check_command kvantummanager && return
       plasma-apply-lookandfeel -a com.github.sudorook.arc-darker
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Arc-Darker"
@@ -64,14 +64,14 @@ switch_plasma_theme() {
       sudo kwriteconfig5 --file "/etc/sddm.conf.d/kde_settings.conf" --group Theme --key Current "breeze"
       sudo kwriteconfig5 --file "/etc/sddm.conf.d/kde_settings.conf" --group Theme --key CursorTheme "breeze_cursors"
       ;;
-    breeze-dark|breezedark)
+    breeze-dark | breezedark)
       plasma-apply-lookandfeel -a org.kde.breezedark.desktop
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Breeze"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "Breeze"
       sudo kwriteconfig5 --file "/etc/sddm.conf.d/kde_settings.conf" --group Theme --key Current "breeze"
       sudo kwriteconfig5 --file "/etc/sddm.conf.d/kde_settings.conf" --group Theme --key CursorTheme "breeze_cursors"
       ;;
-    breeze-twilight|breezetwilight)
+    breeze-twilight | breezetwilight)
       plasma-apply-lookandfeel -a org.kde.breezetwilight.desktop
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Breeze"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "Breeze"
@@ -85,14 +85,14 @@ switch_plasma_theme() {
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
       kvantummanager --set Materia
       ;;
-    materiadark|materia-dark)
+    materiadark | materia-dark)
       ! check_command kvantummanager && return
       plasma-apply-lookandfeel -a com.github.sudorook.materia-dark
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Materia-dark"
       kwriteconfig5 --file kdeglobals --group "KDE" --key "widgetStyle" "kvantum"
       kvantummanager --set MateriaDark
       ;;
-    materialight|materia-light)
+    materialight | materia-light)
       ! check_command kvantummanager && return
       plasma-apply-lookandfeel -a com.github.sudorook.materia-light
       qdbus org.kde.GtkConfig /GtkConfig org.kde.GtkConfig.setGtkTheme "Materia-light"
@@ -139,13 +139,13 @@ switch_gnome_terminal_profile() {
     if [ "${name}" = "'${1}'" ]; then
       dconf write /org/gnome/terminal/legacy/profiles:/default "'${ids[${idx}]}'"
     fi
-    idx=$((idx+1))
+    idx=$((idx + 1))
   done
 }
 
 switch_vim_theme() {
   if [ -f "${HOME}/.vimrc" ]; then
-    sed -i "s/^set background=.*$/set background=${1//[0-9]}/g" "${HOME}/.vimrc"
+    sed -i "s/^set background=.*$/set background=${1//[0-9]/}/g" "${HOME}/.vimrc"
     sed -i "s/^  let g:colorific_style='.*'$/  let g:colorific_style='${1}'/g" "${HOME}/.vimrc"
     sed -i "s/^set bg=.*$/set bg=${1}/g" "${HOME}/.vimrc"
   fi
@@ -153,7 +153,7 @@ switch_vim_theme() {
 
 switch_neovim_theme() {
   if [ -f "${HOME}/.config/nvim/init.vim" ]; then
-    sed -i "s/^set background=.*$/set background=${1//[0-9]}/g" "${HOME}/.config/nvim/init.vim"
+    sed -i "s/^set background=.*$/set background=${1//[0-9]/}/g" "${HOME}/.config/nvim/init.vim"
     sed -i "s/^  let g:colorific_style='.*'$/  let g:colorific_style='${1}'/g" "${HOME}/.config/nvim/init.vim"
     sed -i "s/^set bg=.*$/set bg=${1}/g" "${HOME}/.config/nvim/init.vim"
   fi
@@ -251,7 +251,7 @@ set_theme() {
     X-Cinnamon)
       switch_dconf_cinnamon_theme "${1}"
       ;;
-    ubuntu:GNOME|GNOME)
+    ubuntu:GNOME | GNOME)
       switch_dconf_gnome_theme "${1}"
       ;;
     KDE)
@@ -267,7 +267,7 @@ set_theme() {
   switch_xprofile_gtk_theme "${1}"
 
   case "${1,,}" in
-    adapta-nokto|adapta-nokto-eta|adaptanokto|adaptanoktoeta)
+    adapta-nokto | adapta-nokto-eta | adaptanokto | adaptanoktoeta)
       switch_gtk_settings "Dark"
       switch_gnome_terminal_profile "Dark"
       switch_alacritty_theme "dark"
@@ -279,7 +279,7 @@ set_theme() {
       switch_gitk_theme "dark"
       switch_ebook_viewer_theme "Dark"
       ;;
-    arc-dark|arcdark)
+    arc-dark | arcdark)
       switch_gtk_settings "Dark"
       switch_gnome_terminal_profile "Dark"
       switch_alacritty_theme "dark3"
@@ -291,7 +291,7 @@ set_theme() {
       switch_gitk_theme "dark3"
       switch_ebook_viewer_theme "Dark"
       ;;
-    plata-noir|platanoir|plata-noir-compact|platanoircompact|materia|materia-dark|materiadark|breeze-dark|breezedark)
+    plata-noir | platanoir | plata-noir-compact | platanoircompact | materia | materia-dark | materiadark | breeze-dark | breezedark)
       switch_gtk_settings "Dark"
       switch_gnome_terminal_profile "Dark"
       switch_alacritty_theme "dark2"
@@ -303,7 +303,7 @@ set_theme() {
       switch_gitk_theme "dark2"
       switch_ebook_viewer_theme "Dark"
       ;;
-    adapta|adapta-eta|adaptaeta)
+    adapta | adapta-eta | adaptaeta)
       switch_gtk_settings "Light"
       switch_gnome_terminal_profile "Light"
       switch_alacritty_theme "light"
@@ -315,7 +315,7 @@ set_theme() {
       switch_gitk_theme "light"
       switch_ebook_viewer_theme "Light"
       ;;
-    arc|arc-lighter|arclighter|arc-darker|arcdarker|arc-solid|arcsolid|arc-lighter-solid|arclightersolid|arc-dark-solid|arcdarksolid)
+    arc | arc-lighter | arclighter | arc-darker | arcdarker | arc-solid | arcsolid | arc-lighter-solid | arclightersolid | arc-dark-solid | arcdarksolid)
       switch_gtk_settings "Light"
       switch_gnome_terminal_profile "Light"
       switch_alacritty_theme "light3"
@@ -327,7 +327,7 @@ set_theme() {
       switch_gitk_theme "light3"
       switch_ebook_viewer_theme "Light"
       ;;
-    materia-light|materialight|breeze|breeze-twilight|breezetwilight)
+    materia-light | materialight | breeze | breeze-twilight | breezetwilight)
       switch_gtk_settings "Light"
       switch_gnome_terminal_profile "Light"
       switch_alacritty_theme "light2"
@@ -352,7 +352,7 @@ set_icon_theme() {
     X-Cinnamon)
       dconf write /org/cinnamon/desktop/interface/icon-theme "'${1}'"
       ;;
-    ubuntu:GNOME|GNOME)
+    ubuntu:GNOME | GNOME)
       dconf write /org/gnome/desktop/interface/icon-theme "'${1}'"
       ;;
     KDE)
@@ -369,22 +369,22 @@ set_icon_theme() {
         breeze)
           "${exec_changeicons}" "breeze"
           ;;
-        breeze-dark|breezedark)
+        breeze-dark | breezedark)
           "${exec_changeicons}" "breeze-dark"
           ;;
         epapirus)
           "${exec_changeicons}" "ePapirus"
           ;;
-        epapirus-dark|epapirusdark)
+        epapirus-dark | epapirusdark)
           "${exec_changeicons}" "ePapirus-Dark"
           ;;
         papirus)
           "${exec_changeicons}" "Papirus"
           ;;
-        papirus-dark|papirusdark)
+        papirus-dark | papirusdark)
           "${exec_changeicons}" "Papirus-Dark"
           ;;
-        papirus-light|papiruslight)
+        papirus-light | papiruslight)
           "${exec_changeicons}" "Papirus-Light"
           ;;
         *)
@@ -419,15 +419,15 @@ eval set -- "${PARSED}"
 get_gnome_terminal_profiles
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -t|--theme)
+    -t | --theme)
       set_theme "${2}"
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;
-    -i|--icon)
+    -i | --icon)
       set_icon_theme "${2}"
       shift 2
       ;;

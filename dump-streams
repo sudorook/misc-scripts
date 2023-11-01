@@ -5,8 +5,8 @@ source globals
 ! check_command ffmpeg ffprobe sed && exit 3
 
 function get_stream_count {
-  ffprobe -analyzeduration 1G -probesize 1G -v error -show_format file:"${1}" | \
-    sed -n "s/nb_streams=\([0-9]\+\)/\1/p" 2>/dev/null
+  ffprobe -analyzeduration 1G -probesize 1G -v error -show_format file:"${1}" |
+    sed -n "s/nb_streams=\([0-9]\+\)/\1/p" 2> /dev/null
 }
 
 function pick_container {
@@ -70,7 +70,7 @@ function dump_stream {
           fi
           cmd="${cmd} -c copy file:${out@Q} -y"
           ;;
-        mov_text|srt|subrip)
+        mov_text | srt | subrip)
           out="${name}_${idx}.srt"
           cmd="${cmd} -c subrip file:${out@Q} -y"
           ;;
@@ -107,7 +107,6 @@ function dump_stream {
       ;;
   esac
 }
-
 
 #
 # Main

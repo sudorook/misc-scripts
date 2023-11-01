@@ -62,102 +62,102 @@ parse_date() {
     IFS='-' read -r -a string_array_part2 <<< "${item}"
     for item2 in "${string_array_part2[@]}"; do
       case "${item2}" in
-        one|1)
+        one | 1)
           digits=${digits}+1
           ;;
-        two|2)
+        two | 2)
           digits=${digits}+2
           ;;
-        three|3)
+        three | 3)
           digits=${digits}+3
           ;;
-        four|4)
+        four | 4)
           digits=${digits}+4
           ;;
-        five|5)
+        five | 5)
           digits=${digits}+5
           ;;
-        six|6)
+        six | 6)
           digits=${digits}+6
           ;;
-        seven|7)
+        seven | 7)
           digits=${digits}+7
           ;;
-        eight|8)
+        eight | 8)
           digits=${digits}+8
           ;;
-        nine|9)
+        nine | 9)
           digits=${digits}+9
           ;;
-        ten|10)
+        ten | 10)
           digits=${digits}+10
           ;;
-        eleven|11)
+        eleven | 11)
           digits=${digits}+11
           ;;
-        twelve|12)
+        twelve | 12)
           digits=${digits}+12
           ;;
-        thirteen|13)
+        thirteen | 13)
           digits=${digits}+13
           ;;
-        fourteen|14)
+        fourteen | 14)
           digits=${digits}+14
           ;;
-        fifteen|15)
+        fifteen | 15)
           digits=${digits}+15
           ;;
-        sixteen|16)
+        sixteen | 16)
           digits=${digits}+16
           ;;
-        seventeen|17)
+        seventeen | 17)
           digits=${digits}+17
           ;;
-        eighteen|18)
+        eighteen | 18)
           digits=${digits}+18
           ;;
-        nineteen|19)
+        nineteen | 19)
           digits=${digits}+19
           ;;
-        twenty|20)
+        twenty | 20)
           digits=${digits}+20
           ;;
-        thirty|30)
+        thirty | 30)
           digits=${digits}+30
           ;;
-        forty|40)
+        forty | 40)
           digits=${digits}+40
           ;;
-        fifty|50)
+        fifty | 50)
           digits=${digits}+50
           ;;
-        sixty|60)
+        sixty | 60)
           digits=${digits}+60
           ;;
-        seventy|70)
+        seventy | 70)
           digits=${digits}+70
           ;;
-        eighty|80)
+        eighty | 80)
           digits=${digits}+80
           ;;
-        ninety|90)
+        ninety | 90)
           digits=${digits}+90
           ;;
-        hundred|100)
+        hundred | 100)
           digits="${digits}*100"
           ;;
-        thousand|1000|1,000)
+        thousand | 1000 | 1,000)
           digits="${digits}*1000"
           ;;
-        million|1000000|1,000,000)
+        million | 1000000 | 1,000,000)
           digits="${digits}*1000000"
           ;;
-      ago)
-        prefix="-"
-        ;;
-      *)
-        suffix="${suffix:+${suffix} }${item2}"
-        ;;
+        ago)
+          prefix="-"
+          ;;
+        *)
+          suffix="${suffix:+${suffix} }${item2}"
+          ;;
       esac
     done
   done
@@ -181,27 +181,27 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -a|--author)
+    -a | --author)
       AUTHOR=${2}
       shift 2
       ;;
-    -e|--email)
+    -e | --email)
       EMAIL=${2}
       shift 2
       ;;
-    -d|--depth)
+    -d | --depth)
       DEPTH=${2}
       shift 2
       ;;
-    -s|--since)
+    -s | --since)
       SINCE="$(parse_date "${2}")"
       shift 2
       ;;
-    -u|--until)
+    -u | --until)
       UNTIL="$(parse_date "${2}")"
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;
@@ -224,7 +224,7 @@ export UNTIL
 projectdir="${projectdir:-${HOME}}"
 PROJECTDIR=("${@:-${projectdir}}")
 
-if [ ${#} -eq 1 ] && git -C "${1}" log >/dev/null 2>&1; then
+if [ ${#} -eq 1 ] && git -C "${1}" log > /dev/null 2>&1; then
   get_count "${1}" | awk '{s+=$1}END{print s}'
 else
   find -L "${PROJECTDIR[@]}" ${DEPTH:+-maxdepth ${DEPTH}} -type d -name ".git" \

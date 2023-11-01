@@ -16,19 +16,19 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -i|--input)
+    -i | --input)
       INPUT=${2}
       shift 2
       ;;
-    -d|--dest)
+    -d | --dest)
       DEST=${2}
       shift 2
       ;;
-    -m|--music)
+    -m | --music)
       MUSIC=${2}
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;

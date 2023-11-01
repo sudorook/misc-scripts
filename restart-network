@@ -24,7 +24,7 @@ source globals
 ! check_command macchanger && exit 3
 
 function print_interfaces {
-  ip link show | grep "^[0-9]" | grep -v "virbr\|tun\|lo" | \
+  ip link show | grep "^[0-9]" | grep -v "virbr\|tun\|lo" |
     cut -d ":" -f2 | sed -e 's/^\s\(.*\)$/  \1/g'
 }
 

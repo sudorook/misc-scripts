@@ -15,11 +15,11 @@ eval set -- "${PARSED}"
 ISBACKUP=false
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -b|--backup)
+    -b | --backup)
       ISBACKUP=true
       shift 1
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;

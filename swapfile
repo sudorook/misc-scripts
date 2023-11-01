@@ -82,7 +82,7 @@ case "${1}" in
       sudo bash -c "source globals; $(declare -f set_swap_off); set_swap_off"
     fi
     ;;
-  help|--help|-h)
+  help | --help | -h)
     print_usage
     ;;
   *)

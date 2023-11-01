@@ -10,14 +10,14 @@ function make_string_v1 {
   local count=0
 
   for fontfile in "${1}"/*; do
-    fonttype="$(file "${fontfile}" | \
+    fonttype="$(file "${fontfile}" |
                 sed -n "s|^${fontfile}: \([A-Za-z]\+\) [F|f]ont .*|\1|p")"
     if [[ "${fonttype}" = "OpenType" ]]; then
       fontstring+="-attach \"${fontfile}\" -metadata:s:t:${count} mimetype=application/vnd.ms-opentype "
-      count=$(( count + 1 ))
+      count=$((count + 1))
     elif [[ "${fonttype}" = "TrueType" ]]; then
       fontstring+="-attach \"${fontfile}\" -metadata:s:t:${count} mimetype=application/x-truetype-font "
-      count=$(( count + 1 ))
+      count=$((count + 1))
     fi
   done
   echo "${fontstring}"
@@ -30,7 +30,7 @@ function make_string_v2 {
   local fonttype
 
   for fontfile in "${1}"/*; do
-    fonttype="$(file "${fontfile}" | \
+    fonttype="$(file "${fontfile}" |
                 sed -n "s|^${fontfile}: \([A-Za-z]\+\) [F|f]ont .*|\1|p")"
     if [[ "${fonttype}" = "OpenType" ]]; then
       fontstring+="-attach \"${fontfile}\" -metadata:s:t mimetype=application/vnd.ms-opentype "
@@ -60,15 +60,15 @@ function make_string_v3 {
     fontfile="$(basename "${fontpath}")"
     fontname="${fontfile%.*}"
     fontname="${fontname/-/\.\*}"
-    fonttype="$(file "${fontpath}" | \
+    fonttype="$(file "${fontpath}" |
                 sed -n "s|^${fontpath}: \([A-Za-z]\+\) [F|f]ont .*|\1|p")"
     if ! [[ "${data}" =~ ${fontname} ]]; then
       if [[ "${fonttype}" = "OpenType" ]]; then
         fontstring+="-attach \"${fontpath}\" -metadata:s:t:${count} mimetype=application/vnd.ms-opentype "
-        count=$(( count + 1 ))
+        count=$((count + 1))
       elif [[ "${fonttype}" = "TrueType" ]]; then
         fontstring+="-attach \"${fontpath}\" -metadata:s:t:${count} mimetype=application/x-truetype-font "
-        count=$(( count + 1 ))
+        count=$((count + 1))
       fi
     fi
   done
@@ -90,7 +90,7 @@ function make_string_v4 {
     fontfile="$(basename "${fontpath}")"
     fontname="${fontfile%.*}"
     fontname="${fontname/-/\.\*}"
-    fonttype="$(file "${fontpath}" | \
+    fonttype="$(file "${fontpath}" |
                 sed -n "s|^${fontpath}: \([A-Za-z]\+\) [F|f]ont .*|\1|p")"
     if ! [[ "${data}" =~ ${fontname} ]]; then
       if [[ "${fonttype}" = "OpenType" ]]; then
@@ -124,19 +124,19 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -i|--input)
+    -i | --input)
       INPUT="${2}"
       shift 2
       ;;
-    -d|--font_dir)
+    -d | --font_dir)
       FONTDIR="${2}"
       shift 2
       ;;
-    -f|--force_override)
+    -f | --force_override)
       FORCE=true
       shift 1
       ;;
-    -c|--container)
+    -c | --container)
       CONTAINER=mkv
       shift 2
       ;;

@@ -5,15 +5,15 @@ source globals
 ! check_commands glib-compile-resources gsettings sed && exit 3
 
 # Check that GDM is installed.
-command -v pacman >/dev/null 2>&1 && {
-  if ! pacman -Qi gdm >/dev/null 2>&1; then
+command -v pacman > /dev/null 2>&1 && {
+  if ! pacman -Qi gdm > /dev/null 2>&1; then
     show_error "GDM is not installed. Exiting."
     exit 3
   fi
 }
 
-command -v apt >/dev/null 2>&1 && {
-  if ! dpkg -s gdm3 >/dev/null 2>&1; then
+command -v apt > /dev/null 2>&1 && {
+  if ! dpkg -s gdm3 > /dev/null 2>&1; then
     show_error "GDM is not installed. Exiting."
     exit 3
   fi
@@ -24,7 +24,7 @@ case ${XDG_CURRENT_DESKTOP} in
   X-Cinnamon)
     GTKTHEME=$(gsettings get org.cinnamon.desktop.interface gtk-theme | sed -e "s/'//g")
     ;;
-  GNOME|ubuntu:GNOME)
+  GNOME | ubuntu:GNOME)
     GTKTHEME=$(gsettings get org.gnome.desktop.interface gtk-theme | sed -e "s/'//g")
     ;;
   *)
@@ -63,12 +63,12 @@ elif [[ "${GTKTHEME}" =~ ^Materia ]]; then
 elif [[ "${GTKTHEME}" =~ ^Arc ]]; then
   show_info "Copying over ${GTKTHEME@Q} GDM gresource file."
   if [[ "${GTKTHEME}" =~ Dark ]]; then
-    [ -f "${THEMEDIR}/Arc-Dark/gnome-shell/gnome-shell-theme-dark.gresource" ] && \
+    [ -f "${THEMEDIR}/Arc-Dark/gnome-shell/gnome-shell-theme-dark.gresource" ] &&
       sudo cp -f \
         "${THEMEDIR}/Arc-Dark/gnome-shell/gnome-shell-theme-dark.gresource" \
         "/usr/share/gnome-shell/gnome-shell-theme.gresource"
   else
-    [ -f "${THEMEDIR}/Arc/gnome-shell/gnome-shell-theme.gresource" ] &&  \
+    [ -f "${THEMEDIR}/Arc/gnome-shell/gnome-shell-theme.gresource" ] &&
       sudo cp -f \
         "${THEMEDIR}/Arc/gnome-shell/gnome-shell-theme.gresource" \
         "/usr/share/gnome-shell/gnome-shell-theme.gresource"

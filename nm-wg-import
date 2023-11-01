@@ -10,12 +10,12 @@ function check_wg_config {
   name="$(basename "${1}")"
   local conn
   local conn_data
-  
+
   local ipv4addr
   local ipv6addr
 
   local found=false
-  
+
   ipv4addr="$(sed -n "s/^Address = \(.*\)/\1/p" "${in}" | cut -d"," -f1)"
   ipv6addr="$(sed -n "s/^Address = \(.*\)/\1/p" "${in}" | cut -d"," -f2)"
 
@@ -24,15 +24,15 @@ function check_wg_config {
   while read -r conn; do
     [ -z "${conn}" ] && continue
     conn_data="$(nmcli conn show "${conn}")"
-    if [[ "${conn_data}" =~ ipv6.addresses:\ *${ipv6addr} ]] && \
-       [[ "${conn_data}" =~ ipv4.addresses:\ *${ipv4addr} ]] && \
+    if [[ "${conn_data}" =~ ipv6.addresses:\ *${ipv6addr} ]] &&
+       [[ "${conn_data}" =~ ipv4.addresses:\ *${ipv4addr} ]] &&
        [[ "${conn_data}" =~ connection.interface-name:\ *${name} ]]; then
       found=true
       break
     fi
   done <<< \
-    "$(nmcli conn show | \
-       sed -n "s/^\([A-Za-z0-9()\ -]\+\)\s\+[a-f0-9-]\+\s\+wireguard\s\+.*/\1/p" | \
+    "$(nmcli conn show |
+       sed -n "s/^\([A-Za-z0-9()\ -]\+\)\s\+[a-f0-9-]\+\s\+wireguard\s\+.*/\1/p" |
        sed -e "s/ \+$//g")"
 
   if "${found}"; then
@@ -48,7 +48,7 @@ function import_wg_config {
   local name="${in%.*}"
   name="$(basename "${name}")"
   nmcli conn import type wireguard file "${in}"
-  nmcli conn down "${name}" 
+  nmcli conn down "${name}"
   nmcli conn modify "${name}" connection.autoconnect no
 }
 
@@ -70,7 +70,6 @@ function print_usage {
   show_info "Usage: nm-wg-import -i <config file> -n <wg connection name>"
 }
 
-
 #
 # Main
 #
@@ -82,15 +81,15 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -i|--input)
+    -i | --input)
       INPUT="${2}"
       shift 2
       ;;
-    -n|--name)
+    -n | --name)
       NAME="${2}"
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;

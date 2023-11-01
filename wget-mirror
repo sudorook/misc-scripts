@@ -21,7 +21,7 @@ NAME="${DOMAIN%.*}"
 
 show_header "Crawling ${URL}..."
 mkdir -p "${DOMAIN}"
-pushd "${DOMAIN}" >/dev/null
+pushd "${DOMAIN}" > /dev/null
 wget \
   --mirror \
   --warc-file="${NAME}" \
@@ -37,4 +37,4 @@ wget \
   --wait=10 \
   --random-wait \
   "${URL}"
-popd >/dev/null
+popd > /dev/null

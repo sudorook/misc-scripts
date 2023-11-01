@@ -9,8 +9,8 @@ source globals
 #
 
 function get_device() {
-  nmcli device status | \
-    grep -v bridge | \
+  nmcli device status |
+    grep -v bridge |
     sed -n "s/\(\S\+\)\s\+\S\+\s\+connected\s\+\(\S\+\)\s*$/\1/p"
 }
 
@@ -19,7 +19,7 @@ function get_vpn_data() {
   local vpnid
   local cmd
   device="${1}"
-  vpnid="$(nmcli connection show | \
+  vpnid="$(nmcli connection show |
            sed -n "s/^\(.*\)\+\s\+\([0-9a-z\-]\+\)\s\+vpn\s\+${device}/\2/p")"
   if [ -z "${vpnid}" ]; then
     return
@@ -120,15 +120,15 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -d|--disable)
+    -d | --disable)
       disable_killswitch
       shift
       ;;
-    -e|--enable)
+    -e | --enable)
       enable_killswitch
       shift
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;

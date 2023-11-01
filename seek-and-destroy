@@ -111,7 +111,6 @@ function print_usage {
   show_listitem "  -s|--sloppy   match anything containing <search string>"
 }
 
-
 #
 # Parse command line options
 #
@@ -124,21 +123,21 @@ MODE=
 
 while [ ${#} -ge 1 ]; do
   case ${1} in
-    -p|--precise)
+    -p | --precise)
       if [[ -n ${MODE} ]]; then
         show_warning "WARNING: overriding seek from ${MODE@Q} to 'precise'."
       fi
       MODE=precise
       shift
       ;;
-    -s|--sloppy)
+    -s | --sloppy)
       if [[ -n ${MODE} ]]; then
         show_warning "WARNING: overriding seek from ${MODE@Q} to 'sloppy'."
       fi
       MODE=sloppy
       shift
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;
@@ -152,7 +151,6 @@ while [ ${#} -ge 1 ]; do
       ;;
   esac
 done
-
 
 #
 # Run seeker and destroyer

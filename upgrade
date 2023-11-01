@@ -12,7 +12,7 @@ function check_command() { # overrides check_command() in globals
   local package
   local missing=()
   for package in "${@}"; do
-    if ! command -v "${package}" >/dev/null; then
+    if ! command -v "${package}" > /dev/null; then
       missing+=("${package}")
     fi
   done
@@ -162,21 +162,21 @@ function upgrade_themes() {
   local dirs=()
   if [[ -v gtkdir ]] && [ -d "${gtkdir}" ]; then
     for dir in "${gtkdir}"/*; do
-      if git -C "${dir}" rev-parse 2>/dev/null; then
+      if git -C "${dir}" rev-parse 2> /dev/null; then
         dirs+=("${dir}")
       fi
     done
   fi
   if [[ -v plasmadir ]] && [ -d "${plasmadir}" ]; then
     for dir in "${plasmadir}"/*; do
-      if git -C "${dir}" rev-parse 2>/dev/null; then
+      if git -C "${dir}" rev-parse 2> /dev/null; then
         dirs+=("${dir}")
       fi
     done
   fi
   if [[ -v icondir ]] && [ -d "${icondir}" ]; then
     for dir in "${icondir}"/*; do
-      if git -C "${dir}" rev-parse 2>/dev/null; then
+      if git -C "${dir}" rev-parse 2> /dev/null; then
         dirs+=("${dir}")
       fi
     done
@@ -195,7 +195,7 @@ function upgrade_themes() {
       case "${repo_name}" in
         papirus-icon-theme)
           if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
-            pushd "${dir}" >/dev/null
+            pushd "${dir}" > /dev/null
             git checkout tweak
             git reset HEAD~1
             git reset --hard
@@ -206,7 +206,7 @@ function upgrade_themes() {
             git add .
             git commit -m "Mirror updates to Adapta icon set."
             git checkout master
-            popd >/dev/null
+            popd > /dev/null
           fi
           ;;
         *)
@@ -251,7 +251,7 @@ function upgrade_vim_packages() {
   if check_command vim; then
     if [ -d "${vimpack}" ]; then
       for dir in "${vimpack}"/*; do
-        if git -C "${dir}" rev-parse 2>/dev/null; then
+        if git -C "${dir}" rev-parse 2> /dev/null; then
           show_info "$(basename "${dir}")"
           git_update "${dir}" || true
           sleep "$(rand_int 2 10)"
@@ -274,7 +274,7 @@ function upgrade_nvim_packages() {
   if check_command nvim; then
     if [ -d "${nvimpack}" ]; then
       for dir in "${nvimpack}"/*; do
-        if git -C "${dir}" rev-parse 2>/dev/null; then
+        if git -C "${dir}" rev-parse 2> /dev/null; then
           show_info "$(basename "${dir}")"
           git_update "${dir}" || true
           sleep "$(rand_int 2 10)"
@@ -296,13 +296,13 @@ function upgrade_zsh() {
   if check_command zsh; then
     # antigen-update may not be in the bash PATH, so check the zsh path if
     # 'command -v antigen' returns false.
-    if zsh -ic "command -v antigen" >/dev/null 2>&1; then
+    if zsh -ic "command -v antigen" > /dev/null 2>&1; then
       zsh -ic "antigen update"
       sleep "$(rand_int 2 10)"
     else
       if [[ -v zshdir ]] && [ -d "${zshdir}" ]; then
         for dir in "${zshdir}"/*; do
-          if git -C "${dir}" rev-parse 2>/dev/null; then
+          if git -C "${dir}" rev-parse 2> /dev/null; then
             show_info "$(basename "${dir}")"
             git -C "${dir}" pull --ff-only origin master --tags
             sleep "$(rand_int 2 10)"
@@ -357,17 +357,17 @@ function upgrade_rust() {
       if ! [ -d /usr/share/cargo/registry ]; then
         show_info "Updating crates."
         if [ -d "${projectdir}"/crate_dl ]; then
-          pushd "${projectdir}"/crate_dl >/dev/null
+          pushd "${projectdir}"/crate_dl > /dev/null
           rm -f Cargo.lock
           cargo fetch
-          popd >/dev/null
+          popd > /dev/null
         else
           local tmpdir
           tmpdir="$(mktemp -d)"
           git clone --depth 1 https://github.com/sudorook/crate_dl.git "${tmpdir}"
-          pushd "${tmpdir}" >/dev/null
+          pushd "${tmpdir}" > /dev/null
           cargo fetch
-          popd >/dev/null
+          popd > /dev/null
           rm -rf "${tmpdir}"
         fi
       fi
@@ -401,14 +401,14 @@ function upgrade_pkgbuild() {
     local dir
     if [[ -v pkgbuilddir ]] && [[ -d "${pkgbuilddir}" ]]; then
       for dir in "${pkgbuilddir}"/*; do
-        if git -C "${dir}" rev-parse 2>/dev/null; then
+        if git -C "${dir}" rev-parse 2> /dev/null; then
           show_info "$(basename "${dir}")"
           if git_update "${dir}"; then
-            pushd "${dir}" >/dev/null
+            pushd "${dir}" > /dev/null
             makepkg -si --noconfirm
             git clean -xdf
             git reset --hard
-            popd >/dev/null
+            popd > /dev/null
           fi
           sleep "$(rand_int 2 10)"
           echo
@@ -429,7 +429,7 @@ function upgrade_weechat_plugins {
   local dir
   if [ -d "${weechatdir}" ]; then
     for dir in "${weechatdir}"/*; do
-      if git -C "${dir}" rev-parse 2>/dev/null; then
+      if git -C "${dir}" rev-parse 2> /dev/null; then
         show_info "$(basename "${dir}")"
         git -C "${dir}" pull --ff-only origin master --tags
         sleep "$(rand_int 2 10)"
@@ -453,7 +453,7 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case ${1} in
-    -a|--all)
+    -a | --all)
       upgrade_system
       upgrade_julia_packages
       upgrade_rust
@@ -468,55 +468,55 @@ while [ ${#} -ge 1 ]; do
       shift
       break
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;
-    -i|--images)
+    -i | --images)
       update_images
       shift
       ;;
-    -j|--julia)
+    -j | --julia)
       upgrade_julia_packages
       shift
       ;;
-    -r|--rust)
+    -r | --rust)
       upgrade_rust
       shift
       ;;
-    -R|--R)
+    -R | --R)
       upgrade_R
       shift
       ;;
-    -p|--pkgbuild)
+    -p | --pkgbuild)
       upgrade_pkgbuild
       shift
       ;;
-    -s|--system)
+    -s | --system)
       upgrade_system
       shift
       ;;
-    -t|--theme)
+    -t | --theme)
       upgrade_themes
       shift
       ;;
-    -n|--nvim)
+    -n | --nvim)
       upgrade_nvim_packages
       shift
       ;;
-    -v|--vim)
+    -v | --vim)
       upgrade_vim_packages
       shift
       ;;
-    -w|--weechat)
+    -w | --weechat)
       upgrade_weechat_plugins
       shift
       ;;
-    -z|--zsh)
+    -z | --zsh)
       upgrade_zsh
       shift
       ;;
-    -x|--extra)
+    -x | --extra)
       upgrade_extra
       shift
       ;;

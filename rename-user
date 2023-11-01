@@ -25,7 +25,7 @@ export -f migrate_symlink
 function is_username_valid() {
   local re='^[a-z_][a-z0-9_-]*$'
   [ -z "${1}" ] && return 1
-  (( ${#1} > 16 )) && return 1
+  ((${#1} > 16))   && return 1
   [[ ${1} =~ ${re} ]]
 }
 
@@ -39,10 +39,10 @@ function is_old_user_valid() {
   uid_min="$(sed -n "s/^UID_MIN\s\+\([0-9]\+\)$/\1/p" /etc/login.defs)"
   uid_max="$(sed -n "s/^UID_MAX\s\+\([0-9]\+\)$/\1/p" /etc/login.defs)"
 
-  all_sys="$(getent passwd | \
+  all_sys="$(getent passwd |
              awk -F ":" -v mn="${uid_min}" -v mx="${uid_max}" \
                '{if (($3 < mn) && ($3 > mx)) print $1}')"
-  all_user="$(getent passwd | \
+  all_user="$(getent passwd |
               awk -F ":" -v mn="${uid_min}" -v mx="${uid_max}" \
                 '{if (($3 >= mn) && ($3 <= mx)) print $1}')"
 
@@ -52,7 +52,7 @@ function is_old_user_valid() {
   fi
   if [[ "${all_user}" =~ ${user} ]]; then
     # Check that old user has no currently running processes.
-    if ps -u "${user}" >/dev/null 2>&1; then
+    if ps -u "${user}" > /dev/null 2>&1; then
       show_warning "User ${user@Q} has running processes."
       return 1
     else
@@ -72,10 +72,10 @@ function is_new_user_valid() {
   uid_min="$(sed -n "s/^UID_MIN\s\+\([0-9]\+\)$/\1/p" /etc/login.defs)"
   uid_max="$(sed -n "s/^UID_MAX\s\+\([0-9]\+\)$/\1/p" /etc/login.defs)"
 
-  all_sys="$(getent passwd | \
+  all_sys="$(getent passwd |
              awk -F ":" -v mn="${uid_min}" -v mx="${uid_max}" \
                '{if (($3 < mn) && ($3 > mx)) print $1}')"
-  all_user="$(getent passwd | \
+  all_user="$(getent passwd |
               awk -F ":" -v mn="${uid_min}" -v mx="${uid_max}" \
                 '{if (($3 >= mn) && ($3 <= mx)) print $1}')"
 
@@ -96,7 +96,6 @@ function print_usage() {
   show_listitem "  -o|--old  current username"
 }
 
-
 #
 # Parse command line parameters
 #
@@ -111,15 +110,15 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;
-    -o|--old)
+    -o | --old)
       OLDNAME="${2}"
       shift 2
       ;;
-    -n|--new)
+    -n | --new)
       NEWNAME="${2}"
       shift 2
       ;;
@@ -149,7 +148,7 @@ if ! is_username_valid "${OLDNAME}"; then
   exit 3
 fi
 
-if ! is_username_valid "${NEWNAME}"; then \
+if ! is_username_valid "${NEWNAME}"; then
   show_error "ERROR: ${NEWNAME@Q} is not a valid name. Exiting."
   exit 3
 fi

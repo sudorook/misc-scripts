@@ -10,17 +10,17 @@ fi
 EXTENSION="${1##*.}"
 
 case "${EXTENSION,,}" in
-  rmd|rmarkdown)
+  rmd | rmarkdown)
     if check_command R; then
       R -q -e "if (require(rmarkdown)) { options(encoding='UTF-8'); render('${1}') }"
     fi
     ;;
-  tex|latex)
+  tex | latex)
     if check_command lualatex; then
       lualatex -shell-escape "${1}"
     fi
     ;;
-  jmd|jmarkdown)
+  jmd | jmarkdown)
     if check_command julia; then
       julia -e "using Weave; weave(\"${1}\")"
     fi

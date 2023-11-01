@@ -18,21 +18,21 @@ print_usage() {
 
 check_dir() {
   if ! [[ -v DIR ]]; then
-    if git log >/dev/null 2>&1; then
+    if git log > /dev/null 2>&1; then
       DIR="$(git rev-parse --show-toplevel)"
     else
       show_error "No Git directory specified. Exiting."
       exit 3
     fi
   elif [[ "${DIR}" = . ]]; then
-    if git log >/dev/null 2>&1; then
+    if git log > /dev/null 2>&1; then
       DIR="$(git rev-parse --show-toplevel)"
     else
       show_error "${PWD@Q} is not a Git directory. Exiting."
       exit 3
     fi
   else
-    if ! git -C "${DIR}" log >/dev/null 2>&1; then
+    if ! git -C "${DIR}" log > /dev/null 2>&1; then
       show_error "${DIR@Q} is not a Git directory. Exiting."
       exit 3
     fi
@@ -49,17 +49,17 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case ${1} in
-    -d|--dir)
+    -d | --dir)
       DIR="${2}"
       shift 2
       ;;
-    -t|--tag)
+    -t | --tag)
       TAG="${2}"
       shift 2
       ;;
-    -z|--compress)
+    -z | --compress)
       case "${2,,}" in
-        gz|xz|zst|zstd)
+        gz | xz | zst | zstd)
           Z="tar.${2}"
           ;;
         zip)
@@ -71,7 +71,7 @@ while [ ${#} -ge 1 ]; do
       esac
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;

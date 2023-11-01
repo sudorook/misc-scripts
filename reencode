@@ -62,10 +62,10 @@ function convert_codec {
     # set video codec
     if [ -n "${VSTREAM_ID}" ]; then
       case "${OUT_VCODEC}" in
-        h264|x264|libx264|h.264|x.264)
+        h264 | x264 | libx264 | h.264 | x.264)
           cmd="${cmd} -c:v:${VSTREAM_ID} libx264 -x264-params crf=${CRF} -preset slow"
           ;;
-        h265|x265|libx265|h.265|x.265)
+        h265 | x265 | libx265 | h.265 | x.265)
           cmd="${cmd} -c:v:${VSTREAM_ID} libx265 -x265-params crf=${CRF} -preset slow"
           ;;
         copy)
@@ -77,13 +77,13 @@ function convert_codec {
           ;;
       esac
     else
-      for idx in $(seq 0 $(( ${#IN_VSTREAM_CODEC_NAME[@]} - 1 ))); do
+      for idx in $(seq 0 $((${#IN_VSTREAM_CODEC_NAME[@]} - 1))); do
         if ! [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]]; then
           case "${OUT_VCODEC}" in
-            h264|x264|libx264|h.264|x.264)
+            h264 | x264 | libx264 | h.264 | x.264)
               cmd="${cmd} -c:v:${idx} libx264 -x264-params crf=${CRF} -preset slow"
               ;;
-            h265|x265|libx265|h.265|x.265)
+            h265 | x265 | libx265 | h.265 | x.265)
               cmd="${cmd} -c:v:${idx} libx265 -x265-params crf=${CRF} -preset slow"
               ;;
             copy)
@@ -106,7 +106,7 @@ function convert_codec {
 
     # set audio codec
     case "${OUT_ACODEC}" in
-      libfdk_aac|aac)
+      libfdk_aac | aac)
         # this only works for ffmpeg manually compiled with libfdk_aac
         if [[ -v OUT_ABITRATE ]]; then
           cmd="${cmd} -c:a libfdk_aac -b:a ${OUT_ABITRATE}"
@@ -114,14 +114,14 @@ function convert_codec {
           cmd="${cmd} -c:a libfdk_aac -vbr 5"
         fi
         ;;
-      libmp3lame|mp3lame|mp3)
+      libmp3lame | mp3lame | mp3)
         if [[ -v OUT_ABITRATE ]]; then
           cmd="${cmd} -c:a libmp3lame -b:a ${OUT_ABITRATE}"
         else
           cmd="${cmd} -c:a libmp3lame -b:a 320k"
         fi
         ;;
-      libopus|opus)
+      libopus | opus)
         if [[ -v OUT_ABITRATE ]]; then
           cmd="${cmd} -c:a libopus -b:a ${OUT_ABITRATE}"
         else
@@ -138,7 +138,7 @@ function convert_codec {
               cmd="${cmd} -channel_layout:a:${ASTREAM_ID} 5.1"
             fi
           else
-            for idx in $(seq 0 $(( ${#IN_ASTREAM_CHANNEL_COUNT[@]} - 1 ))); do
+            for idx in $(seq 0 $((${#IN_ASTREAM_CHANNEL_COUNT[@]} - 1))); do
               cmd="${cmd} -b:a:${idx} $(set_audio_bitrate \
                                           "${in}" \
                                           "${IN_ASTREAM_CHANNEL_COUNT[${idx}]}" \
@@ -166,10 +166,8 @@ function convert_codec {
     if ! [[ "${IN_DIMENSIONS}" = "${OUT_DIMENSIONS}" ]]; then
       # only add the size parameter if the output width/height are not larger
       # that the corresponding input values
-      if [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f1)" -lt \
-            "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f1)" ]] || \
-         [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f2)" -lt \
-            "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f2)" ]]; then
+      if [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f1)" -lt "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f1)" ]] ||
+         [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f2)" -lt "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f2)" ]]; then
         show_warning \
           "WARNING: Dimensions ${OUT_DIMENSIONS@Q} exceed input ${IN_DIMENSIONS@Q}."
       else
@@ -190,7 +188,7 @@ function convert_codec {
         cmd="${cmd} -map 0:s:? -c:s copy"
       fi
       ;;
-    matroska|mkv)
+    matroska | mkv)
       # convert 94213 to srt
       case "${IN_SCODEC}" in
         94213)
@@ -220,7 +218,7 @@ function convert_codec {
       cmd="${cmd} -f mpg"
       out="${NAME}.mpg"
       ;;
-    mkv|matroska)
+    mkv | matroska)
       cmd="${cmd} -f matroska"
       out="${NAME}.mkv"
       ;;
@@ -286,13 +284,13 @@ function scan_input {
 
   format_name="$(echo "${fstring}" | sed -n "s/^format_name=\(.*\)/\1/p")"
   case "${format_name}" in
-    matroska|mkv)
+    matroska | mkv)
       IN_CONTAINER=matroska
       ;;
-    matroska,webm|webm)
+    matroska,webm | webm)
       IN_CONTAINER=webm
       ;;
-    mp4|mov,mp4,m4a,3gp,3g2,mj2|m4a|mov|mpegts)
+    mp4 | mov,mp4,m4a,3gp,3g2,mj2 | m4a | mov | mpegts)
       IN_CONTAINER=mp4
       ;;
     mp3)
@@ -315,7 +313,7 @@ function scan_input {
 
   if ! [[ -v OUT_CONTAINER ]]; then
     case "${IN_CONTAINER}" in
-      matroska,webm|webm)
+      matroska,webm | webm)
         OUT_CONTAINER=matroska
         ;;
       *)
@@ -363,7 +361,7 @@ function scan_input {
   fi
 
   # use first video stream to get display properties
-  for idx in $(seq 0 $(( ${#IN_VSTREAM_CODEC_NAME[@]} - 1 ))); do
+  for idx in $(seq 0 $((${#IN_VSTREAM_CODEC_NAME[@]} - 1))); do
     if [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]]; then
       continue
     else
@@ -376,18 +374,16 @@ function scan_input {
 
 function check_compat {
   case "${OUT_CONTAINER}" in
-    avi|AVI)
+    avi | AVI)
       case "${OUT_VCODEC}" in
-        h264|x264|libx264|h.264|x.264|h265|x265|libx265|h.265|x.265)
+        h264 | x264 | libx264 | h.264 | x.264 | h265 | x265 | libx265 | h.265 | x.265)
           show_error "ERROR: ${OUT_CONTAINER} and ${OUT_VCODEC} incompatible."
           exit 3
           ;;
-        *)
-          ;;
+        *) ;;
       esac
       ;;
-    *)
-      ;;
+    *) ;;
   esac
 }
 
@@ -415,10 +411,10 @@ function parse_container {
     mpg)
       OUT_CONTAINER=mpg
       ;;
-    mkv|matroska|mka)
+    mkv | matroska | mka)
       OUT_CONTAINER=matroska
       ;;
-    mp4|mpeg4|mpeg-4|m4v)
+    mp4 | mpeg4 | mpeg-4 | m4v)
       OUT_CONTAINER=mp4
       ;;
     mp3)
@@ -433,15 +429,16 @@ function parse_container {
     *)
       show_error "ERROR: Output ${1@Q} containers not supported. Exiting."
       exit 3
+      ;;
   esac
 }
 
 function parse_vcodec {
   case "${1}" in
-    h264|x264|libx264|h.264|x.264)
+    h264 | x264 | libx264 | h.264 | x.264)
       OUT_VCODEC=libx264
       ;;
-    h265|x265|libx265|h.265|x.265)
+    h265 | x265 | libx265 | h.265 | x.265)
       OUT_VCODEC=libx265
       ;;
     copy)
@@ -456,14 +453,14 @@ function parse_vcodec {
 
 function parse_acodec {
   case "${1}" in
-    libfdk_aac|aac)
+    libfdk_aac | aac)
       # this only works for ffmpeg manually compiled with libfdk_aac
       OUT_ACODEC=libfdk_aac
       ;;
-    libmp3lame|mp3lame|mp3)
+    libmp3lame | mp3lame | mp3)
       OUT_ACODEC=libmp3lame
       ;;
-    libopus|opus)
+    libopus | opus)
       OUT_ACODEC=libopus
       ;;
     copy)
@@ -498,11 +495,10 @@ function fill_dimensions {
 
 function compute_crop_filter {
   local cropfilter
-  cropfilter="$(ffmpeg -i file:"${1}" -vf 'cropdetect=24:2:0' -f null - 2>&1 | \
+  cropfilter="$(ffmpeg -i file:"${1}" -vf 'cropdetect=24:2:0' -f null - 2>&1 |
                 awk '/crop=/{print $NF}' | tail -1)"
   echo "${cropfilter}"
 }
-
 
 #
 # Parse command line options
@@ -518,58 +514,58 @@ PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -i|--input)
+    -i | --input)
       IN="${2}"
       scan_input
       NAME=${IN%.*}
       BACKUP="${IN}_$(date +%Y%m%d-%H%M%S).bak"
       shift 2
       ;;
-    -e|--extra)
+    -e | --extra)
       EXTRA="${2}"
       shift 2
       ;;
-    -a|--acodec)
+    -a | --acodec)
       parse_acodec "${2}"
       shift 2
       ;;
-    -A|--astream_id)
+    -A | --astream_id)
       ASTREAM_ID="${2}"
       shift 2
       ;;
-    -b|--bitrate_audio)
+    -b | --bitrate_audio)
       OUT_ABITRATE="${2}"
       shift 2
       ;;
-    -v|--vcodec)
+    -v | --vcodec)
       parse_vcodec "${2}"
       shift 2
       ;;
-    -V|--vstream_id)
+    -V | --vstream_id)
       VSTREAM_ID="${2}"
       shift 2
       ;;
-    -n|--nodefault)
+    -n | --nodefault)
       NO_DEFAULT_SUBS=true
       shift 1
       ;;
-    -r|--crf)
+    -r | --crf)
       CRF="${2}"
       shift 2
       ;;
-    -d|--dimensions)
+    -d | --dimensions)
       OUT_DIMENSIONS="${2}"
       shift 2
       ;;
-    -c|--container)
+    -c | --container)
       parse_container "${2}"
       shift 2
       ;;
-    -p|--crop)
+    -p | --crop)
       CROP=true
       shift 1
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;
@@ -584,7 +580,6 @@ while [ ${#} -ge 1 ]; do
       ;;
   esac
 done
-
 
 #
 # Main

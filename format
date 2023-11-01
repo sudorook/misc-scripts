@@ -50,7 +50,7 @@ function format_wrapper() {
   # Parse mime-type and language
   mime="$(xdg-mime query filetype "${1}")"
   shopt -s extglob
-  mime="${mime/+(text\/|application\/)?(x-)?(script.)}"
+  mime="${mime/+(text\/|application\/)?(x-)?(script.)/}"
   lang=${LANGUAGE:-${mime}}
   lang=${lang,,}
   lang="${lang//+(cpp)/c++}" # MIME types use 'c++', so convert 'cpp' strings.
@@ -70,20 +70,20 @@ function format_wrapper() {
   fi
 
   case "${lang}" in
-    c|chdr|c++|c++hdr|c++src)
+    c | chdr | c++ | c++hdr | c++src)
       if [[ "${1##*.}" != y ]] && [[ "${1##*.}" != l ]]; then
         format_c "${1}"
       else
         show_warning "WARNING: skipping ${1@Q} parser/lexer." >&2
       fi
       ;;
-    js|json)
+    js | json)
       format_js "${1}"
       ;;
     markdown)
       format_markdown "${1}"
       ;;
-    python|python3)
+    python | python3)
       format_python "${1}"
       ;;
     rust)
@@ -113,7 +113,6 @@ recursively format _all_ files in it. Any files without MIME type
 supported by this script will be ignored."
 }
 
-
 #
 # Main
 #
@@ -127,15 +126,15 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -f|--force)
+    -f | --force)
       FORCE=true
       shift
       ;;
-    -l|--language)
+    -l | --language)
       LANGUAGE="${2}"
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;

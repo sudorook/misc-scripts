@@ -9,7 +9,7 @@ function print_usage() {
 }
 
 function get_format() {
-  ffprobe -v error -show_format file:"${AUDIO}" | \
+  ffprobe -v error -show_format file:"${AUDIO}" |
     sed -n "s/^format_name=\(.*\)/\1/p"
 }
 
@@ -22,19 +22,19 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -a|--audio)
+    -a | --audio)
       AUDIO="${2}"
       shift 2
       ;;
-    -c|--cover)
+    -c | --cover)
       COVER="${2}"
       shift 2
       ;;
-    -k|--keep)
+    -k | --keep)
       KEEP=true
       shift
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;

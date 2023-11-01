@@ -14,10 +14,10 @@ print_ass_fonts() {
   is_italic="$(echo "${line}" | cut -d"," -f9)"
 
   res="${font}"
-  if (( is_bold == -1 )); then
+  if ((is_bold == -1)); then
     res+=" (Bold)"
   fi
-  if (( is_italic == -1 )); then
+  if ((is_italic == -1)); then
     res+=" (Italic)"
   fi
   echo "${res}"
@@ -28,7 +28,7 @@ parse_lines() {
   local extension="${file##*.}"
   local line
   case "${extension}" in
-    ass|ssa)
+    ass | ssa)
       while read -r line; do
         print_ass_fonts "${line}"
       done <<< "$(sed -n "s/^Style: \(.*\)/\1/p" "${file}")"

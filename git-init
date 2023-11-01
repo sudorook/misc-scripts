@@ -7,7 +7,7 @@ source globals
 #
 # Global functions.
 #
-  
+
 make_random_alias() {
   local range
   local string
@@ -135,36 +135,36 @@ GLOBAL=false
 
 while [ ${#} -ge 1 ]; do
   case ${1} in
-    -n|--name)
+    -n | --name)
       NAME="${2}"
       shift 2
       ;;
-    -e|--email)
+    -e | --email)
       EMAIL="${2}"
       shift 2
       ;;
-    -s|--schedule)
+    -s | --schedule)
       SCHEDULE="${2}"
       shift 2
       ;;
-    -r|--range)
+    -r | --range)
       START="$(echo "${2}" | cut -d"-" -f1)"
       END="$(echo "${2}" | cut -d"-" -f2)"
       shift 2
       ;;
-    -o|--roffset)
+    -o | --roffset)
       RAND_RANGE="${2}"
       shift 2
       ;;
-    -t|--timezone)
+    -t | --timezone)
       TZ="${2}"
       shift 2
       ;;
-    -g|--global)
+    -g | --global)
       GLOBAL=true
       shift
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;
@@ -197,7 +197,7 @@ if [[ "${GLOBAL}" = true ]]; then
     set_global_aliases
   fi
 else
-  if git rev-parse 2>/dev/null; then
+  if git rev-parse 2> /dev/null; then
     show_warning "WARNING: Git repo already exists."
   else
     show_info "Initializing Git repo."

@@ -90,7 +90,7 @@ function scan_album_loudnorm {
   while read -r file; do
     file="${file/#/\.\/}"
     cmd="${cmd} -i file:${file@Q}"
-    count=$((count+1))
+    count=$((count + 1))
   done <<< "$(find "${@}" -type f \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \))"
   cmd="${cmd} -map a -filter_complex 'concat=n=${count}:v=0:a=1,loudnorm=print_format=json[o]' -map '[o]' -f null - 2>&1 | sed -n '/{/,\$p'"
   data="$(eval "${cmd}")"
@@ -162,11 +162,11 @@ function compute_loudnormgain {
   replaygain_album_peak="$(echo "scale=6; e(l(10)*${replaygain_album_peak}/20)" | bc -l | sed 's/^\./0./')"
   replaygain_album_gain="$(echo "scale=2; -18-(${replaygain_album_gain}/1)" | bc -l)"
 
-  if command -v parallel >/dev/null; then
+  if command -v parallel > /dev/null; then
     find "${@}" \
       -type f \
-      \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \) -print0 \
-      | parallel -0 "tag_track_loudnorm {} ${replaygain_album_gain} ${replaygain_album_peak}"
+      \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \) -print0 |
+        parallel -0 "tag_track_loudnorm {} ${replaygain_album_gain} ${replaygain_album_peak}"
   else
     find "${@}" \
       -type f \
@@ -184,11 +184,11 @@ function scan_track_ebur128 {
   data="$(ffmpeg -v info -nostdin -nostats -hide_banner -i file:"./${1}" \
     -map a -af ebur128=peak=true -f null - 2>&1)"
 
-  peak="$(echo "${data}" | \
-    tail -n 14 | \
+  peak="$(echo "${data}" |
+    tail -n 14 |
     sed -n '/^\s\+True peak:/{N;s/.*\s\+Peak:\s\+\([+0-9\.-]\+\) dBFS/\1/p}')"
-  i="$(echo "${data}" | \
-    tail -n 14 | \
+  i="$(echo "${data}" |
+    tail -n 14 |
     sed -n '/^\s\+Integrated loudness:/{N;s/.*\s\+I:\s\+\([+0-9\.-]\+\) LUFS/\1/p}')"
 
   echo "${peak}|${i}"
@@ -207,16 +207,16 @@ function scan_album_ebur128 {
   while read -r file; do
     file="${file/#/\.\/}"
     cmd="${cmd} -i file:${file@Q}"
-    count=$((count+1))
+    count=$((count + 1))
   done <<< "$(find "${@}" -type f \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \))"
   cmd="${cmd} -map a -filter_complex 'concat=n=${count}:v=0:a=1,ebur128=peak=true[o]' -map '[o]' -f null - 2>&1"
   data="$(eval "${cmd}")"
 
-  peak="$(echo "${data}" | \
-    tail -n 14 | \
+  peak="$(echo "${data}" |
+    tail -n 14 |
     sed -n '/^\s\+True peak:/{N;s/.*\s\+Peak:\s\+\([+0-9\.-]\+\) dBFS/\1/p}')"
-  i="$(echo "${data}" | \
-    tail -n 14 | \
+  i="$(echo "${data}" |
+    tail -n 14 |
     sed -n '/^\s\+Integrated loudness:/{N;s/.*\s\+I:\s\+\([+0-9\.-]\+\) LUFS/\1/p}')"
 
   echo "${peak}|${i}"
@@ -283,11 +283,11 @@ function compute_ebur128gain {
   replaygain_album_peak="$(echo "scale=6; e(l(10)*${replaygain_album_peak}/20)" | bc -l | sed 's/^\./0./')"
   replaygain_album_gain="$(echo "scale=2; -18-(${replaygain_album_gain}/1)" | bc -l)"
 
-  if command -v parallel >/dev/null; then
+  if command -v parallel > /dev/null; then
     find "${@}" \
       -type f \
-      \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \) -print0 \
-      | parallel -0 "tag_track_ebur128 {} ${replaygain_album_gain} ${replaygain_album_peak}"
+      \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \) -print0 |
+        parallel -0 "tag_track_ebur128 {} ${replaygain_album_gain} ${replaygain_album_peak}"
   else
     find "${@}" \
       -type f \
@@ -322,7 +322,6 @@ function print_usage {
     "  -h|--help   print (this) help message"
 }
 
-
 #
 # Main
 #
@@ -337,15 +336,15 @@ eval set -- "${PARSED}"
 
 while [ "${#}" -ge 1 ]; do
   case "${1}" in
-    -k|--keep)
+    -k | --keep)
       KEEP=true
       shift 1
       ;;
-    -g|--gain)
+    -g | --gain)
       GAIN="${2}"
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;
@@ -387,10 +386,10 @@ case "${GAIN}" in
   r128gain)
     compute_r128gain "${@}"
     ;;
-  ebur128gain|ebur128)
+  ebur128gain | ebur128)
     compute_ebur128gain "${@}"
     ;;
-  loudnormgain|loudnorm)
+  loudnormgain | loudnorm)
     compute_loudnormgain "${@}"
     ;;
   *)

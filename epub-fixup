@@ -56,7 +56,6 @@ function print_usage {
   show_listitem "  -h  print (this) help message"
 }
 
-
 #
 # Main
 #
@@ -70,11 +69,11 @@ eval set -- "${PARSED}"
 
 while [ "${#}" -ge 1 ]; do
   case "${1}" in
-    -c|--unset_color)
+    -c | --unset_color)
       UNSETCOLOR=true
       shift 1
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;
@@ -103,7 +102,7 @@ BUILDDIR="$(mktemp -d)"
 trap 'rm -rf "${BUILDDIR}"; exit' INT TERM ERR EXIT
 
 cp "${1}" "${BUILDDIR}"
-pushd "${BUILDDIR}" >/dev/null
+pushd "${BUILDDIR}" > /dev/null
 
 unzip "${FILE}"
 
@@ -115,5 +114,5 @@ fi
 
 zip -u "${FILE}" || true # override return false if no update performed
 
-popd >/dev/null
+popd > /dev/null
 mv "${BUILDDIR}/${FILE}" "${NAME} new.${EXTENSION}"

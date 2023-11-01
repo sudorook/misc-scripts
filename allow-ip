@@ -17,26 +17,26 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -i|--ip)
+    -i | --ip)
       # If IP address given as xxx.xxx.xxx.xxx:
-      if [[ "${2}" == "$(echo "${2}" | \
+      if [[ "${2}" == "$(echo "${2}" |
                          sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)$/\1/p")" ]]; then
         IP="${2}"
       # If IP address and netmask given as xxx.xxx.xxx.xxx/xx:
-      elif [[ "${2}" == "$(echo "${2}" | \
+      elif [[ "${2}" == "$(echo "${2}" |
                            sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\/[0-9]\+\)$/\1/p")" ]]; then
         IP="$(echo "${2}" | cut -d"/" -f1)"
         MASK="$(echo "${2}" | cut -d"/" -f2)"
       fi
       shift 2
       ;;
-    -m|--mask)
+    -m | --mask)
       if ((${2} >= 0 && ${2} <= 32)); then
         MASK="${2}"
       fi
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;
@@ -60,12 +60,12 @@ fi
 # If the net mask is not specified, only allow the IP address given.
 MASK="${MASK:-32}"
 
-GATEWAY=$(ip route list | \
-          grep -e "enp[0-9]\+s[0-9a-f]\+" -e "wlp[0-9]\+s[0-9a-f]\+" | \
+GATEWAY=$(ip route list |
+          grep -e "enp[0-9]\+s[0-9a-f]\+" -e "wlp[0-9]\+s[0-9a-f]\+" |
           sed -n "s/^default via \([0-9\.]\+\) dev .*/\1/p" | head -1)
 
-IFACE=$(ip route show | \
-        grep -e "${GATEWAY}" | \
+IFACE=$(ip route show |
+        grep -e "${GATEWAY}" |
         sed -n "s/^default via [0-9\.]\+ dev \([a-z0-9]\+\) .*/\1/p")
 
 sudo ip route add "${IP}/${MASK}" via "${GATEWAY}" dev "${IFACE}"

@@ -77,7 +77,6 @@ function sync_vms() {
   fi
 }
 
-
 #
 # Main
 #
@@ -95,17 +94,17 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case ${1} in
-    -a|--all)
+    -a | --all)
       SYNC_HOME=true
       SYNC_VM=true
       shift
       break
       ;;
-    -h|--home)
+    -h | --home)
       SYNC_HOME=true
       shift
       ;;
-    -v|--vms)
+    -v | --vms)
       SYNC_VM=true
       shift
       ;;

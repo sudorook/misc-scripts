@@ -18,7 +18,7 @@ function parse_streams {
              -show_entries format=nb_streams \
              -of default=noprint_wrappers=1:nokey=1 "${1}")"
 
-  for idx in $(seq 0 "$((count-1))"); do
+  for idx in $(seq 0 "$((count - 1))"); do
     res="$(ffprobe -v error -show_entries stream -select_streams "${idx}" file:"${1}")"
     codec_type="$(echo "${res}" | sed -n "s/^codec_type=\(.*\)/\1/p")"
     codec_name="$(echo "${res}" | sed -n "s/^codec_name=\(.*\)/\1/p")"
@@ -46,7 +46,7 @@ function extract_streams {
   local cmd="ffmpeg -probesize 1G -analyzeduration 1G -v warning"
   local tmp
   local out
-  for i in $(seq 0 $(( ${#TITLES[@]} - 1))); do
+  for i in $(seq 0 $((${#TITLES[@]} - 1))); do
     cmd="${cmd} -i file:${IN@Q} -map 0:${STREAMS[${i}]}"
     case "${FORMATS[${i}]}" in
       ass)
@@ -65,7 +65,7 @@ function extract_streams {
         cmd="${cmd} -c ass -tag:s:s:0 tx3g"
         out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.ass"
         ;;
-      mov_text|srt|subrip)
+      mov_text | srt | subrip)
         cmd="${cmd} -c subrip"
         out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.srt"
         ;;
@@ -90,7 +90,7 @@ function extract_streams {
     # is incorrectly set as 'application/x-wine-extension-ini' for some reason.
     # It's correctly interpreted as 'text/plain' once deleted.
     case "${FORMATS[${i}]}" in
-      ass|ssa)
+      ass | ssa)
         # dos-format files require the '\r', otherwise everything below the
         # header is deleted.
         sed -i '/\[Aegisub Project Garbage\]/,/^\r*$/d' "${out}"
@@ -103,7 +103,6 @@ function extract_streams {
     tr -d '\000' < "${out}" > "${tmp}" && mv "${tmp}" "${out}"
   done
 }
-
 
 # Main
 

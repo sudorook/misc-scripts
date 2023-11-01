@@ -26,7 +26,7 @@ check_inputs() {
 check_duration() {
   local duration
   duration="$(ffprobe -v error -show_entries stream=duration -select_streams a:0 -of default=noprint_wrappers=1:nk=1 file:"${1}")"
-  if (( "${duration%.*}" >= "${CUTOFF}" )); then
+  if (("${duration%.*}" >= "${CUTOFF}")); then
     return 0
   else
     return 1
@@ -38,8 +38,8 @@ print_list() {
   if [[ "${CUTOFF}" = 0 ]]; then
     find "${IN[@]}" -type f -name "*.${FORMAT}" -print
   else
-    if command -v parallel >/dev/null; then
-      find "${IN[@]}" -type f -name "*.${FORMAT}" -print0 | \
+    if command -v parallel > /dev/null; then
+      find "${IN[@]}" -type f -name "*.${FORMAT}" -print0 |
         parallel -0 'check_duration {} && echo {}'
     else
       find "${IN[@]}" -type f -name "*.${FORMAT}" \
@@ -56,7 +56,6 @@ print_usage() {
   show_listitem "  -h|--help             print (this) help message"
 }
 
-
 #
 # Globals
 #
@@ -65,7 +64,6 @@ CUTOFF=0
 FORMAT=mp3
 SHUFFLE=false
 REPLAYGAIN=album
-
 
 #
 # Parse command line variables.
@@ -78,19 +76,19 @@ eval set -- "${PARSED}"
 
 while [ "${#}" -ge 1 ]; do
   case "${1}" in
-    -c|--cutoff)
+    -c | --cutoff)
       CUTOFF="${2}"
       shift 2
       ;;
-    -f|--format)
+    -f | --format)
       FORMAT="${2}"
       shift 2
       ;;
-    -s|--shuffle)
+    -s | --shuffle)
       SHUFFLE=true
       shift
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;
@@ -104,7 +102,6 @@ while [ "${#}" -ge 1 ]; do
       ;;
   esac
 done
-
 
 #
 # Main

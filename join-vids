@@ -84,7 +84,7 @@ function join_mixed() {
     fi
     input="${input} -i file:${file@Q} "
     filter="${filter}[${idx}:v:0] [${idx}:a:0] "
-    idx=$(( idx + 1 ))
+    idx=$((idx + 1))
   done
   filter="${filter}concat=n=${#}:v=1:a=1 [v] [a]"
 
@@ -94,14 +94,12 @@ function join_mixed() {
   eval "${cmd}"
 }
 
-
 #
 # Globals
 #
 
 OUTFILE=output.mp4
 OPTIONS=""
-
 
 #
 # Main

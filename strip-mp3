@@ -11,11 +11,11 @@ source globals
 function do_strip_mp3 {
   local in="${1}"
   local tmp
- 
+
   tmp=$(mktemp)
   trap 'rm -vf "${tmp}"' INT RETURN ERR TERM
 
-  ffmpeg -v warning -i file:"${in}" -c copy -f avi - | \
+  ffmpeg -v warning -i file:"${in}" -c copy -f avi - |
     ffmpeg -v warning -i - \
       -map_metadata -1 -map 0:a -c:a copy \
       -fflags +bitexact -flags:v +bitexact -flags:a +bitexact \
@@ -24,7 +24,6 @@ function do_strip_mp3 {
   mv "${tmp}" "${in}"
 }
 export -f do_strip_mp3
-
 
 #
 # Main
@@ -35,8 +34,8 @@ if [ $# -eq 1 ] && [ -f "${1}" ]; then
   do_strip_mp3 "${1}"
 else
   show_header "Stripping ${*@Q}..."
-  if command -v parallel >/dev/null; then
-    find "${@}" -type f -iname "*.mp3" -print0 | \
+  if command -v parallel > /dev/null; then
+    find "${@}" -type f -iname "*.mp3" -print0 |
       parallel -0 'echo {} && do_strip_mp3 {}'
   else
     find "${@}" -type f -iname "*.mp3" -exec \

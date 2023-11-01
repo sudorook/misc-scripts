@@ -38,7 +38,6 @@ print_usage() {
   show_listitem "  -h|--help             print (this) help message"
 }
 
-
 #
 # Globals
 #
@@ -63,31 +62,31 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -d|--dir)
+    -d | --dir)
       DIR="${2}"
       shift 2
       ;;
-    -q|--query)
+    -q | --query)
       QUERY="${2}"
       shift 2
       ;;
-    -s|--shuffle)
+    -s | --shuffle)
       SHUFFLE=true
       shift
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit
       ;;
-    -n|--num)
+    -n | --num)
       NUM="${2}"
       shift 2
       ;;
-    -u|--user)
+    -u | --user)
       USER="${2}"
       shift 2
       ;;
-    -r|--remote)
+    -r | --remote)
       REMOTE="${2}"
       shift 2
       ;;
@@ -101,7 +100,6 @@ while [ ${#} -ge 1 ]; do
       ;;
   esac
 done
-
 
 #
 # Main
@@ -131,10 +129,10 @@ if [ -n "${QUERY}" ]; then
 fi
 
 if "${SHUFFLE}"; then
-  print_list | shuf | head -n "${NUM:--0}" | make_filename | \
+  print_list | shuf | head -n "${NUM:--0}" | make_filename |
     mpv --playlist=- --load-unsafe-playlists --prefetch-playlist=yes
 else
   # `find` output is not in any particular order, so pipe though `sort` first
-  print_list | sort -V | head -n "${NUM:--0}" | make_filename | \
+  print_list | sort -V | head -n "${NUM:--0}" | make_filename |
     mpv --playlist=- --load-unsafe-playlists --prefetch-playlist=yes
 fi

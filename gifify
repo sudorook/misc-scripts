@@ -95,7 +95,7 @@ function make_image_subs {
 
   # burn the subtitles into a short video
   case "${SCODEC}" in
-    mov_text|subrip)
+    mov_text | subrip)
       cmd="ffmpeg -v warning -y -ss ${START}"
       # -t and -to are mutually exclusive, so set duration over end stamp
       # (mirrors ffmpeg default behavior)
@@ -223,47 +223,48 @@ eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -i|--input)
+    -i | --input)
       IN="${2}"
       scan_input
       shift 2
       ;;
-    -o|--output)
+    -o | --output)
       OUT="${2}"
       case "${2##*.}" in
-        GIF|gif|Gif)
+        GIF | gif | Gif)
           FORMAT=gif
           ;;
-        WEBP|webp|WebP)
+        WEBP | webp | WebP)
           FORMAT=webp
           ;;
         *)
           show_error "ERROR: ${2@Q} unsupported output format."
           exit 3
+          ;;
       esac
       shift 2
       ;;
-    -s|--start)
+    -s | --start)
       START="${2}"
       shift 2
       ;;
-    -e|--end)
+    -e | --end)
       END="${2}"
       shift 2
       ;;
-    -l|--length)
+    -l | --length)
       LENGTH="${2}"
       shift 2
       ;;
-    -t|--subtitle)
+    -t | --subtitle)
       EMBED_SUBS="${2}"
       shift 2
       ;;
-    -d|--dimensions)
+    -d | --dimensions)
       IFS=',' read -r -a DIMENSIONS <<< "${2}"
       shift 2
       ;;
-    -p|--fps)
+    -p | --fps)
       FPS="${2}"
       shift 2
       ;;
@@ -297,10 +298,10 @@ fi
 # Create a GIF/WebP for all dimensions listed in the input.
 for dim in "${DIMENSIONS[@]}"; do
   case "${EMBED_SUBS}" in
-    yes|true|y)
+    yes | true | y)
       make_image_subs "${IN}" "${OUT}" "${dim}"
       ;;
-    no|false|n)
+    no | false | n)
       make_image "${IN}" "${OUT}" "${dim}"
       ;;
     both)

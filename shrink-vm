@@ -33,7 +33,6 @@ function do_shrink() {
 }
 FUNCTION=$(declare -f do_shrink)
 
-
 #
 # Globals
 #
@@ -48,7 +47,6 @@ fi
 
 OWNER="$(stat "${QCOW2}" -c "%U")"
 
-
 #
 # Main
 #
@@ -61,11 +59,11 @@ case "${OWNER}" in
   "${USER}")
     do_shrink "${QCOW2}"
     ;;
-  root|qemu)
+  root | qemu)
     show_info "${QCOW2@Q} owned by ${OWNER@Q}. Trying sudo..."
     sudo bash -c "${FUNCTION} && do_shrink ${QCOW2}"
     ;;
-  nobody|kvm|libvirt-qemu)
+  nobody | kvm | libvirt-qemu)
     show_error "ERROR: Cannot edit running instance. Exiting."
     exit 3
     ;;

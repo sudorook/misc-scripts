@@ -12,7 +12,7 @@ DECRYPTPATH="${decryptpath:-${HOME}/.decrypted}"
 mkdir -p "${ENCRYPTPATH}"
 mkdir -p "${DECRYPTPATH}"
 
-if grep "${DECRYPTPATH}" /etc/mtab >/dev/null 2>&1; then
+if grep "${DECRYPTPATH}" /etc/mtab > /dev/null 2>&1; then
   gio set "${DECRYPTPATH}" -t string metadata::custom-icon-name folder-unlocked
   show_info "${DECRYPTPATH} is already decrypted."
   exit
@@ -20,7 +20,7 @@ fi
 
 encfs "${ENCRYPTPATH}" "${DECRYPTPATH}"
 
-if grep "${DECRYPTPATH}" /etc/mtab >/dev/null 2>&1; then
+if grep "${DECRYPTPATH}" /etc/mtab > /dev/null 2>&1; then
   gio set "${DECRYPTPATH}" -t string metadata::custom-icon-name folder-unlocked
   show_success "Decrypted successfully."
 else

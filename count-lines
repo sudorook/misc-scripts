@@ -42,7 +42,7 @@ function strip_missing {
   local missing
   local cmd="sed"
 
-  IFS=$'\n' readarray -t missing <<<"$(git -C "${IN}" ls-files -d)"
+  IFS=$'\n' readarray -t missing <<< "$(git -C "${IN}" ls-files -d)"
   if [ -n "${missing[*]}" ]; then
     for i in "${missing[@]}"; do
       if [ -n "${i}" ]; then
@@ -68,7 +68,7 @@ IN="${1:-.}"
 if [ -f "${IN}" ]; then
   wc -l "${IN}"
 elif [ -d "${IN}" ]; then
-  if command -v git >/dev/null && git -C "${IN}" rev-parse 2>/dev/null; then
+  if command -v git > /dev/null && git -C "${IN}" rev-parse 2> /dev/null; then
     CMD="git -C ${IN@Q} ls-files -co --exclude-standard -z | strip_missing | sed -z -e 's,^,${IN}/,g' | find -files0-from - -maxdepth 0"
   else
     CMD="find ${IN@Q}"

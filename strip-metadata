@@ -59,8 +59,7 @@ function parse_streams {
         COUNTERS+=("${t_counter}")
         s_counter=$((t_counter + 1))
         ;;
-      *)
-        ;;
+      *) ;;
     esac
 
     if [ -n "${title}" ]; then
@@ -90,14 +89,13 @@ function strip_generic {
   cmd="${cmd}${ANALYZEDURATION:+ -analyzeduration ${ANALYZEDURATION}}"
   cmd="${cmd} -v info -i file:${IN@Q} -map_metadata -1 -map_chapters 0 -map 0 -c copy"
 
-  for ((idx=0; idx < "${#STREAMS[@]}"; ++idx)); do
+  for ((idx = 0; idx < "${#STREAMS[@]}"; ++idx)); do
     codec_type="${STREAMS[${idx}]}"
     title="${TITLES[${idx}]}"
     counter="${COUNTERS[${idx}]}"
     lang="${LANGUAGES[${idx}]}"
     case "${codec_type}" in
-      video)
-        ;;
+      video) ;;
       audio)
         if [[ -n "${lang}" ]]; then
           cmd="${cmd} -metadata:s:a:${counter} language=${lang}"
@@ -114,13 +112,12 @@ function strip_generic {
           cmd="${cmd} -metadata:s:s:${counter} handler=${title}"
         fi
         ;;
-      *)
-        ;;
+      *) ;;
     esac
   done
 
   case "${container,,}" in
-    mkv|matroska)
+    mkv | matroska)
       cmd="${cmd} -f matroska -y ${TMP}"
       ;;
     mp4)
@@ -162,7 +159,7 @@ function strip_matroska {
   mkvpropedit -e info -d title "${IN}"
   mkvpropedit -e info -d date "${IN}"
 
-  for ((idx=0; idx < "${#STREAMS[@]}"; ++idx)); do
+  for ((idx = 0; idx < "${#STREAMS[@]}"; ++idx)); do
     codec_type="${STREAMS[${idx}]}"
     title="${TITLES[${idx}]}"
     lang="${LANGUAGES[${idx}]}"
@@ -170,27 +167,26 @@ function strip_matroska {
     case "${codec_type}" in
       video)
         if [[ -n "${title}" ]]; then
-          mkvpropedit -e track:v$((counter+1)) --set name="${title}" "${IN}"
+          mkvpropedit -e track:v$((counter + 1)) --set name="${title}" "${IN}"
         else
-          mkvpropedit -e track:v$((counter+1)) --delete name "${IN}"
+          mkvpropedit -e track:v$((counter + 1)) --delete name "${IN}"
         fi
         ;;
       audio)
         if [[ -n "${title}" ]]; then
-          mkvpropedit -e track:a$((counter+1)) --set name="${title}" "${IN}"
+          mkvpropedit -e track:a$((counter + 1)) --set name="${title}" "${IN}"
         else
-          mkvpropedit -e track:a$((counter+1)) --delete name "${IN}"
+          mkvpropedit -e track:a$((counter + 1)) --delete name "${IN}"
         fi
         ;;
       subtitle)
         if [[ -n "${title}" ]]; then
-          mkvpropedit -e track:s$((counter+1)) --set name="${title}" "${IN}"
+          mkvpropedit -e track:s$((counter + 1)) --set name="${title}" "${IN}"
         else
-          mkvpropedit -e track:s$((counter+1)) --delete name "${IN}"
+          mkvpropedit -e track:s$((counter + 1)) --delete name "${IN}"
         fi
         ;;
-      *)
-        ;;
+      *) ;;
     esac
   done
 }
@@ -200,10 +196,10 @@ function strip_image {
     cp "${IN}" "${BACKUP}"
   fi
 
-  if command -v magick >/dev/null; then
+  if command -v magick > /dev/null; then
     magick "${IN}" -strip "${TMP}"
     mv "${TMP}" "${IN}"
-  elif command -v convert >/dev/null; then
+  elif command -v convert > /dev/null; then
     convert "${IN}" -strip "${TMP}"
     mv "${TMP}" "${IN}"
   else
@@ -234,7 +230,7 @@ eval set -- "${PARSED}"
 
 while [ "${#}" -ge 1 ]; do
   case "${1}" in
-    -k|--keep)
+    -k | --keep)
       KEEP=true
       shift 1
       ;;
@@ -271,7 +267,7 @@ parse_streams
 
 TYPE="$(file -bi "${IN}")"
 if [[ "${TYPE}" =~ matroska|webm ]]; then
-  if command -v mkvpropedit >/dev/null; then
+  if command -v mkvpropedit > /dev/null; then
     strip_matroska
   else
     show_warning "WARNING: mkvtoolnix-cli not found. Defaulting to ffmpeg."

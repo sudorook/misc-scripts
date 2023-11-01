@@ -12,7 +12,6 @@ function print_usage {
   show_listitem "  -j|--join   <flag to join split PDF pages together (def: false)"
 }
 
-
 OPTIONS=hi:f:l:
 LONGOPTIONS=help,input:,first:,last:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "$@")
@@ -20,21 +19,21 @@ eval set -- "${PARSED}"
 
 while [ $# -ge 1 ]; do
   case "${1}" in
-    -i|--input)
+    -i | --input)
       IN="${2}"
       OUT="${2%.*}"
       PAGES=$(pdfinfo "${2}" | grep "^Pages:" | sed -n "s/^Pages:\s*\([0-9]\+\)/\1/p")
       shift 2
       ;;
-    -f|--FIRST)
+    -f | --FIRST)
       FIRST="${2}"
       shift 2
       ;;
-    -l|--LAST)
+    -l | --LAST)
       LAST="${2}"
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       print_usage
       exit 0
       ;;
@@ -61,17 +60,17 @@ fi
 FIRST="${FIRST:-1}"
 LAST="${LAST:-${PAGES}}"
 
-if (( LAST > PAGES )); then
+if ((LAST > PAGES)); then
   show_warning "WARNING: ${LAST@Q} exceeds number of pages ${PAGES@Q}."
   LAST=${PAGES}
 fi
 
-if (( FIRST > PAGES )); then
+if ((FIRST > PAGES)); then
   show_error "Starting page doesn't exist. The file only has ${PAGES} pages."
   exit 3
 fi
 
-if (( FIRST > LAST )); then
+if ((FIRST > LAST)); then
   show_error "What are you playing at?"
   exit 3
 fi
@@ -80,13 +79,13 @@ fi
 # that the filenames will get sorted in numerical order. Otherwise, the glob
 # used to join the pages at the end won't work. For example, 02 is sorted
 # before 10, but 2 is placed after.
-if (( FIRST >= 10 )); then
+if ((FIRST >= 10)); then
   pdfseparate -f "${FIRST}" -l "${LAST}" "${IN}" "${OUT}-%d.pdf"
-elif (( LAST >= 10 )); then
-  if (( LAST < 10 )); then
+elif ((LAST >= 10)); then
+  if ((LAST < 10)); then
     pdfseparate -f "${FIRST}" -l "${LAST}" "${IN}" "${OUT}-0%d.pdf"
   fi
-  if (( LAST >= 10 )); then
+  if ((LAST >= 10)); then
     pdfseparate -f "${FIRST}" -l 9 "${IN}" "${OUT}-0%d.pdf"
     pdfseparate -f 10 -l "${LAST}" "${IN}" "${OUT}-%d.pdf"
   fi

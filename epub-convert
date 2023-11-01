@@ -7,7 +7,7 @@ source globals
 for ITEM in "${@}"; do
   if [ -f "${ITEM}" ]; then
     case "${ITEM##*.}" in
-      AZW3|MOBI|LIT|azw3|mobi|lit)
+      AZW3 | MOBI | LIT | azw3 | mobi | lit)
         ebook-convert "${ITEM}" "${ITEM%%.*}.epub" --change-justification "left"
         ;;
       *)
