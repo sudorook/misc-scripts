@@ -6,13 +6,17 @@ source globals
 
 for ITEM in "${@}"; do
   if [ -f "${ITEM}" ]; then
-    case "${ITEM##*.}" in
-      AZW3 | MOBI | LIT | azw3 | mobi | lit)
-        ebook-convert "${ITEM}" "${ITEM%%.*}.epub" --change-justification "left"
+    NAME="${ITEM%%.*}"
+    EXT="${ITEM##*.}"
+    case "${EXT,,}" in
+      azw3 | mobi | lit)
+        ebook-convert "${ITEM}" "${NAME}.epub" --change-justification "left"
         ;;
       *)
         show_warning "${ITEM@Q} not supported. Skipping..."
         ;;
     esac
+    unset NAME
+    unset EXT
   fi
 done
