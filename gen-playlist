@@ -31,7 +31,7 @@ for artist in artists:
     playlists.append(
         {
             "name": "Best of " + artist + ".m3u",
-            "query": 'artist:"' + artist + '" rating:5',
+            "query": 'albumartist:"' + artist + '" rating:5',
         }
     )
 
