@@ -43,6 +43,12 @@ function format_rust() {
 }
 export -f format_rust
 
+function format_shellscript() {
+  ! check_command shfmt && exit 3
+  shfmt -i 2 -ci -kp -sr -w "${1}"
+}
+export -f format_shellscript
+
 function format_wrapper() {
   local lang
   local mime
@@ -88,6 +94,9 @@ function format_wrapper() {
       ;;
     rust)
       format_rust "${1}"
+      ;;
+    shellscript)
+      format_shellscript "${1}"
       ;;
     *)
       show_warning "WARNING: skipping ${1@Q} type ${mime@Q}." >&2
