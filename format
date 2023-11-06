@@ -109,7 +109,7 @@ function format_wrapper() {
 export -f format_wrapper
 
 function print_usage() {
-  show_header   "Usage: format <file or directory> -l <lang>"
+  show_header "Usage: format <file or directory> -l <lang>"
   echo
   show_listitem \
     "  -l|--language   (optional) programming language (e.g. C++, Python)"
