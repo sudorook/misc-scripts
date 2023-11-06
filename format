@@ -100,6 +100,7 @@ function format_wrapper() {
       ;;
     *)
       show_warning "WARNING: skipping ${1@Q} type ${mime@Q}." >&2
+      return
       ;;
   esac
 
