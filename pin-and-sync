@@ -1,0 +1,125 @@
+#! /bin/bash
+set -euo pipefail
+source globals
+
+! check_command find fzf sed && exit 3
+
+#
+# Functions
+#
+
+function get_common_root {
+  if [ ${#DIRS[@]} -lt 2 ]; then
+    ROOT="${DIRS[0]}"
+    DIRS=(".")
+  else
+    local root="${DIRS[0]}"
+    local cur
+    for cur in "${DIRS[@]}"; do
+      root="$(printf "%s\n%s\n" "${root}" "${cur}" |
+              sed -e 'N;s,^\(.*\).*\n\1.*$,\1,')"
+    done
+    ROOT="${root%%\/}"
+  fi
+
+  local dir
+  local new_dirs=()
+  for dir in "${DIRS[@]}"; do
+    if [[ "${dir}" = "${ROOT}" ]]; then
+      DIRS=(".")
+      return
+    else
+      new_dirs+=("${dir##"${ROOT}"\/}")
+    fi
+  done
+  DIRS=("${new_dirs[@]}")
+}
+
+function check_dirs {
+  local dir
+  local dirs=()
+  for dir in "${DIRS[@]}"; do
+    if [ -d "${dir}" ]; then
+      dirs+=("${dir}")
+    else
+      show_warning "WARNING: ${dir@Q} not found."
+    fi
+  done
+  DIRS=("${dirs[@]}")
+}
+
+function pick_file {
+  pushd "${ROOT}" > /dev/null
+  find "${DIRS[@]}" -type f \
+    \( -iname "*.mobi" \
+      -o -iname "*pdf" \
+      -o -iname "*.azw3" \
+      -o -iname "*.epub" \
+    \) -print |
+    fzf --layout=reverse --header-first
+  popd > /dev/null
+}
+
+function pin_and_sync {
+  local file
+  local file_name
+  local file_ext
+  local file_name_new
+  local file_name
+
+  file="$(basename "${FILE}")"
+  file_name="${file%%.*}"
+  file_ext="${file##*.}"
+  file_name_new="$(echo "${file_name}" |
+                   sed -e "s,\(.\+\)\( - \).\+,\1,g" -e "s,\(.\+\)_.*,\1,g")"
+  file_new="${file_name_new}.${file_ext}"
+
+  if [ -f "${HOME}/Sync/${file_new}" ]; then
+    show_warning "WARNING: '~/Sync/${file_new}' already exists. Skipping."
+  else
+    cp "${FILE}" "${HOME}/Sync/${file_new}"
+  fi
+  pushd "${HOME}/Desktop" > /dev/null
+  if [ -e "${file_new}" ]; then
+    show_warning "WARNING: '~/Desktop/${file_new}' already exists. Skipping."
+  else
+    ln -s ../Sync/"${file_new}" "${file_new}"
+  fi
+  popd > /dev/null
+}
+
+#
+# Globals
+#
+
+DIRS=("${HOME}/Documents/Library" "${HOME}/Documents/Zotero")
+ROOT="${HOME}"
+
+#
+# Main
+#
+
+check_dirs
+if [ "${#DIRS[@]}" -eq 0 ]; then
+  exit 3
+fi
+
+get_common_root
+if [ -z "${ROOT}" ] || ! [ -d "${ROOT}" ]; then
+  show_error "ERROR: Parsing common parent directory failed. Exiting."
+  exit 3
+fi
+
+FILE="$(pick_file)"
+if [ -z "${FILE}" ]; then
+  exit 3
+fi
+
+FILE="${ROOT}/${FILE}"
+if ! [ -f "${FILE}" ]; then
+  show_error "ERROR: Parsing ${FILE@Q} went wrong. Exiting."
+  exit 3
+fi
+
+pin_and_sync
+show_success "done"

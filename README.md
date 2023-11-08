@@ -44,6 +44,7 @@
 | `nm-wg-import`     | import a WireGuard configuration file using Network Manager            |
 | `pdf-fixup`        | fix up the metadata in PDF files (newlines in tags, covers, etc.)      |
 | `pdf-split`        | extract range of pages from a PDF                                      |
+| `pin-and-sync`     | find documents and pin to ~/Desktop and ~/Sync                         |
 | `print-colors`     | print terminal colors                                                  |
 | `print-fontstring` | generate the FFmpeg format string to embed fonts in a container        |
 | `rate-song`        | write song rating metadata to beets database                           |
