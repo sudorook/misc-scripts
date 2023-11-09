@@ -48,17 +48,16 @@ function convert_charset {
 
   # Convert charset to UTF-8, if needed.
   case "${encoding}" in
-    utf-8|UTF-8|ascii|us-ascii)
+    utf-8 | UTF-8 | ascii | us-ascii)
       # No need to do anything.
       ;;
-    utf-8-sig|UTF-8-SIG)
+    utf-8-sig | UTF-8-SIG)
       show_error "WARNING: Failed to remove byte-order mark in ${1@Q}. Skipping..."
       ;;
     unknown-8bit)
       show_warning "WARNING: Unknown character encoding for ${1@Q}. Skipping..."
       ;;
-    binary)
-      ;;
+    binary) ;;
     *)
       show_info "INFO: Converting ${file@Q} from ${encoding@Q} to UTF-8." >&2
       iconv -f "${encoding}" -t utf-8 "${1}" > "${tmp}"
@@ -90,7 +89,7 @@ function get_language {
 
   # Single subtitles are usually English, so just return 'eng' if the video and
   # subtitle file names are the same.
-  if [[ "${NAME}" = "${name}" ]] || \
+  if [[ "${NAME}" = "${name}" ]] ||
      [[ "${NAME}" =~ ${name}( |-|_|\.)(sdh|SDH|hiHI)$ ]]; then
     show_warning "assuming ${in@Q} language is ${LANG_DEFAULT@Q}" >&2
     echo "${LANG_DEFAULT}"
@@ -99,15 +98,15 @@ function get_language {
 
   # Get last string in the file name for checking whether it contains the
   # language of the subtitle stream.
-  end="$(echo "${name,,}" | \
+  end="$(echo "${name,,}" |
          sed -E -e "s/[ -_]v?[[:digit:]]+$//g" \
-                -e "s/[\ -_]sdh$|[\ -_]hi$//g" | \
+                -e "s/[\ -_]sdh$|[\ -_]hi$//g" |
          grep -o '[^\ _]*$')"
 
   # Parse the end of the file name for three-character strings.
   for iso_639_2_code in "${!ISO_639_2[@]}"; do
     iso_639_2_name="${ISO_639_2[${iso_639_2_code}]}"
-    if [[ "${end,,}" = "${iso_639_2_code,,}" ]] || \
+    if [[ "${end,,}" = "${iso_639_2_code,,}" ]] ||
        [[ "${end,,}" = "${iso_639_2_name,,}" ]]; then
       echo "${iso_639_2_code}"
       return
@@ -140,8 +139,8 @@ function get_language {
   for iso_639_1_iso_3166_1_code in "${!ISO_639_1_ISO_3166_1[@]}"; do
     iso_639_1_iso_3166_1_code_strip="${iso_639_1_iso_3166_1_code/[-_]/}"
     iso_639_1_iso_3166_1_name="${ISO_639_1_ISO_3166_1[${iso_639_1_iso_3166_1_code}]}"
-    if [[ "${end,,}" = "${iso_639_1_iso_3166_1_code,,}" ]] || \
-       [[ "${end,,}" = "${iso_639_1_iso_3166_1_code_strip,,}" ]] || \
+    if [[ "${end,,}" = "${iso_639_1_iso_3166_1_code,,}" ]] ||
+       [[ "${end,,}" = "${iso_639_1_iso_3166_1_code_strip,,}" ]] ||
        [[ "${end,,}" = "${iso_639_1_iso_3166_1_name,,}" ]]; then
       echo "${iso_639_1_iso_3166_1_code}"
       return
@@ -164,11 +163,11 @@ function count_subs {
   local idx
   local in="${1}"
 
-  stream_count="$(ffprobe -v error -show_format file:"${in}" | \
-                  sed -n "s/nb_streams=\([0-9]\+\)/\1/p" 2>/dev/null)"
+  stream_count="$(ffprobe -v error -show_format file:"${in}" |
+                  sed -n "s/nb_streams=\([0-9]\+\)/\1/p" 2> /dev/null)"
   stream_count="$((stream_count - 1))"
   for idx in $(seq 0 "${stream_count}"); do
-    codec_type="$(ffprobe -v error -show_entries stream -select_streams "${idx}" file:"${in}" | \
+    codec_type="$(ffprobe -v error -show_entries stream -select_streams "${idx}" file:"${in}" |
                   sed -n "s/^codec_type=\(.*\)/\1/p")"
     if [[ "${codec_type}" = subtitle ]]; then
       sub_count="$((sub_count + 1))"
@@ -192,7 +191,7 @@ function find_subs {
       subext=${file##*.}
       subenc="$(file -b --mime-encoding "${file}")"
       case "${subext}" in
-        ssa|ass|srt|sup|smi)
+        ssa | ass | srt | sup | smi)
           if [[ "${subenc}" != binary ]]; then
             convert_charset "${file}"
           fi
@@ -211,8 +210,7 @@ function find_subs {
           fi
           SUBLIST+=("${file}")
           ;;
-        avi|m4v|mp4|mkv|webm|idx)
-          ;;
+        avi | m4v | mp4 | mkv | webm | idx) ;;
         *)
           show_warning "WARNING: ${file@Q} not supported. Skipping..."
           ;;
@@ -227,7 +225,7 @@ function find_subs {
           subext=${file##*.}
           subenc="$(file -b --mime-encoding "${file}")"
           case "${subext}" in
-            ssa|ass|srt|sup|smi)
+            ssa | ass | srt | sup | smi)
               if [[ "${subenc}" != binary ]]; then
                 convert_charset "${subdir}/${file}"
               fi
@@ -246,8 +244,7 @@ function find_subs {
               fi
               SUBLIST+=("${subdir}/${file}")
               ;;
-            avi|m4v|mp4|mkv|webm|idx)
-              ;;
+            avi | m4v | mp4 | mkv | webm | idx) ;;
             *)
               show_warning "WARNING: ${file@Q} not supported. Skipping..."
               ;;
@@ -358,7 +355,7 @@ function make_cmd {
 
   copy="-c:v copy -c:a copy"
   if [ "${stream_count}" -gt 0 ]; then
-    copy="${copy}$(printf ' -c:s:%s copy' $(seq 0 $((stream_count-1))))"
+    copy="${copy}$(printf ' -c:s:%s copy' $(seq 0 $((stream_count - 1))))"
   fi
 
   for sub in "${SUBLIST[@]}"; do
@@ -370,7 +367,7 @@ function make_cmd {
 
     # add suffix if present (e.g. SDH for ambient sounds in the subtitles)
     if ! [ -f "${sub%.*}.idx" ]; then
-      if [[ "${subname,,}" =~ ( |-|_|\.)sdh$ ]] || \
+      if [[ "${subname,,}" =~ ( |-|_|\.)sdh$ ]] ||
          [[ "${subname,,}" =~ ( |-|_|\.)hi$ ]]; then
         metadata="${metadata} -metadata:s:s:${stream_count} language=${lang@Q}"
         if [ "${#lang}" = 3 ]; then
@@ -421,7 +418,7 @@ function make_cmd {
       # set output subtitle codec
       if [[ "${codec}" = sami || "${codec}" = webvtt ]]; then
         case "${ext}" in
-          mp4|m4v)
+          mp4 | m4v)
             copy="${copy} -c:s:${stream_count} mov_text"
             ;;
           mkv)
@@ -430,12 +427,12 @@ function make_cmd {
           *)
             copy="${copy} -c:s:${stream_count} copy"
             ;;
-          esac
+        esac
       elif [[ "${codec}" = subrip ]] && [[ "${ext}" = mp4 || "${ext}" = m4v ]]; then
         copy="${copy} -c:s:${stream_count} mov_text"
       elif [[ "${codec}" = microdvd ]] && [[ "${ext}" = mp4 || "${ext}" = m4v ]]; then
         copy="${copy} -c:s:${stream_count} mov_text"
-      elif [[ "${codec}" =~ "96256" || "${codec}" =~ microdvd ]] && \
+      elif [[ "${codec}" =~ "96256" || "${codec}" =~ microdvd ]] &&
            [[ "${ext}" = mkv ]]; then
         copy="${copy} -c:s:${stream_count} srt"
       else
@@ -476,7 +473,7 @@ function make_cmd {
       ptsflag="-fflags +genpts"
       CMD="ffmpeg ${ptsflag} ${inputs} ${mapping} ${disposition} ${copy} -f matroska ${metadata} ${TMPVID@Q} -y"
       ;;
-    mp4|m4v)
+    mp4 | m4v)
       # MP4 can have issues embedding image-based subtitles, so convert to
       # Matroska.
       if "${IS_IMGSUB}"; then
@@ -494,6 +491,7 @@ function make_cmd {
     *)
       show_error "ERROR: ${ext@Q} files are not supported."
       exit 3
+      ;;
   esac
 }
 
@@ -551,19 +549,19 @@ IS_IMGSUB=false
 LANG_DEFAULT=eng # needs to be 3-letter code (lower case)
 while [ ${#} -ge 1 ]; do
   case ${1} in
-    -c|--container)
+    -c | --container)
       CONTAINER="${2}"
       shift 2
       ;;
-    -f|--force)
+    -f | --force)
       FORCE=true
       shift 1
       ;;
-    -n|--nodefault)
+    -n | --nodefault)
       NOSUB=true
       shift 1
       ;;
-    -l|--language)
+    -l | --language)
       LANG_DEFAULT="${2}"
       shift 2
       ;;
