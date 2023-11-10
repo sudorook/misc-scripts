@@ -13,24 +13,6 @@ function seek {
   local item
   local cmd
 
-  # set default paths when global vars (from globals file) are not defined
-  local archivedir="${archivedir:-${HOME}/Desktop}"
-  local backup1="${backup1:-${HOME}/Desktop}"
-  local backup2="${backup2:-${HOME}/Desktop}"
-  local kvmdir="${kvmdir:-${HOME}/Desktop}"
-  local kvmshare="${kvmsharedir:-${HOME}/Desktop}"
-  local vboxdir="${vboxdir:-${HOME}/Desktop}"
-  local encryptpath="${encryptpath:-${HOME}/Desktop}"
-  local decryptpath="${decryptpath:-${HOME}/Desktop}"
-  local gtkdir="${gtkdir:-${HOME}/Desktop}"
-  local icondir="${icondir:-${HOME}/Desktop}"
-  local zshdir="${zshdir:-${HOME}/Desktop}"
-  local musicdir="${musicdir:-${HOME}/Music}"
-  local videodir="${videodir:-${HOME}/Videos}"
-  local pkgbuilddir="${pkgbuilddir:-${HOME}/Desktop}"
-  local projectdir="${projectdir:-${HOME}/Projects}"
-  local entrydir="${entrydir:-${HOME}/Desktop}"
-
   case ${MODE} in
     precise)
       for item in "${@}"; do
@@ -52,13 +34,13 @@ function seek {
          \( -path \"${HOME}/Desktop\" \
             -o -path \"${HOME}/Documents\" \
             -o -path \"${HOME}/Downloads\" \
-            -o -path \"${musicdir}\" \
+            -o -path \"${musicdir:-${HOME}/Music}\" \
             -o -path \"${HOME}/Pictures\" \
-            -o -path \"${projectdir}\" \
+            -o -path \"${projectdir:-${HOME}/Projects}\" \
             -o -path \"${HOME}/Public\" \
             -o -path \"${HOME}/Sync\" \
             -o -path \"${HOME}/Templates\" \
-            -o -path \"${videodir}\" \
+            -o -path \"${videodir:-${HOME}/Videos}\" \
             -o -path \"${HOME}/.cargo\" \
             -o -path \"${HOME}/.gem\" \
             -o -path \"${HOME}/.go\" \
@@ -76,19 +58,19 @@ function seek {
             -o -path \"${HOME}/.weechat\" \
             -o -path \"${HOME}/.zotero\" \
             -o -path \"${HOME}/.zotero-data\" \
-            -o -path \"${archivedir}\" \
-            -o -path \"${backup1}\" \
-            -o -path \"${backup2}\" \
-            -o -path \"${kvmdir}\" \
-            -o -path \"${kvmshare}\" \
-            -o -path \"${vboxdir}\" \
-            -o -path \"${encryptpath}\" \
-            -o -path \"${decryptpath}\" \
-            -o -path \"${gtkdir}\" \
-            -o -path \"${icondir}\" \
-            -o -path \"${zshdir}\" \
-            -o -path \"${pkgbuilddir}\" \
-            -o -path \"${entrydir}\" \) -prune , \
+            -o -path \"${archivedir:-${HOME}/Desktop}\" \
+            -o -path \"${backup1:-${HOME}/Desktop}\" \
+            -o -path \"${backup2:-${HOME}/Desktop}\" \
+            -o -path \"${kvmdir:-${HOME}/Desktop}\" \
+            -o -path \"${kvmshare:-${HOME}/Desktop}\" \
+            -o -path \"${vboxdir:-${HOME}/Desktop}\" \
+            -o -path \"${encryptpath:-${HOME}/Desktop}\" \
+            -o -path \"${decryptpath:-${HOME}/Desktop}\" \
+            -o -path \"${gtkdir:-${HOME}/Desktop}\" \
+            -o -path \"${icondir:-${HOME}/Desktop}\" \
+            -o -path \"${zshdir:-${HOME}/Desktop}\" \
+            -o -path \"${pkgbuilddir:-${HOME}/Desktop}\" \
+            -o -path \"${entrydir:-${HOME}/Desktop}\" \) -prune , \
          \( ${inputstring} \) -print"
 
   eval "${cmd}"
