@@ -1,0 +1,14 @@
+#! /bin/bash
+set -eu
+source globals
+
+function strip_file {
+  if [ -f "${1}" ]; then
+    sed -e '1{/^\(---\|\.\.\.\)$/{:a N;/\n\(---\|\.\.\.\)$/!ba;d;}}' "${1}" |
+      sed '1!b;/^$/d'
+  fi
+}
+
+for FILE in "${@}"; do
+  strip_file "${FILE}"
+done
