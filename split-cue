@@ -26,7 +26,7 @@ if DATA is None:
 GENERAL = {}
 TRACKS = []
 
-CURRENT_FILE = None
+CURRENT_FILE = ""
 CURRENT_DIR = os.path.dirname(CUE_FILE)
 
 for line in DATA:
