@@ -3,7 +3,6 @@
 | Script             | Description                                                            |
 | ------------------ | ---------------------------------------------------------------------- |
 | `add-cover`        | embeds images in audio files                                           |
-| `add-ovpn`         | `nmcli` wrapper for importing an OpenVPN configuration file            |
 | `add-subtitles`    | embed srt files into video                                             |
 | `allow-ip`         | add rule to routing table for an IP address (e.g. a local printer)     |
 | `alphabetize`      | sorts line alphabetically and deletes repeats                          |
@@ -41,6 +40,7 @@
 | `list-fonts`       | list all the fonts referenced in a subtitle file or directory          |
 | `mpv-play`         | play media above a duration cutoff                                     |
 | `mpv-ssh`          | search remote directories over SSH and pipe as playlist to mpv         |
+| `nm-ovpn-import`   | `nmcli` wrapper for importing an OpenVPN configuration file            |
 | `nm-wg-import`     | import a WireGuard configuration file using Network Manager            |
 | `pdf-fixup`        | fix up the metadata in PDF files (newlines in tags, covers, etc.)      |
 | `pdf-split`        | extract range of pages from a PDF                                      |
