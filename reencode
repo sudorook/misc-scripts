@@ -52,7 +52,7 @@ function convert_codec {
     cmd="${cmd} -default_mode infer_no_subs -disposition:s -default"
   fi
 
-  if ! [ "${VSTREAM_ID}" -eq -1 ]; then
+  if ! [[ "${VSTREAM_ID}" = "-1" ]]; then
     cmd="${cmd} -map 0:v:${VSTREAM_ID:-?}"
 
     if "${CROP}"; then
@@ -101,7 +101,7 @@ function convert_codec {
     fi
   fi
 
-  if ! [ "${ASTREAM_ID}" -eq -1 ]; then
+  if ! [[ "${ASTREAM_ID}" = "-1" ]]; then
     cmd="${cmd} -map 0:a:${ASTREAM_ID:-?}"
 
     # set audio codec
