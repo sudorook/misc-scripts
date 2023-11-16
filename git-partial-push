@@ -10,8 +10,8 @@ function head_count {
 
 if [ "${#}" -eq 0 ]; then
   UNTIL="$(date -d now +%s)"
-elif [ "${#}" -eq 1 ]; then
-  UNTIL="$(date -d "${1}" +%s)"
+else
+  UNTIL="$(date -d "${*}" +%s)"
 fi
 
 COUNT="$(head_count)"
