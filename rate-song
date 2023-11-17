@@ -80,10 +80,10 @@ def get_current_song():
         if len(item) == 1:
             return item[0]
         sys.exit(
-            "Parsing failed. See below:\n",
-            f"Title: {info['title']} -> {re.escape(info['title'])}\n",
-            f"Artist: {info['artist']} -> {re.escape(info['artist'])}\n",
-            f"Album: {info['album']} -> {re.escape(info['album'])}\n",
+            "Parsing failed. See below:\n"
+            f"Title: {info['title']} -> {re.escape(info['title'])}\n"
+            f"Artist: {info['artist']} -> {re.escape(info['artist'])}\n"
+            f"Album: {info['album']} -> {re.escape(info['album'])}\n"
         )
     else:
         return item[0]
