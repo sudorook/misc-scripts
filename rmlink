@@ -2,20 +2,46 @@
 set -eu
 source globals
 
-if ! [[ -L "${1}" ]]; then
-  show_error "ERROR: not a symbolic link."
-  exit 3
-fi
+#
+# Functions
+#
 
-if ! [[ -e "${1}" ]]; then
-  show_error "ERROR: broken symbolic link."
-  exit 3
-fi
+function check_file {
+  if ! [[ -L "${1}" ]]; then
+    show_warning "WARNING: ${1@Q} not a symbolic link."
+    return 1
+  fi
 
-if ! [[ -f "$(readlink -f "${1}")" ]]; then
-  show_error "ERROR: link needs to point to a file."
-  exit 3
-fi
+  if ! [[ -e "${1}" ]]; then
+    show_warning "WARNING: ${1@Q} broken symbolic link."
+    return 1
+  fi
 
-rm "$(readlink -f "${1}")"
-rm "${1}"
+  if ! [[ -f "$(readlink -f "${1}")" ]]; then
+    show_warning "WARNING: ${1@Q} link needs to point to a file."
+    return 1
+  fi
+
+  return 0
+}
+
+function rmlink {
+  rm "${VERBOSE:+-v}" "$(readlink -f "${1}")"
+  rm "${VERBOSE:+-v}" "${1}"
+}
+
+#
+# Globals
+#
+
+VERBOSE=true
+
+#
+# Main
+#
+
+for FILE in "${@}"; do
+  if check_file "${FILE}"; then
+    rmlink "${FILE}"
+  fi
+done
