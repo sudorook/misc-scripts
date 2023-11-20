@@ -68,3 +68,8 @@ fi
 delete_directory \
   "${HOME}/Documents/Library/.caltrash/" \
   "Emptying Calibre trash."
+
+# Remove trash directory
+delete_directory \
+  "${HOME}/.local/share/Trash/" \
+  "Deleting trash directory."
