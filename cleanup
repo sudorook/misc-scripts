@@ -12,6 +12,9 @@ function delete_directory() {
       fi
       rm -rvf "${1}"
       echo
+    else
+      show_warning "${1@Q} owned by ${dir_owner@Q}. Skipping."
+      echo
     fi
   fi
 }
