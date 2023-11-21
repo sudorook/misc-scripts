@@ -3,8 +3,9 @@ set -Eeu
 source globals
 
 function print_usage {
-  show_header "Usage: alphabetize -b|--backup <file>"
+  show_header "Usage: alphabetize"
   show_listitem "  -b|--backup  (optional) save the original file"
+  show_listitem "  -h|--help    print (this) error message"
 }
 
 OPTIONS=bh
