@@ -1,7 +1,10 @@
 #! /bin/bash
 set -Eeuo pipefail
-source globals
-source langs
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+source "${ROOT}"/langs
 
 ! check_command bc chardetect ffmpeg ffprobe find grep iconv sed uchardet && exit 3
 

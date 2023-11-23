@@ -1,6 +1,9 @@
 #! /bin/bash
 set -eu
-source globals
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
 
 ! check_command find xdg-mime && exit 3
 

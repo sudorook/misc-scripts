@@ -1,6 +1,9 @@
 #! /bin/bash
 set -euo pipefail
-source globals
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
 
 # Command line script to add a routing table entry for an IP address. Useful
 # for accessing network printers when behind a VPN that interferes with access

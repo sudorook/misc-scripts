@@ -1,7 +1,10 @@
 #! /bin/bash
 set -euo pipefail
-source globals
-source langs
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+source "${ROOT}"/langs
 
 #
 # Functions

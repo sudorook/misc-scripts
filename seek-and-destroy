@@ -1,6 +1,9 @@
 #! /bin/bash
 set -euo pipefail
-source globals
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
 
 ! check_command find && exit 3
 

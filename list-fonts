@@ -1,6 +1,9 @@
 #! /bin/bash
 set -euo pipefail
-source globals
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
 
 print_ass_fonts() {
   local line="${1}"

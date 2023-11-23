@@ -1,6 +1,9 @@
 #! /bin/bash
 set -Eeuo pipefail
-source globals
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
 
 ! check_command ffmpeg ffprobe && exit 3
 

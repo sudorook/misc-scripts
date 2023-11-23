@@ -1,6 +1,9 @@
 #! /bin/bash
 set -eu
-source globals
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
 
 ! check_command encfs gio && exit 3
 

@@ -1,6 +1,9 @@
 #! /bin/bash
 set -euo pipefail
-source globals
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
 
 # Generate an ffmpeg format string to add all the fonts in a directory to a
 # video container. String will specify the stream index numbers.

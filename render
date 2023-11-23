@@ -1,6 +1,9 @@
 #! /bin/bash
 set -eu
-source globals
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
 
 if ! [[ -v 1 ]] || ! [ -f "${1}" ]; then
   show_error "ERROR: ${1@Q} does not exist. Exiting."

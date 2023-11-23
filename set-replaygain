@@ -1,6 +1,9 @@
 #! /bin/bash
 set -Eeuo pipefail
-source globals
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
 
 #
 # Check inputs and requirements

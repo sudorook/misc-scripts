@@ -1,6 +1,9 @@
 #! /bin/bash
 set -eu
-source globals
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
 
 function print_usage {
   show_header "Usage: get-webseries"

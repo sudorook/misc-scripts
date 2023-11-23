@@ -1,6 +1,9 @@
 #! /bin/bash
 set -eu
-source globals
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
 
 if ! [[ -v entrydir ]] || [[ -z "${entrydir}" ]]; then
   show_error "entrydir missing in globals. Exiting."

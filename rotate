@@ -1,6 +1,9 @@
 #! /bin/bash
 set -euo pipefail
-source globals
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
 
 # Map 2-character hexadecimal values (1 byte), in a format familiar to that
 # found in the KeePassXC configuration file.
