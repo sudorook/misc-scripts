@@ -28,7 +28,10 @@ check_inputs() {
 
 check_duration() {
   local duration
-  duration="$(ffprobe -v error -show_entries stream=duration -select_streams a:0 -of default=noprint_wrappers=1:nk=1 file:"${1}")"
+  duration="$(ffprobe -v error \
+                -show_entries stream=duration \
+                -select_streams a:0 \
+                -of default=noprint_wrappers=1:nk=1 file:"${1}")"
   if (("${duration%.*}" >= "${CUTOFF}")); then
     return 0
   else
@@ -40,25 +43,53 @@ export -f check_duration
 print_list() {
   if [[ "${CUTOFF}" = 0 ]]; then
     if [[ -v FILETYPE ]]; then
-      find "${IN[@]}" -type f \( -iname "*.${FILETYPE}" \) -print
+      find "${IN[@]}" -type f \
+        \( -iname "*.${FILETYPE}" \) -print
     else
-      find "${IN[@]}" -type f \( -iname "*.mp3" -o -iname "*.opus" -o -iname "*.wav" -o -iname "*.mka" -o -iname "*.flac" -o -iname "*.aac" -o -iname "*.alac" -o -iname "*.mka" \) -print
+      find "${IN[@]}" -type f \
+        \( -iname "*.mp3" \
+           -o -iname "*.opus" \
+           -o -iname "*.wav" \
+           -o -iname "*.mka" \
+           -o -iname "*.flac" \
+           -o -iname "*.aac" \
+           -o -iname "*.alac" \
+           -o -iname "*.mka" \) \
+        -print
     fi
   else
     if command -v parallel > /dev/null; then
       if [[ -v FILETYPE ]]; then
-        find "${IN[@]}" -type f -iname "*.${FILETYPE}" -print0 |
+        find "${IN[@]}" -type f \
+          \( -iname "*.${FILETYPE}" \) -print0 |
           parallel -0 'check_duration {} && echo {}'
       else
-        find "${IN[@]}" -type f \( -iname "*.mp3" -o -iname "*.opus" -o -iname "*.wav" -o -iname "*.mka" -o -iname "*.flac" -o -iname "*.aac" -o -iname "*.alac" -o -iname "*.mka" \) -print0 |
+        find "${IN[@]}" -type f \
+          \( -iname "*.mp3" \
+             -o -iname "*.opus" \
+             -o -iname "*.wav" \
+             -o -iname "*.mka" \
+             -o -iname "*.flac" \
+             -o -iname "*.aac" \
+             -o -iname "*.alac" \
+             -o -iname "*.mka" \) -print0 |
           parallel -0 'check_duration {} && echo {}'
       fi
     else
       if [[ -v FILETYPE ]]; then
-        find "${IN[@]}" -type f -iname "*.${FILETYPE}" \
+        find "${IN[@]}" -type f \
+          \( -iname "*.${FILETYPE}" \) \
           -exec bash -c 'check_duration "${1}"' bash {} \; -print
       else
-        find "${IN[@]}" -type f \( -iname "*.mp3" -o -iname "*.opus" -o -iname "*.wav" -o -iname "*.mka" -o -iname "*.flac" -o -iname "*.aac" -o -iname "*.alac" -o -iname "*.mka" \) \
+        find "${IN[@]}" -type f \
+          \( -iname "*.mp3" \
+             -o -iname "*.opus" \
+             -o -iname "*.wav" \
+             -o -iname "*.mka" \
+             -o -iname "*.flac" \
+             -o -iname "*.aac" \
+             -o -iname "*.alac" \
+             -o -iname "*.mka" \) \
           -exec bash -c 'check_duration "${1}"' bash {} \; -print
       fi
     fi
