@@ -39,13 +39,13 @@ export -f check_duration
 
 print_list() {
   if [[ "${CUTOFF}" = 0 ]]; then
-    find "${IN[@]}" -type f -name "*.${FORMAT}" -print
+    find "${IN[@]}" -type f -iname "*.${FORMAT}" -print
   else
     if command -v parallel > /dev/null; then
-      find "${IN[@]}" -type f -name "*.${FORMAT}" -print0 |
+      find "${IN[@]}" -type f -iname "*.${FORMAT}" -print0 |
         parallel -0 'check_duration {} && echo {}'
     else
-      find "${IN[@]}" -type f -name "*.${FORMAT}" \
+      find "${IN[@]}" -type f -iname "*.${FORMAT}" \
         -exec bash -c 'check_duration "${1}"' bash {} \; -print
     fi
   fi
