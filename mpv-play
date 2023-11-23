@@ -39,24 +39,38 @@ export -f check_duration
 
 print_list() {
   if [[ "${CUTOFF}" = 0 ]]; then
-    find "${IN[@]}" -type f -iname "*.${FORMAT}" -print
+    if [[ -v FILETYPE ]]; then
+      find "${IN[@]}" -type f \( -iname "*.${FILETYPE}" \) -print
+    else
+      find "${IN[@]}" -type f \( -iname "*.mp3" -o -iname "*.opus" -o -iname "*.wav" -o -iname "*.mka" -o -iname "*.flac" -o -iname "*.aac" -o -iname "*.alac" -o -iname "*.mka" \) -print
+    fi
   else
     if command -v parallel > /dev/null; then
-      find "${IN[@]}" -type f -iname "*.${FORMAT}" -print0 |
-        parallel -0 'check_duration {} && echo {}'
+      if [[ -v FILETYPE ]]; then
+        find "${IN[@]}" -type f -iname "*.${FILETYPE}" -print0 |
+          parallel -0 'check_duration {} && echo {}'
+      else
+        find "${IN[@]}" -type f \( -iname "*.mp3" -o -iname "*.opus" -o -iname "*.wav" -o -iname "*.mka" -o -iname "*.flac" -o -iname "*.aac" -o -iname "*.alac" -o -iname "*.mka" \) -print0 |
+          parallel -0 'check_duration {} && echo {}'
+      fi
     else
-      find "${IN[@]}" -type f -iname "*.${FORMAT}" \
-        -exec bash -c 'check_duration "${1}"' bash {} \; -print
+      if [[ -v FILETYPE ]]; then
+        find "${IN[@]}" -type f -iname "*.${FILETYPE}" \
+          -exec bash -c 'check_duration "${1}"' bash {} \; -print
+      else
+        find "${IN[@]}" -type f \( -iname "*.mp3" -o -iname "*.opus" -o -iname "*.wav" -o -iname "*.mka" -o -iname "*.flac" -o -iname "*.aac" -o -iname "*.alac" -o -iname "*.mka" \) \
+          -exec bash -c 'check_duration "${1}"' bash {} \; -print
+      fi
     fi
   fi
 }
 
 print_usage() {
   show_header "Usage: mpv-play"
-  show_listitem "  -c|--cutoff <int>     filter out files below cutoff (default: 0)"
-  show_listitem "  -f|--format <string>  set extension keep (default: 'mp3')"
-  show_listitem "  -s|--shuffle          flag shuffle streams (default: false)"
-  show_listitem "  -h|--help             print (this) help message"
+  show_listitem "  -c|--cutoff   <int>     filter out files below cutoff (default: 0)"
+  show_listitem "  -f|--filetype <string>  set extension keep (optional)"
+  show_listitem "  -s|--shuffle            flag shuffle streams (default: false)"
+  show_listitem "  -h|--help               print (this) help message"
 }
 
 #
@@ -64,7 +78,6 @@ print_usage() {
 #
 
 CUTOFF=0
-FORMAT=mp3
 SHUFFLE=false
 REPLAYGAIN=album
 
@@ -73,7 +86,7 @@ REPLAYGAIN=album
 #
 
 OPTIONS=sf:c:h
-LONGOPTIONS=shuffle,format:,cutoff:,help
+LONGOPTIONS=shuffle,filetype:,cutoff:,help
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -83,8 +96,8 @@ while [ "${#}" -ge 1 ]; do
       CUTOFF="${2}"
       shift 2
       ;;
-    -f | --format)
-      FORMAT="${2}"
+    -f | --filetype)
+      FILETYPE="${2}"
       shift 2
       ;;
     -s | --shuffle)
