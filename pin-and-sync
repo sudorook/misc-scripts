@@ -59,7 +59,7 @@ function pick_file {
       -o -iname "*.azw3" \
       -o -iname "*.epub" \
     \) -print |
-    fzf --layout=reverse --header-first
+    fzf --layout=reverse --header-first -m
   popd > /dev/null
 }
 
@@ -70,7 +70,7 @@ function pin_and_sync {
   local file_name_new
   local file_name
 
-  file="$(basename "${FILE}")"
+  file="$(basename "${1}")"
   file_name="${file%%.*}"
   file_ext="${file##*.}"
   file_name_new="$(echo "${file_name}" |
@@ -80,7 +80,7 @@ function pin_and_sync {
   if [ -f "${HOME}/Sync/${file_new}" ]; then
     show_warning "WARNING: '~/Sync/${file_new}' already exists. Skipping."
   else
-    cp "${FILE}" "${HOME}/Sync/${file_new}"
+    cp "${1}" "${HOME}/Sync/${file_new}"
   fi
   pushd "${HOME}/Desktop" > /dev/null
   if [ -e "${file_new}" ]; then
@@ -113,16 +113,14 @@ if [ -z "${ROOT}" ] || ! [ -d "${ROOT}" ]; then
   exit 3
 fi
 
-FILE="$(pick_file)"
-if [ -z "${FILE}" ]; then
-  exit 3
-fi
+pushd "${ROOT}" > /dev/null
+while read -r FILE; do
+  if ! [ -f "${ROOT}/${FILE}" ]; then
+    show_warning "ERROR: Parsing ${FILE@Q} went wrong. Skipping."
+  else
+    pin_and_sync "${FILE}"
+  fi
+done <<< "$(pick_file)"
+popd > /dev/null
 
-FILE="${ROOT}/${FILE}"
-if ! [ -f "${FILE}" ]; then
-  show_error "ERROR: Parsing ${FILE@Q} went wrong. Exiting."
-  exit 3
-fi
-
-pin_and_sync
 show_success "done"
