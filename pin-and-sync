@@ -63,30 +63,96 @@ function pick_file {
   popd > /dev/null
 }
 
-function pin_and_sync {
+function get_title_calibre {
+  local file="${1}"
+  local dir
+  local meta
+  dir="$(dirname "${file}")"
+  meta="${dir}/metadata.opf"
+
+  if [ -f "${meta}" ]; then
+    sed -n "s|\s*<dc:title>\(.*\)</dc:title>|\1|p" "${meta}"
+  fi
+}
+
+function get_title_pdfinfo {
+  local file="${1}"
+  if check_command pdfinfo; then
+    pdfinfo "${file}" | sed -n "s,^Title:\s\+\(.*\),\1,g"
+  fi
+}
+
+function get_title_ebook-meta {
+  local file="${1}"
+  if check_command ebook-meta; then
+    ebook-meta "${file}" | sed -n "s,^Title\s\+:\s\+\(.*\),\1,g"
+  fi
+}
+
+function sanitize_string {
+  sed \
+    -e "s/: / - /g" \
+    -e "s/\"/'/g" \
+    -e "s/[<>|?\*\\\/]//g"
+}
+
+function get_title {
   local file
   local file_name
   local file_ext
-  local file_name_new
-  local file_name
+  local file_out
 
   file="$(basename "${1}")"
   file_name="${file%.*}"
   file_ext="${file##*.}"
-  file_name_new="$(echo "${file_name}" |
-                   sed -e "s,\(.\+\)\( - \).\+,\1,g" -e "s,\(.\+\)_.*,\1,g")"
-  file_new="${file_name_new}.${file_ext}"
 
-  if [ -f "${HOME}/Sync/${file_new}" ]; then
-    show_warning "WARNING: '~/Sync/${file_new}' already exists. Skipping."
+  local title
+  title="$(get_title_calibre "${1}")"
+  if [ -n "${title}" ]; then
+    file_out="${title}.${file_ext}"
   else
-    cp "${1}" "${HOME}/Sync/${file_new}"
+    if [[ "${file_ext,,}" = pdf ]]; then
+      title="$(get_title_pdfinfo "${1}")"
+      if [ -n "${title}" ]; then
+        file_out="${title}.${file_ext}"
+      fi
+    elif [[ "${file_ext,,}" = epub ]]; then
+      title="$(get_title_epub-meta "${1}")"
+      if [ -n "${title}" ]; then
+        file_out="${title}.${file_ext}"
+      fi
+    fi
+    if [ -z "${title}" ]; then
+      local file_name_new
+      file_name_new="$(echo "${file_name}" |
+                       sed -n "s/\(.\+ - \)\?\([0-9]\+ - \)\(.*\)/\3/p")"
+                       # sed -n "s/\(.\+ - \)\?\([0-9]\+ - \)\?\(.*\)/\3/p")"
+      if [ -z "${file_name_new}" ]; then
+        file_name_new="$(echo "${file_name}" |
+                        sed -e "s,\(.\+\)\( - \).\+,\1,g" -e "s,\(.\+\)_.*,\1,g")"
+      fi
+      file_out="${file_name_new}.${file_ext}"
+    fi
+  fi
+
+  echo "${file_out}" | sanitize_string
+}
+
+function pin_and_sync {
+  local file_in="${1}"
+  local file_out
+  file_out="$(get_title "${file_in}")"
+
+  if [ -f "${HOME}/Sync/${file_out}" ]; then
+    show_warning "WARNING: '~/Sync/${file_out}' already exists. Skipping."
+  else
+    cp "${file_in}" "${HOME}/Sync/${file_out}"
   fi
   pushd "${HOME}/Desktop" > /dev/null
-  if [ -e "${file_new}" ]; then
-    show_warning "WARNING: '~/Desktop/${file_new}' already exists. Skipping."
+  if [ -e "${file_out}" ]; then
+    show_warning "WARNING: '~/Desktop/${file_out}' already exists. Skipping."
   else
-    ln -s ../Sync/"${file_new}" "${file_new}"
+    ln -s ../Sync/"${file_out}" "${file_out}"
   fi
   popd > /dev/null
 }
