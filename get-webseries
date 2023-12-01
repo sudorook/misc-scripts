@@ -16,6 +16,7 @@ function print_usage {
 }
 
 YTDL=yt-dlp
+VIDEODIR="${videodir:-"$(pwd)"}"
 
 ! check_command "${YTDL}" && exit 3
 
@@ -82,20 +83,6 @@ case "${RESOLUTION}" in
     show_warning "WARNING: ${RESOLUTION@Q} not supported. Defaulting to 720p."
     ;;
 esac
-
-if ! [[ -v VIDEODIR ]]; then
-  if [[ -v mediadir ]]; then
-    if [ -d "${mediadir}" ]; then
-      VIDEODIR="${mediadir}/Web Series"
-    elif [[ -v videodir ]]; then
-      if [ -d "${videodir}" ]; then
-        VIDEODIR="${videodir}"
-      else
-        VIDEODIR="$(pwd)"
-      fi
-    fi
-  fi
-fi
 
 mkdir -p "${VIDEODIR}"
 cd "${VIDEODIR}"

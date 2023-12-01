@@ -128,10 +128,6 @@ export musicdir
 videodir=
 export videodir
 
-# get-webseries
-mediadir=
-export mediadir
-
 # entry
 entrydir=
 template=

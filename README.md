@@ -98,5 +98,4 @@ specific scripts.
 | projectdir        | directory containing Git repos and projects     | `count-commits`, `seek-and-destroy`, `whattodo` |
 | musicdir          | directory containing music files                | `copy-playlist`                                 |
 | videodir          | directory for video files                       | `get-webseries`                                 |
-| mediadir          | path to base of large media storage             | `get-webseries`                                 |
 | ignoreprojectdirs | list of directories in projectdir to ignore     | `whattodo`                                      |
