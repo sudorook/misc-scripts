@@ -91,10 +91,12 @@ cd "${VIDEODIR}"
   --embed-thumbnail \
   --embed-subs \
   --convert-subs srt \
-  --add-metadata \
-  --add-chapters \
-  ${START:+--playlist-start "${START}"} \
+  --sub-langs all,-live_chat \
+  --embed-metadata \
+  --embed-chapters \
   --prefer-free-formats \
+  --trim-filenames 200 \
+  ${START:+--playlist-start "${START}"} \
   --download-archive "${NAME:+${NAME}/}".archive.txt \
   -f "bestvideo[ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
   -o "${NAME:-"%(playlist_title)s"}/%(playlist_index)d %(title)s [%(id)s].%(ext)s" \
