@@ -12,7 +12,7 @@ source "${ROOT}"/globals
 #
 
 function get_common_root {
-  if [ ${#DIRS[@]} -lt 2 ]; then
+  if [ ${#DIRS[@]} -eq 1 ]; then
     ROOT="${DIRS[0]}"
     DIRS=(".")
   else
@@ -192,5 +192,3 @@ while read -r FILE; do
   fi
 done <<< "$(pick_file)"
 popd > /dev/null
-
-show_success "done"
