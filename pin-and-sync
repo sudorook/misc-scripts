@@ -42,7 +42,9 @@ function check_dirs {
   local dir
   local dirs=()
   for dir in "${DIRS[@]}"; do
-    if [ -d "${dir}" ]; then
+    if [ -z "${dir}" ]; then
+      continue
+    elif [ -d "${dir}" ]; then
       dirs+=("${dir}")
     else
       show_warning "WARNING: ${dir@Q} not found."
@@ -181,8 +183,10 @@ fi
 
 pushd "${ROOT}" > /dev/null
 while read -r FILE; do
-  if ! [ -f "${ROOT}/${FILE}" ]; then
-    show_warning "ERROR: Parsing ${FILE@Q} went wrong. Skipping."
+  if [ -z "${FILE}" ]; then
+    continue
+  elif ! [ -f "${ROOT}/${FILE}" ]; then
+    show_error "ERROR: Parsing ${FILE@Q} failed. Skipping."
   else
     pin_and_sync "${FILE}"
   fi
