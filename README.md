@@ -84,6 +84,7 @@ specific scripts.
 | archivedir        | destination for archive files                   | `archive`                                       |
 | backup1           | path to backup destination device               | `backup`                                        |
 | backup2           | path of device to mirror backup1                | `backup`                                        |
+| calibrelibrarydir | path to Calibre library directory               | `pin-and-sync`                                  |
 | kvmdir            | directory containing KVM images                 | `backup`                                        |
 | kvmshare          | shared (host <--> guest) KVM directory          | `kvm-clear`, `kvm-cp`, `kvm-ls`, `kvm-mv`       |
 | vboxdir           | directory with VirtualBox configs and images    | `backup`                                        |
@@ -99,3 +100,4 @@ specific scripts.
 | musicdir          | directory containing music files                | `copy-playlist`                                 |
 | videodir          | directory for video files                       | `get-webseries`                                 |
 | ignoreprojectdirs | list of directories in projectdir to ignore     | `whattodo`                                      |
+| zoterodatadir     | location of Zotero data (not config) directory  | `pin-and-sync`                                  |

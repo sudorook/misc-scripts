@@ -163,7 +163,10 @@ function pin_and_sync {
 # Globals
 #
 
-DIRS=("${HOME}/Documents/Library" "${HOME}/Documents/Zotero")
+DIRS=(
+  "${calibrelibrarydir:-""}"
+  "${zoterodatadir:+"${zoterodatadir}"/storage}"
+)
 ROOT="${HOME}"
 
 #

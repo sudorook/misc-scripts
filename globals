@@ -128,6 +128,14 @@ export musicdir
 videodir=
 export videodir
 
+# Calibre folders
+calibrelibrarydir=
+export calibrelibrarydir
+
+# Zotero folders
+zoterodatadir=
+export zoterodatadir
+
 # entry
 entrydir=
 template=
