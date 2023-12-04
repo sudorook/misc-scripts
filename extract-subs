@@ -65,8 +65,8 @@ function extract_streams {
         fi
         ;;
       "mov_text (tx3g / 0x67337874)")
-        cmd="${cmd} -c ass -tag:s:s:0 tx3g"
-        out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.ass"
+        cmd="${cmd} -c subrip"
+        out="${NAME}_${STREAMS[${i}]}_${TITLES[${i}]}.srt"
         ;;
       mov_text | srt | subrip)
         cmd="${cmd} -c subrip"
