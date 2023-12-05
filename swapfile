@@ -75,14 +75,14 @@ case "${1}" in
     if [ ${EUID} -eq 0 ]; then
       set_swap_on
     else
-      sudo bash -c "source globals; $(declare -f set_swap_on); set_swap_on"
+      sudo bash -c "source ${ROOT}/globals; $(declare -f set_swap_on); set_swap_on"
     fi
     ;;
   off)
     if [ ${EUID} -eq 0 ]; then
       set_swap_off
     else
-      sudo bash -c "source globals; $(declare -f set_swap_off); set_swap_off"
+      sudo bash -c "source ${ROOT}/globals; $(declare -f set_swap_off); set_swap_off"
     fi
     ;;
   help | --help | -h)
