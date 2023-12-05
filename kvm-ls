@@ -7,4 +7,4 @@ source "${ROOT}"/globals
 
 KVMSHARE="${kvmshare:-${HOME}/.local/libvirt/share}"
 mkdir -p "${KVMSHARE}"
-ls "${@}" "${KVMSHARE}"
+ls --color=auto "${@}" "${KVMSHARE}"
