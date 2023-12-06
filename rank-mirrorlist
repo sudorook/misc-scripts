@@ -1,0 +1,16 @@
+#! /bin/bash
+set -eu
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+! check_command rankmirrors && exit 3
+
+MIRRORLIST=/etc/pacman.d/mirrorlist
+
+if [ -f "${MIRRORLIST}" ]; then
+  rankmirrors - < <(sed -n "s,^#\?\(Server = .*\),\1,p" "${MIRRORLIST}" | sort -u)
+else
+  show_error "ERROR: ${MIRRORLIST@Q} not found. Exiting."
+fi

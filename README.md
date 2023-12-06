@@ -47,6 +47,7 @@
 | `pin-and-sync`     | find documents and pin to ~/Desktop and ~/Sync                         |
 | `print-colors`     | print terminal colors                                                  |
 | `print-fontstring` | generate the FFmpeg format string to embed fonts in a container        |
+| `rank-mirrorlist`  | rank all servers listed in /etc/pacman.d/mirrorlist                    |
 | `rate-song`        | write song rating metadata to beets database                           |
 | `reencode`         | convert video's encoding                                               |
 | `rename-user`      | rename an existing user and migrate all files, symlinks, etc.          |
