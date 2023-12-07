@@ -3,7 +3,7 @@
 ################################################################################
 
 #
-# FROM: https://raw.githubusercontent.com/github/gitignore/master/Global/Archives.gitignore
+# FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Global/Archives.gitignore
 #
 
 # It's better to unpack these files and commit the raw source because
@@ -22,6 +22,7 @@
 *.lzma
 *.cab
 *.xar
+*.zst
 
 # Packing-only formats
 *.iso
@@ -40,7 +41,7 @@
 *.txz
 
 #
-# FROM: https://raw.githubusercontent.com/github/gitignore/master/Global/Backup.gitignore
+# FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Global/Backup.gitignore
 #
 
 *.bak
@@ -50,14 +51,14 @@
 *.tmp
 
 #
-# FROM: https://raw.githubusercontent.com/github/gitignore/master/Global/Diff.gitignore
+# FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Global/Diff.gitignore
 #
 
 *.patch
 *.diff
 
 #
-# FROM: https://raw.githubusercontent.com/github/gitignore/master/Global/Emacs.gitignore
+# FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Global/Emacs.gitignore
 #
 
 # -*- mode: gitignore; -*-
@@ -111,7 +112,7 @@ flycheck_*.el
 
 
 #
-# FROM: https://raw.githubusercontent.com/github/gitignore/master/Global/Linux.gitignore
+# FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Global/Linux.gitignore
 #
 
 *~
@@ -129,7 +130,7 @@ flycheck_*.el
 .nfs*
 
 #
-# FROM: https://raw.githubusercontent.com/github/gitignore/master/Global/macOS.gitignore
+# FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Global/macOS.gitignore
 #
 
 # General
@@ -160,21 +161,21 @@ Temporary Items
 .apdisk
 
 #
-# FROM: https://raw.githubusercontent.com/github/gitignore/master/Global/Patch.gitignore
+# FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Global/Patch.gitignore
 #
 
 *.orig
 *.rej
 
 #
-# FROM: https://raw.githubusercontent.com/github/gitignore/master/Global/Syncthing.gitignore
+# FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Global/Syncthing.gitignore
 #
 
 # Syncthing caches
 .stversions
 
 #
-# FROM: https://raw.githubusercontent.com/github/gitignore/master/Global/Vim.gitignore
+# FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Global/Vim.gitignore
 #
 
 # Swap
@@ -198,7 +199,7 @@ tags
 [._]*.un~
 
 #
-# FROM: https://raw.githubusercontent.com/github/gitignore/master/Global/Windows.gitignore
+# FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Global/Windows.gitignore
 #
 
 # Windows thumbnail cache files
@@ -227,7 +228,7 @@ $RECYCLE.BIN/
 *.lnk
 
 #
-# FROM: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
+# FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Python.gitignore
 #
 
 # Byte-compiled / optimized / DLL files
