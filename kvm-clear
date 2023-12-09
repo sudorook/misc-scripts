@@ -9,4 +9,4 @@ source "${ROOT}"/globals
 
 KVMSHARE="${kvmshare:-${HOME}/.local/libvirt/share}"
 mkdir -p "${KVMSHARE}"
-find "${KVMSHARE}" -maxdepth 1 ! -path "${KVMSHARE}" -exec rm -rf -- '{}' +
+find "${KVMSHARE}" -maxdepth 1 ! -path "${KVMSHARE}" -print -exec rm -rf -- '{}' +
