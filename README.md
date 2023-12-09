@@ -30,6 +30,7 @@
 | `get-webseries`    | `youtube-dl` wrapper to download web series / playlists / etc.         |
 | `gifify`           | generate a GIF from part of a video                                    |
 | `git-archive`      | simple wrapper for git archive                                         |
+| `git-gc`           | prune orphaned objects and force garbage collection                    |
 | `git-init`         | wrapper script for initializing a Git repo and setting the metadata    |
 | `git-partial-push` | push commits up to a given date                                        |
 | `join-vids`        | concatenate videos                                                     |

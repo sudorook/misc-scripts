@@ -1,0 +1,23 @@
+#! /bin/bash
+set -eu
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+DIR="${1:-.}"
+if git -C "${DIR}" log > /dev/null 2>&1; then
+  DIR="$(git -C "${DIR}" rev-parse --show-toplevel)"
+else
+  show_error "ERROR: ${DIR@Q} is not a Git directory. Exiting."
+  exit 3
+fi
+
+pushd "${DIR}" > /dev/null
+
+git reflog expire --expire=now --expire-unreachable=now --rewrite --all
+git gc --prune=now --aggressive
+git submodule foreach git gc --prune=now --aggressive
+git fsck
+
+popd > /dev/null
