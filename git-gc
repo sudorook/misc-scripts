@@ -5,11 +5,9 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-DIR="${1:-.}"
-if git -C "${DIR}" log > /dev/null 2>&1; then
-  DIR="$(git -C "${DIR}" rev-parse --show-toplevel)"
-else
-  show_error "ERROR: ${DIR@Q} is not a Git directory. Exiting."
+IN="${1:-.}"
+if ! DIR="$(git -C "${IN}" rev-parse --show-toplevel 2> /dev/null)"; then
+  show_error "ERROR: ${IN@Q} is not a Git directory. Exiting."
   exit 3
 fi
 
