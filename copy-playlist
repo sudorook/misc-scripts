@@ -47,10 +47,11 @@ while [ ${#} -ge 1 ]; do
   esac
 done
 
-if ! [[ -v MUSIC ]]; then
-  if [[ -v musicdir ]] && [ -d "${musicdir}" ]; then
-    MUSIC="${musicdir}"
-  fi
+MUSIC="${MUSIC:-"${musicdir}"}"
+
+if ! [ -d "${MUSIC}" ]; then
+  show_error "ERROR: ${MUSIC@Q} does not exist. Exiting."
+  exit 3
 fi
 
 if [[ -v INPUT ]] && [[ -v DEST ]]; then
