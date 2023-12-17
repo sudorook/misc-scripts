@@ -62,11 +62,11 @@ case "${OWNER}" in
   "${USER}")
     do_shrink "${QCOW2}"
     ;;
-  root | qemu)
+  root | qemu | libvirt-qemu)
     show_info "${QCOW2@Q} owned by ${OWNER@Q}. Trying sudo..."
     sudo bash -c "${FUNCTION} && do_shrink ${QCOW2}"
     ;;
-  nobody | kvm | libvirt-qemu)
+  nobody | kvm)
     show_error "ERROR: Cannot edit running instance. Exiting."
     exit 3
     ;;
