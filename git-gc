@@ -5,6 +5,8 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
+! check_command git && exit 3
+
 IN="${1:-.}"
 if ! DIR="$(git -C "${IN}" rev-parse --show-toplevel 2> /dev/null)"; then
   show_error "ERROR: ${IN@Q} is not a Git directory. Exiting."
