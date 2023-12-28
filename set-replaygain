@@ -71,7 +71,7 @@ function scan_track_loudnorm {
   local peak
   local i
 
-  data="$(ffmpeg -v info -nostdin -nostats -hide_banner -i file:"./${1}" \
+  data="$(ffmpeg -v info -nostdin -nostats -hide_banner -i file:"${1}" \
     -map a -af loudnorm=print_format=json -f null - 2>&1 | sed -n "/{/,\$p")"
 
   peak="$(echo "${data}" | jq -r ".input_tp")"
@@ -91,7 +91,6 @@ function scan_album_loudnorm {
 
   cmd="ffmpeg -v info -nostdin -nostats -hide_banner"
   while read -r file; do
-    file="${file/#/\.\/}"
     cmd="${cmd} -i file:${file@Q}"
     count=$((count + 1))
   done <<< "$(find "${@}" -type f \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \))"
@@ -121,7 +120,7 @@ function tag_track_loudnorm {
   replaygain_album_peak="${3}"
 
   track_data="$(scan_track_loudnorm "${file}")"
-  codec="$(ffprobe -v error -select_streams a -show_entries stream=codec_name -of compact=nokey=1 file:./"${file}")"
+  codec="$(ffprobe -v error -select_streams a -show_entries stream=codec_name -of compact=nokey=1 file:"${file}")"
   codec="$(echo "${codec}" | cut -d"|" -f2)"
   replaygain_track_peak="$(echo "${track_data}" | cut -d"|" -f1)"
   replaygain_track_gain="$(echo "${track_data}" | cut -d"|" -f2)"
@@ -129,7 +128,7 @@ function tag_track_loudnorm {
   replaygain_track_gain="$(echo "scale=2; -18-(${replaygain_track_gain}/1)" | bc -l)"
 
   echo "Tagging ${file@Q}..." >&2
-  ffmpeg -v error -nostdin -nostats -hide_banner -i file:./"${file}" -map 0 -map_metadata 0 \
+  ffmpeg -v error -nostdin -nostats -hide_banner -i file:"${file}" -map 0 -map_metadata 0 \
     -metadata REPLAYGAIN_TRACK_GAIN="${replaygain_track_gain} dB" \
     -metadata REPLAYGAIN_ALBUM_GAIN="${replaygain_album_gain} dB" \
     -metadata REPLAYGAIN_TRACK_PEAK="${replaygain_track_peak}" \
@@ -184,7 +183,7 @@ function scan_track_ebur128 {
   local peak
   local i
 
-  data="$(ffmpeg -v info -nostdin -nostats -hide_banner -i file:"./${1}" \
+  data="$(ffmpeg -v info -nostdin -nostats -hide_banner -i file:"${1}" \
     -map a -af ebur128=peak=true -f null - 2>&1)"
 
   peak="$(echo "${data}" |
@@ -208,7 +207,6 @@ function scan_album_ebur128 {
 
   cmd="ffmpeg -v info -nostdin -nostats -hide_banner"
   while read -r file; do
-    file="${file/#/\.\/}"
     cmd="${cmd} -i file:${file@Q}"
     count=$((count + 1))
   done <<< "$(find "${@}" -type f \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \))"
@@ -242,7 +240,7 @@ function tag_track_ebur128 {
   replaygain_album_peak="${3}"
 
   track_data="$(scan_track_ebur128 "${file}")"
-  codec="$(ffprobe -v error -select_streams a -show_entries stream=codec_name -of compact=nokey=1 file:./"${file}")"
+  codec="$(ffprobe -v error -select_streams a -show_entries stream=codec_name -of compact=nokey=1 file:"${file}")"
   codec="$(echo "${codec}" | cut -d"|" -f2)"
   replaygain_track_peak="$(echo "${track_data}" | cut -d"|" -f1)"
   replaygain_track_gain="$(echo "${track_data}" | cut -d"|" -f2)"
@@ -250,7 +248,7 @@ function tag_track_ebur128 {
   replaygain_track_gain="$(echo "scale=2; -18-(${replaygain_track_gain}/1)" | bc -l)"
 
   echo "Tagging ${file@Q}..." >&2
-  ffmpeg -v error -nostdin -nostats -hide_banner -i file:./"${file}" -map 0 -map_metadata 0 \
+  ffmpeg -v error -nostdin -nostats -hide_banner -i file:"${file}" -map 0 -map_metadata 0 \
     -metadata REPLAYGAIN_TRACK_GAIN="${replaygain_track_gain} dB" \
     -metadata REPLAYGAIN_ALBUM_GAIN="${replaygain_album_gain} dB" \
     -metadata REPLAYGAIN_TRACK_PEAK="${replaygain_track_peak}" \
