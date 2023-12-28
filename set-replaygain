@@ -370,7 +370,11 @@ check_inputs "${@}"
 if [[ "${KEEP}" = true ]]; then
   if [ "${#}" -eq 1 ]; then
     if [ -d "${1}" ]; then
-      BACKUPDIR="${1}_$(date +%Y%m%d-%H%M%S)"
+      if [[ "${1}" = "." ]]; then
+        BACKUPDIR="../$(basename "${PWD}")_$(date +%Y%m%d-%H%M%S)"
+      else
+        BACKUPDIR="${1}_$(date +%Y%m%d-%H%M%S)"
+      fi
     else
       show_warning "Why compute album replay gain for one file? Stopping..."
       exit
