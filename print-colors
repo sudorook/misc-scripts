@@ -8,74 +8,74 @@ COLORS["Color_Off"]='\033[0m'      # Text Reset
 
 # Black
 COLORS["Black"]='\033[0;30m'       # Regular Colors
-COLORS["Black-B"]='\033[1;30m'      # Bold
-COLORS["Black-U"]='\033[4;30m'      # Underline
+COLORS["Black-B"]='\033[1;30m'     # Bold
+COLORS["Black-U"]='\033[4;30m'     # Underline
 COLORS["Black-BG"]='\033[40m'      # Background
-COLORS["Black-I"]='\033[0;90m'      # High Intensity
-COLORS["Black-BI"]='\033[1;90m'     # Bold High Intensity
+COLORS["Black-I"]='\033[0;90m'     # High Intensity
+COLORS["Black-BI"]='\033[1;90m'    # Bold High Intensity
 COLORS["Black-BGI"]='\033[0;100m'  # High Intensity backgrounds
 
 # Red
 COLORS["Red"]='\033[0;31m'         # Regular Colors
-COLORS["Red-B"]='\033[1;31m'        # Bold
-COLORS["Red-U"]='\033[4;31m'        # Underline
+COLORS["Red-B"]='\033[1;31m'       # Bold
+COLORS["Red-U"]='\033[4;31m'       # Underline
 COLORS["Red-BG"]='\033[41m'        # Background
-COLORS["Red-I"]='\033[0;91m'        # High Intensity
-COLORS["Red-BI"]='\033[1;91m'       # Bold High Intensity
+COLORS["Red-I"]='\033[0;91m'       # High Intensity
+COLORS["Red-BI"]='\033[1;91m'      # Bold High Intensity
 COLORS["Red-BGI"]='\033[0;101m'    # High Intensity backgrounds
 
 # Green
 COLORS["Green"]='\033[0;32m'       # Regular Colorsn
-COLORS["Green-B"]='\033[1;32m'      # Bold
-COLORS["Green-U"]='\033[4;32m'      # Underline
+COLORS["Green-B"]='\033[1;32m'     # Bold
+COLORS["Green-U"]='\033[4;32m'     # Underline
 COLORS["Green-BG"]='\033[42m'      # Background
-COLORS["Green-I"]='\033[0;92m'      # High Intensity
-COLORS["Green-BI"]='\033[1;92m'     # Bold High Intensity
+COLORS["Green-I"]='\033[0;92m'     # High Intensity
+COLORS["Green-BI"]='\033[1;92m'    # Bold High Intensity
 COLORS["Green-BGI"]='\033[0;102m'  # High Intensity backgrounds
 
 # Yellow
 COLORS["Yellow"]='\033[0;33m'      # Regular Colorsw
-COLORS["Yellow-B"]='\033[1;33m'     # Bold
-COLORS["Yellow-U"]='\033[4;33m'     # Underline
+COLORS["Yellow-B"]='\033[1;33m'    # Bold
+COLORS["Yellow-U"]='\033[4;33m'    # Underline
 COLORS["Yellow-BG"]='\033[43m'     # Background
-COLORS["Yellow-I"]='\033[0;93m'     # High Intensity
-COLORS["Yellow-BI"]='\033[1;93m'    # Bold High Intensity
+COLORS["Yellow-I"]='\033[0;93m'    # High Intensity
+COLORS["Yellow-BI"]='\033[1;93m'   # Bold High Intensity
 COLORS["Yellow-BGI"]='\033[0;103m' # High Intensity backgrounds
 
 # Blue
 COLORS["Blue"]='\033[0;34m'        # Regular Colors
-COLORS["Blue-B"]='\033[1;34m'       # Bold
-COLORS["Blue-U"]='\033[4;34m'       # Underline
+COLORS["Blue-B"]='\033[1;34m'      # Bold
+COLORS["Blue-U"]='\033[4;34m'      # Underline
 COLORS["Blue-BG"]='\033[44m'       # Background
-COLORS["Blue-I"]='\033[0;94m'       # High Intensity
-COLORS["Blue-BI"]='\033[1;94m'      # Bold High Intensity
+COLORS["Blue-I"]='\033[0;94m'      # High Intensity
+COLORS["Blue-BI"]='\033[1;94m'     # Bold High Intensity
 COLORS["Blue-BGI"]='\033[0;104m'   # High Intensity backgrounds
 
 # Purple
 COLORS["Purple"]='\033[0;35m'      # Regular Colors
-COLORS["Purple-B"]='\033[1;35m'     # Bold
-COLORS["Purple-U"]='\033[4;35m'     # Underline
+COLORS["Purple-B"]='\033[1;35m'    # Bold
+COLORS["Purple-U"]='\033[4;35m'    # Underline
 COLORS["Purple-BG"]='\033[45m'     # Background
-COLORS["Purple-I"]='\033[0;95m'     # High Intensity
-COLORS["Purple-BI"]='\033[1;95m'    # Bold High Intensity
+COLORS["Purple-I"]='\033[0;95m'    # High Intensity
+COLORS["Purple-BI"]='\033[1;95m'   # Bold High Intensity
 COLORS["Purple-BGI"]='\033[0;105m' # High Intensity backgrounds
 
 # Cyan
 COLORS["Cyan"]='\033[0;36m'        # Regular Colors
-COLORS["Cyan-B"]='\033[1;36m'       # Bold
-COLORS["Cyan-U"]='\033[4;36m'       # Underline
+COLORS["Cyan-B"]='\033[1;36m'      # Bold
+COLORS["Cyan-U"]='\033[4;36m'      # Underline
 COLORS["Cyan-BG"]='\033[46m'       # Background
-COLORS["Cyan-I"]='\033[0;96m'       # High Intensity
-COLORS["Cyan-BI"]='\033[1;96m'      # Bold High Intensity
+COLORS["Cyan-I"]='\033[0;96m'      # High Intensity
+COLORS["Cyan-BI"]='\033[1;96m'     # Bold High Intensity
 COLORS["Cyan-BGI"]='\033[0;106m'   # High Intensity backgrounds
 
 # White
 COLORS["White"]='\033[0;37m'       # Regular Colors
-COLORS["White-B"]='\033[1;37m'      # Bold
-COLORS["White-U"]='\033[4;37m'      # Underline
+COLORS["White-B"]='\033[1;37m'     # Bold
+COLORS["White-U"]='\033[4;37m'     # Underline
 COLORS["White-BG"]='\033[47m'      # Background
-COLORS["White-I"]='\033[0;97m'      # High Intensity
-COLORS["White-BI"]='\033[1;97m'     # Bold High Intensity
+COLORS["White-I"]='\033[0;97m'     # High Intensity
+COLORS["White-BI"]='\033[1;97m'    # Bold High Intensity
 COLORS["White-BGI"]='\033[0;107m'  # High Intensity backgrounds
 
 for KEY in "${!COLORS[@]}"; do
