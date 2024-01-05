@@ -111,38 +111,36 @@ def prompt_user_rating():
 
 
 #
-# Command line parsing
-#
-
-parser = argparse.ArgumentParser(
-    description="Rate songs in your beets database."
-)
-parser.add_argument("-f", "--file", help="Song file", required=False)
-parser.add_argument("-r", "--rating", help="Rating", required=False)
-args = parser.parse_args()
-
-
-#
 # Main
 #
 
-if args.file is None:
-    song = get_current_song()
-    print(
-        f"Rating '{song['title']}' from '{song['album']}' by '{song['artist']}'"
+if __name__ == "__main__":
+    # Command line parsing
+    parser = argparse.ArgumentParser(
+        description="Rate songs in your beets database."
     )
-else:
-    song = get_song_from_file(args.file)
+    parser.add_argument("-f", "--file", help="Song file", required=False)
+    parser.add_argument("-r", "--rating", help="Rating", required=False)
+    args = parser.parse_args()
 
-if args.rating is None:
-    rating = prompt_user_rating()
-else:
-    if 0 <= int(args.rating) <= 5:
-        rating = int(args.rating)
+    if args.file is None:
+        song = get_current_song()
+        print(
+            f"Rating '{song['title']}' from "
+            f"'{song['album']}' by '{song['artist']}'"
+        )
     else:
-        print("Invalid rating. Exiting.")
-        sys.exit()
+        song = get_song_from_file(args.file)
 
-song.load()
-song["rating"] = rating
-song.store()
+    if args.rating is None:
+        rating = prompt_user_rating()
+    else:
+        if 0 <= int(args.rating) <= 5:
+            rating = int(args.rating)
+        else:
+            print("Invalid rating. Exiting.")
+            sys.exit()
+
+    song.load()
+    song["rating"] = rating
+    song.store()
