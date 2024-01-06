@@ -41,6 +41,7 @@ function seek {
             -o -path \"${HOME}/Pictures\" \
             -o -path \"${projectdir:-${HOME}/Projects}\" \
             -o -path \"${HOME}/Public\" \
+            -o -path \"${HOME}/Share\" \
             -o -path \"${HOME}/Sync\" \
             -o -path \"${HOME}/Templates\" \
             -o -path \"${videodir:-${HOME}/Videos}\" \
