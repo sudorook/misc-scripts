@@ -8,9 +8,9 @@ show_error() {
   local red=$'\033[0;91m'
   local nc=$'\033[0m'
   if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
-    echo "${1:--e}" "${red}${*:2}${nc}"
+    echo "${1:--e}" "${red}${*:2}${nc}" 1>&2
   else
-    echo -e "${red}${*}${nc}"
+    echo -e "${red}${*}${nc}" 1>&2
   fi
 }
 export -f show_error
@@ -112,7 +112,7 @@ check_command() {
   if [ ${#missing[@]} -eq 0 ]; then
     return 0
   else
-    show_error "MISSING: ${missing[*]@Q} not installed." 1>&2
+    show_error "MISSING: ${missing[*]@Q} not installed."
     return 1
   fi
 }
