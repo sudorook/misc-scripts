@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command rankmirrors && exit 3
+! check_command rankmirrors sed && exit 3
 
 MIRRORLIST=/etc/pacman.d/mirrorlist
 
