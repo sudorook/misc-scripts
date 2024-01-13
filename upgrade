@@ -247,9 +247,9 @@ function upgrade_extra() {
   show_header "Running extra upgrade script(s)."
 }
 
-vimpack=${HOME}/.vim/pack/dist/start
 function upgrade_vim_packages() {
   show_header "Upgrading Vim plugins."
+  local vimpack=${HOME}/.vim/pack/dist/start
   local dir
   if check_command vim; then
     if [ -d "${vimpack}" ]; then
@@ -270,9 +270,9 @@ function upgrade_vim_packages() {
   fi
 }
 
-nvimpack=${HOME}/.config/nvim/pack/dist/start
 function upgrade_nvim_packages() {
   show_header "Upgrading Neovim plugins."
+  local nvimpack=${HOME}/.config/nvim/pack/dist/start
   local dir
   if check_command nvim; then
     if [ -d "${nvimpack}" ]; then
@@ -426,9 +426,9 @@ function upgrade_pkgbuild() {
   fi
 }
 
-weechatdir=${HOME}/.weechat/plugins
 function upgrade_weechat_plugins {
   show_header "Upgrading weechat plugins."
+  local weechatdir=${HOME}/.weechat/plugins
   local dir
   if [ -d "${weechatdir}" ]; then
     for dir in "${weechatdir}"/*; do
