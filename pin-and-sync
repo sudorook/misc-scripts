@@ -80,14 +80,14 @@ function get_title_calibre {
 function get_title_pdfinfo {
   local file="${1}"
   if check_command pdfinfo; then
-    pdfinfo "${file}" | sed -n "s,^Title:\s\+\(.*\),\1,g"
+    pdfinfo "${file}" | sed -n "s,^Title:\s\+\(.*\),\1,p"
   fi
 }
 
 function get_title_ebook-meta {
   local file="${1}"
   if check_command ebook-meta; then
-    ebook-meta "${file}" | sed -n "s,^Title\s\+:\s\+\(.*\),\1,g"
+    ebook-meta "${file}" | sed -n "s,^Title\s\+:\s\+\(.*\),\1,p"
   fi
 }
 
