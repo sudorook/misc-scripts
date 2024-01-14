@@ -102,42 +102,33 @@ function get_title {
   local file
   local file_name
   local file_ext
-  local file_out
+  local title
 
   file="$(basename "${1}")"
   file_name="${file%.*}"
   file_ext="${file##*.}"
 
-  local title
   title="$(get_title_calibre "${1}")"
-  if [ -n "${title}" ]; then
-    file_out="${title}.${file_ext}"
-  else
+  if [ -z "${title}" ]; then
     if [[ "${file_ext,,}" = pdf ]]; then
       title="$(get_title_pdfinfo "${1}")"
-      if [ -n "${title}" ]; then
-        file_out="${title}.${file_ext}"
-      fi
     elif [[ "${file_ext,,}" = epub ]]; then
       title="$(get_title_epub-meta "${1}")"
-      if [ -n "${title}" ]; then
-        file_out="${title}.${file_ext}"
-      fi
-    fi
-    if [ -z "${title}" ]; then
-      local file_name_new
-      file_name_new="$(echo "${file_name}" |
-                       sed -n "s/\(.\+ - \)\?\([0-9]\+ - \)\(.*\)/\3/p")"
-                       # sed -n "s/\(.\+ - \)\?\([0-9]\+ - \)\?\(.*\)/\3/p")"
-      if [ -z "${file_name_new}" ]; then
-        file_name_new="$(echo "${file_name}" |
-                        sed -e "s,\(.\+\)\( - \).\+,\1,g" -e "s,\(.\+\)_.*,\1,g")"
-      fi
-      file_out="${file_name_new}.${file_ext}"
     fi
   fi
-
-  echo "${file_out}" | sanitize_string
+  if [ -z "${title}" ]; then
+    title="$(echo "${file_name}" |
+             sed -n "s/\(.\+ - \)\?\([0-9]\+ - \)\(.*\)/\3/p")"
+  fi
+  if [ -z "${title}" ]; then
+    title="$(echo "${file_name}" |
+             sed -e "s,\(.\+\)\( - \).\+,\1,g" -e "s,\(.\+\)_.*,\1,g")"
+  fi
+  if [ -n "${title}" ]; then
+    echo "${title}.${file_ext}" | sanitize_string
+  else
+    echo "${file}" | sanitize_string
+  fi
 }
 
 function pin_and_sync {
