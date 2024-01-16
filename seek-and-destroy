@@ -61,7 +61,6 @@ function seek {
             -o -path \"${HOME}/.thunderbird\" \
             -o -path \"${HOME}/.weechat\" \
             -o -path \"${HOME}/.zotero\" \
-            -o -path \"${HOME}/.zotero-data\" \
             -o -path \"${archivedir:-${HOME}/Desktop}\" \
             -o -path \"${backup1:-${HOME}/Desktop}\" \
             -o -path \"${backup2:-${HOME}/Desktop}\" \
@@ -71,9 +70,12 @@ function seek {
             -o -path \"${encryptpath:-${HOME}/Desktop}\" \
             -o -path \"${decryptpath:-${HOME}/Desktop}\" \
             -o -path \"${gtkdir:-${HOME}/Desktop}\" \
+            -o -path \"${plasmadir:-${HOME}/Desktop}\" \
             -o -path \"${icondir:-${HOME}/Desktop}\" \
             -o -path \"${zshdir:-${HOME}/Desktop}\" \
             -o -path \"${pkgbuilddir:-${HOME}/Desktop}\" \
+            -o -path \"${calibrelibrarydir:-${HOME}/Desktop}\" \
+            -o -path \"${zoterodatadir:-${HOME}/.zotero-data}\" \
             -o -path \"${entrydir:-${HOME}/Desktop}\" \) -prune , \
          \( ${inputstring} \) -print"
 
