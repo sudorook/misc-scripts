@@ -5,7 +5,25 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command encfs gio && exit 3
+! check_command encfs && exit 3
+
+function set_icon {
+  if check_command gio; then
+    gio set "${DECRYPTPATH}" -t string metadata::custom-icon-name folder-unlocked
+  fi
+  if check_command kwriteconfig5; then
+    kwriteconfig5 --file "${DECRYPTPATH}" --group 'Desktop Entry' --key 'Icon' 'folder-unlocked'
+  fi
+}
+
+function unset_icon {
+  if check_command gio; then
+    gio set "${DECRYPTPATH}" -t unset metadata::custom-icon-name
+  fi
+  if check_command kwriteconfig5; then
+    kwriteconfig5 --file "${DECRYPTPATH}" --group 'Desktop Entry' --key 'Icon' --delete
+  fi
+}
 
 show_warning "Encfs does not provide robust security. Don't use it."
 
@@ -16,7 +34,7 @@ mkdir -p "${ENCRYPTPATH}"
 mkdir -p "${DECRYPTPATH}"
 
 if grep "${DECRYPTPATH}" /etc/mtab > /dev/null 2>&1; then
-  gio set "${DECRYPTPATH}" -t string metadata::custom-icon-name folder-unlocked
+  set_icon
   show_info "${DECRYPTPATH} is already decrypted."
   exit
 fi
@@ -24,10 +42,10 @@ fi
 encfs "${ENCRYPTPATH}" "${DECRYPTPATH}"
 
 if grep "${DECRYPTPATH}" /etc/mtab > /dev/null 2>&1; then
-  gio set "${DECRYPTPATH}" -t string metadata::custom-icon-name folder-unlocked
+  set_icon
   show_success "Decrypted successfully."
 else
-  gio set "${DECRYPTPATH}" -t unset metadata::custom-icon-name
+  unset_icon
   show_error "Decryption failed."
   exit 3
 fi
