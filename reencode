@@ -138,7 +138,7 @@ function convert_codec {
                                   "${IN_ASTREAM_BITRATE[${ASTREAM_ID}]}")"
             if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${ASTREAM_ID}]}" = "5.1(side)" ]]; then
               show_warning "WARNING: converting layout from 5.1(side) to 5.1."
-              cmd="${cmd} -channel_layout:a:${ASTREAM_ID} 5.1"
+              cmd="${cmd} -channel_layout:a:0 5.1"
             fi
           else
             for idx in $(seq 0 $((${#IN_ASTREAM_CHANNEL_COUNT[@]} - 1))); do
