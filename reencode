@@ -287,11 +287,12 @@ function scan_input {
 
   format_name="$(echo "${fstring}" | sed -n "s/^format_name=\(.*\)/\1/p")"
   case "${format_name}" in
-    matroska | mkv)
-      IN_CONTAINER=matroska
-      ;;
-    matroska,webm | webm)
-      IN_CONTAINER=webm
+    matroska,webm | matroska | mkv | webm)
+      if [[ "${EXTENSION,,}" = webm ]]; then
+        IN_CONTAINER=webm
+      else
+        IN_CONTAINER=mkv
+      fi
       ;;
     mp4 | mov,mp4,m4a,3gp,3g2,mj2 | m4a | mov | mpegts)
       IN_CONTAINER=mp4
@@ -519,9 +520,10 @@ while [ ${#} -ge 1 ]; do
   case "${1}" in
     -i | --input)
       IN="${2}"
-      scan_input
-      NAME=${IN%.*}
+      NAME="${IN%.*}"
+      EXTENSION="${IN##*.}"
       BACKUP="${IN}_$(date +%Y%m%d-%H%M%S).bak"
+      scan_input
       shift 2
       ;;
     -e | --extra)
