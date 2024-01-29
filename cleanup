@@ -22,6 +22,20 @@ function delete_directory() {
   fi
 }
 
+function delete_file() {
+  local file_owner
+  if [ -f "${1}" ]; then
+    file_owner="$(stat -c "%U" "${1}")"
+    if [[ "${USER}" = "${file_owner}" ]]; then
+      rm -vf "${1}"
+      echo
+    else
+      show_warning "${1@Q} owned by ${file_owner@Q}. Skipping."
+      echo
+    fi
+  fi
+}
+
 # KDE Clipboard
 if check_command qdbus; then
   if qdbus > /dev/null 2>&1; then
@@ -76,3 +90,6 @@ delete_directory \
 delete_directory \
   "${HOME}/.local/share/Trash/" \
   "Deleting trash directory."
+
+# wget history
+delete_file "${HOME}/.wget-hsts"
