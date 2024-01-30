@@ -96,10 +96,10 @@ function scan_files() {
       if [[ "$(file -b --mime-type "${infile}")" =~ video|text|audio|subrip ]]; then
         outfile=$(cleanup_filename "${infile}")
         if [[ "${infile}" = "${outfile}" ]]; then
-          show_info "${outfile@Q} unchanged..." >&2
+          show_listitem "${outfile@Q} unchanged..." >&2
           continue
         else
-          echo "${infile@Q} -> ${outfile@Q}" >&2
+          show_listitem "${infile@Q} -> ${outfile@Q}" >&2
         fi
         INFILES+=("${infile}")
         OUTFILES+=("${outfile}")
@@ -133,8 +133,8 @@ OUTFILES=()
 
 scan_files
 if [ "${#INFILES[@]}" -eq 0 ]; then
-  show_error "No files found. Exiting..."
-  exit 3
+  show_info "No files found. Exiting..."
+  exit
 fi
 
 # print_files
