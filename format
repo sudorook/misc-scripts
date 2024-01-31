@@ -40,6 +40,12 @@ function format_python() {
 }
 export -f format_python
 
+function format_ruby() {
+  ! check_command rubocop && exit 3
+  rubocop --autocorrect "${1}"
+}
+export -f format_ruby
+
 function format_rust() {
   ! check_command rustfmt && exit 3
   rustfmt "${1}"
@@ -94,6 +100,9 @@ function format_wrapper() {
       ;;
     python | python3)
       format_python "${1}"
+      ;;
+    ruby)
+      format_ruby "${1}"
       ;;
     rust)
       format_rust "${1}"
