@@ -42,7 +42,7 @@ export -f format_python
 
 function format_ruby() {
   ! check_command rubocop && exit 3
-  rubocop --autocorrect "${1}"
+  rubocop --autocorrect --stderr "${1}" 2> /dev/null
 }
 export -f format_ruby
 
