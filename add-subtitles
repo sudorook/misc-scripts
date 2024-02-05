@@ -351,7 +351,7 @@ function make_cmd {
     mapping="${mapping} -map 0"
     stream_count="$(count_subs "${1}")"
   else
-    mapping="${mapping} -map 0:v -map 0:a"
+    mapping="${mapping} -map 0:v -bsf:v 'filter_units=remove_types=6|39' -map 0:a"
     stream_count=0
   fi
   metadata="-sub_charenc UTF-8"
