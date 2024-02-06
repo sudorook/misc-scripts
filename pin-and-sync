@@ -55,7 +55,7 @@ function check_dirs {
 
 function pick_file {
   pushd "${ROOT}" > /dev/null
-  find "${DIRS[@]}" -type f \
+  find "${DIRS[@]}" -type f -path "*.caltrash*" -prune -o \
     \( -iname "*.mobi" \
       -o -iname "*pdf" \
       -o -iname "*.azw3" \
