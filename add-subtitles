@@ -330,7 +330,7 @@ function make_cmd {
   local inputs
   local mapping
   local ptsflag
-  local metadata
+  local metadata=""
   local copy
   local disposition
   local file_count
@@ -354,7 +354,6 @@ function make_cmd {
     mapping="${mapping} -map 0:v -bsf:v 'filter_units=remove_types=6|39' -map 0:a"
     stream_count=0
   fi
-  metadata="-sub_charenc UTF-8"
 
   copy="-c:v copy -c:a copy"
   if [ "${stream_count}" -gt 0 ]; then
@@ -415,7 +414,7 @@ function make_cmd {
       file_count=$((file_count + 2))
       stream_count=$((stream_count + sub_stream_count))
     else
-      inputs="${inputs} -i file:${sub@Q}"
+      inputs="${inputs} -sub_charenc UTF-8 -i file:${sub@Q}"
       mapping="${mapping} -map ${file_count}:s"
 
       # set output subtitle codec
