@@ -371,7 +371,7 @@ function make_cmd {
     if ! [ -f "${sub%.*}.idx" ]; then
       if [[ "${subname,,}" =~ ( |-|_|\.)sdh$ ]] ||
          [[ "${subname,,}" =~ ( |-|_|\.)hi$ ]]; then
-        metadata="${metadata} -metadata:s:s:${stream_count} language=${lang@Q}"
+        metadata="${metadata:+"${metadata}" }-metadata:s:s:${stream_count} language=${lang@Q}"
         if [ "${#lang}" = 3 ]; then
           metadata="${metadata} -metadata:s:s:${stream_count} handler=${ISO_639_2[${lang}]@Q}"
           metadata="${metadata} -metadata:s:s:${stream_count} title='${ISO_639_2[${lang}]} SDH'"
@@ -388,7 +388,7 @@ function make_cmd {
         if check_lang_match "${lang}"; then
           default_idx="${stream_count}"
         fi
-        metadata="${metadata} -metadata:s:s:${stream_count} language=${lang@Q}"
+        metadata="${metadata:+"${metadata}" }-metadata:s:s:${stream_count} language=${lang@Q}"
         if [ "${#lang}" = 3 ]; then
           metadata="${metadata} -metadata:s:s:${stream_count} handler=${ISO_639_2[${lang}]@Q}"
         elif [ "${#lang}" = 2 ]; then
