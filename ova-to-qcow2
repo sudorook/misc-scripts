@@ -1,0 +1,73 @@
+#! /bin/bash
+set -Eeuo pipefail
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+! check_command tar qemu-img && exit 3
+
+function print_usage() {
+  show_header "Usage: ova-to-qcow2"
+  cat << EOF
+  -h|--help   print (this) help message
+EOF
+}
+
+OPTIONS=h
+LONGOPTIONS=help
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
+    -h | --help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR"
+      exit 3
+      ;;
+  esac
+done
+
+TMP="$(mktemp -d)"
+trap 'rm -rf "${TMP}"' INT TERM EXIT ERR
+
+if ! [ $# -eq 1 ]; then
+  show_error "ERROR: Incorrect # of inputs. Exiting."
+  exit 3
+fi
+if ! [ -f "${1}" ]; then
+  show_error "ERROR: Input ${1@Q} does not exist. Exiting."
+  exit 3
+fi
+
+IN="${1}"
+NAME="${IN%.*}"
+EXT="${IN##*.}"
+
+if ! [[ "${EXT,,}" = ova ]]; then
+  show_error "ERROR: Not an OVA file. Exiting."
+  exit 3
+fi
+
+tar -xvf "${IN}" -C "${TMP}"
+pushd "${TMP}" > /dev/null
+if [ -f "${NAME}.vmdk" ]; then
+  qemu-img convert -O qcow2 "${NAME}.vmdk" "${NAME}.qcow2"
+elif [ -f "${NAME}.vdi" ]; then
+  qemu-img convert -O qcow2 "${NAME}.vdi" "${NAME}.qcow2"
+else
+  show_error "ERROR: No compatible image extracted. Exiting."
+fi
+popd > /dev/null
+
+if [ -f "${TMP}/${NAME}.qcow2" ]; then
+  mv -v "${TMP}/${NAME}.qcow2" .
+fi

@@ -43,6 +43,7 @@
 | `mpv-ssh`          | search remote directories over SSH and pipe as playlist to mpv         |
 | `nm-ovpn-import`   | `nmcli` wrapper for importing an OpenVPN configuration file            |
 | `nm-wg-import`     | import a WireGuard configuration file using Network Manager            |
+| `ova-to-qcow2`     | convert an OVA virtual disk image to QCOW2                             |
 | `pdf-fixup`        | fix up the metadata in PDF files (newlines in tags, covers, etc.)      |
 | `pdf-split`        | extract range of pages from a PDF                                      |
 | `pin-and-sync`     | find documents and pin to ~/Desktop and ~/Sync                         |
