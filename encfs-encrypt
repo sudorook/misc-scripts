@@ -30,10 +30,9 @@ show_warning "Encfs does not provide robust security. Don't use it."
 ENCRYPTPATH="${encryptpath:-${HOME}/.encrypted}"
 DECRYPTPATH="${decryptpath:-${HOME}/.decrypted}"
 
-mkdir -p "${ENCRYPTPATH}"
-mkdir -p "${DECRYPTPATH}"
+mkdir -p "${ENCRYPTPATH}" "${DECRYPTPATH}"
 
-if ! grep "${DECRYPTPATH}" /etc/mtab > /dev/null 2>&1; then
+if ! grep -q "${DECRYPTPATH}" /etc/mtab; then
   set_icon
   show_info "${DECRYPTPATH} is not decrypted."
   exit
@@ -41,7 +40,7 @@ fi
 
 fusermount -u "${DECRYPTPATH}"
 
-if ! grep "${DECRYPTPATH}" /etc/mtab > /dev/null 2>&1; then
+if ! grep -q "${DECRYPTPATH}" /etc/mtab; then
   set_icon
   show_success "Encrypted successfully."
 else
