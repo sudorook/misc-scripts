@@ -22,7 +22,7 @@ function detect_encoding {
 
   # If chardetect confidence is too low, use file --mime-encoding to guess
   # character map instead.
-  if [ "$(echo "${confidence} > .9" | bc -l)" -eq 1 ]; then
+  if [ -n "${confidence}" ] && [ "$(echo "${confidence} > .9" | bc -l)" -eq 1 ]; then
     encoding="$(echo "${res}" | sed -n "s|.*\ \([A-Za-z0-9\-]\+\) with .*|\1|p")"
   else
     show_warning "WARNING: Using fallback to get character encoding for ${1@Q}." >&2
