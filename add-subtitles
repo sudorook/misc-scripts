@@ -226,7 +226,7 @@ function find_subs {
       while read -r file; do
         if [ -f "${subdir}/${file}" ]; then
           subext=${file##*.}
-          subenc="$(file -b --mime-encoding "${file}")"
+          subenc="$(file -b --mime-encoding "${subdir}/${file}")"
           case "${subext}" in
             ssa | ass | srt | sup | smi)
               if [[ "${subenc}" != binary ]]; then
