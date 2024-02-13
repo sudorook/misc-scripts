@@ -414,7 +414,11 @@ function make_cmd {
       file_count=$((file_count + 2))
       stream_count=$((stream_count + sub_stream_count))
     else
-      inputs="${inputs} -sub_charenc UTF-8 -i file:${sub@Q}"
+      if [ "$(file -b --mime-encoding "${sub}")" = binary ]; then
+        inputs="${inputs} -i file:${sub@Q}"
+      else
+        inputs="${inputs} -sub_charenc UTF-8 -i file:${sub@Q}"
+      fi
       mapping="${mapping} -map ${file_count}:s"
 
       # set output subtitle codec
