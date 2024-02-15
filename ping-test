@@ -19,6 +19,45 @@ function test_ip {
   show_info "${addr}:\t${speed} Mbps"
 }
 
+function print_usage {
+  show_header Usage: ping-test
+  cat << EOF
+  -c|--count  number of ping samples (default:10)
+  -m|--mtu    mtu size in bytes (default:1500)
+  -h|--help   print (this) help message
+EOF
+}
+
+OPTIONS=c:m:h
+LONGOPTIONS=count:,mtu:,help
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ "${#}" -ge 1 ]; do
+  case "${1}" in
+    -c | --count)
+      COUNT="${2}"
+      shift 2
+      ;;
+    -m | --mtu)
+      MTU="${2}"
+      shift 2
+      ;;
+    -h | --help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR: Unknown argument ${1@Q}. Exiting."
+      exit 3
+      ;;
+  esac
+done
+
 {
   if [ "${#}" -gt 0 ]; then
     echo "${@}"
