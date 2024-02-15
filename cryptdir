@@ -40,6 +40,12 @@ function mount_crypt_dir {
     encfs)
       encfs "${ENCRYPTPATH}" "${DECRYPTPATH}"
       ;;
+    gocryptfs)
+      if ! [ -f "${ENCRYPTPATH}"/gocryptfs.conf ]; then
+        gocryptfs -init "${ENCRYPTPATH}"
+      fi
+      gocryptfs "${ENCRYPTPATH}" "${DECRYPTPATH}"
+      ;;
   esac
 
   if grep -q "${DECRYPTPATH}" /etc/mtab; then
@@ -64,6 +70,9 @@ function unmount_crypt_dir {
     encfs)
       fusermount -u "${DECRYPTPATH}"
       ;;
+    gocryptfs)
+      fusermount -u "${DECRYPTPATH}"
+      ;;
   esac
 
   if ! grep -q "${DECRYPTPATH}" /etc/mtab; then
@@ -85,6 +94,11 @@ function check_crypttool {
     encfs)
       show_warning "EncFS has security issues. (https://defuse.ca/audits/encfs.htm)"
       if ! check_command encfs fusermount; then
+        exit 3
+      fi
+      ;;
+    gocryptfs)
+      if ! check_command fusermount gocryptfs; then
         exit 3
       fi
       ;;
