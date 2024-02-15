@@ -1,0 +1,30 @@
+#! /bin/bash
+set -eu
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+MTU=1500
+SIZE="$(("${MTU}" - 28))"
+COUNT=10
+
+function test_ip {
+  local addr="${1}"
+  local avg_time
+  avg_time="$(ping -s "${SIZE}" -c "${COUNT}" "${addr}" |
+              tail -n 1 | cut -d "=" -f2 | cut -d "/" -f2)"
+  speed="$(echo "scale=4; 2*${MTU}*8/1024/${avg_time}" | bc -l)"
+  show_info "${addr}:\t${speed} Mbps"
+}
+
+{
+  if [ "${#}" -gt 0 ]; then
+    echo "${@}"
+  else
+    cat
+  fi
+} |
+  while IFS= read -r ADDR; do
+    test_ip "${ADDR}"
+  done
