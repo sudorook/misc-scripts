@@ -16,7 +16,7 @@ function test_ip {
   avg_time="$(ping -s "${SIZE}" -c "${COUNT}" "${addr}" |
               tail -n 1 | cut -d "=" -f2 | cut -d "/" -f2)"
   speed="$(echo "scale=4; 2*${MTU}*8/1024/${avg_time}" | bc -l)"
-  show_info "${addr}:\t${speed} Mbps"
+  printf "%s\n" "${addr}:	${speed} Mbps"
 }
 
 function print_usage {
