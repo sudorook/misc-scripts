@@ -1,0 +1,170 @@
+#! /bin/bash
+set -eu
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+#
+# Functions
+#
+
+function set_icon {
+  if check_command gio && [ -n "$(whereis -b gvfs | cut -d ":" -f 2)" ]; then
+    gio set "${DECRYPTPATH}" -t string metadata::custom-icon-name folder-unlocked
+  fi
+  if check_command kwriteconfig5; then
+    kwriteconfig5 --file "${DECRYPTPATH}/.directory" --group 'Desktop Entry' --key 'Icon' 'folder-unlocked'
+  fi
+}
+
+function unset_icon {
+  if check_command gio && [ -n "$(whereis -b gvfs | cut -d ":" -f 2)" ]; then
+    gio set --delete "${DECRYPTPATH}" metadata::custom-icon-name
+  fi
+  if check_command kwriteconfig5; then
+    kwriteconfig5 --file "${DECRYPTPATH}/.directory" --group 'Desktop Entry' --key 'Icon' --delete
+  fi
+}
+
+function mount_crypt_dir {
+  if grep -q "${DECRYPTPATH}" /etc/mtab; then
+    show_warning "${DECRYPTPATH} is already mounted."
+    exit
+  fi
+
+  case "${CRYPTTOOL,,}" in
+    cryfs)
+      cryfs "${ENCRYPTPATH}" "${DECRYPTPATH}"
+      ;;
+    encfs)
+      encfs "${ENCRYPTPATH}" "${DECRYPTPATH}"
+      ;;
+  esac
+
+  if grep -q "${DECRYPTPATH}" /etc/mtab; then
+    set_icon
+    show_success "Decrypted successfully."
+  else
+    show_error "Decryption failed."
+    exit 3
+  fi
+}
+
+function unmount_crypt_dir {
+  if ! grep -q "${DECRYPTPATH}" /etc/mtab; then
+    show_warning "${DECRYPTPATH} is not decrypted."
+    exit
+  fi
+
+  case "${CRYPTTOOL,,}" in
+    cryfs)
+      cryfs-unmount "${DECRYPTPATH}"
+      ;;
+    encfs)
+      fusermount -u "${DECRYPTPATH}"
+      ;;
+  esac
+
+  if ! grep -q "${DECRYPTPATH}" /etc/mtab; then
+    unset_icon
+    show_success "Encrypted successfully."
+  else
+    show_error "Encryption failed."
+    exit 3
+  fi
+}
+
+function check_crypttool {
+  case "${CRYPTTOOL,,}" in
+    cryfs)
+      if ! check_command cryfs; then
+        exit 3
+      fi
+      ;;
+    encfs)
+      show_warning "EncFS has security issues. (https://defuse.ca/audits/encfs.htm)"
+      if ! check_command encfs fusermount; then
+        exit 3
+      fi
+      ;;
+    *)
+      show_error "ERROR: ${CRYPTTOOL@Q} not supported. Exiting."
+      exit 3
+      ;;
+  esac
+}
+
+function print_usage {
+  show_header Usage: cryptdir
+  cat << EOF
+  -e|--encrypt_dir  path to directory with encrypted data (${ENCRYPTPATH})
+  -d|--decrypt_dir  directory path to mount decrypted data (${DECRYPTPATH})
+  -s|--crypt_std    encryption standard (${CRYPTTOOL})
+EOF
+}
+
+#
+# Globals
+#
+
+ENCRYPTPATH="${encryptpath:-${HOME}/.encrypted}"
+DECRYPTPATH="${decryptpath:-${HOME}/.decrypted}"
+
+CRYPTTOOL=cryfs
+
+#
+# Main
+#
+
+OPTIONS=d:e:s:h
+LONGOPTIONS=decrypt_dir:,encrypt_dir:,crypt_std:,help
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ "${#}" -ge 1 ]; do
+  case "${1}" in
+    -d | --decrypt_dir)
+      DECRYPTPATH="${2}"
+      shift 2
+      ;;
+    -e | --encrypt_dir)
+      ENCRYPTPATH="${2}"
+      shift 2
+      ;;
+    -s | --crypt_std)
+      CRYPTTOOL="${2}"
+      shift 2
+      ;;
+    -h | --help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR: Unknown argument ${1@Q}. Exiting."
+      exit 3
+      ;;
+  esac
+done
+
+check_crypttool
+
+if ! [ "${#}" -eq 1 ]; then
+  show_error "ERROR: Incorrect # of parameters. Exiting."
+  exit 3
+fi
+
+mkdir -p "${ENCRYPTPATH}" "${DECRYPTPATH}"
+
+case "${1}" in
+  on | mount | decrypt)
+    mount_crypt_dir
+    ;;
+  off | unmount | encrypt)
+    unmount_crypt_dir
+    ;;
+esac
