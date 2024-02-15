@@ -12,6 +12,7 @@ COUNT=10
 function test_ip {
   local addr="${1}"
   local avg_time
+  local speed
   avg_time="$(ping -s "${SIZE}" -c "${COUNT}" "${addr}" |
               tail -n 1 | cut -d "=" -f2 | cut -d "/" -f2)"
   speed="$(echo "scale=4; 2*${MTU}*8/1024/${avg_time}" | bc -l)"
