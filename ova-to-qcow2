@@ -60,9 +60,9 @@ fi
 tar -xvf "${IN}" -C "${TMP}"
 pushd "${TMP}" > /dev/null
 if [ -f "${NAME}.vmdk" ]; then
-  qemu-img convert -O qcow2 "${NAME}.vmdk" "${NAME}.qcow2"
+  qemu-img convert -f vmdk -O qcow2 "${NAME}.vmdk" "${NAME}.qcow2"
 elif [ -f "${NAME}.vdi" ]; then
-  qemu-img convert -O qcow2 "${NAME}.vdi" "${NAME}.qcow2"
+  qemu-img convert -f vdi -O qcow2 "${NAME}.vdi" "${NAME}.qcow2"
 else
   show_error "ERROR: No compatible image extracted. Exiting."
 fi
