@@ -7,6 +7,12 @@ source "${ROOT}"/globals
 
 ! check_command nmcli sed && exit 3
 
+# Script requries nm-cli, so check that the Network Manager service is running.
+if ! systemctl is-active --quiet NetworkManager; then
+  show_info "Enabling Network Manager systemd service."
+  sudo systemctl start --now NetworkManager
+fi
+
 function check_wg_config {
   local in="${1}"
   local name="${1%.*}"
