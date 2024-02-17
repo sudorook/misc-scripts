@@ -8,7 +8,11 @@ source "${ROOT}"/globals
 ! check_command ffmpeg && exit 3
 
 function print_usage() {
-  echo "Usage: add-cover -a|--audio <audio file> -c|--cover <cover image>"
+  show_header "Usage: add-cover"
+  cat << EOF
+  -a|--audio <audio file>
+  -c|--cover <cover image:
+EOF
 }
 
 function get_format() {
