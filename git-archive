@@ -9,14 +9,12 @@ source "${ROOT}"/globals
 
 print_usage() {
   show_header "Usage: git-archive"
-  show_listitem \
-    "  -d|--dir         directory of git repository to archive"
-  show_listitem \
-    "  -t|--tag         tag/branch to archive (e.g. master, HEAD~5, etc.)"
-  show_listitem \
-    "  -z|--compress    compression type (zip, gz, xz, or zst)"
-  show_listitem \
-    "  -h|--help        show (this) help message"
+  cat << EOF
+  -d|--dir         directory of git repository to archive
+  -t|--tag         tag/branch to archive (e.g. master, HEAD~5, etc.)
+  -z|--compress    compression type (zip, gz, xz, or zst)
+  -h|--help        show (this) help message
+EOF
 }
 
 check_dir() {
