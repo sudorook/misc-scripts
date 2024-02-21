@@ -405,7 +405,7 @@ function recenter_transmission {
 function rotate_cinnamon_monitor_xml {
   local config="${HOME}/.config/cinnamon-monitors.xml"
   if ! [ -f "${config}" ]; then
-    show_warning "${config@} not found. Skipping."
+    show_warning "${config@Q} not found. Skipping."
   else
     sed -i.bak \
       "s,<rotation>[a-z]\+</rotation>,<rotation>${ROTATION}</rotation>,g" \
