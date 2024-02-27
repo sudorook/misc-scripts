@@ -96,5 +96,9 @@ delete_directory \
   "${HOME}/.local/share/Trash/" \
   "Deleting trash directory."
 
+delete_directory \
+  "${HOME}/Share/.Trash-1000" \
+  "Deleting ~/Share trash directory."
+
 # wget history
 delete_file "${HOME}/.wget-hsts"
