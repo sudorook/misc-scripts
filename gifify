@@ -12,14 +12,16 @@ source "${ROOT}"/globals
 #
 
 function print_usage() {
-  echo "Usage:"
-  echo "  -i  --input          input video (e.g. input.mp4)"
-  echo "  -o  --output         output GIF (e.g. output.gif)"
-  echo "  -s  --start          starting timestamp (e.g. 01:20.5)"
-  echo "  -l  --length         length in seconds (e.g. 3.5)"
-  echo "  -d  --dimensions     output dimensions, comma-delimited (e.g. 1280x720)"
-  echo "  -p  --fps            GIF output FPS (e.g. 30)"
-  echo "  -t  --subtitle       embed subtitles? (yes, no, both)"
+  show_header "Usage:"
+  cat << EOF
+  -i  --input          input video (e.g. input.mp4)
+  -o  --output         output GIF (e.g. output.gif)
+  -s  --start          starting timestamp (e.g. 01:20.5)
+  -l  --length         length in seconds (e.g. 3.5)
+  -d  --dimensions     output dimensions, comma-delimited (e.g. 1280x720)
+  -p  --fps            GIF output FPS (e.g. 30)
+  -t  --subtitle       embed subtitles? (yes, no, both)
+EOF
 }
 
 function scan_input {
