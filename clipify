@@ -9,12 +9,14 @@ source "${ROOT}"/globals
 
 # Global functions.
 function print_usage() {
-  echo "Usage:"
-  echo "  -i  --input                 input video (e.g. input.mp4)"
-  echo "  -o  --output                output video (e.g. output.mp4)"
-  echo "  -s  --start                 starting timestamp (e.g. 01:20.5)"
-  echo "  -l  --length                length in seconds (e.g. 3.5)"
-  echo "  -e  --end                   ending timestamp (e.g. 01:20.5)"
+  show_header "Usage:"
+  cat << EOF
+  -i  --input       input video (e.g. input.mp4)"
+  -o  --output      output video (e.g. output.mp4)"
+  -s  --start       starting timestamp (e.g. 01:20.5)"
+  -l  --length      length in seconds (e.g. 3.5)"
+  -e  --end         ending timestamp (e.g. 01:20.5)"
+EOF
 }
 
 function scan_input {
