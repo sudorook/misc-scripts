@@ -1,0 +1,12 @@
+#! /bin/bash
+set -euo pipefail
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+! check_command nmcli sed && exit 3
+
+while read -r CONN; do
+  nmcli conn delete "${CONN}"
+done < <(nmcli conn | sed -n "s/.*\s\+\([0-9a-z\-]\+\)\s\+openvpn.*/\1/p")
