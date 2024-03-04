@@ -34,11 +34,19 @@ function encfs_unmounted() {
 
 # Backup home directory to Backups 1 and 2
 function sync_home() {
+  local cmd
+  local excludedir
+
+  cmd="rsync -Pradog --delete-excluded ${HOME}/ ${backup1}/${USER^}/"
+  cmd="${cmd} ${vboxdir:+--exclude ${vboxdir#"${HOME}"/}\\*}"
+  cmd="${cmd} ${kvmdir:+--exclude ${kvmdir#"${HOME}"/}\\*}"
+  for excludedir in "${EXCLUDEDIRS[@]}"; do
+    cmd="${cmd} --exclude ${excludedir#"${HOME}"/}\\*"
+  done
+
   show_info "Syncing ${HOME@Q} to ${backup1@Q}."
   mkdir -p "${backup1}/${USER^}/"
-  sudo rsync -Pradog --delete-excluded "${HOME}/" "${backup1}/${USER^}/" \
-    ${vboxdir:+--exclude "${vboxdir#"${HOME}"/}*"} \
-    ${kvmdir:+--exclude "${kvmdir#"${HOME}"/}*"}
+  bash -c "${cmd}"
   sync
   show_success "Done." && echo
 
@@ -89,6 +97,8 @@ encfs_unmounted
 
 SYNC_HOME=false
 SYNC_VM=false
+
+EXCLUDEDIRS=()
 
 OPTIONS=ahv
 LONGOPTIONS=all,home,vms
