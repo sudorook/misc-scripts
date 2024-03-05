@@ -8,6 +8,12 @@ source "${ROOT}"/globals
 ! check_command blkid grep swapon && exit 3
 
 function set_swap_on {
+  # First, make sure that SWAPFILE is defined.
+  if ! [ -v SWAPFILE ] || [ -z "${SWAPFILE}" ]; then
+    show_error "ERROR: SWAPFILE is not defined. Exiting."
+    exit 3
+  fi
+
   # Create destination dir for swap file if it doesn't exist."
   local swapdir
   swapdir="$(dirname "${SWAPFILE}")"
@@ -42,6 +48,12 @@ function set_swap_on {
 }
 
 function set_swap_off {
+  # First, make sure that SWAPFILE is defined.
+  if ! [ -v SWAPFILE ] || [ -z "${SWAPFILE}" ]; then
+    show_error "ERROR: SWAPFILE is not defined. Exiting."
+    exit 3
+  fi
+
   # Disable swap partition if it is active.
   if swapon --show | grep -q "^${SWAPFILE}\s"; then
     show_info "Flushing cache"
