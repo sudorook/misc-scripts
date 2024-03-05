@@ -87,6 +87,7 @@ case "${1}" in
     ;;
   help | --help | -h)
     print_usage
+    exit
     ;;
   *)
     show_error "ERROR: ${1@Q} not understood. Exiting."
