@@ -28,6 +28,12 @@ function format_js() {
 }
 export -f format_js
 
+function format_lua() {
+  ! check_command stylua && exit 3
+  stylua --indent-type spaces --indent-width 2 --column-width 80 "${1}"
+}
+export -f format_lua
+
 function format_markdown() {
   ! check_command prettier && exit 3
   prettier --loglevel silent --prose-wrap always -w "${1}"
@@ -94,6 +100,9 @@ function format_wrapper() {
       ;;
     js | json)
       format_js "${1}"
+      ;;
+    lua)
+      format_lua "${1}"
       ;;
     markdown)
       format_markdown "${1}"
