@@ -1,0 +1,17 @@
+#! /bin/bash
+set -euo pipefail
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+! check_command curl git jq && exit
+
+mkdir -p "${1}"
+pushd "${1}" > /dev/null
+
+while read -r LINE; do
+  git clone "${LINE}.git"
+done < <(curl https://api.github.com/orgs/"${1}"/repos | jq -r '.[]["html_url"]')
+
+popd > /dev/null
