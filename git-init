@@ -114,15 +114,17 @@ set_global_aliases() {
 }
 
 print_usage() {
-  echo "Usage:"
-  echo "  -n  --name          author name"
-  echo "  -e  --email         author email"
-  echo "  -s  --schedule      schedule (workday, random, or none)"
-  echo "  -r  --range         workday schedule range (e.g. 9AM-5PM)"
-  echo "  -o  --roffset       random schedule offset (e.g. '3 days', '1 week')"
-  echo "  -t  --timezone      time zone (e.g. 'America/Toronto')"
-  echo "  -g  --global        flag to write settings globally"
-  echo "  -h  --help          print (this) help message"
+  show_header "Usage:"
+  cat << EOF
+  -n  --name          author name
+  -e  --email         author email
+  -s  --schedule      schedule (workday, random, or none)
+  -r  --range         workday schedule range (e.g. 9AM-5PM)
+  -o  --roffset       random schedule offset (e.g. '3 days', '1 week')
+  -t  --timezone      time zone (e.g. 'America/Toronto')
+  -g  --global        flag to write settings globally
+  -h  --help          print (this) help message
+EOF
 }
 
 #
