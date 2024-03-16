@@ -1,5 +1,5 @@
 #! /bin/bash
-set -Eeu
+set -Eeuo pipefail
 
 ROOT="$(dirname "${0}")"
 
@@ -38,16 +38,22 @@ while [ ${#} -ge 1 ]; do
   esac
 done
 
-if ! [ -e "${1}" ]; then
-  show_error "ERROR: ${1@Q} does not exist."
-  exit 2
-fi
+if [ -t 0 ]; then
+  if ! [ -e "${1}" ]; then
+    show_error "ERROR: ${1@Q} does not exist."
+    exit 3
+  fi
 
-TMP="$(mktemp)"
-trap 'rm -f "${TMP}"; exit' INT TERM ERR EXIT
+  TMP="$(mktemp)"
+  trap 'rm -f "${TMP}"; exit' INT TERM ERR EXIT
 
-sort -d -f -u "${1}" > "${TMP}"
-if "${ISBACKUP}"; then
-  mv "${1}" "${1}.bak"
+  sort -d -f -u "${1}" > "${TMP}"
+
+  if "${ISBACKUP}"; then
+    mv "${1}" "${1}.bak"
+  fi
+
+  mv "${TMP}" "${1}"
+else
+  cat | sort -d -f -u
 fi
-mv "${TMP}" "${1}"
