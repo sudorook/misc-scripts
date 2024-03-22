@@ -105,5 +105,8 @@ delete_directory \
   "${HOME}/Share/.Trash-1000" \
   "Deleting ~/Share trash directory."
 
+# Python history
+delete_file "${HOME}/.python_history"
+
 # wget history
 delete_file "${HOME}/.wget-hsts"
