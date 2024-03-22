@@ -19,6 +19,8 @@ function delete_directory() {
       show_warning "${1@Q} owned by ${dir_owner@Q}. Skipping."
       echo
     fi
+  else
+    show_warning "${1@Q} not found. Skipping."
   fi
 }
 
@@ -33,6 +35,8 @@ function delete_file() {
       show_warning "${1@Q} owned by ${file_owner@Q}. Skipping."
       echo
     fi
+  else
+    show_warning "${1@Q} not found. Skipping."
   fi
 }
 
