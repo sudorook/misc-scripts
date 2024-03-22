@@ -100,6 +100,7 @@ delete_directory \
   "${HOME}/.local/share/Trash/" \
   "Deleting trash directory."
 
+# Trash at Share/ mountpoint
 delete_directory \
   "${HOME}/Share/.Trash-1000" \
   "Deleting ~/Share trash directory."
