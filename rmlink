@@ -25,6 +25,7 @@ function check_file {
     return 1
   fi
 
+  local dir
   for dir in "${PROTECT_DIRS[@]}"; do
     if [[ "$(readlink -f "${1}")" == "$(readlink -f "${dir}")"* ]]; then
       show_warning "WARNING: files in ${dir@Q} are protected. Skipping."
