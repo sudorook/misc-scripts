@@ -36,7 +36,7 @@ export -f format_lua
 
 function format_markdown() {
   ! check_command prettier && exit 3
-  prettier --loglevel silent --prose-wrap always -w "${1}"
+  prettier --log-level silent --prose-wrap always -w "${1}"
 }
 export -f format_markdown
 
