@@ -14,6 +14,7 @@ source "${ROOT}"/langs
 
 function get_language() {
   local res=
+  local lang
 
   for lang in "${!ISO_639_2[@]}"; do
     if [[ "${1,,}" = "${ISO_639_2[${lang}],,}" ]]; then
