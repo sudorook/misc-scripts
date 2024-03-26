@@ -54,6 +54,7 @@
 | `ping-test`        | use `ping` to estimate network speed                                   |
 | `print-colors`     | print terminal colors                                                  |
 | `print-fontstring` | generate the FFmpeg format string to embed fonts in a container        |
+| `quickdate`        | wrapper for generating date strings based on a specified offset        |
 | `rank-mirrorlist`  | rank all servers listed in /etc/pacman.d/mirrorlist                    |
 | `rate-song`        | write song rating metadata to beets database                           |
 | `reencode`         | convert video's encoding                                               |
