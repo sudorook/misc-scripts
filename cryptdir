@@ -37,6 +37,44 @@ function mount_crypt_dir {
     cryfs)
       cryfs "${ENCRYPTPATH}" "${DECRYPTPATH}"
       ;;
+    ecryptfs)
+      local encryptname
+      local pass
+      local hash
+
+      if ! lsmod | grep -q ecryptfs; then
+        show_info "Loading ecryptfs kenrel module."
+        sudo modprobe ecryptfs
+      fi
+
+      if [ -d "${HOME}/.ecryptfs" ]; then
+        mkdir -p "${HOME}/.ecryptfs"
+      fi
+
+      encryptname="${ENCRYPTPATH##*/}"
+      encryptname="${encryptname#\.}"
+      if ! [ -f "${HOME}/.ecryptfs/${encryptname}.conf" ]; then
+        echo "${ENCRYPTPATH}	${DECRYPTPATH}	ecryptfs" > \
+          "${HOME}/.ecryptfs/${encryptname}.conf"
+      fi
+      if ! [ -f "${HOME}/.ecryptfs/${encryptname}.mnt" ]; then
+        echo "${DECRYPTPATH}" > \
+          "${HOME}/.ecryptfs/${encryptname}.mnt"
+      fi
+
+      pass="$(ask_secret "Password:")"
+      if ! [ -f "${HOME}/.ecryptfs/${encryptname}.sig" ]; then
+        hash="$(printf "%s" "${pass}" |
+                  ecryptfs-add-passphrase - |
+                  sed -n "s/.*\[\([0-9a-z]\+\)\].*/\1/p")"
+        echo "${hash}" > "${HOME}/.ecryptfs/${encryptname}.sig"
+        echo "${hash}" >> "${HOME}/.ecryptfs/${encryptname}.sig"
+      else
+        printf "%s" "${pass}" | ecryptfs-add-passphrase -
+      fi
+
+      mount.ecryptfs_private "${encryptname}"
+      ;;
     encfs)
       encfs "${ENCRYPTPATH}" "${DECRYPTPATH}"
       ;;
@@ -67,6 +105,12 @@ function unmount_crypt_dir {
     cryfs)
       cryfs-unmount "${DECRYPTPATH}"
       ;;
+    ecryptfs)
+      local encryptname
+      encryptname="${ENCRYPTPATH##*/}"
+      encryptname="${encryptname#\.}"
+      umount.ecryptfs_private "${encryptname}"
+      ;;
     encfs)
       fusermount -u "${DECRYPTPATH}"
       ;;
@@ -88,6 +132,11 @@ function check_crypttool {
   case "${CRYPTTOOL,,}" in
     cryfs)
       if ! check_command cryfs; then
+        exit 3
+      fi
+      ;;
+    ecryptfs)
+      if ! check_command ecryptfs-stat; then
         exit 3
       fi
       ;;
