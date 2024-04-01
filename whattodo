@@ -12,10 +12,10 @@ source "${ROOT}"/globals
 #
 
 # File name(s) that contain todo lists.
-FILES=({TODO,TO-DO}{.md,.txt,.rtf})
+FILES=({TODO,TO-DO}{,.md,.txt,.rtf})
 
 # Extra hard-coded files not in ${projectsdir} (can be left empty).
-EXTRAS=({"${HOME}/Desktop/","${HOME}/"}{TODO,TO-DO}{.md,.txt,.rtf})
+EXTRAS=({"${HOME}/Desktop/","${HOME}/"}{TODO,TO-DO}{,.md,.txt,.rtf})
 
 # Directories to ignore when searching for lists. Redundant with
 # ${ignoreprojectdirs} variable in globals.
