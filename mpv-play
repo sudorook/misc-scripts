@@ -101,6 +101,7 @@ print_usage() {
   show_listitem "  -c|--cutoff   <int>     filter out files below cutoff (default: 0)"
   show_listitem "  -f|--filetype <string>  set extension keep (optional)"
   show_listitem "  -s|--shuffle            flag shuffle streams (default: false)"
+  show_listitem "  -p|--pause              start mpv as paused (default: false)"
   show_listitem "  -h|--help               print (this) help message"
 }
 
@@ -116,8 +117,8 @@ REPLAYGAIN=album
 # Parse command line variables.
 #
 
-OPTIONS=sf:c:h
-LONGOPTIONS=shuffle,filetype:,cutoff:,help
+OPTIONS=sf:c:hp
+LONGOPTIONS=shuffle,filetype:,cutoff:,help,pause
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -139,6 +140,10 @@ while [ "${#}" -ge 1 ]; do
       print_usage
       exit
       ;;
+    -p | --pause)
+      PAUSE="--pause"
+      shift
+      ;;
     --)
       shift
       break
@@ -159,7 +164,7 @@ IN=("${@}")
 export CUTOFF
 
 if "${SHUFFLE}"; then
-  print_list | mpv --shuffle --no-video --replaygain="${REPLAYGAIN}" --playlist=-
+  print_list | mpv "${PAUSE:-}" --shuffle --no-video --replaygain="${REPLAYGAIN}" --playlist=-
 else
-  print_list | sort -V | mpv --no-video --replaygain="${REPLAYGAIN}" --playlist=-
+  print_list | sort -V | mpv "${PAUSE:-}" --no-video --replaygain="${REPLAYGAIN}" --playlist=-
 fi
