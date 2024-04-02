@@ -50,7 +50,6 @@ print_list() {
         \( -iname "*.mp3" \
            -o -iname "*.opus" \
            -o -iname "*.wav" \
-           -o -iname "*.mka" \
            -o -iname "*.flac" \
            -o -iname "*.aac" \
            -o -iname "*.alac" \
@@ -68,7 +67,6 @@ print_list() {
           \( -iname "*.mp3" \
              -o -iname "*.opus" \
              -o -iname "*.wav" \
-             -o -iname "*.mka" \
              -o -iname "*.flac" \
              -o -iname "*.aac" \
              -o -iname "*.alac" \
@@ -85,7 +83,6 @@ print_list() {
           \( -iname "*.mp3" \
              -o -iname "*.opus" \
              -o -iname "*.wav" \
-             -o -iname "*.mka" \
              -o -iname "*.flac" \
              -o -iname "*.aac" \
              -o -iname "*.alac" \
