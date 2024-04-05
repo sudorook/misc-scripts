@@ -79,6 +79,6 @@ COLORS["White-BI"]='\033[1;97m'    # Bold High Intensity
 COLORS["White-BGI"]='\033[0;107m'  # High Intensity backgrounds
 
 for KEY in "${!COLORS[@]}"; do
-  echo -n "${COLORS["${KEY}"]}:	"
+  echo -n "${COLORS["${KEY}"]}	"
   echo -e "${COLORS["${KEY}"]}${KEY}${COLORS[Color_Off]}"
 done | sort -V
