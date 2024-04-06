@@ -322,6 +322,27 @@ function upgrade_zsh() {
   fi
 }
 
+function upgrade_gems() {
+  show_header "Upgrading user-installed gems."
+  local gemhome
+  local gem
+  gemhome="$(gem env user_gemhome)"
+  while read -r gem; do
+    if gem list --silent -i "${gem}"; then
+      gem update --conservative --minimal-deps "${gem}"
+    else
+      show_warning "Something went wrong parsing ${gem@Q}."
+    fi
+  done < <(
+      find "${gemhome}/gems/" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; |
+        sed \
+          -e "s/-linux$//g" \
+          -e "s/-\(x86\)\(_64\)\?$//g" \
+          -e "s/-[0-9\.]\+$//g"
+
+  )
+}
+
 function update_images() {
   show_header "Upgrading Podman images."
   local image
@@ -449,8 +470,8 @@ function upgrade_weechat_plugins {
 # Main
 #
 
-OPTIONS=ahijrRpstnvwxz
-LONGOPTIONS=all,help,images,julia,rust,R,pkgbuild,system,theme,nvim,vim,weechat,extra,zsh
+OPTIONS=ahgijrRpstnvwxz
+LONGOPTIONS=all,help,gems,images,julia,rust,R,pkgbuild,system,theme,nvim,vim,weechat,extra,zsh
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -458,6 +479,7 @@ while [ ${#} -ge 1 ]; do
   case ${1} in
     -a | --all)
       upgrade_system
+      upgrade_gems
       upgrade_julia_packages
       upgrade_rust
       upgrade_R
@@ -474,6 +496,10 @@ while [ ${#} -ge 1 ]; do
     -h | --help)
       print_usage
       exit
+      ;;
+    -g | --gems)
+      upgrade_gems
+      shift
       ;;
     -i | --images)
       update_images
