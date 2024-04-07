@@ -50,7 +50,7 @@
 | `ova-to-qcow2`     | convert an OVA virtual disk image to QCOW2                             |
 | `pdf-fixup`        | fix up the metadata in PDF files (newlines in tags, covers, etc.)      |
 | `pdf-split`        | extract range of pages from a PDF                                      |
-| `pin-and-sync`     | find documents and pin to ~/Desktop and ~/Sync                         |
+| `search-docs`      | find documents, with option to pin to ~/Desktop and ~/Sync             |
 | `ping-test`        | use `ping` to estimate network speed                                   |
 | `print-colors`     | print terminal colors                                                  |
 | `print-fontstring` | generate the FFmpeg format string to embed fonts in a container        |
