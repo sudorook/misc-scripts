@@ -5,6 +5,8 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
+! check_command sed && exit 3
+
 print_ass_fonts() {
   local line="${1}"
   local font
@@ -46,8 +48,9 @@ iterate_files() {
 
   if [ -d "${1}" ]; then
     for file in "${1}"/*; do
-      ! [[ "$(file -ib "${file}")" =~ text/plain ]] && continue
-      parse_lines "${file}"
+      if [[ "$(file -ib "${file}")" =~ text/plain ]]; then
+        parse_lines "${file}"
+      fi
     done
   elif [ -f "${1}" ]; then
     if [[ "$(file -ib "${1}")" =~ text/plain ]]; then
