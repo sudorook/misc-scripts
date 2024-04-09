@@ -40,7 +40,7 @@
 | `kvm-cp`           | copy file to shared KVM directory                                      |
 | `kvm-ls`           | list files in shared KVM directory                                     |
 | `kvm-mv`           | move file to shared KVM directory                                      |
-| `list-fonts`       | list all the fonts referenced in a subtitle file or directory          |
+| `list-ass-fonts`   | list all the fonts referenced in a subtitle file or directory          |
 | `mpv-play`         | play media above a duration cutoff                                     |
 | `mpv-ssh`          | search remote directories over SSH and pipe as playlist to mpv         |
 | `nm-ovpn-delete`   | delete OpenVPN connections via `nmcli`                                 |
