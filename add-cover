@@ -11,7 +11,7 @@ function print_usage() {
   show_header "Usage: add-cover"
   cat << EOF
   -a|--audio <audio file>
-  -c|--cover <cover image:
+  -c|--cover <cover image>
 EOF
 }
 
