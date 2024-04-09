@@ -6,7 +6,7 @@ ROOT="$(dirname "${0}")"
 source "${ROOT}"/globals
 
 MTU=1500
-SIZE="$(("${MTU}" - 28))"
+SIZE="$((MTU - 28))"
 COUNT=10
 
 function test_ip {
