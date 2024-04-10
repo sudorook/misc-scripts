@@ -54,6 +54,10 @@ function check_dirs {
       continue
     elif [ -d "${dir}" ]; then
       dirs+=("${dir}")
+    elif [ -s "${dir}" ]; then
+      if [ -d "$(readlink -f "${dir}")" ]; then
+        dirs+=("${dir}")
+      fi
     else
       show_warning "WARNING: ${dir@Q} not found."
     fi
@@ -63,7 +67,7 @@ function check_dirs {
 
 function pick_file {
   pushd "${ROOT}" > /dev/null
-  find "${DIRS[@]}" -type f -path "*.caltrash*" -prune -o \
+  find -L "${DIRS[@]}" -type f -path "*.caltrash*" -prune -o \
     \( -iname "*.mobi" \
       -o -iname "*pdf" \
       -o -iname "*.azw3" \
