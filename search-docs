@@ -67,6 +67,7 @@ function pick_file {
     \( -iname "*.mobi" \
       -o -iname "*pdf" \
       -o -iname "*.azw3" \
+      -o -iname "*.html" \
       -o -iname "*.epub" \
     \) -print |
     fzf --layout=reverse --header-first -m
@@ -99,6 +100,16 @@ function get_title_ebook-meta {
   fi
 }
 
+function get_title_html {
+  local file="${1}"
+  sed '/\s*<body>/Iq' "${file}" |
+    sed ':a;N;$!ba;s/\n//g' |
+    sed -n "s,.*<title>\s*\(.\+\)\s*</title>.*,\1,Ip" |
+    sed -e "s/&amp;/\&/g" -e "s,&lt;,<,g" -e "s,&gt;,>,g" \
+      -e "s,<strong>,,Ig" -e "s,</strong>,,Ig" \
+      -e "s,<code>,,Ig" -e "s,</code>,,Ig"
+}
+
 function sanitize_string {
   sed \
     -e "s/: / - /g" \
@@ -118,11 +129,17 @@ function get_title {
 
   title="$(get_title_calibre "${1}")"
   if [ -z "${title}" ]; then
-    if [[ "${file_ext,,}" = pdf ]]; then
-      title="$(get_title_pdfinfo "${1}")"
-    elif [[ "${file_ext,,}" = epub ]]; then
-      title="$(get_title_epub-meta "${1}")"
-    fi
+    case "${file_ext,,}" in
+      pdf)
+        title="$(get_title_pdfinfo "${1}")"
+        ;;
+      epub)
+        title="$(get_title_epub-meta "${1}")"
+        ;;
+      html)
+        title="$(get_title_html "${1}")"
+        ;;
+    esac
   fi
   if [ -z "${title}" ] || [[ "${title}" =~ .dvi$ ]]; then
     title="$(echo "${file_name}" |
@@ -175,7 +192,16 @@ function open {
         (evince "${file}" > /dev/null 2>&1 &)
       fi
       ;;
-    *) ;;
+    html)
+      if [[ -v BROWSER ]]; then
+        ("${BROWSER}" "${file}" > /dev/null 2>&1 &)
+      else
+        show_warning "\$BROWSER not set. Skipping ${file@Q}."
+      fi
+      ;;
+    *)
+      show_warning "${file_ext@Q} files are not supported. Skipping ${file@Q}."
+      ;;
   esac
 }
 
