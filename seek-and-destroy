@@ -51,6 +51,8 @@ function seek {
             -o -path \"${HOME}/.ipython\" \
             -o -path \"${HOME}/.julia\" \
             -o -path \"${HOME}/.local/share/containers\" \
+            -o -path \"${HOME}/.local/share/gems\" \
+            -o -path \"${HOME}/.luarocks\" \
             -o -path \"${HOME}/.lyrics\" \
             -o -path \"${HOME}/.mozilla\" \
             -o -path \"${HOME}/.npm\" \
