@@ -5,6 +5,8 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
+! check_command grep ip sed && exit 3
+
 # Command line script to add a routing table entry for an IP address. Useful
 # for accessing network printers when behind a VPN that interferes with access
 # to local machines addressed by a local/internal DNS.
