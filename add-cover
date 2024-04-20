@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command ffmpeg && exit 3
+! check_command ffmpeg sed && exit 3
 
 function print_usage() {
   show_header "Usage: add-cover"
