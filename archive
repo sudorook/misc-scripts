@@ -197,7 +197,7 @@ while [ ${#} -ge 1 ]; do
       shift 2
       ;;
     -z | --compress)
-      case "${2}" in
+      case "${2,,}" in
         zst | zstd | pzstd)
           Z=zstd
           ;;
