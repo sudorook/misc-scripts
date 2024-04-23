@@ -45,7 +45,7 @@ function mount_crypt_dir {
       local hash
 
       if ! lsmod | grep -q ecryptfs; then
-        show_info "Loading ecryptfs kenrel module."
+        show_info "Loading ecryptfs kernel module."
         sudo modprobe ecryptfs
       fi
 
