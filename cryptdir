@@ -103,6 +103,11 @@ function unmount_crypt_dir {
     exit
   fi
 
+  if ! grep -q "^${CRYPTTOOL} ${DECRYPTPATH}" /etc/mtab; then
+    show_warning "Selected ${CRYPTTOOL@Q} does not match /etc/mtab entry."
+    exit
+  fi
+
   case "${CRYPTTOOL,,}" in
     cryfs)
       cryfs-unmount "${DECRYPTPATH}"
