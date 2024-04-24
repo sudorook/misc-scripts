@@ -5,6 +5,10 @@ set -eu
 # Globals
 #
 
+if ! command -v notify-send > /dev/null; then
+  exit 3
+fi
+
 # Thresholds
 LOW=40
 FULL=80
@@ -27,10 +31,6 @@ LOCKFILE=/tmp/battery-notify.lock
 # Exit if lockfile already set by running battery-notify instance.
 if [ -e "${LOCKFILE}" ] && kill -0 "$(< "${LOCKFILE}")"; then
   exit
-fi
-
-if ! command -v notify-send > /dev/null; then
-  exit 3
 fi
 
 trap 'rm -f ${LOCKFILE}; exit' INT TERM ERR EXIT
