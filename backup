@@ -23,12 +23,10 @@ function backup_exists() {
   fi
 }
 
-# Check if any encfs directories are mounted (/etc/mtab).
-function encfs_unmounted() {
-  if grep -q encfs /etc/mtab; then
-    show_error "Encrypt and unmount before running:"
-    show_error "$(grep encfs /etc/mtab | cut -d" " -f2)"
-    exit 1
+# Check if any encrypted directories in ${HOME} are mounted (/etc/mtab).
+function crypt_mounted() {
+  if grep -q "${HOME}" /etc/mtab; then
+    return 1
   fi
 }
 
@@ -93,7 +91,10 @@ function sync_vms() {
 #
 
 backup_exists
-encfs_unmounted
+if crypt_mounted; then
+  show_error "WARNING: Home directories found in /etc/mtab. Unmount and try again."
+  exit
+fi
 
 SYNC_HOME=false
 SYNC_VM=false
