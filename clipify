@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command ffmpeg && exit 3
+! check_command bc ffmpeg ffprobe sed && exit 3
 
 # Global functions.
 function print_usage() {
