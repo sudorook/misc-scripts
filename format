@@ -151,7 +151,7 @@ supported by this script will be ignored."
 FORCE=false
 
 OPTIONS=fhl:
-LONGOPTIONS=force:help,language:
+LONGOPTIONS=force,help,language:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
