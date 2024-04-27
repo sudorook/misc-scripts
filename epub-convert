@@ -9,7 +9,7 @@ source "${ROOT}"/globals
 
 for ITEM in "${@}"; do
   if [ -f "${ITEM}" ]; then
-    NAME="${ITEM%%.*}"
+    NAME="${ITEM%.*}"
     EXT="${ITEM##*.}"
     case "${EXT,,}" in
       azw3 | mobi | lit)
