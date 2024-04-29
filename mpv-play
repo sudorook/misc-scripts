@@ -161,7 +161,7 @@ IN=("${@}")
 export CUTOFF
 
 if "${SHUFFLE}"; then
-  print_list | mpv "${PAUSE:-}" --shuffle --no-video --replaygain="${REPLAYGAIN}" --playlist=-
+  print_list | mpv "${PAUSE:-}" --shuffle --no-audio-display --replaygain="${REPLAYGAIN}" --playlist=-
 else
-  print_list | sort -V | mpv "${PAUSE:-}" --no-video --replaygain="${REPLAYGAIN}" --playlist=-
+  print_list | sort -V | mpv "${PAUSE:-}" --no-audio-display --replaygain="${REPLAYGAIN}" --playlist=-
 fi
