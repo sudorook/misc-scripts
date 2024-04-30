@@ -7,6 +7,7 @@ source "${ROOT}"/globals
 
 function print_usage {
   show_header "Usage: get-webseries"
+  show_listitem "  -a|--audio_only   extract audio (mp3) from files"
   show_listitem "  -d|--destination  location for output directory"
   show_listitem "  -n|--name         name of output directory"
   show_listitem "  -u|--url          playlist URL"
@@ -20,13 +21,17 @@ VIDEODIR="${videodir:-"$(pwd)"}"
 
 ! check_command "${YTDL}" && exit 3
 
-OPTIONS=d:hn:r:s:u:
-LONGOPTIONS=destination:,help,name:,resolution:,start:,url:
+OPTIONS=ad:hn:r:s:u:
+LONGOPTIONS=audio_only,destination:,help,name:,resolution:,start:,url:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
+    -a | --audio_only)
+      EXTRACTAUDIO=true
+      shift
+      ;;
     -d | --destination)
       VIDEODIR="${2}"
       shift 2
@@ -96,6 +101,7 @@ cd "${VIDEODIR}"
   --embed-chapters \
   --prefer-free-formats \
   --trim-filenames 200 \
+  ${EXTRACTAUDIO:+--extract-audio --audio-format mp3} \
   ${START:+--playlist-start "${START}"} \
   --download-archive "${NAME:+${NAME}/}".archive.txt \
   -f "bestvideo[ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
