@@ -46,12 +46,11 @@ function seek {
             -o -path \"${HOME}/Templates\" \
             -o -path \"${videodir:-${HOME}/Videos}\" \
             -o -path \"${HOME}/.cargo\" \
-            -o -path \"${HOME}/.gem\" \
             -o -path \"${HOME}/.go\" \
             -o -path \"${HOME}/.ipython\" \
             -o -path \"${HOME}/.julia\" \
             -o -path \"${HOME}/.local/share/containers\" \
-            -o -path \"${HOME}/.local/share/gems\" \
+            -o -path \"${HOME}/.local/share/gem\" \
             -o -path \"${HOME}/.luarocks\" \
             -o -path \"${HOME}/.lyrics\" \
             -o -path \"${HOME}/.mozilla\" \
