@@ -399,14 +399,14 @@ function check_compat {
 
   if [[ -v VSTREAM_ID ]]; then
     if [[ "${VSTREAM_ID}" -ge "${#IN_VSTREAM_CODEC_NAME[@]}" ]]; then
-      show_error "ERROR: ${VSTREAM_ID@Q} exceeds number of video steams in input. Exiting."
+      show_error "ERROR: ${VSTREAM_ID@Q} exceeds number of video streams in input. Exiting."
       exit 3
     fi
   fi
 
   if [[ -v ASTREAM_ID ]]; then
     if [[ "${ASTREAM_ID}" -ge "${#IN_ASTREAM_CHANNEL_COUNT[@]}" ]]; then
-      show_error "ERROR: ${ASTREAM_ID@Q} exceeds number of audio steams in input. Exiting."
+      show_error "ERROR: ${ASTREAM_ID@Q} exceeds number of audio streams in input. Exiting."
       exit 3
     fi
   fi
