@@ -241,6 +241,10 @@ function convert_codec {
       cmd="${cmd} -f flac"
       out="${NAME}.flac"
       ;;
+    wav)
+      cmd="${cmd} -f wav"
+      out="${NAME}.wav"
+      ;;
     opus)
       if [ "${#IN_VSTREAM_CODEC_NAME[@]}" -eq 0 ] || [ "${VSTREAM_ID}" -eq -1 ]; then
         cmd="${cmd} -f opus"
@@ -308,6 +312,9 @@ function scan_input {
       ;;
     flac)
       IN_CONTAINER=flac
+      ;;
+    wav)
+      IN_CONTAINER=wav
       ;;
     *)
       show_error "ERROR: ${format_name@Q} unsupported. Exiting."
@@ -440,6 +447,9 @@ function parse_container {
       ;;
     flac)
       OUT_CONTAINER=flac
+      ;;
+    wav)
+      OUT_CONTAINER=wav
       ;;
     opus)
       OUT_CONTAINER=opus
