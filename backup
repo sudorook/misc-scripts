@@ -23,13 +23,6 @@ function backup_exists() {
   fi
 }
 
-# Check if any encrypted directories in ${HOME} are mounted (/etc/mtab).
-function crypt_mounted() {
-  if grep -q "${HOME}" /etc/mtab; then
-    return 1
-  fi
-}
-
 # Backup home directory to Backups 1 and 2
 function sync_home() {
   local cmd
@@ -96,7 +89,7 @@ EOF
 #
 
 backup_exists
-if crypt_mounted; then
+if grep -q "${HOME}" /etc/mtab; then
   show_error "WARNING: Home directories found in /etc/mtab. Unmount and try again."
   exit
 fi
