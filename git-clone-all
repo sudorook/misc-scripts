@@ -7,11 +7,94 @@ source "${ROOT}"/globals
 
 ! check_command curl git jq && exit
 
-mkdir -p "${1}"
-pushd "${1}" > /dev/null
+function clone_codeberg() {
+  local acct="${1}"
+  local line
+  local mode=users
+  local data
+  # Codeberg disables HEAD requests, so download all the account data and store
+  # in a variable for parsing later.
+  if ! data=$(curl -fs https://codeberg.org/api/v1/"${mode}/${acct}"/repos); then
+    return 1
+  fi
+  while read -r line; do
+    if ! [ -d "${line}" ]; then
+      git clone "${line}.git"
+    fi
+  done < <(jq -r '.[]["html_url"]' <<< "${data}")
+}
 
-while read -r LINE; do
-  git clone "${LINE}.git"
-done < <(curl https://api.github.com/orgs/"${1}"/repos?per_page=100 | jq -r '.[]["html_url"]')
+function clone_github() {
+  local acct="${1}"
+  local line
+  local mode
+  if curl -Ifs https://api.github.com/orgs/"${acct}"/repos > /dev/null; then
+    mode=orgs
+  elif curl -Ifs https://api.github.com/users/"${acct}"/repos > /dev/null; then
+    mode=users
+  else
+    return 1
+  fi
+  while read -r line; do
+    if ! [ -d "${line}" ]; then
+      git clone "${line}.git"
+    fi
+  done < <(curl -s https://api.github.com/"${mode}/${acct}"/repos?per_page=100 | jq -r '.[]["html_url"]')
+}
+
+function parse_input() {
+  DOMAIN="${IN//http*\:\/\//}"
+  DOMAIN="${DOMAIN#www\.}"
+  DOMAIN="${DOMAIN/\/*/}"
+  DOMAIN="${DOMAIN%.*}"
+  ACCOUNT="${IN##*/}"
+}
+
+function search_domains {
+  local domains=(github codeberg)
+  local domain
+  for domain in "${domains[@]}"; do
+    case "${domain}" in
+      github)
+        if curl -ILs https://github.com/"${ACCOUNT}" > /dev/null; then
+          DOMAIN=github
+          return
+        fi
+        ;;
+      codeberg)
+        if curl -ILs https://codeberg.org/"${ACCOUNT}"/repos > /dev/null; then
+          DOMAIN=codeberg
+          return
+        fi
+        ;;
+      *) ;;
+    esac
+  done
+}
+
+IN="${1}"
+DOMAIN=
+ACCOUNT=
+
+parse_input
+if [[ -n "${ACCOUNT}" ]] && [[ "${DOMAIN}" = "${ACCOUNT}" ]]; then
+  search_domains
+fi
+
+mkdir -p "${ACCOUNT}"
+pushd "${ACCOUNT}" > /dev/null
+
+case "${DOMAIN}" in
+  github)
+    clone_github "${ACCOUNT}"
+    ;;
+  codeberg)
+    clone_codeberg "${ACCOUNT}"
+    ;;
+  *)
+    show_error "${ACCOUNT@Q} on domain ${DOMAIN@Q} not supported. Exiting."
+    exit 3
+    ;;
+esac
 
 popd > /dev/null
