@@ -12,7 +12,7 @@ for ITEM in "${@}"; do
     NAME="${ITEM%.*}"
     EXT="${ITEM##*.}"
     case "${EXT,,}" in
-      azw3 | mobi | lit)
+      azw | azw3 | mobi | lit)
         ebook-convert "${ITEM}" "${NAME}.epub" --change-justification "left"
         ;;
       *)
