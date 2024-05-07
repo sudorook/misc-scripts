@@ -47,7 +47,7 @@ if [ -t 0 ]; then
   TMP="$(mktemp)"
   trap 'rm -f "${TMP}"; exit' INT TERM ERR EXIT
 
-  sort -d -f -u "${1}" > "${TMP}"
+  sort -f -u "${1}" > "${TMP}"
 
   if "${ISBACKUP}"; then
     mv "${1}" "${1}.bak"
@@ -55,5 +55,5 @@ if [ -t 0 ]; then
 
   mv "${TMP}" "${1}"
 else
-  cat | sort -d -f -u
+  cat | sort -f -u
 fi
