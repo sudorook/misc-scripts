@@ -56,8 +56,7 @@ function sync_vms() {
   show_info "Syncing VMs in ${HOME@Q} to ${backup1@Q}."
   mkdir -p "${backup1}/Images/KVM"
   mkdir -p "${backup1}/Images/VirtualBox"
-  sudo bash <(
-    cat << EOF
+  sudo bash << EOF
 if [[ -n "${kvmdir}" ]] && [[ -d "${kvmdir}" ]]; then
   rsync -Pradog --sparse "${kvmdir}/" "${backup1}/Images/KVM/"
 fi
@@ -65,7 +64,6 @@ if [[ -n "${vboxdir}" ]] && [[ -d "${vboxdir}" ]]; then
   rsync -Pradog "${vboxdir}/" "${backup1}/Images/VirtualBox/"
 fi
 EOF
-  )
   sync
   show_success "Done." && echo
 
@@ -73,12 +71,10 @@ EOF
     show_info "Syncing VMs in ${backup1@Q} to ${backup2@Q}."
     mkdir -p "${backup2}/Images/KVM"
     mkdir -p "${backup2}/Images/VirtualBox"
-    sudo bash <(
-      cat << EOF
+    sudo bash << EOF
 rsync -Pradog --sparse "${backup1}/Images/KVM/" "${backup2}/Images/KVM/"
 rsync -Pradog "${backup1}/Images/VirtualBox/" "${backup2}/Images/VirtualBox/"
 EOF
-    )
     sync
     show_success "Done." && echo
   fi
