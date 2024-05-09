@@ -21,6 +21,7 @@ function delete_directory() {
     fi
   else
     show_warning "${1@Q} not found. Skipping."
+    echo
   fi
 }
 
@@ -37,6 +38,7 @@ function delete_file() {
     fi
   else
     show_warning "${1@Q} not found. Skipping."
+    echo
   fi
 }
 
