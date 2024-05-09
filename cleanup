@@ -75,9 +75,7 @@ else
 fi
 
 # Okular recent files
-show_header "Clearing Okular history."
-delete_directory "${HOME}/.local/share/okular/docdata"
-echo
+delete_directory "${HOME}/.local/share/okular/docdata" "Clearing Okular history."
 
 # System-wide cleanup
 if check_command bleachbit; then
