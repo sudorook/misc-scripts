@@ -108,6 +108,11 @@ delete_directory \
 # Python history
 delete_file "${HOME}/.python_history"
 
+# mpv watch_later
+delete_directory \
+  "${HOME}/.local/state/mpv/watch_later" \
+  "Clearing mpv history"
+
 # less history
 delete_file "${HOME}/.local/state/lesshst"
 
