@@ -75,6 +75,7 @@
 | `swapfile`         | create or destroy swapfile                                             |
 | `swap-symlink`     | switch around a symlink and its reference location                     |
 | `switch-theme`     | switch GTK or icon theme (and edit Vim/UI settings accordingly)        |
+| `torrentstat-sync` | synchronize statistics between Transmission and qBittorrent            |
 | `upgrade`          | upgrade system, AUR, Zsh plugins, and Julia packages                   |
 | `vidname-cleanup`  | use regex to clean up file names                                       |
 | `vpn-killswitch`   | add `iptables` rules to block networking if VPN connection is lost     |

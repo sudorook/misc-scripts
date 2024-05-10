@@ -1,0 +1,68 @@
+#! /usr/bin/env python
+""" docstring """
+
+import os
+import json
+from xdg.BaseDirectory import xdg_config_home
+from PyQt6.QtCore import QSettings
+
+
+def get_transmission_stats(path):
+    """docstring"""
+    with open(path, "r", encoding="utf-8") as f:
+        stats = json.load(f)
+    return stats
+
+
+def write_transmission_stats(path, stats):
+    """docstring"""
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(stats, f, ensure_ascii=False, indent=4)
+
+
+def get_qbittorrent_stats(path):
+    """docstring"""
+    settings = QSettings(path)
+    stats = settings.value("Stats/AllStats")
+    return stats
+
+
+def write_qbittorrent_stats(path, stats):
+    settings = QSettings(path)
+    settings.setValue("Stats/AllStats", stats)
+
+
+def update_max_stats(qstats, tstats):
+    """docstring"""
+    if qstats["AlltimeDL"] != tstats["downloaded-bytes"]:
+        if qstats["AlltimeDL"] < tstats["downloaded-bytes"]:
+            qstats["AlltimeDL"] = tstats["downloaded-bytes"]
+        else:
+            tstats["downloaded-bytes"] = qstats["AlltimeDL"]
+
+    if qstats["AlltimeUL"] != tstats["uploaded-bytes"]:
+        if qstats["AlltimeUL"] < tstats["uploaded-bytes"]:
+            qstats["AlltimeUL"] = tstats["uploaded-bytes"]
+        else:
+            tstats["uploaded-bytes"] = qstats["AlltimeUL"]
+    return qstats, tstats
+
+
+if __name__ == "__main__":
+    QBITTORRENT_STAT_FILE = os.path.join(
+        xdg_config_home, "qBittorrent/qBittorrent-data.conf"
+    )
+    TRANSMISSION_STAT_FILE = os.path.join(
+        xdg_config_home, "transmission/stats.json"
+    )
+
+    QBITTORRENT_STATS = get_qbittorrent_stats("qBittorrent/qBittorrent-data")
+
+    TRANSMISSION_STATS = get_transmission_stats(TRANSMISSION_STAT_FILE)
+
+    QBITTORRENT_STATS, TRANSMISSION_STATS = update_max_stats(
+        QBITTORRENT_STATS, TRANSMISSION_STATS
+    )
+
+    write_qbittorrent_stats("qBittorrent/qBittorrent-data", QBITTORRENT_STATS)
+    write_transmission_stats(TRANSMISSION_STAT_FILE, QBITTORRENT_STATS)
