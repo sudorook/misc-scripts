@@ -95,9 +95,14 @@ function format_wrapper() {
   shopt -u extglob
 
   if [[ "${mime}" = plain ]]; then
-    mime="${1##*.}"
-    lang=${LANGUAGE:-"${mime}"}
-    show_warning "WARNING: Could not find MIME data. Defaulting to ${mime@Q}."
+    local ext="${1##*.}"
+    case "${ext,,}" in
+      r | rmd)
+        mime="${ext,,}"
+        lang=${LANGUAGE:-"${mime}"}
+        show_warning "WARNING: Could not find MIME data. Defaulting to ${mime@Q}."
+        ;;
+    esac
   fi
 
   # Check if the file MIME type and the specified language are mismatched. If
@@ -133,7 +138,7 @@ function format_wrapper() {
     python | python3)
       format_python "${1}"
       ;;
-    R | r)
+    r)
       format_R "${1}"
       ;;
     ruby)
