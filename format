@@ -162,17 +162,16 @@ export -f format_wrapper
 
 function print_usage() {
   show_header "Usage: format <file or directory> -l <lang>"
-  echo
-  show_listitem \
-    "  -l|--language   (optional) programming language (e.g. C++, Python)"
-  show_listitem \
-    "  -h|--help       print (this) message"
-  show_listitem \
-    "  -f|--force      run formatter regardless of MIME type"
-  echo
-  show_info "Specify a file to format a single file. Specify a directory to
-recursively format _all_ files in it. Any files without MIME type
-supported by this script will be ignored."
+  cat << EOF
+
+  -l|--language   (optional) programming language (e.g. C++, Python)
+  -h|--help       print (this) message
+  -f|--force      run formatter regardless of MIME type
+
+  Specify a file to format a single file. Specify a directory to recursively
+  format _all_ files in it. Any files without MIME type supported by this
+  script will be ignored.
+EOF
 }
 
 #
