@@ -46,6 +46,23 @@ function format_python() {
 }
 export -f format_python
 
+function format_R() {
+  ! check_command Rscript && exit 3
+  Rscript <(
+    cat << EOF
+if (system.file(package="styler") != "") {
+  library(styler)
+  styler::style_file("${1}", scope = I(c("tokens", "indention", "spaces", "line_breaks")))
+  quit(status=0)
+} else {
+  print("styler not installed.")
+  quit(status=1)
+}
+EOF
+  )
+}
+export -f format_R
+
 function format_ruby() {
   ! check_command rubocop && exit 3
   rubocop --autocorrect --stderr "${1}" 2> /dev/null
@@ -115,6 +132,9 @@ function format_wrapper() {
       ;;
     python | python3)
       format_python "${1}"
+      ;;
+    R | r)
+      format_R "${1}"
       ;;
     ruby)
       format_ruby "${1}"
