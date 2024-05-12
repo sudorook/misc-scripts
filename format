@@ -77,6 +77,12 @@ function format_wrapper() {
   lang="${lang//+(cpp)/c++}" # MIME types use 'c++', so convert 'cpp' strings.
   shopt -u extglob
 
+  if [[ "${mime}" = plain ]]; then
+    mime="${1##*.}"
+    lang=${LANGUAGE:-"${mime}"}
+    show_warning "WARNING: Could not find MIME data. Defaulting to ${mime@Q}."
+  fi
+
   # Check if the file MIME type and the specified language are mismatched. If
   # so, skip unless the FORCE parameter is set to true.
   if [[ "${mime}" != "${lang}" ]]; then
