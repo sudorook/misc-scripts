@@ -72,7 +72,7 @@ function format_wrapper() {
   mime="$(xdg-mime query filetype "${1}")"
   shopt -s extglob
   mime="${mime/+(text\/|application\/)?(x-)?(script.)/}"
-  lang=${LANGUAGE:-${mime}}
+  lang=${LANGUAGE:-"${mime}"}
   lang=${lang,,}
   lang="${lang//+(cpp)/c++}" # MIME types use 'c++', so convert 'cpp' strings.
   shopt -u extglob
