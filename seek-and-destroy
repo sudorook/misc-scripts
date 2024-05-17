@@ -46,11 +46,13 @@ function seek {
             -o -path \"${HOME}/Templates\" \
             -o -path \"${videodir:-${HOME}/Videos}\" \
             -o -path \"${HOME}/.cargo\" \
+            -o -path \"${HOME}/.config/nvim\" \
             -o -path \"${HOME}/.go\" \
             -o -path \"${HOME}/.ipython\" \
             -o -path \"${HOME}/.julia\" \
             -o -path \"${HOME}/.local/share/containers\" \
             -o -path \"${HOME}/.local/share/gem\" \
+            -o -path \"${HOME}/.local/share/nvim\" \
             -o -path \"${HOME}/.luarocks\" \
             -o -path \"${HOME}/.lyrics\" \
             -o -path \"${HOME}/.mozilla\" \
@@ -60,6 +62,7 @@ function seek {
             -o -path \"${HOME}/.rustup\" \
             -o -path \"${HOME}/.ssh\" \
             -o -path \"${HOME}/.thunderbird\" \
+            -o -path \"${HOME}/.vim\" \
             -o -path \"${HOME}/.weechat\" \
             -o -path \"${HOME}/.zotero\" \
             -o -path \"${archivedir:-${HOME}/Desktop}\" \
