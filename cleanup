@@ -106,10 +106,14 @@ delete_directory \
   "Deleting ~/Share trash directory."
 
 # Python history
-delete_file "${HOME}/.python_history"
+delete_file \
+  "${HOME}/.python_history" \
+  "Deleting Python REPL history."
 
 # Node REPL history
-delete_file "${HOME}"/.node_repl_history "Deleting node REPL history."
+delete_file \
+  "${HOME}"/.node_repl_history \
+  "Deleting node REPL history."
 
 # mpv watch_later
 delete_directory \
@@ -117,7 +121,11 @@ delete_directory \
   "Clearing mpv history"
 
 # less history
-delete_file "${HOME}/.local/state/lesshst"
+delete_file \
+  "${HOME}/.local/state/lesshst" \
+  "Deleting less history."
 
 # wget history
-delete_file "${HOME}/.wget-hsts"
+delete_file \
+  "${HOME}/.wget-hsts" \
+  "Deleting wget history."
