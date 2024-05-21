@@ -9,7 +9,7 @@ source "${ROOT}"/globals
 
 BASE=
 
-if [ -n "${BASE}" ]; then
+if [[ -v BASE ]] && [ -n "${BASE}" ]; then
   date -d "$(date -d "$(date "+${BASE} %H:%M:%S")") ${*:++${*}}"
 else
   date -d "${*:++${*}}"
