@@ -12,5 +12,5 @@ BASE=
 if [[ -v BASE ]] && [ -n "${BASE}" ]; then
   date -d "$(date -d "$(date "+${BASE} %H:%M:%S")") ${*:++${*}}"
 else
-  date -d "${*:++${*}}"
+  date -d "${*}"
 fi
