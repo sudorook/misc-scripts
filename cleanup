@@ -108,6 +108,9 @@ delete_directory \
 # Python history
 delete_file "${HOME}/.python_history"
 
+# Node REPL history
+delete_file "${HOME}"/.node_repl_history "Deleting node REPL history."
+
 # mpv watch_later
 delete_directory \
   "${HOME}/.local/state/mpv/watch_later" \
