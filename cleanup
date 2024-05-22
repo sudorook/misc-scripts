@@ -30,6 +30,9 @@ function delete_file() {
   if [ -f "${1}" ]; then
     file_owner="$(stat -c "%U" "${1}")"
     if [[ "${USER}" = "${file_owner}" ]]; then
+      if [[ -v 2 ]]; then
+        show_header "${2}"
+      fi
       rm -vf "${1}"
       echo
     else
