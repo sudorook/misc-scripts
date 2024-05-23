@@ -41,6 +41,7 @@
 | `kvm-ls`           | list files in shared KVM directory                                     |
 | `kvm-mv`           | move file to shared KVM directory                                      |
 | `list-ass-fonts`   | list all the fonts referenced in a subtitle file or directory          |
+| `make-watch`       | re-run `make` when files changes are written                           |
 | `mpv-play`         | play media above a duration cutoff                                     |
 | `mpv-ssh`          | search remote directories over SSH and pipe as playlist to mpv         |
 | `nm-ovpn-delete`   | delete OpenVPN connections via `nmcli`                                 |
