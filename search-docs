@@ -71,6 +71,7 @@ function pick_file {
     \( -iname "*.mobi" \
       -o -iname "*pdf" \
       -o -iname "*.azw3" \
+      -o -iname "*.djvu" \
       -o -iname "*.html" \
       -o -iname "*.epub" \
     \) -print |
