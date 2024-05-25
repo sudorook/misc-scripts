@@ -193,13 +193,15 @@ function open {
       fi
       ;;
     pdf | djvu)
-      if check_command okular; then
-        (okular "${file}" > /dev/null 2>&1 &)
-      elif check_command evince; then
-        (evince "${file}" > /dev/null 2>&1 &)
-      else
-        show_warning "PDF reader not found. Skipping ${file@Q}."
-      fi
+      local pdf_app
+      local pdf_apps=(okulars evince)
+      for pdf_app in "${pdf_apps[@]}"; do
+        if check_command "${pdf_app}"; then
+          ("${pdf_app}" "${file}" > /dev/null 2>&1 &)
+          return
+        fi
+      done
+      show_warning "PDF reader not found. Skipping ${file@Q}."
       ;;
     html)
       if [[ -v BROWSER ]]; then
