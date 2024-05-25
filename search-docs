@@ -216,6 +216,21 @@ function open {
   esac
 }
 
+function open_v2 {
+  local file="${1}"
+  local ftype
+  local app
+  if check_command xdg-open xdg-mime; then
+    ftype="$(xdg-mime query filetype "${file}")"
+    app="$(xdg-mime query default "${ftype}")"
+    if [ -n "${ftype}" ] && [ -n "${app}" ]; then
+      (xdg-open "${file}" > /dev/null 2>&1 &)
+    else
+      show_warning "No default MIME association for ${file@Q}. Skipping."
+    fi
+  fi
+}
+
 #
 # Globals
 #
@@ -282,7 +297,7 @@ while read -r FILE; do
     if "${PIN}"; then
       pin_and_sync "${FILE}"
     else
-      open "${FILE}"
+      open_v2 "${FILE}"
     fi
   fi
 done <<< "$(pick_file)"
