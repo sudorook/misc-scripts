@@ -188,6 +188,8 @@ function open {
     epub | mobi | azw3)
       if check_command ebook-viewer; then
         ebook-viewer --detach "${file}"
+      else
+        show_warning "'ebook-viewer' (from calibre) not installed. Skipping ${file@Q}."
       fi
       ;;
     pdf | djvu)
@@ -195,6 +197,8 @@ function open {
         (okular "${file}" > /dev/null 2>&1 &)
       elif check_command evince; then
         (evince "${file}" > /dev/null 2>&1 &)
+      else
+        show_warning "PDF reader not found. Skipping ${file@Q}."
       fi
       ;;
     html)
