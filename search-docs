@@ -184,7 +184,7 @@ function open {
   local file="${1}"
   local file_ext="${file##*.}"
 
-  case "${file_ext}" in
+  case "${file_ext,,}" in
     epub | mobi | azw3)
       if check_command ebook-viewer; then
         ebook-viewer --detach "${file}"
