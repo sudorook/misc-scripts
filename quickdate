@@ -7,10 +7,4 @@ source "${ROOT}"/globals
 
 ! check_command date && exit 3
 
-BASE=
-
-if [[ -v BASE ]] && [ -n "${BASE}" ]; then
-  date -d "$(date -d "$(date "+${BASE} %H:%M:%S")") ${*:++${*}}"
-else
-  date -d "${*}"
-fi
+date -d "$(date -d "$(date "+${BASE:-} %H:%M:%S")") ${*:++${*}}"
