@@ -37,20 +37,41 @@ function check_file {
 }
 
 function rmlink {
-  rm "${VERBOSE:+-v}" "$(readlink -f "${1}")"
-  rm "${VERBOSE:+-v}" "${1}"
+  rm ${VERBOSE:+-v} "$(readlink -f "${1}")"
+  rm ${VERBOSE:+-v} "${1}"
 }
 
 #
 # Globals
 #
 
-VERBOSE=true
 PROTECT_DIRS=()
 
 #
 # Main
 #
+
+OPTIONS=v
+LONGOPTIONS=verbose
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ ${#} -ge 1 ]; do
+  case ${1} in
+    -v | --verbose)
+      VERBOSE=true
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR: Invalid flag ${1@Q}."
+      exit 3
+      ;;
+  esac
+done
 
 for FILE in "${@}"; do
   if check_file "${FILE}"; then
