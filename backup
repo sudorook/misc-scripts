@@ -86,8 +86,8 @@ EOF
 
 backup_exists
 if grep -q "${HOME}" /etc/mtab; then
-  show_error "WARNING: Home directories found in /etc/mtab. Unmount and try again."
-  exit
+  show_error "ERROR: Home directories found in /etc/mtab. Unmount and try again."
+  exit 1
 fi
 
 SYNC_HOME=false
