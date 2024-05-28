@@ -97,7 +97,7 @@ EXCLUDEDIRS=()
 
 OPTIONS=ahv
 LONGOPTIONS=all,home,vms
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
@@ -121,7 +121,7 @@ while [ ${#} -ge 1 ]; do
       break
       ;;
     *)
-      show_error "Error: invalid flag."
+      show_error "ERROR: Invalid flag ${1@Q}."
       exit 3
       ;;
   esac
