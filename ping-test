@@ -5,6 +5,8 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
+! check_command bc ping && exit 3
+
 MTU=1500
 SIZE="$((MTU - 28))"
 COUNT=10
