@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command ffmpeg && exit 3
+! check_command ffmpeg ffprobe sed && exit 3
 
 function extract_audio {
   local nstreams=0
