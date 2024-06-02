@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command git timedatectl && exit 3
+! check_command bc git timedatectl && exit 3
 
 #
 # Global functions.
