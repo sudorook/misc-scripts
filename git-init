@@ -35,23 +35,11 @@ make_workday_alias() {
   echo "${string}"
 }
 
-set_local_name() {
-  git config --local user.name "${NAME}"
-}
-
-set_local_email() {
-  git config --local user.email "${EMAIL}"
-}
-
-set_local_aliases() {
-  local alias
-
+set_aliases() {
   case "${SCHEDULE}" in
     workday)
       if [[ -v START ]] && [[ -v END ]]; then
         alias="$(make_workday_alias)"
-        git config --local alias.alt-commit "${alias} git commit"
-        git config --local alias.alt-revert "${alias} git revert"
       else
         exit 3
       fi
@@ -59,8 +47,6 @@ set_local_aliases() {
     random)
       if [[ -v RAND_RANGE ]]; then
         alias="$(make_random_alias)"
-        git config --local alias.alt-commit "${alias} git commit"
-        git config --local alias.alt-revert "${alias} git revert"
       else
         exit 3
       fi
@@ -72,45 +58,9 @@ set_local_aliases() {
       return
       ;;
   esac
-}
 
-set_global_name() {
-  git config --global user.name "${NAME}"
-}
-
-set_global_email() {
-  git config --global user.email "${EMAIL}"
-}
-
-set_global_aliases() {
-  local alias
-
-  case "${SCHEDULE}" in
-    workday)
-      if [[ -v START ]] && [[ -v END ]]; then
-        alias="$(make_workday_alias)"
-        git config --global alias.alt-commit "${alias} git commit"
-        git config --global alias.alt-revert "${alias} git revert"
-      else
-        exit 3
-      fi
-      ;;
-    random)
-      if [[ -v RAND_RANGE ]]; then
-        alias="$(make_random_alias)"
-        git config --global alias.alt-commit "${alias} git commit"
-        git config --global alias.alt-revert "${alias} git revert"
-      else
-        exit 3
-      fi
-      ;;
-    none)
-      return
-      ;;
-    *)
-      return
-      ;;
-  esac
+  git config --${MODE} alias.alt-commit "${alias} git commit"
+  git config --${MODE} alias.alt-revert "${alias} git revert"
 }
 
 print_usage() {
@@ -136,7 +86,7 @@ LONGOPTIONS=name:,email:,schedule:,range:,roffset:,timezone:,help,global
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
-GLOBAL=false
+MODE=local
 
 while [ ${#} -ge 1 ]; do
   case ${1} in
@@ -166,7 +116,7 @@ while [ ${#} -ge 1 ]; do
       shift 2
       ;;
     -g | --global)
-      GLOBAL=true
+      MODE=global
       shift
       ;;
     -h | --help)
@@ -189,35 +139,15 @@ if ! [[ -v TZ ]]; then
   TZ="$(timedatectl show -p Timezone --value)"
 fi
 
-if [[ "${GLOBAL}" = true ]]; then
-  if [[ -v NAME ]]; then
-    set_global_name
-  fi
-
-  if [[ -v EMAIL ]]; then
-    set_global_email
-  fi
-
-  if [[ -v SCHEDULE ]]; then
-    set_global_aliases
-  fi
-else
+if [[ "${MODE}" = local ]]; then
   if git rev-parse 2> /dev/null; then
     show_warning "WARNING: Git repo already exists."
   else
     show_info "Initializing Git repo."
     git init
   fi
-
-  if [[ -v NAME ]]; then
-    set_local_name
-  fi
-
-  if [[ -v EMAIL ]]; then
-    set_local_email
-  fi
-
-  if [[ -v SCHEDULE ]]; then
-    set_local_aliases
-  fi
 fi
+
+${NAME:+git config --"${MODE}" user.name "${NAME}"}
+${EMAIL:+git config --"${MODE}" user.email "${EMAIL}"}
+${SCHEDULE:+set_aliases}
