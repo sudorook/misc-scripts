@@ -16,7 +16,7 @@ make_random_alias() {
   local string
 
   range="$(date -d "1970-01-01 UTC ${RAND_RANGE}" "+%s")"
-  string='! NEW_DATE="$(TZ='"${TZ}"' date -d "1970-01-01 UTC $(echo "$(date +%s)" - '"${range}"' + $(shuf -i '"0-${range}"' -n 1) | bc -l) seconds" "+%c")"'
+  string='! NEW_DATE="$('"${TZ:+TZ=${TZ@Q} }"'date -d "1970-01-01 UTC $(echo $(date +%s) - '"${range}"' + $(shuf -i '"0-${range}"' -n 1) | bc -l) seconds" "+%c")"'
   string="${string}"' && export GIT_AUTHOR_DATE="${NEW_DATE}" && export GIT_COMMITTER_DATE="${NEW_DATE}" &&'
   echo "${string}"
 }
@@ -30,7 +30,7 @@ make_workday_alias() {
   start_s="$(date -d "1970-01-01 UTC ${START}" '+%s')"
   end_s="$(date -d "1970-01-01 UTC ${END}" '+%s')"
   scale="$(echo "(${end_s} - ${start_s}) / 86400" | bc -l)"
-  string='! NEW_DATE="$(TZ='"${TZ}"' date -d "00:00 $(echo '"${start_s}"' + '"${scale}"' \* "$(date -d "1970-01-01 UTC $(date +%T)" +%s)" | bc -l) seconds" "+%c")"'
+  string='! NEW_DATE="$('"${TZ:+TZ=${TZ@Q} }"'date -d "00:00 $(echo '"${start_s}"' + '"${scale}"' \* "$(date -d "1970-01-01 UTC $(date +%T)" +%s)" | bc -l) seconds" "+%c")"'
   string="${string}"' && export GIT_AUTHOR_DATE="${NEW_DATE}" && export GIT_COMMITTER_DATE="${NEW_DATE}" &&'
   echo "${string}"
 }
@@ -135,7 +135,7 @@ while [ ${#} -ge 1 ]; do
   esac
 done
 
-if ! [[ -v TZ ]]; then
+if [[ -v TZ ]] && [ "${TZ}" = default ]; then
   TZ="$(timedatectl show -p Timezone --value)"
 fi
 
