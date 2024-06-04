@@ -168,10 +168,16 @@ function slugify() {
 
 function print_usage() {
   show_header "Usage: archive"
-  show_listitem \
-    "  -d|--dir       (optional) destination directory"
-  show_listitem \
-    "  -z|--compress  (optional) compression algorithm (xz, zstd, gz, or zip)"
+  cat << EOF
+
+  -d|--dir       (optional) destination directory
+  -z|--compress  (optional) compression algorithm (xz, zstd, gz, or zip)
+
+  Example: archive <item1> <path/to/item2> ...
+
+  The output file name is derived from the common root directory for the
+  compressed contents and the timestamp of when command was run.
+EOF
 }
 
 #
@@ -180,7 +186,7 @@ function print_usage() {
 
 if [ ${#} == 0 ]; then
   show_error "Incorrect # of parameters."
-  echo "Usage: archive /path/to/directory1 /path/to/directory2 ..."
+  print_usage
   exit 1
 fi
 
