@@ -243,4 +243,8 @@ case "${1}" in
   off | unmount | encrypt)
     unmount_crypt_dir
     ;;
+  *)
+    show_error "ERROR: Unrecognized option ${1@Q}. Exiting."
+    exit 3
+    ;;
 esac
