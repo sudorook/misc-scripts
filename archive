@@ -5,6 +5,8 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
+! check_command sed && exit 3
+
 #
 # Functions
 #
