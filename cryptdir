@@ -166,11 +166,17 @@ function check_crypttool {
 }
 
 function print_usage {
-  show_header Usage: cryptdir
+  show_header "Usage: cryptdir on|off"
   cat << EOF
+
   -e|--encrypt_dir  path to directory with encrypted data (${ENCRYPTPATH})
   -d|--decrypt_dir  directory path to mount decrypted data (${DECRYPTPATH})
   -s|--crypt_std    encryption standard (${CRYPTTOOL})
+
+  crypt_std options: 'cryfs', 'ecryptfs', 'encfs', and 'gocryptfs'
+
+  Use 'on' to decrypt an encrypted store and 'off' to encrypt an decrypted
+  mounted directory.
 EOF
 }
 
