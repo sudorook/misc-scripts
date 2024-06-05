@@ -75,7 +75,7 @@ function pick_file {
       -o -iname "*.html" \
       -o -iname "*.epub" \
     \) -print |
-    fzf --layout=reverse --header-first -m
+    fzf --layout=reverse --header-first --multi --scheme=path
   popd > /dev/null
 }
 
