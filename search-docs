@@ -227,7 +227,10 @@ function open_v2 {
       (xdg-open "${file}" > /dev/null 2>&1 &)
     else
       show_warning "No default MIME association for ${file@Q}. Skipping."
+      return 1
     fi
+  else
+    return 1
   fi
 }
 
@@ -297,7 +300,9 @@ while read -r FILE; do
     if "${PIN}"; then
       pin_and_sync "${FILE}"
     else
-      open_v2 "${FILE}"
+      if ! open_v2 "${FILE}"; then
+        open "${FILE}"
+      fi
     fi
   fi
 done <<< "$(pick_file)"
