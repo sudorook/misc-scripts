@@ -33,7 +33,7 @@ PROJECTDIR="${projectdir:-${HOME}}"
 function print_todo {
   local file="${1}"
   show_header "${file//${HOME}\//}"
-  cat "${file}"
+  sed '/^# /,/^\s*$/d' "${file}"
   echo && echo
 }
 export -f print_todo
