@@ -32,13 +32,13 @@ function scan_input {
   vstring="$(ffprobe -v error \
                -select_streams v:0 -show_streams file:"${IN}")"
   sstring="$(ffprobe -v error \
-               -select_streams s:0 -show_streams file:"${IN}")"
+               -select_streams s -show_streams -of flat file:"${IN}")"
 
+  if ! [[ -v DURATION ]]; then
+    DURATION="$(echo "${fstring}" | sed -n "s/^duration=\(.*\)$/\1/p")"
+  fi
   if ! [[ -v VCODEC ]]; then
     VCODEC="$(echo "${vstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
-  fi
-  if ! [[ -v SCODEC ]]; then
-    SCODEC="$(echo "${sstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
   fi
   if ! [[ -v WIDTH ]]; then
     WIDTH="$(echo "${vstring}" | sed -n "s/^width=\(.*\)$/\1/p")"
@@ -55,8 +55,10 @@ function scan_input {
   if ! [[ -v ASPECTRATIO ]]; then
     ASPECTRATIO="$(echo "${vstring}" | sed -n "s/^display_aspect_ratio=\(.*\)$/\1/p")"
   fi
-  if ! [[ -v DURATION ]]; then
-    DURATION="$(echo "${fstring}" | sed -n "s/^duration=\(.*\)$/\1/p")"
+  if ! [[ -v SCODEC ]]; then
+    SIDX="$(echo "${sstring}" | sed -n "s/^streams\.stream.\([0-9]\+\)\.disposition.default=1$/\1/p")"
+    SIDX="${SIDX:-0}"
+    SCODEC="$(echo "${sstring}" | sed -n "s/^streams.stream.${SIDX}.codec_name=\"\(.*\)\"$/\1/p")"
   fi
 }
 
@@ -108,10 +110,10 @@ function make_image_subs {
   # burn the subtitles into a short video
   case "${SCODEC}" in
     mov_text | subrip)
-      cmd="${cmd} -map 0:v:0 -c:v:0 ${VCODEC} -an -sn -vf \"subtitles=${in@Q}:force_style='FontName=${FONT}':si=0\" -f ${VCODEC} ${TMP}"
+      cmd="${cmd} -map 0:v:0 -c:v:0 ${VCODEC} -an -sn -vf 'subtitles=${in@Q}:force_style='FontName=${FONT}':si=${SIDX}' -f ${VCODEC} ${TMP}"
       ;;
-    dvd_subtitle)
-      cmd="${cmd} -an -filter_complex '[0:v:0][0:s:0] overlay [v]' -map '[v]' -f ${VCODEC} ${TMP}"
+    hdmv_pgs_subtitle | dvd_subtitle)
+      cmd="${cmd} -an -filter_complex '[0:v:0][0:s:${SIDX}] overlay [v]' -map '[v]' -f ${VCODEC} ${TMP}"
       ;;
     *)
       show_warning "WARNING: No subtitle streams found in ${IN}. Skipping."
