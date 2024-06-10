@@ -108,10 +108,10 @@ function make_image_subs {
   # burn the subtitles into a short video
   case "${SCODEC}" in
     mov_text | subrip)
-      cmd="${cmd} -i file:${in@Q} -map 0:v -c:v ${VCODEC} -an -sn -vf \"subtitles=${in@Q}:force_style='FontName=${FONT}':si=0\" -f ${VCODEC} ${TMP}"
+      cmd="${cmd} -i file:${in@Q} -map 0:v:0 -c:v:0 ${VCODEC} -an -sn -vf \"subtitles=${in@Q}:force_style='FontName=${FONT}':si=0\" -f ${VCODEC} ${TMP}"
       ;;
     dvd_subtitle)
-      cmd="${cmd} -i file:${in@Q} -an -filter_complex '[0:v][0:s:0] overlay [v]' -map '[v]' -f ${VCODEC} ${TMP}"
+      cmd="${cmd} -i file:${in@Q} -an -filter_complex '[0:v:0][0:s:0] overlay [v]' -map '[v]' -f ${VCODEC} ${TMP}"
       ;;
     *)
       show_warning "WARNING: No subtitle streams found in ${IN}. Skipping."
@@ -183,10 +183,10 @@ function make_image {
   # generate separate filter strings for GIF and WebP formats
   case "${FORMAT}" in
     gif)
-      cmd="${cmd} -filter_complex '[0:v] ${FPS:+fps=${FPS}${scale},}split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif file:${out@Q}"
+      cmd="${cmd} -filter_complex '[0:v:0] ${FPS:+fps=${FPS}${scale},}split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif file:${out@Q}"
       ;;
     webp)
-      cmd="${cmd} ${FPS:+-vf \'fps=${FPS}${scale}\' }-vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -fps_mode passthrough -f webp file:${out@Q}"
+      cmd="${cmd} -map 0:v:0 ${FPS:+-vf \'fps=${FPS}${scale}\' }-vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -fps_mode passthrough -f webp file:${out@Q}"
       ;;
   esac
   echo "${cmd}" >&2
