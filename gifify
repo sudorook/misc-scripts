@@ -70,7 +70,6 @@ function make_image_subs {
   local height
   local out
   local cmd
-  local width
 
   # compute the width and height for the image
   if [[ "${dim}" = native ]]; then
@@ -98,53 +97,44 @@ function make_image_subs {
   # add dimensions to the output file name
   out="${OUT%.*}-${width}x${height}-sub.${FORMAT}"
 
+  # generate the command
+  cmd="ffmpeg -v warning -y -ss ${START}"
+
+  # -t and -to are mutually exclusive, so set duration over end stamp
+  # (mirrors ffmpeg default behavior)
+  if [[ -v LENGTH ]]; then
+    cmd="${cmd} -t ${LENGTH}"
+  elif [[ -v END ]]; then
+    cmd="${cmd} -to ${END}"
+  fi
+
   # burn the subtitles into a short video
   case "${SCODEC}" in
     mov_text | subrip)
-      cmd="ffmpeg -v warning -y -ss ${START}"
-      # -t and -to are mutually exclusive, so set duration over end stamp
-      # (mirrors ffmpeg default behavior)
-      if [[ -v LENGTH ]]; then
-        cmd="${cmd} -t ${LENGTH}"
-      elif [[ -v END ]]; then
-        cmd="${cmd} -to ${END}"
-      fi
       cmd="${cmd} -i file:${in@Q} -map 0:v -c:v ${VCODEC} -an -sn -vf \"subtitles=${in@Q}:force_style='FontName=${FONT}':si=0\" -f ${VCODEC} ${TMP}"
-      echo "${cmd}" >&2
-      eval "${cmd}"
       ;;
     dvd_subtitle)
-      cmd="ffmpeg -v warning -y -ss ${START}"
-      # -t and -to are mutually exclusive, so set duration over end stamp
-      # (mirrors ffmpeg default behavior)
-      if [[ -v LENGTH ]]; then
-        cmd="${cmd} -t ${LENGTH}"
-      elif [[ -v END ]]; then
-        cmd="${cmd} -to ${END}"
-      fi
       cmd="${cmd} -i file:${in@Q} -an -filter_complex '[0:v][0:s:0] overlay [v]' -map '[v]' -f ${VCODEC} ${TMP}"
-      echo "${cmd}" >&2
-      eval "${cmd}"
       ;;
     *)
       show_warning "WARNING: No subtitle streams found in ${IN}. Skipping."
       return
       ;;
   esac
+  echo "${cmd}" >&2
+  eval "${cmd}"
 
   # convert the short video into an image
   case "${FORMAT}" in
     gif)
       cmd="ffmpeg -v warning -y -i file:${TMP} -filter_complex '[0:v] fps=${FPS}${scale},split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif file:${out@Q}"
-      echo "${cmd}" >&2
-      eval "${cmd}"
       ;;
     webp)
       cmd="ffmpeg -v warning -y -i file:${TMP} -vf 'fps=${FPS}${scale}' -vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -vsync 0 -f webp file:${out@Q}"
-      echo "${cmd}" >&2
-      eval "${cmd}"
       ;;
   esac
+  echo "${cmd}" >&2
+  eval "${cmd}"
 }
 
 function make_image {
