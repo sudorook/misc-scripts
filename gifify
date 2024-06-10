@@ -58,9 +58,6 @@ function scan_input {
   if ! [[ -v DURATION ]]; then
     DURATION="$(echo "${fstring}" | sed -n "s/^duration=\(.*\)$/\1/p")"
   fi
-  if ! [[ -v FPS ]]; then
-    FPS="$(echo "${vstring}" | sed -n "s/^r_frame_rate=\(.*\)$/\1/p" | bc -l)"
-  fi
 }
 
 function make_image_subs {
@@ -127,10 +124,10 @@ function make_image_subs {
   # convert the short video into an image
   case "${FORMAT}" in
     gif)
-      cmd="ffmpeg -v warning -y -i file:${TMP} -filter_complex '[0:v] fps=${FPS}${scale},split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif file:${out@Q}"
+      cmd="ffmpeg -v warning -y -i file:${TMP} -filter_complex '[0:v] ${FPS:+fps=${FPS}${scale},}split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif file:${out@Q}"
       ;;
     webp)
-      cmd="ffmpeg -v warning -y -i file:${TMP} -vf 'fps=${FPS}${scale}' -vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -vsync 0 -f webp file:${out@Q}"
+      cmd="ffmpeg -v warning -y -i file:${TMP} ${FPS:+-vf \'fps=${FPS}${scale}\' }-vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -vsync 0 -f webp file:${out@Q}"
       ;;
   esac
   echo "${cmd}" >&2
@@ -186,10 +183,10 @@ function make_image {
   # generate separate filter strings for GIF and WebP formats
   case "${FORMAT}" in
     gif)
-      cmd="${cmd} -filter_complex '[0:v] fps=${FPS}${scale},split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif file:${out@Q}"
+      cmd="${cmd} -filter_complex '[0:v] ${FPS:+fps=${FPS}${scale},}split [a][b];[a] palettegen [p];[b] fifo [c];[c][p] paletteuse' -loop 0 -f gif file:${out@Q}"
       ;;
     webp)
-      cmd="${cmd} -vf 'fps=${FPS}${scale}' -vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -vsync 0 -f webp file:${out@Q}"
+      cmd="${cmd} ${FPS:+-vf \'fps=${FPS}${scale}\' }-vcodec libwebp -lossless 0 -compression_level 0 -q:v 100 -loop 0 -preset picture -vsync 0 -f webp file:${out@Q}"
       ;;
   esac
   echo "${cmd}" >&2
