@@ -95,7 +95,7 @@ function make_image_subs {
   out="${OUT%.*}-${width}x${height}-sub.${FORMAT}"
 
   # generate the command
-  cmd="ffmpeg -v warning -y -ss ${START}"
+  cmd="ffmpeg -v warning -y -i file:${in@Q} -ss ${START}"
 
   # -t and -to are mutually exclusive, so set duration over end stamp
   # (mirrors ffmpeg default behavior)
@@ -108,10 +108,10 @@ function make_image_subs {
   # burn the subtitles into a short video
   case "${SCODEC}" in
     mov_text | subrip)
-      cmd="${cmd} -i file:${in@Q} -map 0:v:0 -c:v:0 ${VCODEC} -an -sn -vf \"subtitles=${in@Q}:force_style='FontName=${FONT}':si=0\" -f ${VCODEC} ${TMP}"
+      cmd="${cmd} -map 0:v:0 -c:v:0 ${VCODEC} -an -sn -vf \"subtitles=${in@Q}:force_style='FontName=${FONT}':si=0\" -f ${VCODEC} ${TMP}"
       ;;
     dvd_subtitle)
-      cmd="${cmd} -i file:${in@Q} -an -filter_complex '[0:v:0][0:s:0] overlay [v]' -map '[v]' -f ${VCODEC} ${TMP}"
+      cmd="${cmd} -an -filter_complex '[0:v:0][0:s:0] overlay [v]' -map '[v]' -f ${VCODEC} ${TMP}"
       ;;
     *)
       show_warning "WARNING: No subtitle streams found in ${IN}. Skipping."
