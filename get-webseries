@@ -74,6 +74,10 @@ fi
 RESOLUTION="${RESOLUTION:-720}"
 
 case "${RESOLUTION}" in
+  480p | 480i | 480)
+    HEIGHT=500
+    WIDTH=900
+    ;;
   720p | 720i | 720)
     HEIGHT=800
     WIDTH=1300
