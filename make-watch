@@ -8,7 +8,7 @@ source "${ROOT}"/globals
 ! check_command entr make && exit 3
 
 if ! [ -f "${1:-./Makefile}" ]; then
-  show_error "No makefile present. Exiting"
+  show_error "Makefile not found. Exiting."
   exit 3
 fi
 
