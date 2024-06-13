@@ -7,9 +7,9 @@ source "${ROOT}"/globals
 
 ! check_command entr make && exit 3
 
-if ! [ -f "${1:-.}"/Makefile ]; then
+if ! [ -f "${1:-./Makefile}" ]; then
   show_error "No makefile present. Exiting"
   exit 3
 fi
 
-find "${1:-.}" -type f | entr -s "make -j$(nproc)"
+find "${1:-.}" -type f | entr -s "make -j$(nproc) ${1:+-f "${1}"}"
