@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command entr make && exit 3
+! check_command find entr make && exit 3
 
 DIR="${1:-.}"
 
