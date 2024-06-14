@@ -7,14 +7,11 @@ source "${ROOT}"/globals
 
 ! check_command entr make && exit 3
 
-if ! [ -d "${1:-.}" ]; then
-  show_error "ERROR: Input ${1@Q} needs to be a directory. Exiting."
+DIR="${1:-.}"
+
+if ! [ -f "${DIR}"/Makefile ]; then
+  show_error "ERROR: Makefile not found in ${DIR@Q}. Exiting."
   exit 3
 fi
 
-if ! [ -f "${1:-.}"/Makefile ]; then
-  show_error "ERROR: Makefile not found. Exiting."
-  exit 3
-fi
-
-find "${1:-.}" -type f | entr -s "make -j$(nproc) ${1:+-C "${1}"}"
+find "${DIR}" -type f | entr -s "make -j$(nproc) -C ${DIR}"
