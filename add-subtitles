@@ -155,8 +155,7 @@ function get_language {
 }
 
 function hardcode_cleanup {
-  sed -i "s/\(\x92\|\x91\)/'/g" "${1}"
-  sed -i "s/\(\x94\|\x93\)/\"/g" "${1}"
+  sed -i -e "s/\(\x92\|\x91\)/'/g" -e "s/\(\x94\|\x93\)/\"/g" "${1}"
 }
 
 function count_subs {
@@ -338,11 +337,7 @@ function make_cmd {
   local lang
   local default_idx=-1 # idx of stream to set as the default
 
-  if [ -n "${CONTAINER}" ]; then
-    ext="${CONTAINER}"
-  else
-    ext="${EXTENSION}"
-  fi
+  ext="${CONTAINER:-"${EXTENSION}"}"
 
   inputs="-i file:${1@Q}"
   file_count=1
@@ -605,9 +600,5 @@ make_cmd "${IN}"
 show_header "${CMD}"
 eval "${CMD}"
 backup_files
-if [ -n "${CONTAINER}" ]; then
-  mv "${TMPVID}" "${NAME}.${CONTAINER}"
-else
-  mv "${TMPVID}" "${NAME}.${EXTENSION}"
-fi
+mv "${TMPVID}" "${NAME}.${CONTAINER:-"${EXTENSION}"}"
 sync
