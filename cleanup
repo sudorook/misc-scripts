@@ -104,9 +104,6 @@ else
   echo
 fi
 
-# Okular recent files
-delete_directory "${HOME}/.local/share/okular/docdata" "Clearing Okular history."
-
 # System-wide cleanup
 if check_command bleachbit; then
   if [ -f "${HOME}/.config/bleachbit/bleachbit.ini" ]; then
@@ -120,10 +117,32 @@ else
   echo
 fi
 
-# Calibre trash
+# Ark history
+if [ -f "${HOME}"/.local/share/ark/ark_recentfiles ]; then
+  show_header "Clearing Ark history"
+  cat > "${HOME}"/.local/share/ark/ark_recentfiles << EOF
+[RecentFiles]
+files\size=0
+EOF
+fi
+
+# Okular recent files.
+show_header "Clearing Okular history."
+delete_directory "${HOME}/.local/share/okular/docdata"
+delete_config_section "${HOME}/.config/okularrc" "Recent Files"
+
+# Gwenview image viewer history.
+show_header "Clearing Gwenview history."
+delete_directory "${HOME}/.local/share/gwenview/recentfolders"
+delete_config_section "${HOME}/.config/gwenviewrc" "Recent Files"
+
+# Calibre
 delete_directory \
   "${HOME}/Documents/Library/.caltrash/" \
   "Emptying Calibre trash."
+delete_json_section \
+  "${HOME}/.config/calibre/viewer-webengine.json" \
+  ".session_data.standalone_recently_opened"
 
 # Remove trash directory
 delete_directory \
