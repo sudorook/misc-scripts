@@ -5,6 +5,8 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
+! check_command jq sed && exit 3
+
 function delete_directory() {
   local dir_owner
   if [ -d "${1}" ]; then
@@ -43,6 +45,31 @@ function delete_file() {
     show_warning "${1@Q} not found. Skipping."
     echo
   fi
+}
+
+function delete_config_section() {
+  local file="${1}"
+  local header="${2}"
+  local tmp
+  tmp="$(mktemp)"
+  sed "/\[${header}\]/,/^\s*$/{d}" "${file}" | sed '${/^$/d}' > "${tmp}"
+  mv "${tmp}" "${file}"
+  sync
+}
+
+function delete_json_section() {
+  local file="${1}"
+  local path="${2}"
+  local tmp
+  tmp="$(mktemp)"
+  # Check if file end with newline. If it does not, then use '-j'.
+  if [ "$(tail -n 1 "${file}" | wc -l)" -eq 0 ]; then
+    jq -j "${path} = []" "${file}" > "${tmp}"
+  else
+    jq "${path} = []" "${file}" > "${tmp}"
+  fi
+  mv "${tmp}" "${file}"
+  sync
 }
 
 # KDE Clipboard
