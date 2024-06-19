@@ -45,6 +45,7 @@ function seek {
             -o -path \"${HOME}/Sync\" \
             -o -path \"${HOME}/Templates\" \
             -o -path \"${videodir:-${HOME}/Videos}\" \
+            -o -path \"${HOME}/.bundle\" \
             -o -path \"${HOME}/.cargo\" \
             -o -path \"${HOME}/.config/nvim\" \
             -o -path \"${HOME}/.go\" \
