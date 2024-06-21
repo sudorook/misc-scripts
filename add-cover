@@ -5,14 +5,10 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command ffmpeg sed && exit 3
+! check_command ffmpeg ffprobe sed && exit 3
 
 function print_usage() {
-  show_header "Usage: add-cover"
-  cat << EOF
-  -a|--audio <audio file>
-  -c|--cover <cover image>
-EOF
+  show_header "Usage: add-cover -c|--cover <image> <file>"
 }
 
 function get_format() {
@@ -22,17 +18,13 @@ function get_format() {
 
 KEEP=false
 
-OPTIONS=ha:c:k
-LONGOPTIONS=help,audio:,cover:,keep
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+OPTIONS=hc:k
+LONGOPTIONS=help,cover:,keep
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -a | --audio)
-      AUDIO="${2}"
-      shift 2
-      ;;
     -c | --cover)
       COVER="${2}"
       shift 2
@@ -59,17 +51,24 @@ done
 TMP="$(mktemp)"
 trap 'rm -f "${TMP}"' INT TERM EXIT ERR
 
-if [[ -v COVER ]] && [[ -v AUDIO ]]; then
-  ffmpeg -i file:"${AUDIO}" -i file:"${COVER}" \
-    -map_metadata 0 -map_chapters 0 -map 0 -map 1:0 \
-    -c copy -f "$(get_format)" -y "${TMP}"
-  if "${KEEP}"; then
-    mv "${AUDIO}" "${AUDIO}_$(date +%Y%m%d-%H%M%S).bak"
-  fi
-  mv "${TMP}" "${AUDIO}"
-  sync
+if ! [[ -v COVER ]] && ! [[ -f "${COVER}" ]]; then
+  show_error "ERROR: no cover specified. Exiting."
+  exit 3
+fi
+
+if [ "${#}" -eq 1 ] && [ -f "${1}" ]; then
+  AUDIO="${1}"
 else
-  show_error "ERROR: missing parameters"
+  show_error "ERROR: missing input file. Exiting."
   print_usage
   exit 3
 fi
+
+ffmpeg -i file:"${AUDIO}" -i file:"${COVER}" \
+  -map_metadata 0 -map_chapters 0 -map 0 -map 1:0 \
+  -c copy -f "$(get_format)" -y "${TMP}"
+if "${KEEP}"; then
+  mv "${AUDIO}" "${AUDIO}_$(date +%Y%m%d-%H%M%S).bak"
+fi
+mv "${TMP}" "${AUDIO}"
+sync
