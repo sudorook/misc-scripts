@@ -57,10 +57,10 @@ while [ ${#} -ge 1 ]; do
 done
 
 # Prompt for inputs if they were not already specified on the command line.
-if ! [[ -v TITLE ]]; then TITLE=$(ask_question "What is the title?"); fi
-if ! [[ -v ARTIST ]]; then ARTIST=$(ask_question "Who is the artist?"); fi
-if ! [[ -v URL ]]; then URL=$(ask_question "What is the URL?"); fi
-if ! [[ -v FORMAT ]]; then FORMAT=mp3; fi
+TITLE="${TITLE:-"$(ask_question "What is the title?")"}"
+ARTIST="${ARTIST:-"$(ask_question "Who is the artist?")"}"
+URL="${URL:-"$(ask_question "What is the URL?")"}"
+FORMAT="${FORMAT:-mp3}"
 
 # Download the file, extract audio, and set the ID3v2 tags.
 "${YTDL}" "${URL//\"/}" \
