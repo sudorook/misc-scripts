@@ -64,6 +64,7 @@
 | `restart-network`  | restart network connection (for getting new MAC address)               |
 | `rotate`           | rotate the screen with `xrandr` and switch background theme            |
 | `rmlink`           | delete symlink and the file it references                              |
+| `rm-cover`         | remove embedded images from audio files (keeping other metadata)       |
 | `scourify`         | wrapper to scour for simplifying SVG files                             |
 | `seek-and-destroy` | find and delete pesky dotfiles and dot-directories                     |
 | `set-gdm-theme`    | overwrite the GDM theme with the CSS in the current GTK theme          |

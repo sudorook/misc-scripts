@@ -1,0 +1,65 @@
+#! /bin/bash
+set -Eeuo pipefail
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+! check_command ffmpeg ffprobe sed && exit 3
+
+function print_usage() {
+  show_header "Usage: add-cover <file>"
+}
+
+function get_format() {
+  ffprobe -v error -show_format file:"${AUDIO}" |
+    sed -n "s/^format_name=\(.*\)/\1/p"
+}
+
+KEEP=false
+
+OPTIONS=hk
+LONGOPTIONS=help,keep
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
+    -k | --keep)
+      KEEP=true
+      shift
+      ;;
+    -h | --help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error"
+      exit 3
+      ;;
+  esac
+done
+
+TMP="$(mktemp)"
+trap 'rm -f "${TMP}"' INT TERM EXIT ERR
+
+if [ "${#}" -eq 1 ] && [ -f "${1}" ]; then
+  AUDIO="${1}"
+else
+  show_error "ERROR: missing input file. Exiting."
+  print_usage
+  exit 3
+fi
+
+ffmpeg -i file:"${AUDIO}" \
+  -map_metadata 0 -map_chapters 0 -map 0:a \
+  -c:a copy -vn -f "$(get_format)" -y "${TMP}"
+if "${KEEP}"; then
+  mv "${AUDIO}" "${AUDIO}_$(date +%Y%m%d-%H%M%S).bak"
+fi
+mv "${TMP}" "${AUDIO}"
+sync
