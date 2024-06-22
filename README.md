@@ -19,8 +19,8 @@
 | `delete-swp`       | clear sw[a-p] files in directory (Vim backups)                         |
 | `drop-caches`      | clear system cache                                                     |
 | `dump-streams`     | copy container streams into one file each                              |
-| `encfs-encrypt`    | (re)encrypt directory with EncFS                                       |
 | `encfs-decrypt`    | mount and decrypt an EncFS-encrypted directory                         |
+| `encfs-encrypt`    | (re)encrypt directory with EncFS                                       |
 | `epub-convert`     | `ebook-convert` wrapper to convert azw3 and mobi files to ePub         |
 | `epub-fixup`       | disable `text-align: justify` and hardcoded colors in EPUB files       |
 | `extract-audio`    | extract audio track from video                                         |
@@ -51,7 +51,6 @@
 | `ova-to-qcow2`     | convert an OVA virtual disk image to QCOW2                             |
 | `pdf-fixup`        | fix up the metadata in PDF files (newlines in tags, covers, etc.)      |
 | `pdf-split`        | extract range of pages from a PDF                                      |
-| `search-docs`      | find documents, with option to pin to ~/Desktop and ~/Sync             |
 | `ping-test`        | use `ping` to estimate network speed                                   |
 | `print-colors`     | print terminal colors                                                  |
 | `print-fontstring` | generate the FFmpeg format string to embed fonts in a container        |
@@ -62,10 +61,11 @@
 | `rename-user`      | rename an existing user and migrate all files, symlinks, etc.          |
 | `render`           | compile LaTeX, RMarkdown and Julia Markdown files to PDF               |
 | `restart-network`  | restart network connection (for getting new MAC address)               |
-| `rotate`           | rotate the screen with `xrandr` and switch background theme            |
-| `rmlink`           | delete symlink and the file it references                              |
 | `rm-cover`         | remove embedded images from audio files (keeping other metadata)       |
+| `rmlink`           | delete symlink and the file it references                              |
+| `rotate`           | rotate the screen with `xrandr` and switch background theme            |
 | `scourify`         | wrapper to scour for simplifying SVG files                             |
+| `search-docs`      | find documents, with option to pin to ~/Desktop and ~/Sync             |
 | `seek-and-destroy` | find and delete pesky dotfiles and dot-directories                     |
 | `set-gdm-theme`    | overwrite the GDM theme with the CSS in the current GTK theme          |
 | `set-replaygain`   | compute replay gain for directory of audio files                       |
@@ -81,8 +81,8 @@
 | `upgrade`          | upgrade system, AUR, Zsh plugins, and Julia packages                   |
 | `vidname-cleanup`  | use regex to clean up file names                                       |
 | `vpn-killswitch`   | add `iptables` rules to block networking if VPN connection is lost     |
-| `whattodo`         | find all to-do lists and print them in the terminal                    |
 | `wget-mirror`      | `wget` wrapper to create local mirror of website                       |
+| `whattodo`         | find all to-do lists and print them in the terminal                    |
 | `write-entry`      | write a entry into your log                                            |
 
 ## Globals
