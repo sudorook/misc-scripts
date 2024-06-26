@@ -124,6 +124,7 @@ if [ -f "${HOME}"/.local/share/ark/ark_recentfiles ]; then
 [RecentFiles]
 files\size=0
 EOF
+  echo
 fi
 
 # Okular recent files.
