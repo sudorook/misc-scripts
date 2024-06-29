@@ -7,7 +7,7 @@ source "${ROOT}"/globals
 
 ! check_command nmcli sed && exit 3
 
-# Script requries nm-cli, so check that the Network Manager service is running.
+# Script requires nm-cli, so check that the Network Manager service is running.
 if ! systemctl is-active --quiet NetworkManager; then
   show_info "Enabling Network Manager systemd service."
   sudo systemctl start --now NetworkManager
@@ -28,8 +28,8 @@ function check_wg_config {
   ipv4addr="$(sed -n "s/^Address = \(.*\)/\1/p" "${in}" | cut -d"," -f1)"
   ipv6addr="$(sed -n "s/^Address = \(.*\)/\1/p" "${in}" | cut -d"," -f2)"
 
-  # Check whether the config IP addressses, etc. are already found in an
-  # existing conection.
+  # Check whether the config IP addresses, etc. are already found in an
+  # existing connection.
   while read -r conn; do
     [ -z "${conn}" ] && continue
     conn_data="$(nmcli conn show "${conn}")"

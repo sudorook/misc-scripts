@@ -178,7 +178,7 @@ show_info "Renaming user ${OLDNAME@Q} to ${NEWNAME@Q}..."
 sudo usermod -l "${NEWNAME}" -d "/home/${NEWNAME}" -m "${OLDNAME}"
 sudo groupmod -n "${NEWNAME}" "${OLDNAME}"
 
-show_info "Fixing symlinks in /home/${NEWNAME} (provide ${NEWNAME} pasword)."
+show_info "Fixing symlinks in /home/${NEWNAME} (provide ${NEWNAME} password)."
 su "${NEWNAME}" - -c \
   "cd /home/${NEWNAME} && find . -type l -exec bash -c 'migrate_symlink \"{}\"' \;"
 
