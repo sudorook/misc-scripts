@@ -8,87 +8,92 @@ source "${ROOT}"/globals
 ! check_command jq sed && exit 3
 
 function delete_directory() {
+  local dir="${1}"
   local dir_owner
-  if [ -d "${1}" ]; then
-    dir_owner="$(stat -c "%U" "${1}")"
+  if [ -d "${dir}" ]; then
+    dir_owner="$(stat -c "%U" "${dir}")"
     if [[ "${USER}" = "${dir_owner}" ]]; then
       if [[ -v 2 ]]; then
-        show_header "${2}"
+        show_info "${2}"
       fi
-      rm -rvf "${1}"
-      echo
+      rm -rf "${dir}"
+      sync
     else
-      show_warning "${1@Q} owned by ${dir_owner@Q}. Skipping."
-      echo
+      show_warning "${dir@Q} owned by ${dir_owner@Q}. Skipping."
     fi
-  else
-    show_warning "${1@Q} not found. Skipping."
-    echo
   fi
 }
 
 function delete_file() {
+  local file="${1}"
   local file_owner
-  if [ -f "${1}" ]; then
-    file_owner="$(stat -c "%U" "${1}")"
+  if [ -f "${file}" ]; then
+    file_owner="$(stat -c "%U" "${file}")"
     if [[ "${USER}" = "${file_owner}" ]]; then
       if [[ -v 2 ]]; then
-        show_header "${2}"
+        show_info "${2}"
       fi
-      rm -vf "${1}"
-      echo
+      rm -f "${file}"
+      sync
     else
-      show_warning "${1@Q} owned by ${file_owner@Q}. Skipping."
-      echo
+      show_warning "${file@Q} owned by ${file_owner@Q}. Skipping."
     fi
-  else
-    show_warning "${1@Q} not found. Skipping."
-    echo
   fi
 }
 
 function delete_config_section() {
   local file="${1}"
+  local file_owner
   local header="${2}"
+  local tmp
   if [ -f "${file}" ]; then
-    local tmp
-    tmp="$(mktemp)"
-    sed "/\[${header}\]/,/^\s*$/{d}" "${file}" | sed '${/^$/d}' > "${tmp}"
-    mv "${tmp}" "${file}"
-    sync
-  else
-    show_warning "${1@Q} not found. Skipping."
+    file_owner="$(stat -c "%U" "${file}")"
+    if [[ "${USER}" = "${file_owner}" ]]; then
+      if [[ -v 3 ]]; then
+        show_info "${3}"
+      fi
+      tmp="$(mktemp)"
+      sed "/\[${header}\]/,/^\s*$/{d}" "${file}" | sed '${/^$/d}' > "${tmp}"
+      mv "${tmp}" "${file}"
+      sync
+    else
+      show_warning "${file@Q} owned by ${file_owner@Q}. Skipping."
+    fi
   fi
 }
 
 function delete_json_section() {
   local file="${1}"
+  local file_owner
   local path="${2}"
+  local tmp
   if [ -f "${file}" ]; then
-    local tmp
-    tmp="$(mktemp)"
-    # Check if file end with newline. If it does not, then use '-j'.
-    if [ "$(tail -n 1 "${file}" | wc -l)" -eq 0 ]; then
-      jq -j "${path} = []" "${file}" > "${tmp}"
+    file_owner="$(stat -c "%U" "${file}")"
+    if [[ "${USER}" = "${file_owner}" ]]; then
+      if [[ -v 3 ]]; then
+        show_info "${3}"
+      fi
+      tmp="$(mktemp)"
+      # Check if file end with newline. If it does not, then use '-j'.
+      if [ "$(tail -n 1 "${file}" | wc -l)" -eq 0 ]; then
+        jq -j "${path} = []" "${file}" > "${tmp}"
+      else
+        jq "${path} = []" "${file}" > "${tmp}"
+      fi
+      mv "${tmp}" "${file}"
+      sync
     else
-      jq "${path} = []" "${file}" > "${tmp}"
+      show_warning "${file@Q} owned by ${file_owner@Q}. Skipping."
     fi
-    mv "${tmp}" "${file}"
-    sync
-  else
-    show_warning "${1@Q} not found. Skipping."
   fi
 }
 
 # KDE Clipboard
 if check_command qdbus; then
   if qdbus > /dev/null 2>&1; then
-    show_header "Clearing Klipper history."
+    show_info "Clearing Klipper history."
     qdbus org.kde.klipper /klipper org.kde.klipper.klipper.clearClipboardHistory
-    echo
   fi
-else
-  echo
 fi
 
 # Nvim state
@@ -104,46 +109,45 @@ delete_directory \
 # Recent files, etc.
 if check_command sweeper; then
   if [ -v DESKTOP_SESSION ]; then
-    show_header "Running sweeper."
-    sweeper --automatic
-    echo
+    show_info "Running sweeper."
+    sweeper --automatic 2> /dev/null
   fi
-else
-  echo
 fi
 
 # System-wide cleanup
 if check_command bleachbit; then
   if [ -f "${HOME}/.config/bleachbit/bleachbit.ini" ]; then
-    show_header "Running BleachBit ($USER)."
+    show_info "Running BleachBit (${USER})."
     bleachbit -c --preset
   else
     show_warning "BleachBit not configured. Skipping."
-    echo
   fi
-else
-  echo
 fi
 
 # Ark history
 if [ -f "${HOME}"/.local/share/ark/ark_recentfiles ]; then
-  show_header "Clearing Ark history"
+  show_info "Clearing Ark history."
   cat > "${HOME}"/.local/share/ark/ark_recentfiles << EOF
 [RecentFiles]
 files\size=0
 EOF
-  echo
 fi
 
 # Okular recent files.
-show_header "Clearing Okular history."
-delete_directory "${HOME}/.local/share/okular/docdata"
-delete_config_section "${HOME}/.config/okularrc" "Recent Files"
+delete_directory \
+  "${HOME}/.local/share/okular/docdata" \
+  "Deleting Okular document data."
+delete_config_section \
+  "${HOME}/.config/okularrc" \
+  "Clearing Okular recent file history."
 
 # Gwenview image viewer history.
-show_header "Clearing Gwenview history."
-delete_directory "${HOME}/.local/share/gwenview/recentfolders"
-delete_config_section "${HOME}/.config/gwenviewrc" "Recent Files"
+delete_directory \
+  "${HOME}/.local/share/gwenview/recentfolders" \
+  "Deleting Gwenview folder history."
+delete_config_section \
+  "${HOME}/.config/gwenviewrc" \
+  "Clearing Gwenview recent file history."
 
 # Calibre
 delete_directory \
@@ -151,7 +155,8 @@ delete_directory \
   "Emptying Calibre trash."
 delete_json_section \
   "${HOME}/.config/calibre/viewer-webengine.json" \
-  ".session_data.standalone_recently_opened"
+  ".session_data.standalone_recently_opened" \
+  "Clearing ebook-viewer history."
 
 # Remove trash directory
 delete_directory \
@@ -176,7 +181,7 @@ delete_file \
 # mpv watch_later
 delete_directory \
   "${HOME}/.local/state/mpv/watch_later" \
-  "Clearing mpv history"
+  "Clearing mpv history."
 
 # less history
 delete_file \
