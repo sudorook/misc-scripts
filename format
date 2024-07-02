@@ -119,7 +119,7 @@ function format_wrapper() {
   fi
 
   case "${lang}" in
-    c | chdr | c++ | c++hdr | c++src)
+    c | csrc | chdr | c++ | c++hdr | c++src)
       if [[ "${1##*.}" != y ]] && [[ "${1##*.}" != l ]]; then
         format_c "${1}"
       else
