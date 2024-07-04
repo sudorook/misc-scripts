@@ -89,7 +89,7 @@ function delete_json_section() {
 }
 
 # KDE Clipboard
-if check_command qdbus > /dev/null; then
+if check_command qdbus 2> /dev/null; then
   if qdbus > /dev/null 2>&1; then
     show_info "Clearing Klipper history."
     qdbus org.kde.klipper /klipper org.kde.klipper.klipper.clearClipboardHistory
@@ -107,7 +107,7 @@ delete_directory \
   "Clearing Vim undo history."
 
 # Recent files, etc.
-if check_command sweeper > /dev/null; then
+if check_command sweeper 2> /dev/null; then
   if [ -v DESKTOP_SESSION ]; then
     show_info "Running sweeper."
     sweeper --automatic 2> /dev/null
@@ -115,7 +115,7 @@ if check_command sweeper > /dev/null; then
 fi
 
 # System-wide cleanup
-if check_command bleachbit > /dev/null; then
+if check_command bleachbit 2> /dev/null; then
   if [ -f "${HOME}/.config/bleachbit/bleachbit.ini" ]; then
     show_info "Running BleachBit (${USER})."
     bleachbit -c --preset
