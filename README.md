@@ -2,7 +2,6 @@
 
 | Script             | Description                                                            |
 | ------------------ | ---------------------------------------------------------------------- |
-| `add-cover`        | embeds images in audio files                                           |
 | `add-subtitles`    | embed srt files into video                                             |
 | `allow-ip`         | add rule to routing table for an IP address (e.g. a local printer)     |
 | `alphabetize`      | sorts line alphabetically and deletes repeats                          |
@@ -14,6 +13,8 @@
 | `copy-playlist`    | copy files in a playlist (e.g. m3u) to a destination directory         |
 | `count-commits`    | count commits made by an author over specified period of time          |
 | `count-lines`      | count number of lines in all files in directory                        |
+| `coverart-add`     | embeds images in audio files                                           |
+| `coverart-rm`      | remove embedded images from audio files (keeping other metadata)       |
 | `cryptdir`         | wrapper for mounting/unmounting fs-level encrypted directories         |
 | `decode-base64`    | detect and convert base64 text in emails to UTF-8                      |
 | `delete-swp`       | clear sw[a-p] files in directory (Vim backups)                         |
@@ -61,7 +62,6 @@
 | `rename-user`      | rename an existing user and migrate all files, symlinks, etc.          |
 | `render`           | compile LaTeX, RMarkdown and Julia Markdown files to PDF               |
 | `restart-network`  | restart network connection (for getting new MAC address)               |
-| `rm-cover`         | remove embedded images from audio files (keeping other metadata)       |
 | `rmlink`           | delete symlink and the file it references                              |
 | `rotate`           | rotate the screen with `xrandr` and switch background theme            |
 | `scourify`         | wrapper to scour for simplifying SVG files                             |
