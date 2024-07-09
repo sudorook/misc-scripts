@@ -90,6 +90,13 @@ function compress_archive() {
   local run
   mkdir -p "${ARCHIVEDIR}"
   case "${Z}" in
+    7z)
+      if check_command 7z tar; then
+        show_warning "WARNING: 7z does not support uid/gid metadata, so using tar first."
+        run="tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}"
+        eval "${run}" | 7z a -si "${ARCHIVEDIR}/${1}.tar.7z"
+      fi
+      ;;
     gz)
       ! check_command tar && return
       if command -v pigz > /dev/null 2>&1; then
@@ -206,6 +213,9 @@ while [ ${#} -ge 1 ]; do
       ;;
     -z | --compress)
       case "${2,,}" in
+        7z | p7zip)
+          Z=7z
+          ;;
         zst | zstd | pzstd)
           Z=zstd
           ;;
