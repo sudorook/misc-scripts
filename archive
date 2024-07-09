@@ -262,7 +262,8 @@ ARCHIVE="$(make_archivename "${ITEMS[@]}")"
 if [ -z "${PATHSTRING}" ]; then
   show_error "Path string is empty. Exiting."
   exit 1
-elif [ -z "${ARCHIVE}" ]; then
+fi
+if [ -z "${ARCHIVE}" ]; then
   show_error "Archive name is empty. Exiting."
   exit 1
 fi
