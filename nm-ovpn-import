@@ -15,7 +15,6 @@ fi
 
 # Check that the input files exist.
 for VPN_CONFIG in "${@}"; do
-  VPN_CONFIG="${1}"
   if ! [ -f "${VPN_CONFIG}" ]; then
     show_error "ERROR: config ${VPN_CONFIG} not found. Exiting."
     exit 3
