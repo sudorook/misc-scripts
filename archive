@@ -87,34 +87,31 @@ function make_archivename() {
 # to be found in ${ARCHIVEDIR} (see globals). Uses pigz (parallelized gzip
 # compression) if available.
 function compress_archive() {
-  local run
   mkdir -p "${ARCHIVEDIR}"
   case "${Z}" in
     7z)
       if check_command 7z tar; then
         show_warning "WARNING: 7z does not support uid/gid metadata, so using tar first."
-        run="tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}"
-        eval "${run}" | 7z a -si "${ARCHIVEDIR}/${1}.tar.7z"
+        eval "tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}" |
+          7z a -si "${ARCHIVEDIR}/${1}.tar.7z"
       fi
       ;;
     gz)
       ! check_command tar && return
       if command -v pigz > /dev/null 2>&1; then
-        run="tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}"
-        eval "${run}" | pigz > "${ARCHIVEDIR}/${1}.tar.gz"
+        eval "tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}" |
+          pigz > "${ARCHIVEDIR}/${1}.tar.gz"
       else
-        run="tar czf ${ARCHIVEDIR}/${1}.tar.gz --exclude='*.sw[a-p]' --exclude='*~' ${2}"
-        eval "${run}"
+        eval "tar czf ${ARCHIVEDIR}/${1}.tar.gz --exclude='*.sw[a-p]' --exclude='*~' ${2}"
       fi
       ;;
     xz)
       ! check_command tar && return
       if command -v pixz > /dev/null 2>&1; then
-        run="tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}"
-        eval "${run}" | pixz > "${ARCHIVEDIR}/${1}.tar.xz"
+        eval "tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}" |
+          pixz > "${ARCHIVEDIR}/${1}.tar.xz"
       else
-        run="tar czf ${ARCHIVEDIR}/${1}.tar.xz --exclude='*.sw[a-p]' --exclude='*~' ${2}"
-        eval "${run}"
+        eval "tar czf ${ARCHIVEDIR}/${1}.tar.xz --exclude='*.sw[a-p]' --exclude='*~' ${2}"
       fi
       ;;
     zip)
@@ -141,9 +138,9 @@ function compress_archive() {
       fi
       ;;
     zstd)
-      if check_command pzstd; then
-        run="tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}"
-        eval "${run}" | pzstd > "${ARCHIVEDIR}/${1}.tar.zst"
+      if check_command pzstd tar; then
+        eval "tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}" |
+          pzstd > "${ARCHIVEDIR}/${1}.tar.zst"
       fi
       ;;
     *)
