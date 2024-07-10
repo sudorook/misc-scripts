@@ -14,7 +14,7 @@ source "${ROOT}"/globals
 print_list() {
   ssh \
     "${USER:+${USER}@}${REMOTE}" \
-    'find '"${DIR@Q}/"' -type f \( -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.avi" -o -iname "*.ogg" \)'
+    'find '"${DIR@Q}/"' -type f \( -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.m4v" -o -iname "*.avi" -o -iname "*.ogg" \)'
 }
 
 print_fuzzy_dir() {
