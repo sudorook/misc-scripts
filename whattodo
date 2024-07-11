@@ -45,7 +45,6 @@ function find_todo {
   local files
   local ignore
   local ignores
-  local cmd
 
   for file in "${FILES[@]}"; do
     files="${files:+${files} -o }-iname ${file}"
@@ -55,8 +54,7 @@ function find_todo {
     ignores="${ignores:+${ignores} -o }-name ${ignore@Q}"
   done
 
-  cmd="find ${PROJECTDIR@Q} \( ${ignores} \) -prune , \( ${files} \) -exec bash -c 'print_todo \"\${1}\"' bash {} \;"
-  eval "${cmd}"
+  eval "find ${PROJECTDIR@Q} \( ${ignores} \) -prune , \( ${files} \) -exec bash -c 'print_todo \"\${1}\"' bash {} \;"
 }
 
 # Print out the to-do lists manually specified in ${EXTRAS}
