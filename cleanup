@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command jq sed && exit 3
+! check_command cmp jq sed && exit 3
 
 function delete_directory() {
   local dir="${1}"
@@ -49,12 +49,14 @@ function delete_config_section() {
   if [ -f "${file}" ]; then
     file_owner="$(stat -c "%U" "${file}")"
     if [[ "${USER}" = "${file_owner}" ]]; then
-      if [[ -v 3 ]]; then
-        show_info "${3}"
-      fi
       tmp="$(mktemp)"
       sed "/\[${header}\]/,/^\s*$/{d}" "${file}" | sed '${/^$/d}' > "${tmp}"
-      mv "${tmp}" "${file}"
+      if ! cmp -s "${tmp}" "${file}"; then
+        if [[ -v 3 ]]; then
+          show_info "${3}"
+        fi
+        mv "${tmp}" "${file}"
+      fi
       sync
     else
       show_warning "${file@Q} owned by ${file_owner@Q}. Skipping."
@@ -70,9 +72,6 @@ function delete_json_section() {
   if [ -f "${file}" ]; then
     file_owner="$(stat -c "%U" "${file}")"
     if [[ "${USER}" = "${file_owner}" ]]; then
-      if [[ -v 3 ]]; then
-        show_info "${3}"
-      fi
       tmp="$(mktemp)"
       # Check if file end with newline. If it does not, then use '-j'.
       if [ "$(tail -n 1 "${file}" | wc -l)" -eq 0 ]; then
@@ -80,7 +79,12 @@ function delete_json_section() {
       else
         jq "${path} = []" "${file}" > "${tmp}"
       fi
-      mv "${tmp}" "${file}"
+      if ! cmp -s "${tmp}" "${file}"; then
+        if [[ -v 3 ]]; then
+          show_info "${3}"
+        fi
+        mv "${tmp}" "${file}"
+      fi
       sync
     else
       show_warning "${file@Q} owned by ${file_owner@Q}. Skipping."
