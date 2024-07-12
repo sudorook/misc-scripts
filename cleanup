@@ -144,6 +144,7 @@ delete_directory \
   "Deleting Okular document data."
 delete_config_section \
   "${HOME}/.config/okularrc" \
+  "Recent Files" \
   "Clearing Okular recent file history."
 
 # Gwenview image viewer history.
@@ -152,6 +153,7 @@ delete_directory \
   "Deleting Gwenview folder history."
 delete_config_section \
   "${HOME}/.config/gwenviewrc" \
+  "Recent Files" \
   "Clearing Gwenview recent file history."
 
 # Calibre
