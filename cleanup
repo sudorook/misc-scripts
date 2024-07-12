@@ -130,11 +130,12 @@ fi
 
 # Ark history
 if [ -f "${HOME}"/.local/share/ark/ark_recentfiles ]; then
-  show_info "Clearing Ark history."
-  cat > "${HOME}"/.local/share/ark/ark_recentfiles << EOF
-[RecentFiles]
-files\size=0
-EOF
+  TMP='[RecentFiles]
+files\size=0'
+  if ! cmp -s "${HOME}"/.local/share/ark/ark_recentfiles <(echo "${TMP}"); then
+    show_info "Clearing Ark history."
+    echo "${TMP}" > "${HOME}"/.local/share/ark/ark_recentfiles
+  fi
 fi
 
 # Okular recent files.
