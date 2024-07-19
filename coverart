@@ -1,0 +1,110 @@
+#! /bin/bash
+set -Eeuo pipefail
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+! check_command ffmpeg ffprobe sed && exit 3
+
+function print_usage() {
+  show_header "Usage: coverart"
+  show_listitem "  coverart add -i|--input <audio file> -c|--cover <image>"
+  show_listitem "  coverart  rm -i|--input <audio file>"
+  show_listitem "Pass '-k' to keep original file."
+}
+
+function get_format() {
+  ffprobe -v error -show_format file:"${INPUT}" |
+    sed -n "s/^format_name=\(.*\)/\1/p"
+}
+
+function add_cover() {
+  ffmpeg -i file:"${INPUT}" -i file:"${COVER}" \
+    -map_metadata 0 -map_chapters 0 -map 0 -map 1:0 \
+    -c copy -f "$(get_format)" -y "${TMP}"
+  if "${KEEP}"; then
+    mv "${INPUT}" "${INPUT}_$(date +%Y%m%d-%H%M%S).bak"
+  fi
+  mv "${TMP}" "${INPUT}"
+  sync
+}
+
+function rm_cover() {
+  ffmpeg -i file:"${INPUT}" \
+    -map_metadata 0 -map_chapters 0 -map 0:a \
+    -c:a copy -vn -f "$(get_format)" -y "${TMP}"
+  if "${KEEP}"; then
+    mv "${INPUT}" "${INPUT}_$(date +%Y%m%d-%H%M%S).bak"
+  fi
+  mv "${TMP}" "${INPUT}"
+  sync
+}
+
+KEEP=false
+
+OPTIONS=hc:i:k
+LONGOPTIONS=help,cover:,input:,keep
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
+    -c | --cover)
+      COVER="${2}"
+      shift 2
+      ;;
+    -i | --input)
+      INPUT="${2}"
+      shift 2
+      ;;
+    -k | --keep)
+      KEEP=true
+      shift
+      ;;
+    -h | --help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "Error"
+      exit 3
+      ;;
+  esac
+done
+
+MODE="${1:-}"
+
+if [ "${MODE}" = add ]; then
+  COVER="${COVER:-cover.jpg}"
+  if ! [[ -f "${COVER}" ]]; then
+    show_error "ERROR: cover art not found. Exiting."
+    exit 3
+  fi
+fi
+
+if ! [ -f "${INPUT:-}" ]; then
+  show_error "ERROR: input file not found. Exiting."
+  print_usage
+  exit 3
+fi
+
+TMP="$(mktemp)"
+trap 'rm -f "${TMP}"' INT TERM EXIT ERR
+
+case "${MODE}" in
+  add)
+    add_cover
+    ;;
+  rm | remove)
+    rm_cover
+    ;;
+  *)
+    show_error "ERROR: no run mode ('add' or 'rm') specified. Exiting."
+    exit 3
+    ;;
+esac
