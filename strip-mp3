@@ -32,13 +32,8 @@ export -f do_strip_mp3
 # Main
 #
 
-if [ $# -eq 1 ] && [ -f "${1}" ]; then
-  show_header "Stripping ${1@Q}..."
-  do_strip_mp3 "${1}"
-else
-  show_header "Stripping ${*@Q}..."
-  find "${@}" -type f -iname "*.mp3" -print0 |
-    xargs -0 -I{} -P "$(nproc)" bash -c 'do_strip_mp3 "{}"'
-fi
+show_header "Stripping ${*@Q}..."
+find "${@}" -type f -iname "*.mp3" -print0 |
+  xargs -0 -I{} -P "$(nproc)" bash -c 'do_strip_mp3 "{}"'
 
 sync
