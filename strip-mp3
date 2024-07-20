@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command ffmpeg find && exit 3
+! check_command ffmpeg find xargs && exit 3
 
 #
 # Functions
@@ -37,13 +37,8 @@ if [ $# -eq 1 ] && [ -f "${1}" ]; then
   do_strip_mp3 "${1}"
 else
   show_header "Stripping ${*@Q}..."
-  if command -v parallel > /dev/null; then
-    find "${@}" -type f -iname "*.mp3" -print0 |
-      parallel -0 'echo {} && do_strip_mp3 {}'
-  else
-    find "${@}" -type f -iname "*.mp3" -exec \
-      sh -c 'echo "${1}" && do_strip_mp3 "${1}"' sh {} \;
-  fi
+  find "${@}" -type f -iname "*.mp3" -print0 |
+    xargs -0 -I{} -P "$(nproc)" bash -c 'do_strip_mp3 "{}"'
 fi
 
 sync
