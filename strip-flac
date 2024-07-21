@@ -1,0 +1,39 @@
+#! /bin/bash
+set -Eeuo pipefail
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+! check_command ffmpeg find xargs && exit 3
+
+#
+# Functions
+#
+
+function do_strip_flac {
+  local in="${1}"
+  local tmp
+
+  tmp=$(mktemp)
+  trap 'rm -vf "${tmp}"' INT RETURN ERR TERM
+
+  ffmpeg -v warning -i file:"${in}" -c copy -f ogg - |
+    ffmpeg -v warning -i - \
+      -map_metadata -1 -map 0:a -c:a copy -vn \
+      -fflags +bitexact -flags:a +bitexact \
+      -f flac file:"${tmp}" -y
+
+  mv "${tmp}" "${in}"
+}
+export -f do_strip_flac
+
+#
+# Main
+#
+
+show_header "Stripping ${*@Q}..."
+find "${@}" -type f -iname "*.flac" -print0 |
+  xargs -0 -I{} -P "$(nproc)" bash -c 'do_strip_flac "{}"'
+
+sync
