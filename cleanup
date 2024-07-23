@@ -142,6 +142,12 @@ files\size=0'
   fi
 fi
 
+# KFileDialog history
+delete_config_section \
+  "${HOME}/.config/xdg-desktop-portal-kderc" \
+  "KFileDialog Settings" \
+  "Clearing KFileDialog history."
+
 # Okular recent files.
 delete_directory \
   "${HOME}/.local/share/okular/docdata" \
