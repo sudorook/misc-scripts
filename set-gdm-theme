@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_commands glib-compile-resources gsettings sed && exit 3
+! check_command glib-compile-resources gsettings sed && exit 3
 
 # Check that GDM is installed.
 command -v pacman > /dev/null 2>&1 && {
