@@ -13,117 +13,120 @@ function adjust_page_numbers {
   offset=$((START - 1))
 
   awk -i inplace -v s="${START}" -v e="${END}" \
-    '{
-      if (a ~ "InfoBegin") {
+    -f <(cat << EOF
+{
+  if (a ~ "InfoBegin") {
+    getline c
+    while (c !~ "InfoValue") {
+      if (getline c == 0) break
+    }
+    a=c
+  }
+  else if (a ~ "PageMediaBegin") {
+    if (e == "end") {
+      if (\$2 >= s) {
+        print a
+        print
         getline c
-        while (c !~ "InfoValue") {
+        while (c !~ "Begin") {
+          print c
+          if (getline c == 0) break
+        }
+        a=c
+      } else {
+        getline c
+        while (c !~ "Begin") {
           if (getline c == 0) break
         }
         a=c
       }
-      else if (a ~ "PageMediaBegin") {
-        if (e == "end") {
-          if ($2 >= s) {
-            print a
-            print
-            getline c
-            while (c !~ "Begin") {
-              print c
-              if (getline c == 0) break
-            }
-            a=c
-          } else {
-            getline c
-            while (c !~ "Begin") {
-              if (getline c == 0) break
-            }
-            a=c
-          }
-        }
-        else {
-          if (($2 >= s) && ($2 <= e)) {
-            print a
-            print
-            getline c
-            while (c !~ "Begin") {
-              print c
-              if (getline c == 0) break
-            }
-            a=c
-          } else {
-            getline c
-            while (c !~ "Begin") {
-              if (getline c == 0) break
-            }
-            a=c
-          }
-        }
-      }
-      else if (a ~ "PageLabelBegin") {
-        b=$0
-        if (e == "end") {
-          if ($2 >= s) {
-            print a
-            print b
-            getline c
-            while (c !~ "NumStyle") {
-              print c
-              if (getline c == 0) break
-            }
-            print c
-            getline a
-          } else {
-            getline c
-            while (c !~ "NumStyle") {
-              if (getline c == 0) break
-            }
-            getline a
-          }
-        }
-        else {
-          if (($2 >= s) && ($2 <= e)) {
-            print a
-            print b
-            getline c
-            while (c !~ "NumStyle") {
-              print c
-              if (getline c == 0) break
-            }
-            print c
-            getline a
-          } else {
-            getline c
-            while (c !~ "NumStyle") {
-              if (getline c == 0) break
-            }
-            getline a
-          }
-        }
-      }
-      else if (a ~ "BookmarkBegin") {
-        b=$0
+    }
+    else {
+      if ((\$2 >= s) && (\$2 <= e)) {
+        print a
+        print
         getline c
-        getline
-        if (e == "end") {
-          if ($2 >= s) {
-            print a; print b; print c; print;
-          }
+        while (c !~ "Begin") {
+          print c
+          if (getline c == 0) break
         }
-        else {
-          if (($2 >= s) && ($2 <= e)) {
-            print a; print b; print c; print;
-          }
+        a=c
+      } else {
+        getline c
+        while (c !~ "Begin") {
+          if (getline c == 0) break
         }
-        a=$0
-        # getline a
+        a=c
       }
-      else {
-        if ($1 !~ "Begin$") {
-          print
+    }
+  }
+  else if (a ~ "PageLabelBegin") {
+    b=\$0
+    if (e == "end") {
+      if (\$2 >= s) {
+        print a
+        print b
+        getline c
+        while (c !~ "NumStyle") {
+          print c
+          if (getline c == 0) break
         }
-        a=$0
+        print c
+        getline a
+      } else {
+        getline c
+        while (c !~ "NumStyle") {
+          if (getline c == 0) break
+        }
+        getline a
       }
-    }' "${DATA}"
+    }
+    else {
+      if ((\$2 >= s) && (\$2 <= e)) {
+        print a
+        print b
+        getline c
+        while (c !~ "NumStyle") {
+          print c
+          if (getline c == 0) break
+        }
+        print c
+        getline a
+      } else {
+        getline c
+        while (c !~ "NumStyle") {
+          if (getline c == 0) break
+        }
+        getline a
+      }
+    }
+  }
+  else if (a ~ "BookmarkBegin") {
+    b=\$0
+    getline c
+    getline
+    if (e == "end") {
+      if (\$2 >= s) {
+        print a; print b; print c; print;
+      }
+    }
+    else {
+      if ((\$2 >= s) && (\$2 <= e)) {
+        print a; print b; print c; print;
+      }
+    }
+    a=\$0
+    # getline a
+  }
+  else {
+    if (\$1 !~ "Begin\$") {
+      print
+    }
+    a=\$0
+  }
+}
+EOF
+    ) "${DATA}"
 
   sed -i \
     -e '/^PageMedia\(Rect\|Dimensions\):/s/,//g' \
