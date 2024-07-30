@@ -110,11 +110,7 @@ def prompt_user_rating():
     sys.exit("Invalid rating. Exiting.")
 
 
-#
-# Main
-#
-
-if __name__ == "__main__":
+def main():
     # Command line parsing
     parser = argparse.ArgumentParser(
         description="Rate songs in your beets database."
@@ -144,3 +140,7 @@ if __name__ == "__main__":
     song.load()
     song["rating"] = rating
     song.store()
+
+
+if __name__ == "__main__":
+    main()
