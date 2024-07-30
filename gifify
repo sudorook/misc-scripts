@@ -34,32 +34,17 @@ function scan_input {
   sstring="$(ffprobe -v error \
                -select_streams s -show_streams -of flat file:"${IN}")"
 
-  if ! [[ -v DURATION ]]; then
-    DURATION="$(echo "${fstring}" | sed -n "s/^duration=\(.*\)$/\1/p")"
-  fi
-  if ! [[ -v VCODEC ]]; then
-    VCODEC="$(echo "${vstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
-  fi
-  if ! [[ -v WIDTH ]]; then
-    WIDTH="$(echo "${vstring}" | sed -n "s/^width=\(.*\)$/\1/p")"
-  fi
-  if ! [[ -v HEIGHT ]]; then
-    HEIGHT="$(echo "${vstring}" | sed -n "s/^height=\(.*\)$/\1/p")"
-  fi
-  if ! [[ -v RESOLUTIONS ]]; then
-    RESOLUTIONS=("native")
-  fi
+  DURATION="$(echo "${fstring}" | sed -n "s/^duration=\(.*\)$/\1/p")"
+  VCODEC="$(echo "${vstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
+  WIDTH="$(echo "${vstring}" | sed -n "s/^width=\(.*\)$/\1/p")"
+  HEIGHT="$(echo "${vstring}" | sed -n "s/^height=\(.*\)$/\1/p")"
   if ! [[ -v DIMENSIONS ]]; then
     DIMENSIONS=("${WIDTH}x${HEIGHT}")
   fi
-  if ! [[ -v ASPECTRATIO ]]; then
-    ASPECTRATIO="$(echo "${vstring}" | sed -n "s/^display_aspect_ratio=\(.*\)$/\1/p")"
-  fi
-  if ! [[ -v SCODEC ]]; then
-    SIDX="$(echo "${sstring}" | sed -n "s/^streams\.stream.\([0-9]\+\)\.disposition.default=1$/\1/p")"
-    SIDX="${SIDX:-0}"
-    SCODEC="$(echo "${sstring}" | sed -n "s/^streams.stream.${SIDX}.codec_name=\"\(.*\)\"$/\1/p")"
-  fi
+  ASPECTRATIO="$(echo "${vstring}" | sed -n "s/^display_aspect_ratio=\(.*\)$/\1/p")"
+  SIDX="$(echo "${sstring}" | sed -n "s/^streams\.stream.\([0-9]\+\)\.disposition.default=1$/\1/p")"
+  SIDX="${SIDX:-0}"
+  SCODEC="$(echo "${sstring}" | sed -n "s/^streams.stream.${SIDX}.codec_name=\"\(.*\)\"$/\1/p")"
 }
 
 function make_image_subs {
