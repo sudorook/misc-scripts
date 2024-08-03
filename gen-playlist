@@ -1,41 +1,59 @@
 #! /usr/bin/env python3
 """
-Generate a list of playlists from all the artists available in the Beets
-database.
+Generate a list of playlists from all the artists available in the Beets database.
 """
 
 import os
 import yaml
 import beets.library
 
-# Load the YAML config file.
-configpath = os.path.expanduser("~/.config/beets/config.yaml")
-with open(configpath, encoding="UTF-8") as f:
-    data = yaml.safe_load(f)
+BEETSCONFIG = "~/.config/beets/config.yaml"
+BEETSDB = "~/.config/beets/library.db"
 
-# Load the Beets library.
-libpath = os.path.expanduser("~/.config/beets/library.db")
-lib = beets.library.Library(libpath)
 
-# Get a list of artists.
-artists = set()
-for album in lib.albums():
-    artists.add(album.albumartist)
-artists = list(artists)
+def generate_playlists():
+    """Generate list of playlists from all albumartists in the Beets database."""
+    # Load the Beets library.
+    libpath = os.path.expanduser(BEETSDB)
+    lib = beets.library.Library(libpath)
 
-# Generate a list of playlists from the artists in the Beets database.
-playlists = []
-playlists.append({"name": "All Songs.m3u", "query": ""})
-playlists.append({"name": "Top Rated.m3u", "query": "rating:5"})
-for artist in artists:
-    playlists.append(
-        {
-            "name": "Best of " + artist + ".m3u",
-            "query": 'albumartist:"' + artist + '" rating:5',
-        }
-    )
+    # Get a list of artists.
+    artists = set()
+    for album in lib.albums():
+        artists.add(album.albumartist)
+    artists = list(artists)
 
-# Write playlists to the beets YAML config file.
-data["smartplaylist"]["playlists"] = playlists
-with open(configpath, "w", encoding="UTF-8") as f:
-    yaml.dump(data, f, default_flow_style=False)
+    # Generate a list of playlists from the artists in the Beets database.
+    playlists = []
+    playlists.append({"name": "All Songs.m3u", "query": ""})
+    playlists.append({"name": "Top Rated.m3u", "query": "rating:5"})
+    for artist in artists:
+        playlists.append(
+            {
+                "name": "Best of " + artist + ".m3u",
+                "query": 'albumartist:"' + artist + '" rating:5',
+            }
+        )
+    return playlists
+
+
+def write_playlists(p):
+    """Write list of playlists to the Beets YAML config file."""
+    # Load the YAML config file.
+    configpath = os.path.expanduser(BEETSCONFIG)
+    with open(configpath, encoding="UTF-8") as f:
+        data = yaml.safe_load(f)
+
+    # Write playlists to the beets YAML config file.
+    data["smartplaylist"]["playlists"] = p
+    with open(configpath, "w", encoding="UTF-8") as f:
+        yaml.dump(data, f, default_flow_style=False)
+
+
+def main():
+    playlists = generate_playlists()
+    write_playlists(playlists)
+
+
+if __name__ == "__main__":
+    main()
