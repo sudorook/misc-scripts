@@ -70,9 +70,8 @@
 | `set-replaygain`   | compute replay gain for directory of audio files                       |
 | `shrink-vm`        | resize a qcow2 image                                                   |
 | `split-cue`        | use a CUE file to split a single large audio file into MP3 components  |
+| `strip-audio`      | use `ffmpeg` to strip metadata from FLAC and MP3 files                 |
 | `strip-metadata`   | remove metadata from MKV and MP4 containers and streams                |
-| `strip-flac`       | use `ffmpeg` to strip metadata from FLAC files                         |
-| `strip-mp3`        | use `ffmpeg` to strip metadata from MP3 files                          |
 | `strip-yaml`       | strip YAML front matter from text file                                 |
 | `swapfile`         | create or destroy swapfile                                             |
 | `swap-symlink`     | switch around a symlink and its reference location                     |
