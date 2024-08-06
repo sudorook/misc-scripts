@@ -164,17 +164,10 @@ function compute_loudnormgain {
   replaygain_album_peak="$(echo "scale=6; e(l(10)*${replaygain_album_peak}/20)" | bc -l | sed 's/^\./0./')"
   replaygain_album_gain="$(echo "scale=2; -18-(${replaygain_album_gain}/1)" | bc -l)"
 
-  if command -v parallel > /dev/null; then
-    find "${@}" \
-      -type f \
-      \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \) -print0 |
-        parallel -0 "tag_track_loudnorm {} ${replaygain_album_gain} ${replaygain_album_peak}"
-  else
-    find "${@}" \
-      -type f \
-      \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \) -exec \
-      sh -c 'tag_track_loudnorm "${1}" '"${replaygain_album_gain} ${replaygain_album_peak}" sh {} \;
-  fi
+  find "${@}" \
+    -type f \
+    \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \) -print0 |
+    xargs -0 -P "$(nproc)" -I{} bash -c 'tag_track_loudnorm "{}" '"${replaygain_album_gain} ${replaygain_album_peak}"
   sync
 }
 
@@ -284,17 +277,10 @@ function compute_ebur128gain {
   replaygain_album_peak="$(echo "scale=6; e(l(10)*${replaygain_album_peak}/20)" | bc -l | sed 's/^\./0./')"
   replaygain_album_gain="$(echo "scale=2; -18-(${replaygain_album_gain}/1)" | bc -l)"
 
-  if command -v parallel > /dev/null; then
-    find "${@}" \
-      -type f \
-      \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \) -print0 |
-        parallel -0 "tag_track_ebur128 {} ${replaygain_album_gain} ${replaygain_album_peak}"
-  else
-    find "${@}" \
-      -type f \
-      \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \) -exec \
-      sh -c 'tag_track_ebur128 "${1}" '"${replaygain_album_gain} ${replaygain_album_peak}" sh {} \;
-  fi
+  find "${@}" \
+    -type f \
+    \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \) -print0 |
+    xargs -0 -P "$(nproc)" -I{} bash -c 'tag_track_ebur128 "{}" '"${replaygain_album_gain} ${replaygain_album_peak}"
   sync
 }
 
