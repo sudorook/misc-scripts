@@ -161,7 +161,11 @@ IN=("${@}")
 export CUTOFF
 
 if "${SHUFFLE}"; then
-  print_list | mpv "${PAUSE:-}" --shuffle --no-audio-display --replaygain="${REPLAYGAIN}" --playlist=-
+  # Don't quote ${PAUSE:-} so that when PAUSE is unset, the expression
+  # evaluates to nothing instead of a file named "".
+  print_list | mpv ${PAUSE:-} --shuffle --no-audio-display --replaygain="${REPLAYGAIN}" --playlist=-
 else
-  print_list | sort -V | mpv "${PAUSE:-}" --no-audio-display --replaygain="${REPLAYGAIN}" --playlist=-
+  # Don't quote ${PAUSE:-} so that when PAUSE is unset, the expression
+  # evaluates to nothing instead of a file named "".
+  print_list | sort -V | mpv ${PAUSE:-} --no-audio-display --replaygain="${REPLAYGAIN}" --playlist=-
 fi
