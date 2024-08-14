@@ -95,11 +95,12 @@ print_list() {
 
 print_usage() {
   show_header "Usage: mpv-play"
-  show_listitem "  -c|--cutoff   <int>     filter out files below cutoff (default: 0)"
-  show_listitem "  -f|--filetype <string>  set extension keep (optional)"
-  show_listitem "  -s|--shuffle            flag shuffle streams (default: false)"
-  show_listitem "  -p|--pause              start mpv as paused (default: false)"
-  show_listitem "  -h|--help               print (this) help message"
+  show_listitem "\
+  -c|--cutoff   <int>     filter out files below cutoff (default: 0)
+  -f|--filetype <string>  set extension keep (optional)
+  -s|--shuffle            flag shuffle streams (default: false)
+  -p|--pause              start mpv as paused (default: false)
+  -h|--help               print (this) help message"
 }
 
 #
