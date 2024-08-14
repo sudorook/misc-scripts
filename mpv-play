@@ -47,14 +47,13 @@ print_list() {
         \( -iname "*.${FILETYPE}" \) -print
     else
       find "${IN[@]}" -type f \
-        \( -iname "*.mp3" \
-           -o -iname "*.opus" \
-           -o -iname "*.wav" \
-           -o -iname "*.flac" \
-           -o -iname "*.aac" \
-           -o -iname "*.alac" \
-           -o -iname "*.mka" \) \
-        -print
+        \( -iname "*.aac" -o \
+           -iname "*.alac" -o \
+           -iname "*.flac" -o \
+           -iname "*.mka" -o \
+           -iname "*.mp3" -o \
+           -iname "*.opus" -o \
+           -iname "*.wav" \) -print
     fi
   else
     if [[ -v FILETYPE ]]; then
