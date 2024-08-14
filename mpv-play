@@ -96,11 +96,12 @@ print_list() {
 print_usage() {
   show_header "Usage: mpv-play"
   show_listitem "\
-  -c|--cutoff   <int>     filter out files below cutoff (default: 0)
-  -f|--filetype <string>  set extension keep (optional)
-  -s|--shuffle            flag shuffle streams (default: false)
-  -p|--pause              start mpv as paused (default: false)
-  -h|--help               print (this) help message"
+  -c|--cutoff   <int>       filter out files below cutoff (default: 0)
+  -f|--filetype <string>    set extension keep (optional)
+  -r|--replaygain <string>  replaygain mode (default: album)
+  -s|--shuffle              flag shuffle streams (default: false)
+  -p|--pause                start mpv as paused (default: false)
+  -h|--help                 print (this) help message"
 }
 
 #
@@ -109,15 +110,14 @@ print_usage() {
 
 CUTOFF=0
 SHUFFLE=false
-REPLAYGAIN=album
 
 #
 # Parse command line variables.
 #
 
-OPTIONS=sf:c:hp
-LONGOPTIONS=shuffle,filetype:,cutoff:,help,pause
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+OPTIONS=sf:c:hpr:
+LONGOPTIONS=shuffle,filetype:,cutoff:,help,pause,replaygain:
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ "${#}" -ge 1 ]; do
@@ -142,6 +142,24 @@ while [ "${#}" -ge 1 ]; do
       PAUSE="--pause"
       shift
       ;;
+    -r | --replaygain)
+      case "${2,,}" in
+        album)
+          REPLAYGAIN=album
+          ;;
+        track)
+          REPLAYGAIN=track
+          ;;
+        no | none | off)
+          REPLAYGAIN=no
+          ;;
+        *)
+          show_error "ERROR: replaygain options are 'track', 'album', and 'no'. See man mpv."
+          exit 3
+          ;;
+      esac
+      shift 2
+      ;;
     --)
       shift
       break
@@ -164,9 +182,9 @@ export CUTOFF
 if "${SHUFFLE}"; then
   # Don't quote ${PAUSE:-} so that when PAUSE is unset, the expression
   # evaluates to nothing instead of a file named "".
-  print_list | mpv ${PAUSE:-} --shuffle --no-audio-display --replaygain="${REPLAYGAIN}" --playlist=-
+  print_list | mpv ${PAUSE:-} --shuffle --no-audio-display --replaygain="${REPLAYGAIN:-album}" --playlist=-
 else
   # Don't quote ${PAUSE:-} so that when PAUSE is unset, the expression
   # evaluates to nothing instead of a file named "".
-  print_list | sort -V | mpv ${PAUSE:-} --no-audio-display --replaygain="${REPLAYGAIN}" --playlist=-
+  print_list | sort -V | mpv ${PAUSE:-} --no-audio-display --replaygain="${REPLAYGAIN:-album}" --playlist=-
 fi
