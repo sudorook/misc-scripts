@@ -19,6 +19,7 @@
 | `delete-swp`       | clear sw[a-p] files in directory (Vim backups)                         |
 | `drop-caches`      | clear system cache                                                     |
 | `dump-streams`     | copy container streams into one file each                              |
+| `embed-script`     | combine executable script and source dependencies into one file        |
 | `encfs-decrypt`    | mount and decrypt an EncFS-encrypted directory                         |
 | `encfs-encrypt`    | (re)encrypt directory with EncFS                                       |
 | `epub-convert`     | `ebook-convert` wrapper to convert azw3 and mobi files to ePub         |

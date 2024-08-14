@@ -1,0 +1,101 @@
+#! /bin/bash
+set -Eeuo pipefail
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+function make_single_file {
+  local contents
+  contents="$(tar -cz -O "${SOURCES[@]}" | base64 -w 0)"
+  cat << EOF
+#! /bin/bash
+set -eu
+TMP="\$(mktemp -d)"
+trap 'rm -rf "\${TMP}"; exit' INT TERM ERR EXIT
+cd "\${TMP}"
+tar -m -xzf <(base64 -d <<< ${contents})
+./${CMD}
+EOF
+}
+
+function generate_output_name {
+  local in
+  local name
+  local ext
+
+  in="$(basename "${CMD}")"
+  name="${in%.*}"
+  ext="${in##*.}"
+
+  if [ -n "${ext}" ] && [[ "${name}" != "${ext}" ]]; then
+    echo "${name}_single_file.${ext}"
+  else
+    echo "${in}_single_file"
+  fi
+}
+
+#
+# Globals
+#
+
+SOURCES=()
+
+#
+# Main
+#
+
+OPTIONS=c:ho:s:
+LONGOPTIONS=command:,help,output:source:
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
+    -c | --command)
+      CMD="${2}"
+      shift 2
+      ;;
+    -o | --output)
+      OUTFILE="${2}"
+      shift 2
+      ;;
+    -s | --source)
+      if [ -e "${2}" ]; then
+        SOURCES+=("${2}")
+      else
+        shwo_error "ERROR: ${2@Q} does not exist. Exiting."
+        exit 3
+      fi
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR: Invalid flag ${1@Q}."
+      exit 3
+      ;;
+  esac
+done
+
+if ! [[ -v CMD ]]; then
+  show_error "ERROR: Input ${CMD@Q} not specified. Exiting."
+  exit 3
+elif ! [ -f "${CMD}" ]; then
+  show_error "ERROR: Input ${CMD@Q} not found. Exiting."
+  exit 3
+fi
+
+if [ "${#SOURCES[@]}" -eq 0 ]; then
+  show_warning "Input is already a single file. What's the point?"
+  exit
+else
+  SOURCES+=("${CMD}")
+fi
+
+OUTFILE="${OUTFILE:-"$(generate_output_name)"}"
+
+make_single_file > "${OUTFILE}"
+chmod +x "${OUTFILE}"
