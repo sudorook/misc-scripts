@@ -7,13 +7,16 @@ source "${ROOT}"/globals
 
 function print_usage {
   show_header "Usage: get-webseries"
-  show_listitem "  -a|--audio_only   extract audio (mp3) from files"
-  show_listitem "  -d|--destination  location for output directory"
-  show_listitem "  -n|--name         name of output directory"
-  show_listitem "  -u|--url          playlist URL"
-  show_listitem "  -r|--resolution   video resolution (e.g. 1080p)"
-  show_listitem "  -s|--start        playlist index number to start downloading"
-  show_listitem "  -h|--help         print (this) help message"
+  show_listitem "\
+  -a|--after          filter release dates after
+  -a|--before         filter release dates before
+  -d|--destination    location for output directory
+  -n|--name           name of output directory
+  -r|--resolution     video resolution (e.g. 1080p)
+  -s|--start          playlist index number to start downloading
+  -u|--url            playlist URL
+  -x|--extract_sudio  extract audio (mp3) from files
+  -h|--help           print (this) help message"
 }
 
 YTDL=yt-dlp
@@ -21,16 +24,20 @@ VIDEODIR="${videodir:-"$(pwd)"}"
 
 ! check_command "${YTDL}" && exit 3
 
-OPTIONS=ad:hn:r:s:u:
+OPTIONS=a:b:d:hn:r:s:u:x
 LONGOPTIONS=audio_only,destination:,help,name:,resolution:,start:,url:
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
   case "${1}" in
-    -a | --audio_only)
-      EXTRACTAUDIO=true
-      shift
+    -a | --after)
+      DATEAFTER="${2}"
+      shift 2
+      ;;
+    -b | --before)
+      DATEBEFORE="${2}"
+      shift 2
       ;;
     -d | --destination)
       VIDEODIR="${2}"
@@ -44,10 +51,6 @@ while [ ${#} -ge 1 ]; do
       NAME="${2}"
       shift 2
       ;;
-    -u | --url)
-      URL="${2}"
-      shift 2
-      ;;
     -r | --resolution)
       RESOLUTION="${2/[pi]/}"
       shift 2
@@ -55,6 +58,14 @@ while [ ${#} -ge 1 ]; do
     -s | --start)
       START="${2}"
       shift 2
+      ;;
+    -u | --url)
+      URL="${2}"
+      shift 2
+      ;;
+    -x | --extract_audio)
+      EXTRACTAUDIO=true
+      shift
       ;;
     --)
       shift
@@ -105,6 +116,8 @@ cd "${VIDEODIR}"
   --embed-chapters \
   --prefer-free-formats \
   --trim-filenames 200 \
+  ${DATEBEFORE:+--datebefore "${DATEBEFORE}"} \
+  ${DATEAFTER:+--dateafter "${DATEAFTER}"} \
   ${EXTRACTAUDIO:+--extract-audio --audio-format mp3} \
   ${START:+--playlist-start "${START}"} \
   --download-archive "${NAME:+${NAME}/}".archive.txt \
