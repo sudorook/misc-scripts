@@ -8,8 +8,8 @@ source "${ROOT}"/globals
 function print_usage {
   show_header "Usage: get-webseries"
   show_listitem "\
-  -a|--after          filter release dates after
-  -a|--before         filter release dates before
+  -a|--after          only get files from after given date
+  -b|--before         only get files from before given date
   -d|--destination    location for output directory
   -n|--name           name of output directory
   -r|--resolution     video resolution (e.g. 1080p)
