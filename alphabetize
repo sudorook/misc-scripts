@@ -7,16 +7,19 @@ source "${ROOT}"/globals
 
 function print_usage {
   show_header "Usage: alphabetize"
-  show_listitem "  -b|--backup  (optional) save the original file"
-  show_listitem "  -h|--help    print (this) error message"
+  show_listitem "\
+  -b|--backup   back up the original file (default: false)
+  -r|--reverse  reverse output (default: false)
+  -h|--help     print (this) error message"
 }
 
-OPTIONS=bh
-LONGOPTIONS=backup,help
+OPTIONS=bhr
+LONGOPTIONS=backup,help,reverse
 PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 ISBACKUP=false
+REVERSE=false
 while [ ${#} -ge 1 ]; do
   case "${1}" in
     -b | --backup)
@@ -26,6 +29,10 @@ while [ ${#} -ge 1 ]; do
     -h | --help)
       print_usage
       exit
+      ;;
+    -r | --reverse)
+      REVERSE=true
+      shift
       ;;
     --)
       shift
@@ -47,7 +54,11 @@ if [ -t 0 ]; then
   TMP="$(mktemp)"
   trap 'rm -f "${TMP}"; exit' INT TERM ERR EXIT
 
-  sort -f -u "${1}" > "${TMP}"
+  if "${REVERSE}"; then
+    sort -f -u -r "${1}" > "${TMP}"
+  else
+    sort -f -u "${1}" > "${TMP}"
+  fi
 
   if "${ISBACKUP}"; then
     mv "${1}" "${1}.bak"
@@ -55,5 +66,9 @@ if [ -t 0 ]; then
 
   mv "${TMP}" "${1}"
 else
-  cat | sort -f -u
+  if "${REVERSE}"; then
+    cat | sort -f -u -r
+  else
+    cat | sort -f -u
+  fi
 fi
