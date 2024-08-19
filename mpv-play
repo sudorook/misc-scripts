@@ -75,13 +75,13 @@ print_list() {
 }
 
 print_usage() {
-  show_header "Usage: mpv-play"
+  show_header "Usage: mpv-play <path/to/file(s)>"
   show_listitem "\
-  -c|--cutoff   <int>       filter out files below cutoff (default: 0)
-  -f|--filetype <string>    set extension keep (optional)
+  -c|--cutoff     <int>     exclude files shorter than cutoff in sec. (default: 0)
+  -f|--filetype   <string>  file extension to play
   -r|--replaygain <string>  replaygain mode (default: album)
-  -s|--shuffle              flag shuffle streams (default: false)
-  -p|--pause                start mpv as paused (default: false)
+  -s|--shuffle              flag to shuffle playlist (default: false)
+  -p|--pause                pause mpv at start (default: false)
   -h|--help                 print (this) help message"
 }
 
