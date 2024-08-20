@@ -74,9 +74,6 @@ done
 if ! [[ -v CMD ]]; then
   show_error "ERROR: Input ${CMD@Q} not specified. Exiting."
   exit 3
-elif ! [ -f "${CMD}" ]; then
-  show_error "ERROR: Input ${CMD@Q} not found. Exiting."
-  exit 3
 fi
 
 SOURCES=("${@}")
@@ -84,7 +81,17 @@ if [ "${#SOURCES[@]}" -eq 0 ]; then
   show_warning "Input is already a single file. What's the point?"
   exit
 else
-  SOURCES+=("${CMD}")
+  if [ -f "${CMD}" ]; then
+    SOURCES+=("${CMD}")
+    if [[ "${CMD:0:2}" != "./" ]]; then
+      CMD="./${CMD}"
+    fi
+  # Don't quote variable expansion. Otherwise command will interpret the entire
+  # string as the identity of a single executable.
+  elif ! command -v ${CMD} > /dev/null 2>&1; then
+    show_error "ERROR: No file or command ${CMD@Q} found. Exiting."
+    exit 3
+  fi
 fi
 
 OUTFILE="${OUTFILE:-"$(generate_output_name)"}"
