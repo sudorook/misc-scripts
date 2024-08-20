@@ -15,7 +15,7 @@ TMP="\$(mktemp -d)"
 trap 'rm -rf "\${TMP}"; exit' INT TERM ERR EXIT
 cd "\${TMP}"
 tar -m -xzf <(base64 -d <<< ${contents})
-./${CMD}
+${CMD}
 EOF
 }
 
@@ -45,8 +45,8 @@ SOURCES=()
 # Main
 #
 
-OPTIONS=c:ho:s:
-LONGOPTIONS=command:,help,output:source:
+OPTIONS=c:ho:
+LONGOPTIONS=command:,help,output:
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -58,15 +58,6 @@ while [ ${#} -ge 1 ]; do
       ;;
     -o | --output)
       OUTFILE="${2}"
-      shift 2
-      ;;
-    -s | --source)
-      if [ -e "${2}" ]; then
-        SOURCES+=("${2}")
-      else
-        shwo_error "ERROR: ${2@Q} does not exist. Exiting."
-        exit 3
-      fi
       shift 2
       ;;
     --)
@@ -88,6 +79,7 @@ elif ! [ -f "${CMD}" ]; then
   exit 3
 fi
 
+SOURCES=("${@}")
 if [ "${#SOURCES[@]}" -eq 0 ]; then
   show_warning "Input is already a single file. What's the point?"
   exit
