@@ -24,7 +24,7 @@ function set_swap_on {
   # Create swapfile if it doesn't exist.
   if ! [ -f "${SWAPFILE}" ]; then
     show_info "Creating ${SWAPFILE@Q}"
-    dd if=/dev/zero of="${SWAPFILE}" bs=1M count=16384 status=progress
+    dd if=/dev/zero of="${SWAPFILE}" bs=1M count="${SWAPSIZE}" status=progress
     sync
   fi
 
@@ -72,15 +72,51 @@ function set_swap_off {
 }
 
 function print_usage {
-  show_header "Usage: swapfile <on|off>"
+  show_header "Usage: swapfile <on|off> ..."
+  show_listitem "\
+    -f|--file  path for swap file (default: /swapfile)
+    -s|--size  size of swap file in Mb (default: 8192)
+    -h|--help  print (this) help message"
 }
+
+
+OPTIONS=f:hs
+LONGOPTIONS=file:,help,size:
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
+    -f | --file)
+      SWAPFILE="${2}"
+      shift 2
+      ;;
+    -h | --help)
+      print_usage
+      exit
+      ;;
+    -s | --size)
+      SWAPSIZE="${2}"
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR: invalid option."
+      exit 3
+      ;;
+  esac
+done
 
 if ! [ "${#}" -eq 1 ]; then
   show_error "ERROR: Incorrect # of parameters. Exiting."
   exit 3
 fi
 
-SWAPFILE=/swapfile
+SWAPFILE="${SWAPFILE:-/swapfile}"
+SWAPSIZE="${SWAPSIZE:-8192}"
 
 case "${1}" in
   on)
@@ -97,7 +133,7 @@ case "${1}" in
       sudo bash -c "SWAPFILE=${SWAPFILE}; source ${ROOT}/globals; $(declare -f set_swap_off); set_swap_off"
     fi
     ;;
-  help | --help | -h)
+  help)
     print_usage
     exit
     ;;
