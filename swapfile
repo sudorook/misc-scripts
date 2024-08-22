@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command blkid grep swapon && exit 3
+! check_command blkid grep mkswap swapoff swapon && exit 3
 
 function set_swap_on {
   # First, make sure that SWAPFILE is defined.
