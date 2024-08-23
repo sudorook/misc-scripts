@@ -414,18 +414,19 @@ function check_compat {
 
 function print_usage {
   show_header "Usage: reencode"
-  echo "  -i|--input          input video"
-  echo "  -a|--acodec         audio codec (copy, aac, opus, or mp3)"
-  echo "  -A|--astream_id     select index of one audio stream to encode"
-  echo "  -b|--bitrate_audio  set global audio output bitrate"
-  echo "  -v|--vcodec         video codec (h264 or h265)"
-  echo "  -V|--vstream_id     select index of one video stream to encode"
-  echo "  -r|--crf            set constant rate factor for video encoding"
-  echo "  -p|--crop           use ffcropdetect to crop video"
-  echo "  -n|--nodefault      set no subtitles to be shown by default"
-  echo "  -d|--dimensions     output dimensions (e.g. 1920x, 1280x720, etc.)"
-  echo "  -c|--container      container format (matroska or mp4)"
-  echo "  -e|--extra          extra ffmpeg cli string"
+  show_listitem "\
+  -i|--input          input video
+  -a|--acodec         audio codec (copy, aac, opus, or mp3)
+  -A|--astream_id     select index of one audio stream to encode
+  -b|--bitrate_audio  set global audio output bitrate
+  -v|--vcodec         video codec (h264 or h265)
+  -V|--vstream_id     select index of one video stream to encode
+  -r|--crf            set constant rate factor for video encoding
+  -p|--crop           use ffcropdetect to crop video
+  -n|--nodefault      set no subtitles to be shown by default
+  -d|--dimensions     output dimensions (e.g. 1920x, 1280x720, etc.)
+  -c|--container      container format (matroska or mp4)
+  -e|--extra          extra ffmpeg cli string"
 }
 
 function parse_container {
