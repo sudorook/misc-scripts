@@ -464,10 +464,10 @@ function parse_container {
 
 function parse_vcodec {
   case "${1}" in
-    h264 | x264 | libx264 | h.264 | x.264)
+    h264 | x264 | libx264 | h.264 | x.264 | avc)
       OUT_VCODEC=libx264
       ;;
-    h265 | x265 | libx265 | h.265 | x.265)
+    h265 | x265 | libx265 | h.265 | x.265 | hevc)
       OUT_VCODEC=libx265
       ;;
     copy)
