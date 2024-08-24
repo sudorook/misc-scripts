@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command ffmpeg ffprobe bc awk && exit 3
+! check_command awk bc ffmpeg ffprobe sed && exit 3
 
 #
 # Globals
