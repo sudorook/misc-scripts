@@ -59,7 +59,12 @@ function convert_codec {
     cmd="${cmd} -map 0:v:${VSTREAM_ID:-?}"
 
     if "${CROP}"; then
-      cmd="${cmd} -vf '$(compute_crop_filter "${in}")'"
+      local _tmp
+      if _tmp="$(compute_crop_filter "${in}")"; then
+        cmd="${cmd} -vf '${_tmp}')'"
+      else
+        show_warning "WARNING: No croppable regions detected."
+      fi
     fi
 
     # set video codec
@@ -524,9 +529,13 @@ function fill_dimensions {
 
 function compute_crop_filter {
   local cropfilter
-  cropfilter="$(ffmpeg -i file:"${1}" -vf 'cropdetect=24:2:0' -f null - 2>&1 |
-                awk '/crop=/{print $NF}' | tail -1)"
-  echo "${cropfilter}"
+  cropfilter="$(ffmpeg -i file:"${1}" -vf 'cropdetect=24:2:0' -f null - 2>&1 | awk '/crop=/{print $NF}' | tail -1)"
+  if [[ "$(echo "${cropfilter}" | cut -d":" -f3)" -eq 0 ]] &&
+    [[ "$(echo "${cropfilter}" | cut -d":" -f3)" -eq 0 ]]; then
+    return 1
+  else
+    echo "${cropfilter}"
+  fi
 }
 
 #
