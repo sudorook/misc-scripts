@@ -634,16 +634,14 @@ if ! [[ -f "${IN}" ]]; then
   exit 3
 fi
 
-if ! [[ -v CRF ]]; then
-  case "${OUT_VCODEC}" in
-    libx264)
-      CRF=18 # ffmpeg default is 23 if unspecified
-      ;;
-    libx265)
-      CRF=23 # ffmpeg default is 28 if unspecified
-      ;;
-  esac
-fi
+case "${OUT_VCODEC}" in
+  libx264)
+    CRF="${CRF:-18}" # ffmpeg default is 23
+    ;;
+  libx265)
+    CRF="${CRF:-23}" # ffmpeg default is 28
+    ;;
+esac
 
 fill_dimensions # must be called after scan_input has run
 check_compat    # check whether output codecs and compatible
