@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command awk bc ffmpeg ffprobe sed && exit 3
+! check_command bc ffmpeg ffprobe sed && exit 3
 
 #
 # Globals
@@ -529,7 +529,7 @@ function fill_dimensions {
 
 function compute_crop_filter {
   local cropfilter
-  cropfilter="$(ffmpeg -i file:"${1}" -vf 'cropdetect=24:2:0' -f null - 2>&1 | awk '/crop=/{print $NF}' | tail -1)"
+  cropfilter="$(ffmpeg -i file:"${1}" -vf 'cropdetect=24:2:0' -f null - 2>&1 | tail -n 3 | head -1 | cut -d" " -f15)"
   if [[ "$(echo "${cropfilter}" | cut -d":" -f3)" -eq 0 ]] &&
     [[ "$(echo "${cropfilter}" | cut -d":" -f3)" -eq 0 ]]; then
     return 1
