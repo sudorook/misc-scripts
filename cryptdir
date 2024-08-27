@@ -195,7 +195,7 @@ CRYPTTOOL=cryfs
 
 OPTIONS=d:e:s:h
 LONGOPTIONS=decrypt_dir:,encrypt_dir:,crypt_std:,help
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ "${#}" -ge 1 ]; do

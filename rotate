@@ -515,7 +515,7 @@ PANEL_OFFSET=40  # height (in pixels) of the panel
 
 OPTIONS=i:r:hc
 LONGOPTIONS=input:,rotation:,help,center
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do

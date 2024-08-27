@@ -328,7 +328,7 @@ GAIN=ebur128
 
 OPTIONS=khg:
 LONGOPTIONS=keep,help,gain:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ "${#}" -ge 1 ]; do

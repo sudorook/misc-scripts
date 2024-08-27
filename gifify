@@ -196,7 +196,7 @@ trap 'rm -f ${TMP}; exit' INT TERM ERR EXIT
 
 OPTIONS=hi:o:s:e:l:d:t:p:
 LONGOPTIONS=help,input:,output:,start:,end:,length:,resolution:,subtitle:,fps:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do

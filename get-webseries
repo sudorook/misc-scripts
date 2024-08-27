@@ -26,7 +26,7 @@ VIDEODIR="${videodir:-"$(pwd)"}"
 
 OPTIONS=a:b:d:hn:r:s:u:x
 LONGOPTIONS=audio_only,destination:,help,name:,resolution:,start:,url:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do

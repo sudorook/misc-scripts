@@ -83,7 +83,7 @@ EOF
 
 OPTIONS=n:e:s:r:o:t:hg
 LONGOPTIONS=name:,email:,schedule:,range:,roffset:,timezone:,help,global
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 MODE=local

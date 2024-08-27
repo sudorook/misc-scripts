@@ -73,7 +73,7 @@ START=0.0
 
 OPTIONS=i:o:s:e:l:t:
 LONGOPTIONS=input:,output:,start:,end:,length:,subtitle:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do

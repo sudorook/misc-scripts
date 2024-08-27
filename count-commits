@@ -179,7 +179,7 @@ EMAIL=
 
 OPTIONS=ha:d:e:s:u:
 LONGOPTIONS=help,author:,depth:,email:,since:,until:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do

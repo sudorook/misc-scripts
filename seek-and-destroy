@@ -112,7 +112,7 @@ function print_usage {
 
 OPTIONS="hps"
 LONGOPTIONS=help,precise,sloppy
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 MODE=
 

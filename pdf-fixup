@@ -231,7 +231,7 @@ NORMALIZE=false
 
 OPTIONS=e:hkno:s:
 LONGOPTIONS=end:,help,keep,normalize,output:,start:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do

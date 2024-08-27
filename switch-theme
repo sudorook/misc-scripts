@@ -416,7 +416,7 @@ print_usage() {
 
 OPTIONS=t:hi:
 LONGOPTIONS=theme:,help,icon:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 get_gnome_terminal_profiles

@@ -539,7 +539,7 @@ function backup_files {
 
 OPTIONS=c:fl:n
 LONGOPTIONS=container:,force,language:,nodefault
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 FORCE=false

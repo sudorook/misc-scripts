@@ -122,7 +122,7 @@ CONTAINER=
 
 OPTIONS=i:d:fc:
 LONGOPTIONS=input:,font_dir:,force,container:
-PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "${0}" -- "${@}")
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
 while [ ${#} -ge 1 ]; do
