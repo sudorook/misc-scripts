@@ -182,42 +182,6 @@ function pin_and_sync {
 
 function open {
   local file="${1}"
-  local file_ext="${file##*.}"
-
-  case "${file_ext,,}" in
-    epub | mobi | azw3)
-      if check_command ebook-viewer; then
-        ebook-viewer --detach "${file}"
-      else
-        show_warning "'ebook-viewer' (from calibre) not installed. Skipping ${file@Q}."
-      fi
-      ;;
-    pdf | djvu)
-      local pdf_app
-      local pdf_apps=(okulars evince)
-      for pdf_app in "${pdf_apps[@]}"; do
-        if check_command "${pdf_app}"; then
-          ("${pdf_app}" "${file}" > /dev/null 2>&1 &)
-          return
-        fi
-      done
-      show_warning "PDF reader not found. Skipping ${file@Q}."
-      ;;
-    html)
-      if [[ -v BROWSER ]]; then
-        ("${BROWSER}" "${file}" > /dev/null 2>&1 &)
-      else
-        show_warning "\$BROWSER not set. Skipping ${file@Q}."
-      fi
-      ;;
-    *)
-      show_warning "${file_ext@Q} files are not supported. Skipping ${file@Q}."
-      ;;
-  esac
-}
-
-function open_v2 {
-  local file="${1}"
   local ftype
   local app
   if check_command xdg-open xdg-mime; then
@@ -300,9 +264,7 @@ while read -r FILE; do
     if "${PIN}"; then
       pin_and_sync "${FILE}"
     else
-      if ! open_v2 "${FILE}"; then
-        open "${FILE}"
-      fi
+      open "${FILE}"
     fi
   fi
 done <<< "$(pick_file)"
