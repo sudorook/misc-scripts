@@ -213,10 +213,6 @@ done
 export FORCE
 export LANGUAGE
 
-if [ ${#} -eq 1 ] && [ -f "${1}" ]; then
-  format_wrapper "${1}"
-else
-  find "${@:-.}" \
-    \( -name ".git" -o -path "*/.*" \) -prune , -type f -print0 |
-    xargs -0 -P "$(nproc)" -I{} bash -c 'format_wrapper "{}"'
-fi
+find "${@:-.}" \
+  \( -name ".git" -o -path "*/.*" \) -prune , -type f -print0 |
+  xargs -0 -P "$(nproc)" -I{} bash -c 'format_wrapper "{}"'
