@@ -216,13 +216,7 @@ export LANGUAGE
 if [ ${#} -eq 1 ] && [ -f "${1}" ]; then
   format_wrapper "${1}"
 else
-  if check_command parallel; then
-    find "${@:-.}" \
-      \( -name ".git" -o -path "*/.*" \) -prune , -type f \
-      -print0 | parallel -0 format_wrapper "{}"
-  else
-    find "${@:-.}" \
-      \( -name ".git" -o -path "*/.*" \) -prune , -type f \
-      -exec bash -c 'format_wrapper "${1}"' bash {} \;
-  fi
+  find "${@:-.}" \
+    \( -name ".git" -o -path "*/.*" \) -prune , -type f -print0 |
+    xargs -0 -P "$(nproc)" -I{} bash -c 'format_wrapper "{}"'
 fi
