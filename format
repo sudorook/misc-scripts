@@ -213,6 +213,5 @@ done
 export FORCE
 export LANGUAGE
 
-find "${@:-.}" \
-  \( -name ".git" -o -path "*/.*" \) -prune , -type f -print0 |
+find "${@:-.}" \( -name ".git" -o -path "*/.*" \) -prune , -type f -print0 |
   xargs -0 -P "$(nproc)" -I{} bash -c 'format_wrapper "{}"'
