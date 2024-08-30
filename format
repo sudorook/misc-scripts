@@ -12,7 +12,7 @@ function format_c() {
   local tmp
   tmp="$(mktemp)"
   trap 'rm -f "${tmp}"' INT ERR TERM
-  if [ -f "${HOME}/.clang-format" ]; then
+  if [ -f "${HOME}/.clang-format" ] || [ -f .clang-format ]; then
     clang-format "${1}" > "${tmp}"
   else
     clang-format -style=mozilla "${1}" > "${tmp}"
