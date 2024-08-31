@@ -7,6 +7,10 @@ source "${ROOT}"/globals
 
 ! check_command cmp jq sed && exit 3
 
+#
+# Functions
+#
+
 function delete_directory() {
   local dir="${1}"
   local dir_owner
@@ -95,6 +99,10 @@ function delete_json_section() {
     fi
   fi
 }
+
+#
+# Main
+#
 
 # KDE Clipboard
 if check_command qdbus 2> /dev/null; then
