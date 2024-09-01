@@ -366,15 +366,9 @@ function scan_input {
                 -show_entries stream=codec_type,channels,channel_layout,bit_rate \
                 -of compact=nokey=1 file:${IN@Q}")"
 
-  if ! [[ -v OUT_VCODEC ]]; then
-    OUT_VCODEC=copy
-  fi
-  if ! [[ -v OUT_ACODEC ]]; then
-    OUT_ACODEC=copy
-  fi
-  if ! [[ -v OUT_SCODEC ]]; then
-    OUT_SCODEC=copy
-  fi
+  OUT_VCODEC="${OUT_VCODEC:-copy}"
+  OUT_ACODEC="${OUT_ACODEC:-copy}"
+  OUT_SCODEC="${OUT_SCODEC:-copy}"
 
   # use first video stream to get display properties
   for idx in $(seq 0 $((${#IN_VSTREAM_CODEC_NAME[@]} - 1))); do
