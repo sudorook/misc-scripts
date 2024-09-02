@@ -525,7 +525,7 @@ function compute_crop_filter {
   local cropfilter
   cropfilter="$(ffmpeg -i file:"${1}" -vf 'cropdetect=24:2:0' -f null - 2>&1 | tail -n 3 | head -1 | cut -d" " -f15)"
   if [[ "$(echo "${cropfilter}" | cut -d":" -f3)" -eq 0 ]] &&
-    [[ "$(echo "${cropfilter}" | cut -d":" -f3)" -eq 0 ]]; then
+     [[ "$(echo "${cropfilter}" | cut -d":" -f4)" -eq 0 ]]; then
     return 1
   else
     echo "${cropfilter}"
