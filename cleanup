@@ -141,11 +141,13 @@ if check_command bleachbit 2> /dev/null; then
 fi
 
 # Anki backups
-while read -r DIR; do
-  delete_directory \
-    "${DIR}" \
-    "Clearing Anki ${DIR@Q}."
-done < <(find "${HOME}/.local/share/Anki2" -type d -name backups)
+if [ -d "${HOME}/.local/share/Anki2" ]; then
+  while read -r DIR; do
+    delete_directory \
+      "${DIR}" \
+      "Clearing Anki ${DIR@Q}."
+  done < <(find "${HOME}/.local/share/Anki2" -type d -name backups)
+fi
 
 # Ark history
 if [ -f "${HOME}"/.local/share/ark/ark_recentfiles ]; then
