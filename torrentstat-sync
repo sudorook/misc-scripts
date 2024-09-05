@@ -65,4 +65,4 @@ if __name__ == "__main__":
     )
 
     write_qbittorrent_stats("qBittorrent/qBittorrent-data", QBITTORRENT_STATS)
-    write_transmission_stats(TRANSMISSION_STAT_FILE, QBITTORRENT_STATS)
+    write_transmission_stats(TRANSMISSION_STAT_FILE, TRANSMISSION_STATS)
