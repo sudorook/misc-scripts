@@ -425,7 +425,8 @@ function print_usage {
   -n|--nodefault      set no subtitles to be shown by default
   -d|--dimensions     output dimensions (e.g. 1920x, 1280x720, etc.)
   -c|--container      container format (matroska or mp4)
-  -e|--extra          extra ffmpeg cli string"
+  -e|--extra          extra ffmpeg cli string
+  -h|--help           print (this) help message"
 }
 
 function parse_container {
