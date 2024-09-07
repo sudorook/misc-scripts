@@ -46,7 +46,6 @@ print_usage() {
 # Globals
 #
 
-SHUFFLE=false
 REMOTE=
 USER=
 PORT=22
@@ -132,7 +131,7 @@ if [ -n "${QUERY}" ]; then
   fi
 fi
 
-if "${SHUFFLE}"; then
+if "${SHUFFLE:-false}"; then
   print_list | shuf | head -n "${NUM:--0}" | make_filename |
     mpv --playlist=- --load-unsafe-playlists --prefetch-playlist=yes
 else
