@@ -14,13 +14,13 @@ source "${ROOT}"/globals
 print_list() {
   ssh \
     "${USER:+${USER}@}${REMOTE}" \
-    'find '"${DIR@Q}/"' -type f \( -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.m4v" -o -iname "*.avi" -o -iname "*.ogg" \)'
+    'find '"${DIR@Q}"' -type f \( -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.m4v" -o -iname "*.avi" -o -iname "*.ogg" \)'
 }
 
-print_fuzzy_dir() {
+print_fuzzy_search() {
   ssh \
     "${USER:+${USER}@}${REMOTE}" \
-    'find '"${DIR@Q}"' -type d' | fzf --algo=v2 --filter="${QUERY}" | head -n 1
+    'find '"${DIR@Q}" | fzf --algo=v2 --scheme=path --filter="${QUERY}" | head -n 1
 }
 
 make_filename() {
@@ -125,7 +125,7 @@ if ! [[ -v DIR ]] || [ -z "${DIR}" ]; then
 fi
 
 if [ -n "${QUERY}" ]; then
-  DIR="$(print_fuzzy_dir || true)"
+  DIR="$(print_fuzzy_search || true)"
   if [ -z "${DIR}" ]; then
     show_error "ERROR: Failed to find search directory. Exiting."
     exit 3
