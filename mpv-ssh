@@ -119,7 +119,7 @@ if [ -z "${REMOTE}" ]; then
   exit 3
 fi
 
-if [ -z "${DIR}" ]; then
+if ! [[ -v DIR ]] || [ -z "${DIR}" ]; then
   show_error "ERROR: No path specified. Exiting."
   exit 3
 fi
