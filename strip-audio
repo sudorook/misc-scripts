@@ -51,6 +51,11 @@ export -f do_strip_mp3
 
 show_header "Stripping ${*@Q}..."
 
+if [ $# -eq 0 ]; then
+  show_error "ERROR: No path(s) provided. Exiting."
+  exit 3
+fi
+
 find "${@}" -type f -iname "*.flac" -print0 |
   xargs -0 -I{} -P "$(nproc)" bash -c 'do_strip_flac "{}"'
 
