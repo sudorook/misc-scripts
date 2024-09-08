@@ -5,7 +5,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command find fzf mpv ssh sftp && exit 3
+! check_command find fzf mpv sftp ssh && exit 3
 
 #
 # Functions
@@ -58,7 +58,7 @@ QUERY=
 # Parse command line variables.
 #
 
-OPTIONS="d:shn:q:r:u:"
+OPTIONS=d:shn:q:r:u:
 LONGOPTIONS=dir:,shuffle,help,num:,query:,remote:,user:
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
