@@ -146,7 +146,7 @@ if [ -d "${HOME}/.local/share/Anki2" ]; then
     delete_directory \
       "${DIR}" \
       "Clearing Anki ${DIR@Q}."
-  done < <(find "${HOME}/.local/share/Anki2" -type d -name backups)
+  done < <(find "${HOME}/.local/share/Anki2" -type d \( -name backups -o -name media.trash \))
 fi
 
 # Ark history
