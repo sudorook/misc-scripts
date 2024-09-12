@@ -110,6 +110,11 @@ if check_command qdbus 2> /dev/null; then
     show_info "Clearing Klipper history."
     qdbus org.kde.klipper /klipper org.kde.klipper.klipper.clearClipboardHistory
   fi
+elif check_command qdbus6 2> /dev/null; then
+  if qdbus6 > /dev/null 2>&1; then
+    show_info "Clearing Klipper history."
+    qdbus6 org.kde.klipper /klipper org.kde.klipper.klipper.clearClipboardHistory
+  fi
 fi
 
 # Nvim state
