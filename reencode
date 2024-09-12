@@ -122,6 +122,9 @@ function convert_codec {
           cmd="${cmd} -c:a libfdk_aac -vbr 5"
         fi
         ;;
+      libflac | flac)
+        cmd="${cmd} -c:a flac"
+        ;;
       libmp3lame | mp3lame | mp3)
         if [[ -v OUT_ABITRATE ]]; then
           cmd="${cmd} -c:a libmp3lame -b:a ${OUT_ABITRATE}"
@@ -485,6 +488,9 @@ function parse_acodec {
     libfdk_aac | aac)
       # this only works for ffmpeg manually compiled with libfdk_aac
       OUT_ACODEC=libfdk_aac
+      ;;
+    libflac | flac)
+      OUT_ACODEC=flac
       ;;
     libmp3lame | mp3lame | mp3)
       OUT_ACODEC=libmp3lame
