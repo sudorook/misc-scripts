@@ -45,13 +45,13 @@ function set_audio_bitrate {
 function convert_codec {
   local in="${BACKUP}"
   local out
-  local cmd
+  local cmd=ffmpeg
   local idx
 
-  cmd="ffmpeg${PROBESIZE:+ -probesize ${PROBESIZE}}"
+  cmd="${cmd}${PROBESIZE:+ -probesize ${PROBESIZE}}"
   cmd="${cmd}${ANALYZEDURATION:+ -analyzeduration ${ANALYZEDURATION}}"
   cmd="${cmd} -v info -i file:${in@Q} -map_chapters 0 -map_metadata 0"
-  if [[ "${NO_DEFAULT_SUBS}" = true ]]; then
+  if "${NO_DEFAULT_SUBS}"; then
     cmd="${cmd} -default_mode infer_no_subs -disposition:s -default"
   fi
 
@@ -153,7 +153,7 @@ function convert_codec {
               cmd="${cmd} -b:a:${idx} $(set_audio_bitrate \
                                           "${in}" \
                                           "${IN_ASTREAM_CHANNEL_COUNT[${idx}]}" \
-                                          "${IN_ASTREAM_BITRATE[$idx]}")"
+                                          "${IN_ASTREAM_BITRATE[${idx}]}")"
               if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${idx}]}" = "5.1(side)" ]]; then
                 show_warning "WARNING: converting layout from 5.1(side) to 5.1."
                 cmd="${cmd} -channel_layout:a:${idx} 5.1"
