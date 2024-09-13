@@ -69,6 +69,10 @@ function convert_codec {
 
     # set video codec
     if [ -n "${VSTREAM_ID}" ]; then
+      if [[ "${IN_VSTREAM_CODEC_NAME[${VSTREAM_ID}]}" =~ jpeg|jpg|png ]]; then
+        show_error "ERROR: JPEG/PNG stream ${VSTREAM_ID} cannot be reencoded as video. Exiting."
+        exit 3
+      fi
       case "${OUT_VCODEC}" in
         h264 | x264 | libx264 | h.264 | x.264)
           cmd="${cmd} -c:v:${VSTREAM_ID} libx264 -x264-params crf=${CRF} -preset slow"
