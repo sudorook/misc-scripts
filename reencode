@@ -131,11 +131,7 @@ function convert_codec {
         cmd="${cmd} -c:a flac"
         ;;
       libmp3lame | mp3lame | mp3)
-        if [[ -v OUT_ABITRATE ]]; then
-          cmd="${cmd} -c:a libmp3lame -b:a ${OUT_ABITRATE}"
-        else
-          cmd="${cmd} -c:a libmp3lame -b:a 320k"
-        fi
+        cmd="${cmd} -c:a libmp3lame -b:a ${OUT_ABITRATE:-320k}"
         ;;
       libopus | opus)
         if [[ -v OUT_ABITRATE ]]; then
@@ -275,9 +271,7 @@ function convert_codec {
       ;;
   esac
 
-  if [[ -n "${EXTRA}" ]]; then
-    cmd="${cmd} ${EXTRA}"
-  fi
+  cmd="${cmd}${EXTRA:+ "${EXTRA}"}"
 
   # add output
   cmd="${cmd} file:${out@Q}"
@@ -550,7 +544,6 @@ function compute_crop_filter {
 
 ASTREAM_ID=
 VSTREAM_ID=
-EXTRA=
 
 OPTIONS=i:e:a:A:b:v:V:r:c:d:hnp
 LONGOPTIONS=input:,extra:,acodec:,asteam_id:,bitrate:,vcodec:,vstream_id:,crf:,dimensions:,container:,help,nodefault,crop
