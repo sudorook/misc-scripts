@@ -107,6 +107,7 @@ function convert_codec {
               ;;
           esac
         else
+          show_warning "WARNING: JPEG/PNG stream ${idx} cannot be reencoded as video. Skipping."
           cmd="${cmd} -c:v:${idx} copy"
         fi
       done
