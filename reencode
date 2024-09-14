@@ -55,6 +55,14 @@ function convert_codec {
     cmd="${cmd} -default_mode infer_no_subs -disposition:s -default"
   fi
 
+  if [[ -v START ]] && [[ -n "${START}" ]]; then
+    cmd="${cmd} -ss ${START}"
+  fi
+
+  if [[ -v DURATION ]] && [[ -n "${DURATION}" ]]; then
+    cmd="${cmd} -t ${DURATION}"
+  fi
+
   if ! [[ "${VSTREAM_ID}" = "-1" ]]; then
     cmd="${cmd} -map 0:v:${VSTREAM_ID:-?}"
 
@@ -427,6 +435,8 @@ function print_usage {
   -n|--nodefault      set no subtitles to be shown by default
   -d|--dimensions     output dimensions (e.g. 1920x, 1280x720, etc.)
   -c|--container      container format (matroska or mp4)
+  -s|--start          (optional) starting timestamp for reencoding
+  -t|--duration       (optional) duration for output video
   -e|--extra          extra ffmpeg cli string
   -h|--help           print (this) help message"
 }
@@ -545,8 +555,8 @@ function compute_crop_filter {
 ASTREAM_ID=
 VSTREAM_ID=
 
-OPTIONS=i:e:a:A:b:v:V:r:c:d:hnp
-LONGOPTIONS=input:,extra:,acodec:,asteam_id:,bitrate:,vcodec:,vstream_id:,crf:,dimensions:,container:,help,nodefault,crop
+OPTIONS=i:e:a:A:b:v:V:r:c:d:s:t:hnp
+LONGOPTIONS=input:,extra:,acodec:,asteam_id:,bitrate:,vcodec:,vstream_id:,crf:,dimensions:,container:,start:,duration:,help,nodefault,crop
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 while [ ${#} -ge 1 ]; do
@@ -597,6 +607,14 @@ while [ ${#} -ge 1 ]; do
       ;;
     -c | --container)
       parse_container "${2}"
+      shift 2
+      ;;
+    -s | --start)
+      START="${2}"
+      shift 2
+      ;;
+    -t | --duration)
+      DURATION="${2}"
       shift 2
       ;;
     -p | --crop)
