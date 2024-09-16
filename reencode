@@ -394,9 +394,9 @@ function scan_input {
 
 function check_compat {
   case "${OUT_CONTAINER}" in
-    avi | AVI)
+    avi)
       case "${OUT_VCODEC}" in
-        h264 | x264 | libx264 | h.264 | x.264 | h265 | x265 | libx265 | h.265 | x.265)
+        libx264 | libx265)
           show_error "ERROR: ${OUT_CONTAINER} and ${OUT_VCODEC} incompatible."
           exit 3
           ;;
