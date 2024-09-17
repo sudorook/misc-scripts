@@ -47,7 +47,6 @@ print_usage() {
 #
 
 REMOTE=
-SSH_USER=root
 PORT=22
 # PROTOCOL=sftp
 DIR=
