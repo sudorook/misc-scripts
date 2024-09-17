@@ -84,7 +84,7 @@ if ! [[ -v URL ]]; then
 fi
 RESOLUTION="${RESOLUTION:-720}"
 
-case "${RESOLUTION}" in
+case "${RESOLUTION,,}" in
   480p | 480i | 480)
     HEIGHT=500
     WIDTH=900
