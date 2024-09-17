@@ -25,7 +25,7 @@ VIDEODIR="${videodir:-"$(pwd)"}"
 ! check_command "${YTDL}" && exit 3
 
 OPTIONS=a:b:d:hn:r:s:u:x
-LONGOPTIONS=audio_only,destination:,help,name:,resolution:,start:,url:
+LONGOPTIONS=after:,before:,destination:,help,name:,resolution:,start:,url:,extract_audio
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
