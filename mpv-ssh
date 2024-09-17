@@ -108,11 +108,6 @@ done
 # Main
 #
 
-if [ -z "${USER}" ]; then
-  show_error "ERROR: SSH user not specified. Exiting."
-  exit 3
-fi
-
 if [ -z "${REMOTE}" ]; then
   show_error "ERROR: No remote IP address given. Exiting."
   exit 3
