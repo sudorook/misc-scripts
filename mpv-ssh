@@ -26,7 +26,7 @@ print_fuzzy_search() {
 make_filename() {
   local file
   while read -r file; do
-    echo sftp://"${SSH_USER}@${REMOTE}:${PORT}/${file}" || exit 3
+    echo sftp://"${SSH_USER}@${REMOTE}:${PORT:-22}/${file}" || exit 3
   done <<< "$(< /dev/stdin)"
 }
 
@@ -47,11 +47,7 @@ print_usage() {
 #
 
 REMOTE=
-PORT=22
-# PROTOCOL=sftp
 DIR=
-NUM=
-QUERY=
 
 #
 # Parse command line variables.
@@ -117,7 +113,7 @@ if ! [[ -v DIR ]] || [ -z "${DIR}" ]; then
   exit 3
 fi
 
-if [ -n "${QUERY}" ]; then
+if [[ -v QUERY ]] && [ -n "${QUERY}" ]; then
   DIR="$(print_fuzzy_search || true)"
   if [ -z "${DIR}" ]; then
     show_error "ERROR: Failed to find search directory. Exiting."
