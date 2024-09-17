@@ -13,20 +13,20 @@ source "${ROOT}"/globals
 
 print_list() {
   ssh \
-    "${USER:+${USER}@}${REMOTE}" \
+    "${SSH_USER:+${SSH_USER}@}${REMOTE}" \
     'find '"${DIR@Q}"' -type f \( -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.m4v" -o -iname "*.avi" -o -iname "*.ogg" \)'
 }
 
 print_fuzzy_search() {
   ssh \
-    "${USER:+${USER}@}${REMOTE}" \
+    "${SSH_USER:+${SSH_USER}@}${REMOTE}" \
     'find '"${DIR@Q}" | fzf --algo=v2 --scheme=path --filter="${QUERY}" | head -n 1
 }
 
 make_filename() {
   local file
   while read -r file; do
-    echo sftp://"${USER}@${REMOTE}:${PORT}/${file}" || exit 3
+    echo sftp://"${SSH_USER}@${REMOTE}:${PORT}/${file}" || exit 3
   done <<< "$(< /dev/stdin)"
 }
 
@@ -47,7 +47,7 @@ print_usage() {
 #
 
 REMOTE=
-USER=
+SSH_USER=root
 PORT=22
 # PROTOCOL=sftp
 DIR=
@@ -86,7 +86,7 @@ while [ ${#} -ge 1 ]; do
       shift 2
       ;;
     -u | --user)
-      USER="${2}"
+      SSH_USER="${2}"
       shift 2
       ;;
     -r | --remote)
