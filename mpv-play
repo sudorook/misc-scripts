@@ -96,8 +96,8 @@ SHUFFLE=false
 # Parse command line variables.
 #
 
-OPTIONS=sf:c:hpr:
-LONGOPTIONS=shuffle,filetype:,cutoff:,help,pause,replaygain:
+OPTIONS=sf:lc:hpr:
+LONGOPTIONS=shuffle,filetype:,loop,cutoff:,help,pause,replaygain:
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -113,6 +113,10 @@ while [ "${#}" -ge 1 ]; do
       ;;
     -s | --shuffle)
       SHUFFLE=true
+      shift
+      ;;
+    -l | --loop)
+      LOOP=true
       shift
       ;;
     -h | --help)
@@ -163,9 +167,9 @@ export CUTOFF
 if "${SHUFFLE}"; then
   # Don't quote ${PAUSE:-} so that when PAUSE is unset, the expression
   # evaluates to nothing instead of a file named "".
-  print_list | mpv ${PAUSE:-} --shuffle --no-audio-display --replaygain="${REPLAYGAIN:-album}" --playlist=-
+  print_list | mpv ${LOOP:+--loop-playlist} ${PAUSE:-} --shuffle --no-audio-display --replaygain="${REPLAYGAIN:-album}" --playlist=-
 else
   # Don't quote ${PAUSE:-} so that when PAUSE is unset, the expression
   # evaluates to nothing instead of a file named "".
-  print_list | sort -V | mpv ${PAUSE:-} --no-audio-display --replaygain="${REPLAYGAIN:-album}" --playlist=-
+  print_list | sort -V | mpv ${LOOP:+--loop-playlist} ${PAUSE:-} --no-audio-display --replaygain="${REPLAYGAIN:-album}" --playlist=-
 fi
