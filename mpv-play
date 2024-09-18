@@ -78,6 +78,7 @@ print_usage() {
   show_header "Usage: mpv-play <path/to/file(s)>"
   show_listitem "\
   -c|--cutoff     <int>     exclude files shorter than cutoff in sec. (default: 0)
+  -l|--loop                 loop playlist infinitely (default: false)
   -f|--filetype   <string>  file extension to play
   -r|--replaygain <string>  replaygain mode (default: album)
   -s|--shuffle              flag to shuffle playlist (default: false)
