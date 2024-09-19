@@ -130,17 +130,17 @@ while [ "${#}" -ge 1 ]; do
       ;;
     -r | --replaygain)
       case "${2,,}" in
-        album)
+        album | a)
           REPLAYGAIN=album
           ;;
-        track)
+        track | t)
           REPLAYGAIN=track
           ;;
         no | none | off)
           REPLAYGAIN=no
           ;;
         *)
-          show_error "ERROR: replaygain options are 'track', 'album', and 'no'. See man mpv."
+          show_error "ERROR: ReplayGain options are 'track', 'album', and 'no'. See \`man mpv\`."
           exit 3
           ;;
       esac
