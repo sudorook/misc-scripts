@@ -67,7 +67,7 @@ while [ ${#} -ge 1 ]; do
           Z="zip"
           ;;
         *)
-          show_warning "WARNING: ${2@Q} not understood. Defaulting to ${Z@Q}"
+          show_warning "WARNING: ${2@Q} not understood. Defaulting to ${Z@Q}."
           ;;
       esac
       shift 2
