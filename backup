@@ -54,27 +54,35 @@ function sync_home() {
 # Backup VMS to Backups 1 and 2
 function sync_vms() {
   show_info "Syncing VMs in ${HOME@Q} to ${backup1@Q}."
-  mkdir -p "${backup1}/Images/KVM"
-  mkdir -p "${backup1}/Images/VirtualBox"
-  sudo bash << EOF
-if [[ -n "${kvmdir}" ]] && [[ -d "${kvmdir}" ]]; then
-  rsync -Pradog --sparse "${kvmdir}/" "${backup1}/Images/KVM/"
-fi
-if [[ -n "${vboxdir}" ]] && [[ -d "${vboxdir}" ]]; then
-  rsync -Pradog "${vboxdir}/" "${backup1}/Images/VirtualBox/"
-fi
-EOF
+  local cmd
+  if [[ -n "${kvmdir}" ]] && [[ -d "${kvmdir}" ]]; then
+    mkdir -p "${backup1}/Images/KVM"
+    cmd="${cmd:+${cmd} && }rsync -Pradog --sparse ${kvmdir}/ ${backup1}/Images/KVM/"
+  fi
+  if [[ -n "${vboxdir}" ]] && [[ -d "${vboxdir}" ]]; then
+    mkdir -p "${backup1}/Images/VirtualBox"
+    cmd="${cmd:+${cmd} && }rsync -Pradog ${vboxdir}/ ${backup1}/Images/VirtualBox/"
+  fi
+  if [ -n "${cmd}" ]; then
+    sudo bash -c "${cmd}"
+  fi
   sync
   show_success "Done." && echo
 
   if [ -d "${backup2}" ]; then
     show_info "Syncing VMs in ${backup1@Q} to ${backup2@Q}."
-    mkdir -p "${backup2}/Images/KVM"
-    mkdir -p "${backup2}/Images/VirtualBox"
-    sudo bash << EOF
-rsync -Pradog --sparse "${backup1}/Images/KVM/" "${backup2}/Images/KVM/"
-rsync -Pradog "${backup1}/Images/VirtualBox/" "${backup2}/Images/VirtualBox/"
-EOF
+    cmd=
+    if [[ -d "${backup1}/Images/KVM" ]]; then
+      mkdir -p "${backup2}/Images/KVM"
+      cmd="${cmd:+${cmd} && }rsync -Pradog --sparse ${backup1}/Images/KVM/ ${backup2}/Images/KVM/"
+    fi
+    if [[ -d "${backup1}/Images/VirtualBox" ]]; then
+      mkdir -p "${backup2}/Images/VirtualBox"
+      cmd="${cmd:+${cmd} && }rsync -Pradog ${backup1}/Images/VirtualBox/ ${backup2}/Images/VirtualBox/"
+    fi
+    if [ -n "${cmd}" ]; then
+      sudo bash -c "${cmd}"
+    fi
     sync
     show_success "Done." && echo
   fi
