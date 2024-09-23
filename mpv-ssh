@@ -14,7 +14,16 @@ source "${ROOT}"/globals
 print_list() {
   ssh \
     "${SSH_USER:+${SSH_USER}@}${REMOTE}" \
-    'find '"${DIR@Q}"' -type f \( -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.m4v" -o -iname "*.avi" -o -iname "*.ogg" \)'
+    'find '"${DIR@Q}"' -type f \( \
+      -iname "*.avi" -o \
+      -iname "*.m4v" -o \
+      -iname "*.mkv" -o \
+      -iname "*.mov" -o \
+      -iname "*.mp4" -o \
+      -iname "*.ogg" -o \
+      -iname "*.ts" -o \
+      -iname "*.webm" -o \
+      -iname "*.wmv" \)'
 }
 
 print_fuzzy_search() {
