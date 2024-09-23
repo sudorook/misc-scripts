@@ -35,7 +35,7 @@ print_fuzzy_search() {
 make_filename() {
   local file
   while read -r file; do
-    echo sftp://"${SSH_USER}@${REMOTE}:${PORT:-22}/${file}" || exit 3
+    echo sftp://"${SSH_USER:+${SSH_USER}@}${REMOTE}:${PORT:-22}/${file}" || exit 3
   done <<< "$(< /dev/stdin)"
 }
 
