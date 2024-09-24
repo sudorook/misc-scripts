@@ -65,7 +65,7 @@ set_aliases() {
 
 print_usage() {
   show_header "Usage:"
-  cat << EOF
+  show_listitem "\
   -n  --name          author name
   -e  --email         author email
   -s  --schedule      schedule (workday, random, or none)
@@ -73,8 +73,7 @@ print_usage() {
   -o  --roffset       random schedule offset (e.g. '3 days', '1 week')
   -t  --timezone      time zone (e.g. 'America/Toronto')
   -g  --global        flag to write settings globally
-  -h  --help          print (this) help message
-EOF
+  -h  --help          print (this) help message"
 }
 
 #
