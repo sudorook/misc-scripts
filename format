@@ -81,6 +81,12 @@ function format_shellscript() {
 }
 export -f format_shellscript
 
+function format_tex() {
+  ! check_command latexindent && exit 3
+  latexindent -wd "${1}"
+}
+export -f format_tex
+
 function format_wrapper() {
   local lang
   local mime
@@ -148,6 +154,9 @@ function format_wrapper() {
       format_rust "${1}"
       ;;
     shellscript)
+      format_shellscript "${1}"
+      ;;
+    tex)
       format_shellscript "${1}"
       ;;
     *)
