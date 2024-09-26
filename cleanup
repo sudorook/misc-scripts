@@ -164,6 +164,11 @@ files\size=0'
   fi
 fi
 
+# CMake caches.
+delete_directory \
+  "${HOME}/.cmake" \
+  "Deleting CMake cache."
+
 # KFileDialog history
 delete_config_section \
   "${HOME}/.config/xdg-desktop-portal-kderc" \
