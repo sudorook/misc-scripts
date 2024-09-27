@@ -45,6 +45,19 @@ function do_strip_mp3 {
 }
 export -f do_strip_mp3
 
+function strip_wrapper {
+  local ext="${1##*.}"
+  case "${ext,,}" in
+    flac)
+      do_strip_flac "${1}"
+      ;;
+    mp3)
+      do_strip_mp3 "${1}"
+      ;;
+  esac
+}
+export -f strip_wrapper
+
 #
 # Main
 #
@@ -56,10 +69,7 @@ if [ $# -eq 0 ]; then
   exit 3
 fi
 
-find "${@}" -type f -iname "*.flac" -print0 |
-  xargs -0 -I{} -P "$(nproc)" bash -c 'do_strip_flac "{}"'
-
-find "${@}" -type f -iname "*.mp3" -print0 |
-  xargs -0 -I{} -P "$(nproc)" bash -c 'do_strip_mp3 "{}"'
+find "${@}" -type f \( -iname "*.flac" -o -iname "*.mp3" \) -print0 |
+  xargs -0 -I{} -P "$(nproc)" bash -c 'strip_wrapper "{}"'
 
 sync
