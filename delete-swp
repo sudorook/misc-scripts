@@ -7,5 +7,4 @@ source "${ROOT}"/globals
 
 ! check_command find && exit 3
 
-find "${@:-.}" -type f \( -name '*.sw[a-p]' -o -name '*.bak' -o -name '*~' \) \
-  -exec rm -rvf -- '{}' +
+find "${@:-.}" -type f \( -name '*.sw[a-p]' -o -name '*.bak' -o -name '*~' \) -delete
