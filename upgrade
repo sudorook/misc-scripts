@@ -407,11 +407,15 @@ function upgrade_R() {
   show_header "Upgrading R packages."
   if check_command Rscript; then
     if [[ -v R_LIBS_USER ]]; then
-      Rscript -e \
-        "update.packages(ask=FALSE,
-                         checkBuilt=TRUE,
-                         lib=\"${R_LIBS_USER}\",
-                         repos='https://cloud.r-project.org/')"
+      Rscript <(
+        cat << EOF
+update.packages(ask = FALSE,
+                checkBuilt = TRUE,
+                clean = TRUE,
+                lib = "${R_LIBS_USER}",
+                repos = 'https://cloud.r-project.org/')
+EOF
+      )
     else
       show_warning "R_LIBS_USER is not set. Skipping."
     fi
