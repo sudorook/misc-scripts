@@ -113,6 +113,12 @@ else
   TEMPLATESTRING='%(channel)s'
 fi
 
+if "${EXTRACTAUDIO}"; then
+  FORMATSTRING="bestaudio/best"
+else
+  FORMATSTRING="bestvideo[vcodec!~='vp0?9'][ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best"
+fi
+
 "${YTDL}" "${URL}" \
   --embed-thumbnail \
   --embed-subs \
@@ -124,10 +130,10 @@ fi
   --trim-filenames 200 \
   ${DATEBEFORE:+--datebefore "${DATEBEFORE}"} \
   ${DATEAFTER:+--dateafter "${DATEAFTER}"} \
-  ${EXTRACTAUDIO:+--extract-audio --audio-format mp3} \
+  ${EXTRACTAUDIO:+--extract-audio} \
   ${START:+--playlist-start "${START}"} \
   --download-archive "${NAME:+${NAME}/}".archive.txt \
-  -f "bestvideo[vcodec!~='vp0?9'][ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best" \
+  -f "${FORMATSTRING}" \
   -o "${NAME:-"${TEMPLATESTRING}"}/%(release_date,upload_date)d %(title)s [%(id)s].%(ext)s" \
   --ignore-errors \
   --ignore-config
