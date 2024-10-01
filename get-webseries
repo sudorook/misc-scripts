@@ -15,7 +15,7 @@ function print_usage {
   -r|--resolution     video resolution (e.g. 1080p)
   -s|--start          playlist index number to start downloading
   -u|--url            playlist URL
-  -x|--extract_sudio  extract audio (mp3) from files
+  -x|--extract_audio  extract audio (mp3) from files
   -h|--help           print (this) help message"
 }
 
