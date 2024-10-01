@@ -113,7 +113,7 @@ else
   TEMPLATESTRING='%(channel)s'
 fi
 
-if "${EXTRACTAUDIO}"; then
+if "${EXTRACTAUDIO:-false}"; then
   FORMATSTRING="bestaudio/best"
 else
   FORMATSTRING="bestvideo[vcodec!~='vp0?9'][ext=mp4][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=m4a]/bestvideo[ext=webm][width<${WIDTH}][height<=${HEIGHT}]+bestaudio[ext=webm]/bestvideo[width<${WIDTH}][height<=${HEIGHT}]+bestaudio/best[width<${WIDTH}][height<=${HEIGHT}]/best"
