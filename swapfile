@@ -98,7 +98,7 @@ function print_usage {
 }
 
 
-OPTIONS=f:hs
+OPTIONS=f:hs:
 LONGOPTIONS=file:,help,size:
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
@@ -115,7 +115,7 @@ while [ ${#} -ge 1 ]; do
       ;;
     -s | --size)
       SWAPSIZE="${2}"
-      exit
+      shift 2
       ;;
     --)
       shift
