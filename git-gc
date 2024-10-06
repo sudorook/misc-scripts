@@ -33,9 +33,9 @@ fi
 
 pushd "${DIR}" > /dev/null
 
-git reflog expire --expire=now --expire-unreachable=now --rewrite --all
+git reflog expire --expire=now --expire-unreachable=now --rewrite --stale-fix --all
 git gc --prune=now --aggressive
-git submodule foreach git reflog expire --expire=now --expire-unreachable=now --rewrite --all
+git submodule foreach git reflog expire --expire=now --expire-unreachable=now --rewrite --stale-fix --all
 git submodule foreach git gc --prune=now --aggressive
 git fsck
 
