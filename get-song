@@ -29,11 +29,12 @@ YTDL=yt-dlp
 
 function print_usage {
   show_header "Usage: get-song"
-  show_listitem "  -t|--title   <song title>"
-  show_listitem "  -a|--artist  <name of band / recording artist / etc>"
-  show_listitem "  -u|--url     <url for download>"
-  show_listitem "  -f|--format  <audio format (e.g. mp3, opus)>"
-  show_listitem "  -h|--help    print (this) help message"
+  show_listitem "\
+  -t|--title   <song title>
+  -a|--artist  <name of band / recording artist / etc>
+  -u|--url     <url for download>
+  -f|--format  <audio format (e.g. mp3, opus)>
+  -h|--help    print (this) help message"
 }
 
 OPTIONS=t:a:u:f:h
