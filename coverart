@@ -27,9 +27,12 @@ source "${ROOT}"/globals
 
 function print_usage() {
   show_header "Usage: coverart"
-  show_listitem "  coverart add -i|--input <audio file> -c|--cover <image>"
-  show_listitem "  coverart  rm -i|--input <audio file>"
-  show_listitem "Pass '-k' to keep original file."
+  show_listitem "\
+
+  coverart add -i|--input <audio file> -c|--cover <image>
+  coverart  rm -i|--input <audio file>
+
+Pass '-k' to keep a backup of the original file."
 }
 
 function get_format() {
