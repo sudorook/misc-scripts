@@ -249,7 +249,6 @@ while [ ${#} -ge 1 ]; do
           ;;
       esac
       shift 2
-      break
       ;;
     -h | --help)
       print_usage
