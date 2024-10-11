@@ -105,31 +105,36 @@ function make_archivename() {
 # to be found in ${ARCHIVEDIR} (see globals). Uses pigz (parallelized gzip
 # compression) if available.
 function compress_archive() {
+  local exclude_dir
+  local exclude_str="--exclude='*sw[a-p]' --exclude='*~'"
+  for exclude_dir in "${EXCLUDEDIRS[@]}"; do
+    exclude_str="${exclude_str} --exclude=${exclude_dir@Q}"
+  done
   mkdir -p "${ARCHIVEDIR}"
   case "${Z}" in
     7z)
       if check_command 7z tar; then
         show_warning "WARNING: 7z does not support uid/gid metadata, so using tar first."
-        eval "tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}" |
+        eval "tar cf - ${exclude_str} ${2}" |
           7z a -si "${ARCHIVEDIR}/${1}.tar.7z"
       fi
       ;;
     gz)
       ! check_command tar && return
       if command -v pigz > /dev/null 2>&1; then
-        eval "tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}" |
+        eval "tar cf - ${exclude_str} ${2}" |
           pigz > "${ARCHIVEDIR}/${1}.tar.gz"
       else
-        eval "tar czf ${ARCHIVEDIR}/${1}.tar.gz --exclude='*.sw[a-p]' --exclude='*~' ${2}"
+        eval "tar czf ${ARCHIVEDIR}/${1}.tar.gz ${exclude_str} ${2}"
       fi
       ;;
     xz)
       ! check_command tar && return
       if command -v pixz > /dev/null 2>&1; then
-        eval "tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}" |
+        eval "tar cf - ${exclude_str} ${2}" |
           pixz > "${ARCHIVEDIR}/${1}.tar.xz"
       else
-        eval "tar czf ${ARCHIVEDIR}/${1}.tar.xz --exclude='*.sw[a-p]' --exclude='*~' ${2}"
+        eval "tar czf ${ARCHIVEDIR}/${1}.tar.xz ${exclude_str} ${2}"
       fi
       ;;
     zip)
@@ -148,8 +153,7 @@ function compress_archive() {
             tmp+=("${item}")
           fi
         done
-        zip -q -r "${ARCHIVEDIR}/${1}.zip" "${tmp[@]}" \
-          --exclude='*.sw[a-p]' --exclude='*~'
+        eval "zip -q -r ${ARCHIVEDIR}/${1}.zip ${tmp[*]} ${exclude_str}"
         if [ ${#delete[@]} -gt 0 ]; then
           rm "${delete[@]}"
         fi
@@ -157,7 +161,7 @@ function compress_archive() {
       ;;
     zstd)
       if check_command pzstd tar; then
-        eval "tar cf - --exclude='*.sw[a-p]' --exclude='*~' ${2}" |
+        eval "tar cf - ${exclude_str} ${2}" |
           pzstd > "${ARCHIVEDIR}/${1}.tar.zst"
       fi
       ;;
@@ -214,8 +218,8 @@ fi
 
 Z=zstd
 
-OPTIONS=d:z:h
-LONGOPTIONS=dir:compress:,help
+OPTIONS=d:e:z:h
+LONGOPTIONS=dir:exclude_dir:compress:,help
 
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
@@ -224,6 +228,10 @@ while [ ${#} -ge 1 ]; do
   case "${1}" in
     -d | --dir)
       ARCHIVEDIR="${2}"
+      shift 2
+      ;;
+    -e | --exclude_dir)
+      EXCLUDEDIRS+=("${2}")
       shift 2
       ;;
     -z | --compress)
