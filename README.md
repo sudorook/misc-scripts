@@ -82,6 +82,7 @@
 | `wget-mirror`      | `wget` wrapper to create local mirror of website                       |
 | `whattodo`         | find all to-do lists and print them in the terminal                    |
 | `write-entry`      | write a entry into your log                                            |
+| `wsl-browser-open` | open a file in WSL using the default host web browser                  |
 
 ## Globals
 

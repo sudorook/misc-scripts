@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+! check_command grep realpath sed wslpath && exit 3
+
+if sed -n "/\[interop\]/,/^\s*$/p" /etc/wsl.conf | grep -q "^enabled\ *=\ false"; then
+  show_warning "This script requires Windows interop to be enabled in /etc/wsl.conf."
+  exit
+fi
+
+case "${BROWSER}" in
+  firefox)
+    BROWSER_PATH="/mnt/c/Program Files/Mozilla Firefox/firefox.exe"
+    ;;
+  chrome)
+    BROWSER_PATH="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
+    ;;
+  *)
+    show_error "${BROWSER@Q} not supported by this script. Exiting."
+    exit 3
+    ;;
+esac
+
+if ! [ -f "${BROWSER_PATH}" ]; then
+  show_error "${BROWSER@Q} not found in host. Exiting."
+  exit 3
+fi
+
+"${BROWSER_PATH}" "$(wslpath -w "$(realpath "${1}")")"
