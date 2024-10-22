@@ -313,7 +313,7 @@ function upgrade_nvim_packages() {
 }
 
 function upgrade_zsh() {
-  show_header "Upgrading zsh plugins."
+  show_header "Upgrading Zsh plugins."
   local dir
   if check_command zsh; then
     # antigen-update may not be in the bash PATH, so check the zsh path if
@@ -332,7 +332,7 @@ function upgrade_zsh() {
           fi
         done
       else
-        show_warning "No zsh plugins found in ${zshdir@Q}. Skipping."
+        show_warning "No Zsh plugins found in ${zshdir@Q}. Skipping."
         echo
       fi
     fi
