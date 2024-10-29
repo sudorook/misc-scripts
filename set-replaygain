@@ -329,12 +329,10 @@ function check_inputs {
 
 function print_usage {
   show_header "Usage: set-replaygain <file(s) or director(ies)>"
-  show_listitem \
-    "  -k|--keep   flag to keep original files/directories (default: false)"
-  show_listitem \
-    "  -g|--gain   loudness scanner (bs1770gain, r128gain, loudnorm, or *ebur128*)"
-  show_listitem \
-    "  -h|--help   print (this) help message"
+  show_listitem "\
+-k|--keep   flag to keep original files/directories (default: false)
+-g|--gain   loudness scanner (bs1770gain, r128gain, loudnorm, or *ebur128*)
+-h|--help   print (this) help message"
 }
 
 #
