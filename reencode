@@ -87,7 +87,7 @@ function convert_codec {
     if "${CROP}"; then
       local _tmp
       if _tmp="$(compute_crop_filter "${in}")"; then
-        cmd="${cmd} -vf '${_tmp}')'"
+        cmd="${cmd} -vf '${_tmp}'"
       else
         show_warning "WARNING: No croppable regions detected."
       fi
