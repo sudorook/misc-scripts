@@ -89,8 +89,8 @@ function scan_track_loudnorm {
   local peak
   local i
 
-  data="$(ffmpeg -v info -nostdin -nostats -hide_banner -i file:"${1}" \
-    -map a -af loudnorm=print_format=json -f null - 2>&1 | sed -n "/{/,\$p")"
+  data="$(ffmpeg -v info -nostdin -nostats -hide_banner -i file:"${1}" -af loudnorm=print_format=json -f null - 2>&1 |
+          sed -n '/^{/,/}$/p')"
 
   peak="$(echo "${data}" | jq -r ".input_tp")"
   i="$(echo "${data}" | jq -r ".input_i")"
@@ -112,7 +112,7 @@ function scan_album_loudnorm {
     cmd="${cmd} -i file:${file@Q}"
     count=$((count + 1))
   done <<< "$(find "${@}" -type f \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \))"
-  cmd="${cmd} -map a -filter_complex 'concat=n=${count}:v=0:a=1,loudnorm=print_format=json[o]' -map '[o]' -f null - 2>&1 | sed -n '/{/,\$p'"
+  cmd="${cmd} -filter_complex 'concat=n=${count}:v=0:a=1,loudnorm=print_format=json' -f null - 2>&1 | sed -n '/^{/,/}$/p'"
   data="$(eval "${cmd}")"
 
   peak="$(echo "${data}" | jq -r ".input_tp")"
@@ -199,8 +199,7 @@ function scan_track_ebur128 {
   local peak
   local i
 
-  data="$(ffmpeg -v info -nostdin -nostats -hide_banner -i file:"${1}" \
-    -map a -af ebur128=peak=true -f null - 2>&1)"
+  data="$(ffmpeg -v info -nostdin -nostats -hide_banner -i file:"${1}" -af ebur128=peak=true -f null - 2>&1)"
 
   peak="$(echo "${data}" |
     tail -n 14 |
@@ -226,7 +225,7 @@ function scan_album_ebur128 {
     cmd="${cmd} -i file:${file@Q}"
     count=$((count + 1))
   done <<< "$(find "${@}" -type f \( -iname "*.mp3" -o -iname "*.flac" -o -iname "*.opus" -o -iname "*.aac" \))"
-  cmd="${cmd} -map a -filter_complex 'concat=n=${count}:v=0:a=1,ebur128=peak=true[o]' -map '[o]' -f null - 2>&1"
+  cmd="${cmd} -filter_complex 'concat=n=${count}:v=0:a=1,ebur128=peak=true' -f null - 2>&1"
   data="$(eval "${cmd}")"
 
   peak="$(echo "${data}" |
