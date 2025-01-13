@@ -48,7 +48,7 @@ def generate_playlists():
     for artist in artists:
         playlists.append(
             {
-                "name": "Best of " + artist + ".m3u",
+                "name": "Best of " + artist.replace('/', '_') + ".m3u",
                 "query": 'albumartist:"' + artist + '" rating:5',
             }
         )
