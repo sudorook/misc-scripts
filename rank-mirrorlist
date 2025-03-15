@@ -25,7 +25,7 @@ source "${ROOT}"/globals
 
 ! check_command rankmirrors sed && exit 3
 
-MIRRORLIST=/etc/pacman.d/mirrorlist
+MIRRORLIST="${1:-/etc/pacman.d/mirrorlist}"
 
 if [ -f "${MIRRORLIST}" ]; then
   rankmirrors - < <(sed -n "s,^#\?\(Server = .*\),\1,p" "${MIRRORLIST}" | sort -u)
