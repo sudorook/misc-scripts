@@ -9,7 +9,7 @@ source "${ROOT}"/globals
 
 if sed -n "/\[interop\]/,/^\s*$/p" /etc/wsl.conf | grep -q "^enabled\ *=\ false"; then
   show_warning "This script requires Windows interop to be enabled in /etc/wsl.conf."
-  exit
+  exit 3
 fi
 
 case "${BROWSER}" in
