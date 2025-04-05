@@ -245,6 +245,11 @@ delete_directory \
   "${HOME}/.local/state/mpv/watch_later" \
   "Clearing mpv history."
 
+# ollama history
+delete_file \
+  "${HOME}/.ollama/history" \
+  "Clearing ollama history"
+
 # less history
 delete_file \
   "${HOME}/.local/state/lesshst" \
