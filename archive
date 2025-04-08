@@ -106,7 +106,7 @@ function make_archivename() {
 # compression) if available.
 function compress_archive() {
   local exclude_dir
-  local exclude_str="--exclude='*sw[a-p]' --exclude='*~'"
+  local exclude_str="--exclude='*.sw[a-p]' --exclude='*~'"
   for exclude_dir in "${EXCLUDEDIRS[@]}"; do
     exclude_str="${exclude_str} --exclude=${exclude_dir@Q}"
   done
