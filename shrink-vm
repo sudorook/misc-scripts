@@ -67,6 +67,7 @@ if ! [ -f "${QCOW2}" ]; then
 fi
 
 OWNER="$(stat "${QCOW2}" -c "%U")"
+GROUP="$(stat "${QCOW2}" -c "%G")"
 
 #
 # Main
@@ -76,15 +77,15 @@ trap 'abort ${QCOW2}' INT TERM ERR
 
 OLD_SIZE=$(du -h "${QCOW2}" | cut -f1)
 
-case "${OWNER}" in
-  "${USER}")
+case "${OWNER}:${GROUP}" in
+  "${USER}:${USER}")
     do_shrink "${QCOW2}"
     ;;
-  root | qemu | libvirt-qemu)
+  root:* | qemu:* | libvirt-qemu:*)
     show_info "${QCOW2@Q} owned by ${OWNER@Q}. Trying sudo..."
     sudo bash -c "${FUNCTION} && do_shrink ${QCOW2}"
     ;;
-  nobody | kvm)
+  nobody:* | *:kvm)
     show_error "ERROR: Cannot edit running instance. Exiting."
     exit 3
     ;;
