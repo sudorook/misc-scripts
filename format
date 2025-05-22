@@ -175,7 +175,7 @@ function format_wrapper() {
       format_shellscript "${1}"
       ;;
     tex)
-      format_shellscript "${1}"
+      format_tex "${1}"
       ;;
     *)
       show_warning "WARNING: skipping ${1@Q} type ${mime@Q}." >&2
