@@ -144,6 +144,7 @@ nohup.out
 
 # General
 .DS_Store
+__MACOSX/
 .AppleDouble
 .LSOverride
 Icon[]
@@ -371,6 +372,19 @@ __pypackages__/
 # Celery stuff
 celerybeat-schedule
 celerybeat.pid
+
+# Redis 
+*.rdb
+*.aof
+*.pid
+
+# RabbitMQ
+mnesia/
+rabbitmq/
+rabbitmq-data/
+
+# ActiveMQ
+activemq-data/
 
 # SageMath parsed files
 *.sage.py
