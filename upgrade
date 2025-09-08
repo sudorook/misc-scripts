@@ -96,7 +96,7 @@ function git_update() {
 
   # if not master branch, switch to it
   if [[ "${b}" != "master" ]]; then
-    git -C "${1}" checkout master
+    git -C "${1}" switch master
   fi
 
   # fetch updates
@@ -112,7 +112,7 @@ function git_update() {
 
   # restore original checked-out branch
   if [[ "${b}" != "master" ]]; then
-    git -C "${1}" checkout "${b}"
+    git -C "${1}" switch "${b}"
   fi
 
   # restore stashed changes
@@ -218,16 +218,15 @@ function upgrade_themes() {
         papirus-icon-theme)
           if git -C "${dir}" show-ref --verify --quiet "refs/heads/tweak"; then
             pushd "${dir}" > /dev/null
-            git checkout tweak
-            git reset HEAD~1
-            git reset --hard
+            git switch tweak
+            git reset HEAD~1 --hard
             git clean -xdf
             git rebase master
             tools/_restore_adapta_icons.sh
             sync
             git add .
             git commit -m "Mirror updates to Adapta icon set."
-            git checkout master
+            git switch master
             popd > /dev/null
           fi
           ;;
@@ -237,11 +236,11 @@ function upgrade_themes() {
               git -C "${dir}" stash
             fi
             if [ "${branch}" != tweak ]; then
-              git -C "${dir}" checkout tweak
+              git -C "${dir}" switch tweak
             fi
             git -C "${dir}" rebase master
             if [ "${branch}" != tweak ]; then
-              git -C "${dir}" checkout "${branch}"
+              git -C "${dir}" switch "${branch}"
             fi
             if "${dirty}"; then
               git -C "${dir}" stash pop
