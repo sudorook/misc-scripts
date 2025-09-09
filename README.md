@@ -103,7 +103,7 @@ specific scripts.
 | gtkdir            | directory that contains sources for GTK themes  | `upgrade`                                       |
 | plasmadir         | directory containing Plasma themes source repos | `upgrade`                                       |
 | icondir           | directory that contains sources for icon themes | `upgrade`                                       |
-| thunderbirddir    | path to Thunderbird profile directory           | `upgrade`                                       |
+| thunderbirddir    | path to Thunderbird profile directory           | `switch-theme`                                  |
 | zshdir            | where Zsh themes are downloaded                 | `upgrade`                                       |
 | pkgbuilddir       | where AUR pkgbuilds are stored                  | `seek-and-destroy`, `upgrade`                   |
 | projectdir        | directory containing Git repos and projects     | `count-commits`, `seek-and-destroy`, `whattodo` |
