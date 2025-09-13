@@ -584,7 +584,6 @@ while [ ${#} -ge 1 ]; do
       NAME="${IN%.*}"
       EXTENSION="${IN##*.}"
       BACKUP="${IN}_$(date +%Y%m%d-%H%M%S).bak"
-      scan_input
       shift 2
       ;;
     -e | --extra)
@@ -668,6 +667,8 @@ if ! [[ -f "${IN}" ]]; then
   show_error "ERROR: Input file not found."
   exit 3
 fi
+
+scan_input
 
 case "${OUT_VCODEC}" in
   libx264)
