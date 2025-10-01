@@ -23,7 +23,7 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
-! check_command nmcli sed && exit 3
+! check_command nmcli sed systemctl && exit 3
 
 # Script requires nm-cli, so check that the Network Manager service is running.
 if ! systemctl is-active --quiet NetworkManager; then
