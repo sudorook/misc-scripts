@@ -130,30 +130,18 @@ function git_update() {
 function print_usage() {
   show_header "Usage: upgrade"
   show_listitem "\
-  -i|--images    upgrade Podman images
-  -j|--julia     upgrade Julia packages
-  -r|--rust      upgrade Rust via rustup
-  -R|--R         upgrade R CRAN packages"
-  if [[ -v pkgbuilddir ]]; then
-    show_listitem "  -p|--pkgbuild  upgrade AUR pkgbuilds in ${pkgbuilddir}"
-  fi
-  show_listitem "  -s|--system    upgrade system packages (pacman or apt)"
-  if [[ -v gtkdir ]] && [[ -v plasmadir ]] && [[ -v icondir ]]; then
-    show_listitem "  -t|--themes    upgrade themes in ${gtkdir}, ${plasmadir}, and ${icondir}"
-  fi
-  if [[ -v vimpack ]]; then
-    show_listitem "  -v|--vim       upgrade Git-versioned Vim packages installed in ${vimpack}"
-  fi
-  if [[ -v nvimpack ]]; then
-    show_listitem "  -n|--nvim      upgrade Git-versioned Neovim packages installed in ${nvimpack}"
-  fi
-  if [[ -v weechatdir ]]; then
-    show_listitem "  -w|--weechat   upgrade wee-slack plugin for weechat in ${weechatdir}"
-  fi
-  if [[ -v zshdir ]]; then
-    show_listitem "  -z|--zsh       upgrade Zsh plugins in ${zshdir}"
-  fi
-  show_listitem "  -x|--extra     execute custom upgrade rules"
+  -i|--images           Podman images
+  -j|--julia            Julia packages
+  -r|--rust             Rust via rustup
+  -R|--R                R CRAN packages
+  -p|--pkgbuild         AUR pkgbuilds in ${pkgbuilddir}
+  -s|--system           system packages (pacman or apt)
+  -t|--themes           themes in ${gtkdir}, ${plasmadir}, and ${icondir}
+  -v|--vim              Git-versioned Vim packages installed in ${vimpackdir}
+  -n|--nvim             Git-versioned Neovim packages installed in ${nvimpackdir}
+  -w|--weechat_plugins  Git-versioned plugins for WeeChat in ${weechatplugindir}
+  -z|--zsh              Zsh plugins in ${zshdir}
+  -x|--extra            execute custom upgrade rules"
 }
 
 function upgrade_system() {
@@ -260,11 +248,10 @@ function upgrade_extra() {
 
 function upgrade_vim_packages() {
   show_header "Upgrading Vim plugins."
-  local vimpack=${HOME}/.vim/pack/dist/start
   local dir
   if check_command vim; then
-    if [ -d "${vimpack}" ]; then
-      for dir in "${vimpack}"/*; do
+    if [ -d "${vimpackdir}" ]; then
+      for dir in "${vimpackdir}"/*; do
         if git -C "${dir}" rev-parse 2> /dev/null; then
           show_info "$(basename "${dir}")"
           git_update "${dir}" || true
@@ -273,7 +260,7 @@ function upgrade_vim_packages() {
         fi
       done
     else
-      show_warning "${vimpack@Q} does not exist. Skipping."
+      show_warning "${vimpackdir@Q} does not exist. Skipping."
       echo
     fi
   else
@@ -283,11 +270,10 @@ function upgrade_vim_packages() {
 
 function upgrade_nvim_packages() {
   show_header "Upgrading Neovim plugins."
-  local nvimpack=${HOME}/.config/nvim/pack/dist/start
   local dir
   if check_command nvim; then
-    if [ -d "${nvimpack}" ]; then
-      for dir in "${nvimpack}"/*; do
+    if [ -d "${nvimpackdir}" ]; then
+      for dir in "${nvimpackdir}"/*; do
         if git -C "${dir}" rev-parse 2> /dev/null; then
           show_info "$(basename "${dir}")"
           git_update "${dir}" || true
@@ -296,7 +282,7 @@ function upgrade_nvim_packages() {
         fi
       done
     else
-      show_warning "${nvimpack@Q} does not exist. Skipping."
+      show_warning "${nvimpackdir@Q} does not exist. Skipping."
       echo
     fi
   else
@@ -464,19 +450,19 @@ function upgrade_pkgbuild() {
 
 function upgrade_weechat_plugins {
   show_header "Upgrading weechat plugins."
-  local weechatdir=${HOME}/.weechat/plugins
   local dir
-  if [ -d "${weechatdir}" ]; then
-    for dir in "${weechatdir}"/*; do
+  if [ -d "${weechatplugindir}" ]; then
+    for dir in "${weechatplugindir}"/*; do
       if git -C "${dir}" rev-parse 2> /dev/null; then
         show_info "$(basename "${dir}")"
-        git -C "${dir}" pull --ff-only origin master --tags
+        # git -C "${dir}" pull --ff-only origin master --tags
+        git_update "${dir}" || true
         sleep "$(rand_int 2 10)"
         echo
       fi
     done
   else
-    show_warning "No weechat plugin directory exists. Skipping."
+    show_warning "No WeeChat plugin directory exists. Skipping."
     echo
   fi
 }
@@ -486,7 +472,7 @@ function upgrade_weechat_plugins {
 #
 
 OPTIONS=ahgijrRpstnvwxz
-LONGOPTIONS=all,help,gems,images,julia,rust,R,pkgbuild,system,theme,nvim,vim,weechat,extra,zsh
+LONGOPTIONS=all,help,gems,images,julia,rust,R,pkgbuild,system,theme,nvim,vim,weechat_plugins,extra,zsh
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
@@ -552,7 +538,7 @@ while [ ${#} -ge 1 ]; do
       upgrade_vim_packages
       shift
       ;;
-    -w | --weechat)
+    -w | --weechat_plugins)
       upgrade_weechat_plugins
       shift
       ;;

@@ -208,3 +208,12 @@ entrydir=
 template=
 export entrydir
 export template
+
+# WeeChat plugin directory
+weechatplugindir=
+
+# Vim pack directory
+vimpackdir=
+
+# NeoVim pack directory
+nvimpackdir=

@@ -111,3 +111,6 @@ specific scripts.
 | videodir          | directory for video files                       | `get-webseries`                                 |
 | ignoreprojectdirs | list of directories in projectdir to ignore     | `whattodo`                                      |
 | zoterodatadir     | location of Zotero data (not config) directory  | `search-docs`                                   |
+| weechatplugindir  | WeeChat plugin durectory                        | `upgrade`                                       |
+| vimpackdir        | Vim Git plugins directory                       | `upgrade`                                       |
+| nvimpackdir       | NeoVim Git plugins directory                    | `upgrade`                                       |
