@@ -426,10 +426,10 @@ update.packages(ask = FALSE,
                 repos = 'https://cloud.r-project.org/')
 EOF
       )
+      sleep "$(rand_int 2 10)"
     else
       show_warning "R_LIBS_USER is not set. Skipping."
     fi
-    sleep "$(rand_int 2 10)"
   fi
   echo
 }
