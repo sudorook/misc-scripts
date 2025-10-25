@@ -84,7 +84,6 @@ FORMAT="${FORMAT:-mp3}"
 # Download the file, extract audio, and set the ID3v2 tags.
 "${YTDL}" "${URL//\"/}" \
   --extract-audio \
-  --prefer-ffmpeg \
   --audio-format "${FORMAT}" \
   --ignore-config \
   -o "${TITLE} - ${ARTIST}.%(ext)s"
