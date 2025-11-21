@@ -145,21 +145,32 @@ function print_usage() {
 }
 
 function upgrade_system() {
-  # Arch Linux (pacman)
-  if check_command pacman; then
-    show_header "Upgrading Arch Linux packages."
-    sudo -k sh -c "pacman -Syu && paccache -r && paccache -ruk0"
-    echo
-    return 0
-  fi
+  local os
+  os="$(sed -n "s/^ID=\(.*\)$/\1/p" /etc/os-release)"
 
-  # Debian, Ubuntu (apt)
-  if check_command apt; then
-    show_header "Upgrading Debian packages."
-    sudo -k sh -c "apt update && apt -y full-upgrade && apt -y autoremove"
-    echo
-    return 0
-  fi
+  case "${os}" in
+    arch)
+      # Arch Linux (pacman)
+      if check_command pacman 2>&1; then
+        show_header "Upgrading Arch Linux packages."
+        sudo -k sh -c "pacman -Syu && paccache -r && paccache -ruk0"
+        echo
+        return 0
+      fi
+      ;;
+    debian|ubuntu)
+      # Debian, Ubuntu (apt)
+      if check_command apt; then
+        show_header "Upgrading Debian packages."
+        sudo -k sh -c "apt update && apt -y full-upgrade && apt -y autoremove"
+        echo
+        return 0
+      fi
+      ;;
+    *)
+      show_error "ERROR: Operating system ${os@Q} not supported."
+      ;;
+  esac
 }
 
 function upgrade_themes() {
