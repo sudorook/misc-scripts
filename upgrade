@@ -337,7 +337,7 @@ function upgrade_gems() {
   gemhome="$(gem env user_gemhome)"
   while read -r gem; do
     if gem list --silent -i "${gem}"; then
-      gem update --conservative --minimal-deps "${gem}"
+      gem update --conservative --minimal-deps "${gem}" --explain
     else
       show_warning "Something went wrong parsing ${gem@Q}."
     fi
