@@ -56,7 +56,7 @@ function do_strip_mp3 {
   ffmpeg -v warning -i file:"${in}" -c copy -f avi - |
     ffmpeg -v warning -i - \
       -map_metadata -1 -map 0:a -c:a copy \
-      -fflags +bitexact -flags:v +bitexact -flags:a +bitexact \
+      -fflags +bitexact -flags:a +bitexact \
       -f mp3 file:"${tmp}" -y
 
   mv "${tmp}" "${in}"
