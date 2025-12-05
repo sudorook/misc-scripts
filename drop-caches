@@ -23,15 +23,15 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
+sync
+
 if [ -e /proc/sys/vm/drop_caches ]; then
-  sync
   sudo bash -c "echo 3 > /proc/sys/vm/drop_caches"
-  show_success "Done!"
 elif check_command purge && [[ "${OSTYPE}" =~ darwin ]]; then
-  sync
   sudo purge
-  show_success "Done!"
 else
   show_error "Not possible..."
   exit 3
 fi
+
+show_success "Done!"
