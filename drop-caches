@@ -23,15 +23,25 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
+function do_drop_caches() {
+  if [ -e /proc/sys/vm/drop_caches ]; then
+    if [ "${EUID}" -eq 0 ]; then
+      echo 3 > /proc/sys/vm/drop_caches
+    else
+      sudo bash -c "echo 3 > /proc/sys/vm/drop_caches"
+    fi
+  elif check_command purge && [[ "${OSTYPE}" =~ darwin ]]; then
+    if [ "${EUID}" -eq 0 ]; then
+      purge
+    else
+      sudo purge
+    fi
+  else
+    show_error "Not possible..."
+    exit 3
+  fi
+}
+
 sync
-
-if [ -e /proc/sys/vm/drop_caches ]; then
-  sudo bash -c "echo 3 > /proc/sys/vm/drop_caches"
-elif check_command purge && [[ "${OSTYPE}" =~ darwin ]]; then
-  sudo purge
-else
-  show_error "Not possible..."
-  exit 3
-fi
-
+do_drop_caches
 show_success "Done!"
