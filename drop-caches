@@ -23,19 +23,21 @@ ROOT="$(dirname "${0}")"
 
 source "${ROOT}"/globals
 
+function doas_user_or_root() {
+  local cmd
+  cmd=("${@}")
+  if [ "${EUID}" -eq 0 ]; then
+    eval "${cmd[*]}"
+  else
+    sudo bash -c "${cmd[*]}"
+  fi
+}
+
 function do_drop_caches() {
   if [ -e /proc/sys/vm/drop_caches ]; then
-    if [ "${EUID}" -eq 0 ]; then
-      echo 3 > /proc/sys/vm/drop_caches
-    else
-      sudo bash -c "echo 3 > /proc/sys/vm/drop_caches"
-    fi
+    doas_user_or_root "echo 3 > drop_caches"
   elif check_command purge && [[ "${OSTYPE}" =~ darwin ]]; then
-    if [ "${EUID}" -eq 0 ]; then
-      purge
-    else
-      sudo purge
-    fi
+    doas_user_or_root "purge"
   else
     show_error "Not possible..."
     exit 3
