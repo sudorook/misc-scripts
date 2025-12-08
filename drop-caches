@@ -39,7 +39,7 @@ function do_drop_caches() {
   elif check_command purge && [[ "${OSTYPE}" =~ darwin ]]; then
     doas_user_or_root "purge"
   else
-    show_error "Not possible..."
+    show_error "ERROR: ${OSTYPE@Q} not suported. Exiting."
     exit 3
   fi
 }
