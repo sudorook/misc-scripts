@@ -36,9 +36,9 @@ function do_strip_flac {
   tmp=$(mktemp)
   trap 'rm -vf "${tmp}"' INT RETURN ERR TERM
 
-  ffmpeg -v warning -i file:"${in}" -c copy -f ogg - |
+  ffmpeg -v warning -i file:"${in}" -c:a copy -f ogg - |
     ffmpeg -v warning -i - \
-      -map_metadata -1 -map 0:a -c:a copy -vn \
+      -map_metadata -1 -map 0:a -c:a copy \
       -fflags +bitexact -flags:a +bitexact \
       -f flac file:"${tmp}" -y
 
