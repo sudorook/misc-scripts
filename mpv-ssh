@@ -49,7 +49,7 @@ print_list() {
 print_fuzzy_search() {
   ssh \
     "${SSH_USER:+${SSH_USER}@}${REMOTE}" \
-    'find '"${DIR@Q}" | fzf --algo=v2 --scheme=path --filter="${QUERY}" | head -n 1
+    'find '"${DIR@Q}"' -type d' | fzf --algo=v2 --scheme=path --filter="${QUERY} !Featurettes" | head -n 1
 }
 
 make_filename() {
