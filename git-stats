@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eu
+
+git log --pretty=format:"COMMIT %aN%n" --numstat master | awk -f <(
+  cat <<EOF
+    /^COMMIT/ {
+      author = substr(\$0, 8)
+      commits[author]++
+      next
+    }
+    /^[0-9-]/ {
+      if (\$1 ~ /^[0-9]+\$/) added[author] += \$1
+      if (\$2 ~ /^[0-9]+\$/) removed[author] += \$2
+    }
+    END {
+      printf "%-25s %8s %10s %10s\n", "Author", "Commits", "Added", "Removed"
+      for (a in commits) printf "%-25s %8d %10d %10d\n", a, commits[a], added[a], removed[a]
+    }
+EOF
+)

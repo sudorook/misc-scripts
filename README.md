@@ -53,6 +53,7 @@
 | `git-gc`           | prune orphaned objects and force garbage collection                    |
 | `git-init`         | wrapper script for initializing a Git repo and setting the metadata    |
 | `git-partial-push` | push commits up to a given date                                        |
+| `git-stats`        | print some Git stats (authors, commits, lines added/removed)           |
 | `join-vids`        | concatenate videos                                                     |
 | `kvm-clear`        | clear out shared KVM directory                                         |
 | `kvm-cp`           | copy file to shared KVM directory                                      |
