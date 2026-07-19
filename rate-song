@@ -140,8 +140,7 @@ def main():
     if args.file is None:
         song = get_current_song()
         print(
-            f"Rating '{song['title']}' from "
-            f"'{song['album']}' by '{song['artist']}'"
+            f"Rating {song['title']!r} from {song['album']!r} by {song['artist']!r}"
         )
     else:
         song = get_song_from_file(args.file)
