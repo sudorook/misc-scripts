@@ -55,15 +55,13 @@ def get_current_song():
         rf"track::^{info["track"]}$ title::^{info["title"]}$ artist::^{info["artist"]}$ album::^{info["album"]}$"
     )
     if len(item) > 1:
-        print("Multiple files found. Exiting.")
-        for i in item:
-            print(
-                "'"
-                + i["title"]
-                + "' from '"
-                + i["album"]
-                + "' by "
-                + i["artist"]
+        sys.exit(
+            "Multiple files found. Exiting.\n"
+            + "\n".join(
+                [
+                    f"{i["title"]} from {i["album"]} by {i["artist"]} (track {i["track"]})"
+                    for i in item
+                ]
             )
         sys.exit()
     elif len(item) == 0:
@@ -92,7 +90,9 @@ def get_current_song():
         sys.exit(
             "Parsing failed. See below:\n"
             f"Title: {info['title']} -> {re.escape(info['title'])}\n"
+            f"Track: {info['track']} -> {re.escape(info['track'])}\n"
             f"Artist: {info['artist']} -> {re.escape(info['artist'])}\n"
+            f"Albumartist: {info['albumartist']} -> {re.escape(info['albumartist'])}\n"
             f"Album: {info['album']} -> {re.escape(info['album'])}\n"
         )
     else:
