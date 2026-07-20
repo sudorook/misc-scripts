@@ -43,7 +43,6 @@ def generate_playlists():
 
     # Generate a list of playlists from the artists in the Beets database.
     playlists = []
-    playlists.append({"name": "All Songs.m3u", "query": ""})
     playlists.append({"name": "Top Rated.m3u", "query": "rating:5"})
     for artist in artists:
         playlists.append(
