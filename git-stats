@@ -2,7 +2,7 @@
 set -eu
 
 git log --pretty=format:"COMMIT %aN%n" --numstat master | awk -f <(
-  cat <<EOF
+  cat << EOF
     /^COMMIT/ {
       author = substr(\$0, 8)
       commits[author]++
