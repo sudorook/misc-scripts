@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-set -eu
+set -euo pipefail
+
+source globals
+
+! check_command awk git && exit 1
 
 git log --pretty=format:"COMMIT %aN%n" --numstat master | awk -f <(
   cat << EOF
