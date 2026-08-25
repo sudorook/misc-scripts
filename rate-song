@@ -27,6 +27,7 @@ import re
 import argparse
 from mpd import MPDClient
 import beets.library
+from beets.dbcore.query import AndQuery, MatchQuery
 
 
 #
@@ -51,9 +52,15 @@ def get_current_song():
 
     # Find the song in the beets database based on the title, artist, and album
     # information provided by MPD.
-    item = lib.items(
-        rf"track::^{info["track"]}$ title::^{info["title"]}$ artist::^{info["artist"]}$ album::^{info["album"]}$"
+    query = AndQuery(
+        [
+            MatchQuery("track", info["track"]),
+            MatchQuery("title", info["title"]),
+            MatchQuery("artist", info["artist"]),
+            MatchQuery("album", info["album"]),
+        ]
     )
+    item = lib.items(query)
     if len(item) > 1:
         sys.exit(
             "Multiple files found. Exiting.\n"
@@ -63,30 +70,8 @@ def get_current_song():
                     for i in item
                 ]
             )
-        sys.exit()
+        )
     elif len(item) == 0:
-        print("First pass parsing failed. Trying again.")
-        item = lib.items(
-            '"title::^'
-            + re.escape(info["title"])
-            + '$"'
-            + ' "artist::^'
-            + re.escape(info["artist"])
-            + '$"'
-        )
-        if len(item) == 1:
-            return item[0]
-        print("Second pass parsing failed. Trying again.")
-        item = lib.items(
-            '"title::^'
-            + re.escape(info["title"])
-            + '$"'
-            + ' "album::^'
-            + re.escape(info["album"])
-            + '$"'
-        )
-        if len(item) == 1:
-            return item[0]
         sys.exit(
             "Parsing failed. See below:\n"
             f"Title: {info['title']} -> {re.escape(info['title'])}\n"
