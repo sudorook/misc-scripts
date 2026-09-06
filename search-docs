@@ -158,7 +158,7 @@ function get_title {
         title="$(get_title_pdfinfo "${1}")"
         ;;
       epub)
-        title="$(get_title_epub-meta "${1}")"
+        title="$(get_title_ebook-meta "${1}")"
         ;;
       html)
         title="$(get_title_html "${1}")"
