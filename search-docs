@@ -109,6 +109,7 @@ function get_title_calibre {
     sed -n "s|\s*<dc:title>\(.*\)</dc:title>|\1|p" "${meta}"
   fi
 }
+export -f get_title_calibre
 
 function get_title_pdfinfo {
   local file="${1}"
@@ -116,6 +117,7 @@ function get_title_pdfinfo {
     pdfinfo "${file}" | sed -n "s,^Title:\s\+\(.*\),\1,p"
   fi
 }
+export -f get_title_pdfinfo
 
 function get_title_ebook-meta {
   local file="${1}"
@@ -123,6 +125,7 @@ function get_title_ebook-meta {
     ebook-meta "${file}" | sed -n "s,^Title\s\+:\s\+\(.*\),\1,p"
   fi
 }
+export -f get_title_ebook-meta
 
 function get_title_html {
   local file="${1}"
@@ -133,6 +136,7 @@ function get_title_html {
       -e "s,<strong>,,Ig" -e "s,</strong>,,Ig" \
       -e "s,<code>,,Ig" -e "s,</code>,,Ig"
 }
+export -f get_title_html
 
 function sanitize_string {
   sed \
@@ -162,6 +166,9 @@ function get_title {
         ;;
       html)
         title="$(get_title_html "${1}")"
+        ;;
+      *)
+        show_error "ERROR: ${file_ext} not supported."
         ;;
     esac
   fi
