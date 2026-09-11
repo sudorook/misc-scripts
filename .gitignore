@@ -543,6 +543,31 @@ tags
 [._]*.un~
 
 #
+# FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Global/VirtualEnv.gitignore
+#
+
+# Virtualenv
+# https://realpython.com/python-virtual-environments-a-primer/#the-virtualenv-project
+.venv/
+venv/
+.python-version
+
+# pyenv: Simple Python Version Management
+pyvenv.cfg
+
+# pip: package installer for Python
+pip-selfcheck.json
+
+# Custom python interpreter
+.Python
+[Bb]in
+[Ii]nclude
+[Ll]ib
+[Ll]ib64
+[Ll]ocal
+[Ss]cripts
+
+#
 # FROM: https://raw.githubusercontent.com/sudorook/gitignore/tweak/Global/Windows.gitignore
 #
 
