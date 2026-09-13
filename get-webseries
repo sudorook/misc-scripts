@@ -100,7 +100,7 @@ done
 if ! [[ -v URL ]]; then
   URL=$(ask_question "What is the URL?")
 fi
-RESOLUTION="${RESOLUTION:-720}"
+RESOLUTION="${RESOLUTION:-1080p}"
 
 case "${RESOLUTION,,}" in
   480p | 480i | 480)
