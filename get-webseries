@@ -115,6 +115,14 @@ case "${RESOLUTION,,}" in
     HEIGHT=1200
     WIDTH=2000
     ;;
+  1440p | 1440i | 1440)
+    HEIGHT=1500
+    WIDTH=2600
+    ;;
+  4k | 2160p)
+    HEIGHT=2200
+    WIDTH=4000
+    ;;
   *)
     HEIGHT=800
     WIDTH=1300
