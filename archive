@@ -117,10 +117,12 @@ function compress_archive() {
         show_warning "WARNING: 7z does not support uid/gid metadata, so using tar first."
         eval "tar cf - ${exclude_str} ${2}" |
           7z a -si "${ARCHIVEDIR}/${1}.tar.7z"
+      else
+        exit 3
       fi
       ;;
     gz)
-      ! check_command tar && return
+      ! check_command tar && exit 3
       if command -v pigz > /dev/null 2>&1; then
         eval "tar cf - ${exclude_str} ${2}" |
           pigz > "${ARCHIVEDIR}/${1}.tar.gz"
@@ -129,7 +131,7 @@ function compress_archive() {
       fi
       ;;
     xz)
-      ! check_command tar && return
+      ! check_command tar && exit 3
       if command -v pixz > /dev/null 2>&1; then
         eval "tar cf - ${exclude_str} ${2}" |
           pixz > "${ARCHIVEDIR}/${1}.tar.xz"
@@ -157,12 +159,16 @@ function compress_archive() {
         if [ ${#delete[@]} -gt 0 ]; then
           rm "${delete[@]}"
         fi
+      else
+        exit 3
       fi
       ;;
     zstd)
       if check_command pzstd tar; then
         eval "tar cf - ${exclude_str} ${2}" |
           pzstd > "${ARCHIVEDIR}/${1}.tar.zst"
+      else
+        exit 3
       fi
       ;;
     *)
