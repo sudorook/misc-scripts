@@ -136,7 +136,7 @@ function compress_archive() {
         eval "tar cf - ${exclude_str} ${2}" |
           pixz > "${ARCHIVEDIR}/${1}.tar.xz"
       else
-        eval "tar czf ${ARCHIVEDIR}/${1}.tar.xz ${exclude_str} ${2}"
+        eval "tar cJf ${ARCHIVEDIR}/${1}.tar.xz ${exclude_str} ${2}"
       fi
       ;;
     zip)
