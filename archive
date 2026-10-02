@@ -92,7 +92,7 @@ function make_archivename() {
       if [ "${file:0:2}" = "\~/" ]; then
         file="${HOME}/${file:2}"
       fi
-      archive="$(echo "${file%.*}" | slugify)_$(date +%Y%m%d-%H%M%S)"
+      archive="$(basename "${file%.*}" | slugify)_$(date +%Y%m%d-%H%M%S)"
     fi
   elif [ ${#} -gt 1 ]; then
     archive="$(basename "$(pwd)" | slugify)_$(date +%Y%m%d-%H%M%S)"
