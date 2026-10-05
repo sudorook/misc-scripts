@@ -40,15 +40,13 @@ function make_pathstring() {
   local target
 
   for item in "${@}"; do
+    if [ "${item:0:1}" = "~" ] && [ "${item:1:1}" = "/" ]; then
+      item="${HOME}/${item:2}"
+    fi
+
     if [ -e "${item}" ]; then
       dir="$(pwd)"
       target="${item}"
-
-      if [ "${item:0:2}" = "\~/" ]; then
-        target="${HOME}/${item:2}"
-        dir="$(dirname "${target}")"
-        target="$(basename "${target}")"
-      fi
 
       if [ -L "${item}" ]; then
         link="$(readlink -f "${item}")"
@@ -77,22 +75,17 @@ function make_pathstring() {
 # files, the name sill be <basename>_<timestamp>.
 function make_archivename() {
   local archive
-  local dir
-  local file
+  local item
 
   if [ ${#} -eq 1 ]; then
-    if [ -d "${1}" ]; then
-      dir=${1}
-      if [ "${dir:0:2}" = "\~/" ]; then
-        dir="${HOME}/${dir:2}"
-      fi
-      archive="$(basename "${dir}" | slugify)_$(date +%Y%m%d-%H%M%S)"
-    elif [ -f "${1}" ]; then
-      file=${1}
-      if [ "${file:0:2}" = "\~/" ]; then
-        file="${HOME}/${file:2}"
-      fi
-      archive="$(basename "${file%.*}" | slugify)_$(date +%Y%m%d-%H%M%S)"
+    item="${1}"
+    if [ "${item:0:1}" = "~" ] && [ "${item:1:1}" = "/" ]; then
+      item="${HOME}/${item:2}"
+    fi
+    if [ -d "${item}" ]; then
+      archive="$(basename "${item}" | slugify)_$(date +%Y%m%d-%H%M%S)"
+    elif [ -f "${item}" ]; then
+      archive="$(basename "${item%.*}" | slugify)_$(date +%Y%m%d-%H%M%S)"
     fi
   elif [ ${#} -gt 1 ]; then
     archive="$(basename "$(pwd)" | slugify)_$(date +%Y%m%d-%H%M%S)"
