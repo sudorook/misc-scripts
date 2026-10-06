@@ -33,11 +33,14 @@ source "${ROOT}"/globals
 # command line. Paths prefixed with '~/' are converted to '${HOME}'. Symlinks
 # are expanded and included as if they were in the current working directory.
 function make_pathstring() {
+  local dest
   local pathstring=""
   local dir
   local link
   local item
   local target
+
+  dest="$(readlink -f -- "${ARCHIVEDIR}")"
 
   for item in "${@}"; do
     if [ "${item:0:1}" = "~" ] && [ "${item:1:1}" = "/" ]; then
@@ -45,6 +48,12 @@ function make_pathstring() {
     fi
 
     if [ -e "${item}" ]; then
+      if [[ "$(readlink -f -- "${item}")" == "${dest}" ||
+            "$(readlink -f -- "${item}")" == "${dest}"/* ]]; then
+        show_error "ERROR: ${item@Q} is inside the destination directory. Exiting."
+        exit 2
+      fi
+
       dir="$(pwd)"
       target="${item}"
 
@@ -71,11 +80,15 @@ function make_pathstring() {
 
 # Generate a name for the archive. For single directories, the name will be
 # <dirname>_<timestamp>. For multiple files and directories, the name will be
-# the basename of the directory from which the script is called. For single
-# files, the name sill be <basename>_<timestamp>.
+# the basename of the deepest common directory containing all the supplied
+# items (falling back to the basename of the current directory when the items
+# share no directory below '/'). For single files, the name will be
+# <basename>_<timestamp>.
 function make_archivename() {
   local archive
+  local common
   local item
+  local parent
 
   if [ ${#} -eq 1 ]; then
     item="${1}"
@@ -88,7 +101,25 @@ function make_archivename() {
       archive="$(basename "${item%.*}" | slugify)_$(date +%Y%m%d-%H%M%S)"
     fi
   elif [ ${#} -gt 1 ]; then
-    archive="$(basename "$(pwd)" | slugify)_$(date +%Y%m%d-%H%M%S)"
+    common=""
+    for item in "${@}"; do
+      if [ "${item:0:1}" = "~" ] && [ "${item:1:1}" = "/" ]; then
+        item="${HOME}/${item:2}"
+      fi
+      parent="$(cd -- "$(dirname -- "${item}")" && pwd)"
+      if [ -z "${common}" ]; then
+        common="${parent}"
+      else
+        while [ "${common}" != "/" ] &&
+          ! [[ "${parent}/" == "${common}/"* ]]; do
+          common="$(dirname -- "${common}")"
+        done
+      fi
+    done
+    if [ "${common}" = "/" ]; then
+      common="$(pwd)"
+    fi
+    archive="$(basename "${common}" | slugify)_$(date +%Y%m%d-%H%M%S)"
   fi
 
   echo "${archive}"
