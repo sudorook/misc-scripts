@@ -325,6 +325,7 @@ ISO_639_1_ISO_3166_1=(
   ["es-SV"]="Spanish (El Salvador)"
   ["es-UY"]="Spanish (Uruguay)"
   ["es-VE"]="Spanish (Venezuela)"
+  ["es-LA"]="Spanish (Latin America)"
   # ["sv"]="Swedish"
   ["sv-FI"]="Swedish (Finland)"
   # ["th"]="Thai"
