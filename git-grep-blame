@@ -1,0 +1,232 @@
+#!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2026 sudorook <daemon@nullcodon.com>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <https://www.gnu.org/licenses/>.
+
+set -euo pipefail
+
+ROOT="$(dirname "${0}")"
+
+source "${ROOT}"/globals
+
+! check_command git awk date && exit 3
+
+print_usage() {
+  show_header "Usage: git-grep-blame [OPTIONS] <pattern> [--] [pathspec...]"
+  show_listitem "\
+  -i  --ignore-case     case-insensitive match
+  -F  --fixed-strings   treat <pattern> as a fixed string (default: extended regex)
+  -w  --word-regexp     whole-word match
+  -r  --rev             blame as of <rev> (default HEAD; uncommitted lines
+                        fall back to the working tree)
+  -e  --email           only report lines whose blamed author e-mail contains <text>
+  -h  --help            print (this) help message
+
+  Search every tracked file for <pattern> and report the commit/author/date
+  that last modified each matching line. Pathspecs are relative to the
+  directory you invoke the script from. With no pathspec, the entire
+  repository is searched."
+}
+
+#
+# Global functions.
+#
+
+fmt_time() {
+  local ts="${1}"
+  if date -d "@${ts}" +%Y > /dev/null 2>&1; then
+    date -d "@${ts}" '+%Y-%m-%d %H:%M'       # GNU
+  else
+    date -r "${ts}" '+%Y-%m-%d %H:%M'        # BSD / macOS
+  fi
+}
+
+# Emits "sha<TAB>author<TAB>mail<TAB>unix-time<TAB>summary", or "!<TAB>error".
+blame_line() {
+  local file="${1}"
+  local line="${2}"
+  local out
+
+  if out=$(git blame --line-porcelain -L "${line},${line}" "${REV}" -- "${file}" 2>&1); then
+    :
+  elif ((!REV_GIVEN)) && out=$(git blame --line-porcelain -L "${line},${line}" -- "${file}" 2>&1); then
+    :                                      # line only exists in the work tree
+  else
+    printf '!\t%s\n' "${out//$'\n'/ }"     # keep git's real error message
+    return 0
+  fi
+
+  printf '%s\n' "${out}" | awk '
+    NR == 1         { c = $1; sub(/^\^/, "", c) }
+    /^author /      { a = substr($0, 8) }
+    /^author-mail / { e = substr($0, 13); gsub(/[<>]/, "", e) }
+    /^author-time / { t = substr($0, 13) }
+    /^summary /     { s = substr($0, 9) }
+    END { printf "%s\t%s\t%s\t%s\t%s\n", c, a, e, t, s }
+  '
+}
+
+#
+# Main
+#
+
+OPTIONS=iFwr:e:h
+LONGOPTIONS=ignore-case,fixed-strings,word-regexp,rev:,email:,help
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+IGNORE_CASE=0
+FIXED=0
+WORD=0
+REV=HEAD
+REV_GIVEN=0
+AUTHOR_FILTER=
+
+while [ ${#} -ge 1 ]; do
+  case ${1} in
+    -i | --ignore-case)
+      IGNORE_CASE=1
+      shift
+      ;;
+    -F | --fixed-strings)
+      FIXED=1
+      shift
+      ;;
+    -w | --word-regexp)
+      WORD=1
+      shift
+      ;;
+    -r | --rev)
+      REV="${2}"
+      REV_GIVEN=1
+      shift 2
+      ;;
+    -e | --email)
+      AUTHOR_FILTER="${2}"
+      shift 2
+      ;;
+    -h | --help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      print_usage
+      show_error "ERROR: invalid flag."
+      exit 3
+      ;;
+  esac
+done
+
+if [ ${#} -eq 0 ]; then
+  print_usage
+  show_error "ERROR: no pattern specified. Exiting."
+  exit 3
+fi
+PATTERN="${1}"
+shift
+PATHSPEC=("${@}")
+
+# Keep user pathspecs meaning what they meant in the caller's directory.
+if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+  show_error "ERROR: not inside a Git working tree. Exiting."
+  exit 3
+fi
+
+TOP="$(git rev-parse --show-toplevel)"
+PREFIX="$(git rev-parse --show-prefix)"     # "" at the top, "src/" in a subdir
+if ! cd "${TOP}"; then
+  show_error "ERROR: cannot change to ${TOP@Q}. Exiting."
+  exit 3
+fi
+
+ROOT_PATHSPEC=()
+for p in "${PATHSPEC[@]}"; do
+  case ${p} in
+    /* | :*) ROOT_PATHSPEC+=("${p}") ;;          # absolute or magic pathspec
+    *)       ROOT_PATHSPEC+=("${PREFIX}${p}") ;;
+  esac
+done
+
+GREP_FLAGS=(-n -I --full-name)
+if ((IGNORE_CASE)); then GREP_FLAGS+=(-i); fi
+if ((WORD)); then        GREP_FLAGS+=(-w); fi
+if ((FIXED)); then       GREP_FLAGS+=(-F); else GREP_FLAGS+=(-E); fi
+
+GREP_ARGS=("${GREP_FLAGS[@]}" -e "${PATTERN}" --)
+if ((${#ROOT_PATHSPEC[@]})); then GREP_ARGS+=("${ROOT_PATHSPEC[@]}"); fi
+
+TMP="$(mktemp)" || {
+  show_error "ERROR: mktemp failed. Exiting."
+  exit 3
+}
+trap 'rm -f "${TMP}"' EXIT INT TERM
+
+if git grep "${GREP_ARGS[@]}" > "${TMP}"; then
+  :
+else
+  RC="${?}"
+  if [ "${RC}" -ne 1 ]; then
+    show_error "ERROR: git grep failed (exit ${RC}). Exiting."     # 1 = no matches
+    exit 3
+  fi
+fi
+
+MATCHED=0
+BLAMED=0
+FAILED=0
+
+while IFS= read -r RECORD; do
+  FILE="${RECORD%%:*}"
+  REST="${RECORD#*:}"
+  LINE="${REST%%:*}"
+  TEXT="${REST#*:}"
+  MATCHED=$((MATCHED + 1))
+
+  REC="$(blame_line "${FILE}" "${LINE}")"
+  IFS=$'\t' read -r COMMIT AUTHOR MAIL TS SUMMARY <<< "${REC}" || true
+
+  if [[ -z ${COMMIT:-} || ${COMMIT} == '!' ]]; then
+    FAILED=$((FAILED + 1))
+    show_warning \
+      "WARNING: ${FILE}:${LINE} could not be blamed: ${SUMMARY:-no output from git blame}" 1>&2
+    continue
+  fi
+
+  if [[ -n ${AUTHOR_FILTER} && ${MAIL} != *"${AUTHOR_FILTER}"* ]]; then
+    continue
+  fi
+  BLAMED=$((BLAMED + 1))
+
+  printf '\n%s:%s\n' "${FILE}" "${LINE}"
+  printf '    %s\n' "${TEXT}"
+  if [[ ${COMMIT} == 0000000000000000000000000000000000000000 ]]; then
+    printf '    (uncommitted) %s\n' "${AUTHOR:-Not Committed Yet}"
+  else
+    printf '    %s %s <%s>  %s\n' \
+      "${COMMIT:0:12}" "${AUTHOR:-?}" "${MAIL:-?}" "$(fmt_time "${TS:-0}")"
+    if [[ -n ${SUMMARY:-} ]]; then printf '    %s\n' "${SUMMARY}"; fi
+  fi
+done < "${TMP}"
+
+STATS="${MATCHED} match(es), ${BLAMED} blamed"
+if ((FAILED)); then STATS+=", ${FAILED} blame failure(s)"; fi
+STATS+=" (rev ${REV})"
+show_info "\n${STATS}" 1>&2
