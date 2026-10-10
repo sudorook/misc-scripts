@@ -305,11 +305,13 @@ done
 
 check_archive_dir
 
-if [ "${1}" = "--" ]; then
-  ITEMS=("${@:2}")
-else
-  ITEMS=("${@}")
+if [ ${#} -eq 0 ]; then
+  show_error "Incorrect # of parameters."
+  print_usage
+  exit 1
 fi
+
+ITEMS=("${@}")
 
 PATHSTRING="$(make_pathstring "${ITEMS[@]}")"
 ARCHIVE="$(make_archivename "${ITEMS[@]}")"
