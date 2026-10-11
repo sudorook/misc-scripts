@@ -151,7 +151,7 @@ function compress_archive() {
         eval "tar cf - ${exclude_str} ${2}" |
           pigz > "${ARCHIVEDIR}/${1}.tar.gz"
       else
-        eval "tar czf ${ARCHIVEDIR}/${1}.tar.gz ${exclude_str} ${2}"
+        eval "tar czf ${ARCHIVEDIR@Q}/${1@Q}.tar.gz ${exclude_str} ${2}"
       fi
       ;;
     xz)
@@ -160,7 +160,7 @@ function compress_archive() {
         eval "tar cf - ${exclude_str} ${2}" |
           pixz > "${ARCHIVEDIR}/${1}.tar.xz"
       else
-        eval "tar cJf ${ARCHIVEDIR}/${1}.tar.xz ${exclude_str} ${2}"
+        eval "tar cJf ${ARCHIVEDIR@Q}/${1@Q}.tar.xz ${exclude_str} ${2}"
       fi
       ;;
     zip)
@@ -169,6 +169,7 @@ function compress_archive() {
         local delete=()
         local item
         local name
+        local zipitems=""
         for item in "${ITEMS[@]}"; do
           if [[ "${item}" =~ ^/ ]]; then
             name="$(basename "${item}")"
@@ -179,7 +180,10 @@ function compress_archive() {
             tmp+=("${item}")
           fi
         done
-        eval "zip -q -r ${ARCHIVEDIR}/${1}.zip ${tmp[*]} ${exclude_str}"
+        for item in "${tmp[@]}"; do
+          zipitems="${zipitems} ${item@Q}"
+        done
+        eval "zip -q -r ${ARCHIVEDIR@Q}/${1@Q}.zip ${zipitems} ${exclude_str}"
         if [ ${#delete[@]} -gt 0 ]; then
           rm "${delete[@]}"
         fi
