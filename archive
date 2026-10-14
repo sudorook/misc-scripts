@@ -165,28 +165,32 @@ function compress_archive() {
       ;;
     zip)
       if check_command zip; then
-        local tmp=()
-        local delete=()
+        local dest
+        local dir
         local item
+        local link
         local name
-        local zipitems=""
+        dest="$(readlink -f -- "${ARCHIVEDIR}")"
         for item in "${ITEMS[@]}"; do
-          if [[ "${item}" =~ ^/ ]]; then
-            name="$(basename "${item}")"
-            ln -s "${item}" "${name}"
-            tmp+=("${name}")
-            delete+=("${name}")
-          else
-            tmp+=("${item}")
+          if [ "${item:0:1}" = "~" ] && [ "${item:1:1}" = "/" ]; then
+            item="${HOME}/${item:2}"
           fi
+          dir="$(pwd)"
+          name="${item}"
+          if [ -L "${item}" ]; then
+            link="$(readlink -f -- "${item}")"
+            dir="$(dirname "${link}")"
+            name="$(basename "${link}")"
+          fi
+          if [[ "${item}" =~ ^/ ]]; then
+            dir="$(dirname "${item}")"
+            name="$(basename "${item}")"
+          fi
+          (
+            cd -- "${dir}" &&
+              eval "zip -q -r ${dest@Q}/${1@Q}.zip ${name@Q} ${exclude_str}"
+          )
         done
-        for item in "${tmp[@]}"; do
-          zipitems="${zipitems} ${item@Q}"
-        done
-        eval "zip -q -r ${ARCHIVEDIR@Q}/${1@Q}.zip ${zipitems} ${exclude_str}"
-        if [ ${#delete[@]} -gt 0 ]; then
-          rm "${delete[@]}"
-        fi
       else
         exit 3
       fi
