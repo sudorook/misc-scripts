@@ -234,8 +234,10 @@ function print_usage() {
   show_header "Usage: archive"
   cat << EOF
 
-  -d|--dir       (optional) destination directory
-  -z|--compress  (optional) compression algorithm (xz, zstd, gz, or zip)
+  -d|--dir          (optional) destination directory
+  -e|--exclude_dir  (optional) extra exclude pattern (repeatable)
+  -z|--compress     (optional) compression algorithm (7z, xz, zstd, gz, or
+                    zip; default: zstd)
 
   Example: archive <item1> <path/to/item2> ...
 
