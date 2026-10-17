@@ -44,6 +44,13 @@ function set_swap_on {
     show_info "Creating ${SWAPFILE@Q}"
     dd if=/dev/zero of="${SWAPFILE}" bs=1M count="${SWAPSIZE}" status=progress
     sync
+  else
+    local requested_bytes=$((SWAPSIZE * 1024 * 1024))
+    local actual_bytes
+    actual_bytes="$(stat -c %s "${SWAPFILE}")"
+    if [ "${actual_bytes}" -ne "${requested_bytes}" ]; then
+      show_warning "WARNING: ${SWAPFILE@Q} exists with size ${actual_bytes} bytes, but ${requested_bytes} bytes were requested. Using the existing file."
+    fi
   fi
 
   # Set permissions.
