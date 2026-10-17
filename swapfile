@@ -143,6 +143,11 @@ fi
 SWAPFILE="${SWAPFILE:-/swapfile}"
 SWAPSIZE="${SWAPSIZE:-8192}"
 
+if ! [[ "${SWAPSIZE}" =~ ^[0-9]+$ ]] || [ "${SWAPSIZE}" -eq 0 ]; then
+  show_error "ERROR: ${SWAPSIZE@Q} is not a valid size (positive integer, MiB). Exiting."
+  exit 3
+fi
+
 case "${1}" in
   on)
     if [ ${EUID} -eq 0 ]; then
