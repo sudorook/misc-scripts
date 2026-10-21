@@ -81,11 +81,9 @@ function set_swap_off {
 
   # Disable swap partition if it is active.
   if swapon --show=NAME --noheadings | grep -qxF "${SWAPFILE}"; then
-    show_info "Flushing cache"
+    show_info "Flushing write cache."
     sync
-    [ -e /proc/sys/vm/drop_caches ] && echo 3 > /proc/sys/vm/drop_caches
-    sync
-    show_info "Deactivating ${SWAPFILE@Q}"
+    show_info "Deactivating ${SWAPFILE@Q}."
     swapoff "${SWAPFILE}"
   fi
 
