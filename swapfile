@@ -86,7 +86,7 @@ function print_usage {
   show_header "Usage: swapfile <on|off> ..."
   show_listitem "\
     -f|--file  path for swap file (default: /swapfile)
-    -s|--size  size of swap file in Mb (default: 8192)
+    -s|--size  size of swap file in MiB (default: 8192)
     -h|--help  print (this) help message"
 }
 
