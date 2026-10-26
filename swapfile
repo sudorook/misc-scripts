@@ -26,6 +26,15 @@ source "${ROOT}"/globals
 ! check_command blkid grep mkswap swapoff swapon && exit 3
 
 function set_swap_on {
+  # Make sure the swapfile path is usable.
+  if [ -d "${SWAPFILE}" ]; then
+    show_error "ERROR: ${SWAPFILE@Q} is a directory. Exiting."
+    exit 3
+  elif [ -L "${SWAPFILE}" ] && ! [ -e "${SWAPFILE}" ]; then
+    show_error "ERROR: ${SWAPFILE@Q} is a broken symlink. Exiting."
+    exit 3
+  fi
+
   # Create destination dir for swap file if it doesn't exist."
   local swapdir
   swapdir="$(dirname "${SWAPFILE}")"
@@ -129,7 +138,7 @@ fi
 SWAPFILE="${SWAPFILE:-/swapfile}"
 SWAPSIZE="${SWAPSIZE:-8192}"
 
-if ! [[ "${SWAPSIZE}" =~ ^[0-9]+$ ]] || [ "${SWAPSIZE}" -eq 0 ]; then
+if ! [[ "${SWAPSIZE}" =~ ^[0-9]{1,12}$ ]] || [ "${SWAPSIZE}" -eq 0 ]; then
   show_error "ERROR: ${SWAPSIZE@Q} is not a valid size (positive integer, MiB). Exiting."
   exit 3
 fi
