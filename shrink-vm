@@ -83,7 +83,7 @@ case "${OWNER}:${GROUP}" in
     ;;
   root:* | qemu:* | libvirt-qemu:*)
     show_info "${QCOW2@Q} owned by ${OWNER@Q}. Trying sudo..."
-    sudo bash -c "${FUNCTION} && do_shrink ${QCOW2@Q}"
+    sudo bash -c "${FUNCTION} && set -euo pipefail; do_shrink ${QCOW2@Q}"
     ;;
   nobody:* | *:kvm)
     show_error "ERROR: Cannot edit running instance. Exiting."
@@ -92,7 +92,7 @@ case "${OWNER}:${GROUP}" in
   *)
     if [[ "$(users)" =~ (^|[[:space:]])${OWNER}($|[[:space:]]) ]]; then
       show_warning "${QCOW2@Q} owned by ${OWNER}. Trying su..."
-      su "${OWNER}" - bash -c "${FUNCTION} && do_shrink ${QCOW2@Q}"
+      su "${OWNER}" - bash -c "${FUNCTION} && set -euo pipefail; do_shrink ${QCOW2@Q}"
     else
       show_error "User ${OWNER@Q} not recognized. Exiting."
       exit 3
