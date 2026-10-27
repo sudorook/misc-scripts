@@ -46,13 +46,15 @@ function do_shrink() {
   fi
 
   echo -e $'\033[1;32m'"Shrinking..."$'\033[0m'
+  trap "abort ${1@Q}" INT TERM ERR
   mv -f "${1}" "${1}.bak"
   qemu-img convert -O qcow2 "${1}.bak" "${1}"
   chmod --reference="${1}.bak" "${1}"
   chown --reference="${1}.bak" "${1}"
+  trap - INT TERM ERR
   rm -f "${1}.bak"
 }
-FUNCTION=$(declare -f do_shrink)
+FUNCTION=$(declare -f abort do_shrink)
 
 #
 # Globals
@@ -72,8 +74,6 @@ GROUP="$(stat "${QCOW2}" -c "%G")"
 #
 # Main
 #
-
-trap 'abort ${QCOW2}' INT TERM ERR
 
 OLD_SIZE=$(du -h "${QCOW2}" | cut -f1)
 
