@@ -61,6 +61,11 @@ FUNCTION=$(declare -f abort do_shrink)
 # Globals
 #
 
+if [[ $# -ne 1 ]]; then
+  show_error "Usage: $(basename "${0}") <image.qcow2>"
+  exit 3
+fi
+
 QCOW2="${1}"
 
 # Check inputs and requirements.
