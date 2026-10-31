@@ -23,7 +23,7 @@ ROOT="$(dirname "$(readlink -f "${0}")")"
 
 source "${ROOT}"/globals
 
-! check_command qemu-img && exit 3
+! check_command qemu-img file stat && exit 3
 
 #
 # Functions
@@ -31,31 +31,53 @@ source "${ROOT}"/globals
 
 function abort() {
   if [ -f "${1}.bak" ]; then
-    mv -f "${1}.bak" "${1}"
+    "${ESCALATE[@]}" mv -f "${1}.bak" "${1}"
   fi
+}
+
+function in_group() {
+  local group
+  for group in $(id -nG); do
+    if [[ "${group}" == "${1}" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+function user_logged_in() {
+  local user
+  for user in $(users); do
+    if [[ "${user}" == "${1}" ]]; then
+      return 0
+    fi
+  done
+  return 1
 }
 
 function do_shrink() {
-  if test -r "${1}"; then
-    if ! [[ "$(file -b "${1}")" =~ QCOW ]]; then
-      echo -e $'\033[1;31m'"ERROR: ${1@Q} is not a QCOW2 file. Exiting."$'\033[0m' 1>&2
-      exit 3
-    fi
-  else
-    echo -e $'\033[1;31m'"ERROR: Cannot read ${1@Q}. Exiting."$'\033[0m' 1>&2
+  if ! "${ESCALATE[@]}" test -r "${1}"; then
+    show_error "ERROR: Cannot read ${1@Q}. Exiting."
+    exit 3
+  fi
+  if ! [[ "$("${ESCALATE[@]}" file -b "${1}")" =~ QCOW ]]; then
+    show_error "ERROR: ${1@Q} is not a QCOW2 file. Exiting."
+    exit 3
+  fi
+  if "${ESCALATE[@]}" test -e "${1}.bak"; then
+    show_error "ERROR: ${1@Q}.bak exists. Refusing to overwrite. Exiting."
     exit 3
   fi
 
-  echo -e $'\033[1;32m'"Shrinking..."$'\033[0m'
+  show_info "Shrinking..."
   trap "abort ${1@Q}" INT TERM ERR
-  mv -f "${1}" "${1}.bak"
-  qemu-img convert -O qcow2 "${1}.bak" "${1}"
-  chmod --reference="${1}.bak" "${1}"
-  chown --reference="${1}.bak" "${1}"
+  "${ESCALATE[@]}" mv -f "${1}" "${1}.bak"
+  "${ESCALATE[@]}" qemu-img convert -O qcow2 "${1}.bak" "${1}"
+  "${ESCALATE[@]}" chmod --reference="${1}.bak" "${1}"
+  "${ESCALATE[@]}" chown --reference="${1}.bak" "${1}"
   trap - INT TERM ERR
-  rm -f "${1}.bak"
+  "${ESCALATE[@]}" rm -f "${1}.bak"
 }
-FUNCTION=$(declare -f abort do_shrink)
 
 #
 # Globals
@@ -66,7 +88,8 @@ if [[ $# -ne 1 ]]; then
   exit 3
 fi
 
-QCOW2="${1}"
+QCOW2="$(readlink -f "${1}")"
+CURRENT_USER="$(id -un)"
 
 # Check inputs and requirements.
 if ! [ -f "${QCOW2}" ]; then
@@ -76,37 +99,62 @@ fi
 
 OWNER="$(stat "${QCOW2}" -c "%U")"
 GROUP="$(stat "${QCOW2}" -c "%G")"
+DIRNAME="$(dirname "${QCOW2}")"
 
 #
 # Main
 #
 
-OLD_SIZE=$(du -h "${QCOW2}" | cut -f1)
-
 case "${OWNER}:${GROUP}" in
-  "${USER}:${USER}")
-    do_shrink "${QCOW2}"
-    ;;
-  root:* | qemu:* | libvirt-qemu:*)
-    show_info "${QCOW2@Q} owned by ${OWNER@Q}. Trying sudo..."
-    sudo bash -c "${FUNCTION} && set -euo pipefail; do_shrink ${QCOW2@Q}"
-    ;;
   nobody:* | *:kvm)
     show_error "ERROR: Cannot edit running instance. Exiting."
     exit 3
     ;;
-  *)
-    if [[ "$(users)" =~ (^|[[:space:]])${OWNER}($|[[:space:]]) ]]; then
-      show_warning "${QCOW2@Q} owned by ${OWNER}. Trying su..."
-      su "${OWNER}" - bash -c "${FUNCTION} && set -euo pipefail; do_shrink ${QCOW2@Q}"
-    else
-      show_error "User ${OWNER@Q} not recognized. Exiting."
-      exit 3
-    fi
-    ;;
 esac
 
-NEW_SIZE=$(du -h "${QCOW2}" | cut -f1)
+if [ "$(id -u)" -eq 0 ]; then
+  # Already root: no further escalation possible or needed.
+  ESCALATE=()
+elif [[ "${OWNER}" == "${CURRENT_USER}" ]] &&
+     [ -r "${QCOW2}" ] &&
+     [ -w "${DIRNAME}" ] &&
+     [ -x "${DIRNAME}" ] &&
+     in_group "${GROUP}"; then
+  # Everything the operation needs is already available: no escalation.
+  ESCALATE=()
+else
+  case "${OWNER}" in
+    root | qemu | libvirt-qemu)
+      # System VM images: only root can touch them at all.
+      show_info "${QCOW2@Q} owned by ${OWNER@Q}. Escalating with sudo..."
+      ESCALATE=(sudo)
+      ;;
+    "${CURRENT_USER}")
+      # Own the image but lack directory write or group rights, both of
+      # which only root can supply.
+      show_info "${QCOW2@Q} not manageable by ${CURRENT_USER@Q}. Escalating with sudo..."
+      ESCALATE=(sudo)
+      ;;
+    *)
+      if user_logged_in "${OWNER}"; then
+        # Another user's image: run as that user only, never as root.
+        show_warning "${QCOW2@Q} owned by ${OWNER}. Escalating with sudo -u ${OWNER@Q}..."
+        ESCALATE=(sudo -u "${OWNER}")
+      else
+        show_error "User ${OWNER@Q} not recognized. Exiting."
+        exit 3
+      fi
+      ;;
+  esac
+  # Authenticate once up front so the shrink runs uninterrupted.
+  "${ESCALATE[@]}" -v
+fi
+
+OLD_SIZE="$("${ESCALATE[@]}" du -h "${QCOW2}" 2> /dev/null | cut -f1 || echo "?")"
+
+do_shrink "${QCOW2}"
+
+NEW_SIZE="$("${ESCALATE[@]}" du -h "${QCOW2}" 2> /dev/null | cut -f1 || echo "?")"
 
 show_success "Compressed ${QCOW2@Q} from ${OLD_SIZE} to ${NEW_SIZE}."
 sync
